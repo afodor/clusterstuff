@@ -74,7 +74,7 @@ public class CreateRDPQSub
 			File.separator + "parsers.FastQToFastA" + " " + aFile.getAbsolutePath() +
 			" " + fastaFilePath + "\n"
 						);
-		writer.write("java -jar /users/afodor/rdp/rdp_classifier_2.10.1/dist " + 
+		writer.write("java -jar /users/afodor/rdp/rdp_classifier_2.10.1/dist/classifier.jar " + 
 				"-o " + fastaFilePath + "_TO_RDP.txt" + " -q " + fastaFilePath + "\n" );
 				
 		writer.flush();  writer.close();
