@@ -6,8 +6,6 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.oracle.webservices.internal.api.message.BasePropertySet;
-
 public class CreateRDPQSub
 {
 	private static int countNum =0 ;
