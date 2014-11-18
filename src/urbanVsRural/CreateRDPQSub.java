@@ -75,7 +75,7 @@ public class CreateRDPQSub
 		
 		writer.write("java -cp /users/afodor/gitInstall/clusterstuff/bin " + 
 			"parsers.FastQToFastA" + " " + aFile.getAbsolutePath() +
-			" /projects/afodor/ChinaSequences/rdpResults/" + basePath + "\n"
+			" " + basePath + "\n"
 						);
 		writer.write("java -jar /users/afodor/rdp/rdp_classifier_2.10.1/dist/classifier.jar " + 
 				"-o " + basePath + "_TO_RDP.txt" + " -q " + basePath+ "\n" );
