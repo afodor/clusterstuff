@@ -6,6 +6,8 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.oracle.webservices.internal.api.message.BasePropertySet;
+
 public class CreateRDPQSub
 {
 	private static int countNum =0 ;
@@ -68,14 +70,17 @@ public class CreateRDPQSub
 		BufferedWriter writer = new BufferedWriter( 
 			new FileWriter(outFile ));
 		
-		String fastaFilePath = aFile.getAbsolutePath() + ".FASTA";
+		String basePath = "/projects/afodor/ChinaSequences/rdpResults" + 
+							aFile.getName() + "_" + aFile.getParentFile().getName() +
+								".fasta";
+				
 		
 		writer.write("java -cp /users/afodor/gitInstall/clusterstuff/bin " + 
 			"parsers.FastQToFastA" + " " + aFile.getAbsolutePath() +
-			" " + fastaFilePath + "\n"
+			" /projects/afodor/ChinaSequences/rdpResults/" + basePath + "\n"
 						);
 		writer.write("java -jar /users/afodor/rdp/rdp_classifier_2.10.1/dist/classifier.jar " + 
-				"-o " + fastaFilePath + "_TO_RDP.txt" + " -q " + fastaFilePath + "\n" );
+				"-o " + basePath + "_TO_RDP.txt" + " -q " + basePath+ "\n" );
 				
 		writer.flush();  writer.close();
 		
