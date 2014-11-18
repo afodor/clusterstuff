@@ -68,10 +68,9 @@ public class CreateRDPQSub
 		BufferedWriter writer = new BufferedWriter( 
 			new FileWriter(outFile ));
 		
-		String basePath = "/projects/afodor/ChinaSequences/rdpResults" + 
+		String basePath = "/projects/afodor/ChinaSequences/rdpResults/" + 
 							aFile.getName() + "_" + aFile.getParentFile().getName() +
 								".fasta";
-				
 		
 		writer.write("java -cp /users/afodor/gitInstall/clusterstuff/bin " + 
 			"parsers.FastQToFastA" + " " + aFile.getAbsolutePath() +
