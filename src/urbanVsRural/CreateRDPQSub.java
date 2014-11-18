@@ -16,14 +16,25 @@ public class CreateRDPQSub
 		
 		writeCommandsForAllSubDirectories(allShFiles,
 		"/projects/afodor/ChinaSequences/first/microbiome/F14FTSUSAT0494_HUMmaxM/Clean");
-		
 
 		writeCommandsForAllSubDirectories(allShFiles,
 		"/projects/afodor/ChinaSequences/first/microbiome/F14FTSUSAT0494_HUMmaxM_1022/Clean");
 		
 		writeCommandsForAllSubDirectories(allShFiles,
-				"/projects/afodor/ChinaSequences/first/microbiome/F14FTSUSAT0494_HUMmaxM_1022/Clean");
-	
+		"/projects/afodor/ChinaSequences/second/microbiome/F14FTSUSAT0494_HUMssuM/Clean");
+		
+		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
+				"/users/afodor/runChina/runAll.sh")));
+		
+		int x=0;
+		for(File f : allShFiles)
+		{
+			x++;
+			writer.write("qsub -q \"viper\" -N \"CountJob" 
+					+ x + "\" " + f.getAbsolutePath() +  "\n"  );
+		}
+		
+		writer.flush();  writer.close();
 		
 	}
 
@@ -52,7 +63,7 @@ public class CreateRDPQSub
 			throws Exception
 	{
 		countNum++;
-		File outFile =  new File("/users/afodor/runChina/qsubTarget" + countNum);
+		File outFile =  new File("/users/afodor/runChina/qsubTarget" + countNum + ".sh");
 		
 		BufferedWriter writer = new BufferedWriter( 
 			new FileWriter(outFile ));
@@ -61,7 +72,7 @@ public class CreateRDPQSub
 		
 		writer.write("java -cp /users/afodor/gitInstall/clusterstuff/bin " + 
 			File.separator + "parsers.FastQToFastA" + " " + aFile.getAbsolutePath() +
-			" " + fastaFilePath
+			" " + fastaFilePath + "\n"
 						);
 		writer.write("java -jar /users/afodor/rdp/rdp_classifier_2.10.1/dist " + 
 				"-o " + fastaFilePath + "_TO_RDP.txt" + " -q " + fastaFilePath + "\n" );
