@@ -12,7 +12,7 @@ public class CreateRDPQSub
 	
 	public static void main(String[] args) throws Exception
 	{
-		List<File> allShFiles = new ArrayList<>();
+		List<File> allShFiles = new ArrayList<File>();
 		
 		writeCommandsForAllSubDirectories(allShFiles,
 		"/projects/afodor/ChinaSequences/first/microbiome/F14FTSUSAT0494_HUMmaxM/Clean");
