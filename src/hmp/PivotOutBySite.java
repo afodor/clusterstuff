@@ -88,5 +88,6 @@ public class PivotOutBySite
 		{
 			writer.flush();  writer.close();
 		}
+		System.out.println("finished");
 	}
 }
