@@ -78,7 +78,7 @@ public class PivotOutBySite
 				writer.write(fs.getSequence() + "\n");
 				writer.flush();
 				
-				if( ++numDone == 10000)
+				if( ++numDone % 10000 == 0)
 					System.out.println(numDone);
 				
 			}
