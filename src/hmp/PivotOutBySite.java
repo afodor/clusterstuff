@@ -78,7 +78,7 @@ public class PivotOutBySite
 		{
 			if( isStool(fs) )
 			{
-				String sampleID = getSampleId(fs) + "_" + getSampleId(fs);
+				String sampleID = getSampleId(fs) + "_" + getPrimer(fs);
 				BufferedWriter writer =  fileMap.get(sampleID);
 				
 				if( writer == null)
@@ -91,9 +91,7 @@ public class PivotOutBySite
 				
 				writer.write(fs.getHeader() + "\n");
 				writer.write(fs.getSequence() + "\n");
-				writer.flush();
-				
-				if( ++numDone % 10000 == 0)
+				writer.flush();g( ++numDone % 10000 == 0)
 					System.out.println(numDone);
 				
 			}
