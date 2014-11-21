@@ -3,6 +3,8 @@ package hmp;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CreateRDPQSub
 {
@@ -10,13 +12,27 @@ public class CreateRDPQSub
 	
 	public static void main(String[] args) throws Exception
 	{
-		File file = new File("/projects/afodor/hmp/stoolBySample");
+		List<File> toRun = new ArrayList<File>();
+		File file = new File("/projects/afodor/hmp/stoolBySample/");
 		
 		for(String s : file.list())
-			writeCommandsForAFile(s);
+			toRun.add(writeCommandsForAFile(s));
+		
+		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
+				"/users/afodor/hmp/runAll.sh")));
+		
+		int x=0;
+		for(File f : toRun)
+		{
+			x++;
+			writer.write("qsub -q \"viper\" -N \"CountJob" 
+					+ x + "\" " + f.getAbsolutePath() +  "\n"  );
+		}
+		
+		writer.flush();  writer.close();
 	}
 	
-	private static File writeCommandsForAFile( String filename ) 
+	private static File writeCommandsForAFile( String filename  ) 
 			throws Exception
 	{
 		countNum++;

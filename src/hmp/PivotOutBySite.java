@@ -27,6 +27,21 @@ public class PivotOutBySite
 		throw new Exception("Could not find sample id");
 	}
 	
+	private static String getPrimer(FastaSequence fs) throws Exception
+	{
+		StringTokenizer sToken = new StringTokenizer(fs.getHeader());
+		
+		while(sToken.hasMoreTokens())
+		{
+			StringTokenizer innerToken = new StringTokenizer(sToken.nextToken(), "=");
+			
+			if( innerToken.nextToken().equals("primer"))
+				return innerToken.nextToken();
+		}
+		
+		throw new Exception("Could not find primer");
+	}
+	
 	private static boolean isStool(FastaSequence fseq) throws Exception
 	{
 		StringTokenizer sToken = new StringTokenizer(fseq.getHeader());
@@ -63,7 +78,7 @@ public class PivotOutBySite
 		{
 			if( isStool(fs) )
 			{
-				String sampleID = getSampleId(fs);
+				String sampleID = getSampleId(fs) + "_" + getSampleId(fs);
 				BufferedWriter writer =  fileMap.get(sampleID);
 				
 				if( writer == null)
