@@ -19,7 +19,7 @@ public class CreateRDPQSub
 			toRun.add(writeCommandsForAFile(s));
 		
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
-				"/users/afodor/hmp/runAll.sh")));
+				"/users/afodor/runHMP/runAll.sh")));
 		
 		int x=0;
 		for(File f : toRun)
@@ -36,7 +36,7 @@ public class CreateRDPQSub
 			throws Exception
 	{
 		countNum++;
-		File outFile =  new File("/users/afodor/runRDP/run_" + countNum + ".sh");
+		File outFile =  new File("/users/afodor/runHMP/run_" + countNum + ".sh");
 		
 		BufferedWriter writer = new BufferedWriter( 
 			new FileWriter(outFile ));
