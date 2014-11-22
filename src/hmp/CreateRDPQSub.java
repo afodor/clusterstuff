@@ -43,7 +43,7 @@ public class CreateRDPQSub
 	
 		writer.write("java -jar /users/afodor/rdp/rdp_classifier_2.10.1/dist/classifier.jar " + 
 				"-o " + "/projects/afodor/rdpResults/" + filename + 
-				"_TO_RDP.txt" + " -q " + "/projects/afodor/rdpResults/stoolBySample" + 
+				"_TO_RDP.txt" + " -q " + "/projects/afodor/rdpResults/stoolBySample/" + 
 						filename+ "\n" );
 				
 		writer.flush();  writer.close();
