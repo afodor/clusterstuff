@@ -25,7 +25,7 @@ public class CountSeqs
 	public static void main(String[] args) throws Exception
 	{
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File( 
-				"/projects/afodor/ChinaSequences/")));
+				"/projects/afodor/ChinaSequences/counts.txt")));
 		
 		File topDir = new File("/projects/afodor/ChinaSequences/rdpResults");
 		
