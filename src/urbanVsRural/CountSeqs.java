@@ -33,6 +33,7 @@ public class CountSeqs
 		
 		for(String s : list)
 		{
+			int x=0;
 			if( s.endsWith(".fasta"))
 			{
 				List<FastaSequence> fastaList= 
@@ -40,6 +41,7 @@ public class CountSeqs
 								s);
 				
 				writer.write(s + "\t" + getReadNumber(s) + "\t" + fastaList.size() + "\n");
+				System.out.println(fastaList.size() + " " + x++);
 			}
 		}
 		
