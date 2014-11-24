@@ -3,13 +3,13 @@
               Any modifications will be overwritten.
               To include a user specific buildfile here, simply create one in the same
               directory with the processing instruction <?eclipse.ant.import?>
-              as the first entry and export the buildfile again. --><project basedir="." default="build" name="ClusterStuff">
+              as the first entry and export the buildfile again. --><project basedir="." default="build" name="clusterstuff">
     <property environment="env"/>
-    <property name="ECLIPSE_HOME" value="../../../../eclipse"/>
+    <property name="ECLIPSE_HOME" value="../../../../eclipse/"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
-    <path id="ClusterStuff.classpath">
+    <path id="clusterstuff.classpath">
         <pathelement location="bin"/>
     </path>
     <target name="init">
@@ -30,7 +30,7 @@
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
             <src path="src"/>
-            <classpath refid="ClusterStuff.classpath"/>
+            <classpath refid="clusterstuff.classpath"/>
         </javac>
     </target>
     <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
@@ -46,5 +46,10 @@
     <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
         <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
         <antcall target="build"/>
+    </target>
+    <target name="PivotOutBySite">
+        <java classname="hmp.PivotOutBySite" failonerror="true" fork="yes">
+            <classpath refid="clusterstuff.classpath"/>
+        </java>
     </target>
 </project>
