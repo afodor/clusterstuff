@@ -6,7 +6,6 @@ import java.io.FileWriter;
 import java.util.List;
 
 import parsers.FastaSequence;
-import jdk.jfr.events.FileWriteEvent;
 
 public class CountSeqs
 {
