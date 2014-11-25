@@ -41,6 +41,7 @@ public class RarifyDown
 						FastaSequence.readFastaFile(topDir.getAbsolutePath() + File.separator + 
 								s);
 				
+				
 				Collections.shuffle(fastaList,RANDOM);
 				
 				for(int x=0; x < RARIFICATION_NUMBER; x++)
@@ -53,7 +54,7 @@ public class RarifyDown
 				System.out.println(s);
 			}
 			
-			writer.flush();  writer.close();
+			writer.flush();  
 		}
 		
 		writer.flush();  writer.close();
