@@ -12,11 +12,11 @@ public class BreakOutConsensusSequences
 	public static void main(String[] args) throws Exception
 	{
 		List<FastaSequence> list = 
-				FastaSequence.readFastaFile("/projects/afodor/ChinaSequences/abundantOtuForwardResults/chinaForward.clust");
+				FastaSequence.readFastaFile("/projects/afodor/ChinaSequences/abundantOtuForwardResults/chinaForward.cons");
 		
 		for(FastaSequence fs : list)
 		{
-			File outFile = new File("/projects/afodor/ChinaSequences/abundantOtuForwardResults/" +
+			File outFile = new File("/projects/afodor/ChinaSequences/abundantOtuForwardResults/runBlast/" +
 						fs.getFirstTokenOfHeader() + ".fasta");
 			BufferedWriter writer = new BufferedWriter(new FileWriter(outFile));
 			
