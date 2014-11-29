@@ -12,7 +12,7 @@ public class BreakOutConsensusSequences
 	public static void main(String[] args) throws Exception
 	{
 		List<FastaSequence> list = 
-				FastaSequence.readFastaFile("/projects/afodor/ChinaSequences/abundantOtuForwardResults");
+				FastaSequence.readFastaFile("/projects/afodor/ChinaSequences/abundantOtuForwardResults/chinaForward.clust");
 		
 		for(FastaSequence fs : list)
 		{
