@@ -20,7 +20,7 @@ public class RemoveDashes
 		
 		for(String s= reader.readLine(); s != null; s = reader.readLine())
 		{
-			writer.write(s.replaceAll("-", "").replaceAll(".", "") + "\n");
+			writer.write(s.replaceAll("-", "").replaceAll("\\.", "") + "\n");
 		}
 		
 		writer.flush();  writer.close();
