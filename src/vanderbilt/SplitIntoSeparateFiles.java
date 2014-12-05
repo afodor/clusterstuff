@@ -17,6 +17,11 @@ public class SplitIntoSeparateFiles
 		HashMap<String, BufferedWriter> fileMap = new HashMap<String, BufferedWriter>();
 		split("/projects/afodor/vanderbilt/VanderbiltSequences_Dec52014/MSHR1/seqs_all1.fna", fileMap, "all1");
 		split("/projects/afodor/vanderbilt/VanderbiltSequences_Dec52014/MSHR2/seqs_all2.fna", fileMap, "all2");
+		
+		for( BufferedWriter writer : fileMap.values())
+		{
+			writer.flush();  writer.close();
+		}
 	}
 	
 	private static void split(String fileToSplit, HashMap<String, BufferedWriter> map, String suffix) throws Exception
@@ -33,7 +38,7 @@ public class SplitIntoSeparateFiles
 			
 			if( writer== null)
 			{
-				writer= new BufferedWriter(new FileWriter(outDir + File.separator+ sampleID ));
+				writer= new BufferedWriter(new FileWriter(outDir + File.separator+ sampleID + ".fasta" ));
 				map.put(sampleID, writer);
 			}
 			
