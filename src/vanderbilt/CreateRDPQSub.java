@@ -20,10 +20,10 @@ public class CreateRDPQSub
 			if( s.endsWith(".fasta"))
 			{
 				File f = new File(SplitIntoSeparateFiles.outDir.getAbsolutePath() + File.separator + s);
-				writeCommandsForAFile(f);
+				File shFile = writeCommandsForAFile(f);
 				x++;
 				writer.write("qsub -q \"viper\" -N \"CountJob" 
-						+ x + "\" " + f.getAbsolutePath() +  "\n"  );
+						+ x + "\" " + shFile.getAbsolutePath() +  "\n"  );
 			}
 			
 		}
@@ -36,7 +36,7 @@ public class CreateRDPQSub
 			throws Exception
 	{
 		countNum++;
-		File outFile =  new File("/projects/afodor/vanderbilt/runAll/" + countNum + ".sh");
+		File outFile =  new File("/projects/afodor/vanderbilt/runAll/run_" +  countNum + ".sh");
 		
 		BufferedWriter writer = new BufferedWriter( 
 			new FileWriter(outFile ));
