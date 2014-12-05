@@ -42,9 +42,12 @@ public class SplitIntoSeparateFiles
 				map.put(sampleID, writer);
 			}
 			
+			writer.write(fs.getHeader() + "\n");
+			writer.write(fs.getSequence() + "\n");
+			
 			numDone++;
 			
-			if( numDone % 1000 == 0)
+			if( numDone % 100000 == 0)
 			{
 				System.out.println(numDone + " " + map.size());
 			}
