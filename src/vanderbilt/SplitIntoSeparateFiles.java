@@ -10,7 +10,7 @@ import parsers.FastaSequenceOneAtATime;
 
 public class SplitIntoSeparateFiles
 {
-	private static final File outDir = new File( "/projects/afodor/vanderbilt/split16S");
+	static final File outDir = new File( "/projects/afodor/vanderbilt/split16S");
 	
 	public static void main(String[] args) throws Exception
 	{
