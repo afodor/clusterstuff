@@ -31,8 +31,6 @@ public class CreateRDPQSub
 		writer.flush();  writer.close();
 		
 	}
-
-	
 	
 	private static File writeCommandsForAFile( File aFile  ) 
 			throws Exception
