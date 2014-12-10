@@ -64,7 +64,7 @@ public class MakeKrakenScripts
 			
 			// report goes to standard output
 			writer.write("projects/afodor_research/krakenInstall/kraken-mpa-report " + 
-					"--db /projects/afodor_research/krakenInstall/krakenStandardDB2 " );
+					"--db /projects/afodor_research/krakenInstall/krakenStandardDB2 \n" );
 			
 			writer.write("/projects/afodor_research/krakenInstall/kraken --threads 15 " + 
 					"--db /projects/afodor_research/krakenInstall/krakenHumanDB/" + 
