@@ -63,12 +63,12 @@ public class MakeKrakenScripts
 			"--paired " + nextDir.getAbsolutePath() + "/" + seqFiles[0] + " " + nextDir.getAbsolutePath() + "/" + seqFiles[1] + "\n");
 			
 			// report goes to standard output
-			writer.write("projects/afodor_research/krakenInstall/kraken-mpa-report " + 
+			writer.write("/projects/afodor_research/krakenInstall/kraken-mpa-report " + 
 					"--db /projects/afodor_research/krakenInstall/krakenStandardDB2 " + 
 					 " /projects/afodor_research/vanderbilt/krakenOut/" + nextDir.getName() + "_" + topDir.getName() + "_krakenData.txt \n");
 			
-			writer.write("/projects/afodor_research/krakenInstall/kraken --threads 15 " + 
-					"--db /projects/afodor_research/krakenInstall/krakenHumanDB/" + 
+			writer.write("#/projects/afodor_research/krakenInstall/kraken --threads 15 " + 
+					"--db /projects/afodor_research/krakenInstall/krakenHumanDB" + 
 					" --output /projects/afodor_research/vanderbilt/krakenOut/" + nextDir.getName() + "_" + topDir.getName() + "_krakenHumanData.txt " + 
 					" --fastq-input --gzip-compressed " + 
 					"--paired " + nextDir.getAbsolutePath() + "/" + seqFiles[0] + " " + nextDir.getAbsolutePath() + "/" + seqFiles[1] + "\n");
