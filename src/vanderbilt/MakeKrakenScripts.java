@@ -50,7 +50,7 @@ public class MakeKrakenScripts
 			writer.write("#PBS -l nodes=1:ppn=16\n");
 			writer.write("#PBS -W x=NODESET:ONEOF:FEATURE:ib_qdr2\n");
 			
-			writer.write("/projects/afodor_research/krakenInstall/kraken --threads 38 " + 
+			writer.write("/projects/afodor_research/krakenInstall/kraken --threads 15 " + 
 			"--db /projects/afodor_research/krakenInstall/krakenStandardDB2 " + 
 			"--output /projects/afodor_research/vanderbilt/krakenOut/" + nextDir.getName() + "_" + topDir.getName() + "_krakenData.txt " + 
 			"--fastq-input --gzip-compressed " + 
@@ -60,7 +60,7 @@ public class MakeKrakenScripts
 					"--db /projects/afodor_research/krakenInstall/krakenStandardDB2 " + 
 						"> /projects/afodor_research/vanderbilt/krakenOut/" + nextDir.getName() + "_" + topDir.getName() + "_krakenReport.txt\n");
 			
-			writer.write("/projects/afodor_research/krakenInstall/kraken --threads 38 " + 
+			writer.write("/projects/afodor_research/krakenInstall/kraken --threads 15 " + 
 					"--db /projects/afodor_research/krakenInstall/krakenHumanDB/" + 
 					"--output /projects/afodor_research/vanderbilt/krakenOut/" + nextDir.getName() + "_" + topDir.getName() + "_krakenHumanData.txt " + 
 					"--fastq-input --gzip-compressed " + 
