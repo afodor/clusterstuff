@@ -21,7 +21,7 @@ public class MakeKrakenScripts
 		
 		for(File f : list)
 		{
-			writer.write("qsub -q \"viper\"  " + " -N " + f.getName().replaceAll("\"", "") +  f.getAbsolutePath()  + "\n");
+			writer.write("qsub -q \"viper\"  " + " -N " + f.getName().replaceAll("\"", "") + " "  +  f.getAbsolutePath()  + "\n");
 		}
 		
 		writer.flush();  writer.close();
