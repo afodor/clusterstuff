@@ -69,7 +69,7 @@ public class MakeKrakenScripts
 			
 			writer.write("/projects/afodor_research/krakenInstall/kraken --threads 15 " + 
 					"--db /projects/afodor_research/krakenInstall/krakenHumanDB/" + 
-					"--output /projects/afodor_research/vanderbilt/krakenOut/" + nextDir.getName() + "_" + topDir.getName() + "_krakenHumanData.txt " + 
+					" --output /projects/afodor_research/vanderbilt/krakenOut/" + nextDir.getName() + "_" + topDir.getName() + "_krakenHumanData.txt " + 
 					" --fastq-input --gzip-compressed " + 
 					"--paired " + nextDir.getAbsolutePath() + "/" + seqFiles[0] + " " + nextDir.getAbsolutePath() + "/" + seqFiles[1] + "\n");
 			
