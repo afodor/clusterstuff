@@ -53,8 +53,8 @@ public class MakeKrakenScripts
 			BufferedWriter writer = new BufferedWriter(new FileWriter(shFile));
 			
 			// request 128 GB box 
-			writer.write("#PBS -l nodes=1:ppn=16\n");
-			writer.write("#PBS -W x=NODESET:ONEOF:FEATURE:ib_qdr2\n");
+			//writer.write("#PBS -l nodes=1:ppn=16\n");
+			//writer.write("#PBS -W x=NODESET:ONEOF:FEATURE:ib_qdr2\n");
 			
 			writer.write("#/projects/afodor_research/krakenInstall/kraken --threads 15 " + 
 			"--db /projects/afodor_research/krakenInstall/krakenStandardDB2 " + 
@@ -62,12 +62,19 @@ public class MakeKrakenScripts
 			"--fastq-input --gzip-compressed " + 
 			"--paired " + nextDir.getAbsolutePath() + "/" + seqFiles[0] + " " + nextDir.getAbsolutePath() + "/" + seqFiles[1] + "\n");
 			
+			/*
 			// report goes to standard output
 			writer.write("#/projects/afodor_research/krakenInstall/kraken-mpa-report " + 
 					"--db /projects/afodor_research/krakenInstall/krakenStandardDB2 " + 
 					 " /projects/afodor_research/vanderbilt/krakenOut/" + nextDir.getName() + "_" + topDir.getName() + "_krakenData.txt \n");
+					 */
 			
-			writer.write("/projects/afodor_research/krakenInstall/kraken --threads 15 " + 
+			writer.write("/projects/afodor_research/krakenInstall/kraken-report " + 
+					"--db /projects/afodor_research/krakenInstall/krakenStandardDB2 " + 
+					 " /projects/afodor_research/vanderbilt/krakenOut/" + nextDir.getName() + "_" + topDir.getName() + "_krakenData.txt " +
+				      " > standardReport_for_" + nextDir.getName() + "_" + topDir.getName()   + ".txt\n");
+			
+			writer.write("#/projects/afodor_research/krakenInstall/kraken --threads 15 " + 
 					"--db /projects/afodor_research/krakenInstall/krakenHumanDB" + 
 					" --output /projects/afodor_research/vanderbilt/krakenOut/" + nextDir.getName() + "_" + topDir.getName() + "_krakenHumanData.txt " + 
 					" --fastq-input --gzip-compressed " + 
