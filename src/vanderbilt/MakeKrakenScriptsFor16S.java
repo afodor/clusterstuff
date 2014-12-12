@@ -32,19 +32,14 @@ public class MakeKrakenScriptsFor16S
 		
 		for(String s : topDir.list())
 		{
-			File nextDir = new File(topDir.getAbsolutePath() + File.separator + s);
-			
-			String[] seqFiles= nextDir.list();
-			
-			if( seqFiles.length != 2)
-				throw new Exception("Expecting exactly two files in " + nextDir.getAbsolutePath());
-			
-			String name = nextDir.getName() + "_" + topDir.getName() ;
+			File seqFile= new File(topDir.getAbsolutePath() + File.separator + s);
+			String name = seqFile.getName().replaceAll(".fasta", "");
 			
 			if( names.contains(name))
-				throw new Exception("Duplicate name");
+				throw new Exception("No");
 			
-			// report will go to standard output
+			names.add(name);
+			
 			File shFile = new File("/projects/afodor_research/vanderbilt/runKraken/run" + name + ".sh" );
 			
 			shFiles.add(shFile);
@@ -52,32 +47,21 @@ public class MakeKrakenScriptsFor16S
 			BufferedWriter writer = new BufferedWriter(new FileWriter(shFile));
 			
 			// request 128 GB box 
-			//writer.write("#PBS -l nodes=1:ppn=16\n");
-			//writer.write("#PBS -W x=NODESET:ONEOF:FEATURE:ib_qdr2\n");
+			writer.write("#PBS -l nodes=1:ppn=16\n");
+			writer.write("#PBS -W x=NODESET:ONEOF:FEATURE:ib_qdr2\n");
 			
-			writer.write("#/projects/afodor_research/krakenInstall/kraken --threads 15 " + 
+			File krakenOut = new File("/projects/afodor_research/vanderbilt/krakenOut/" + name +"_16S_to_krakenData.txt ");
+			
+			writer.write("/projects/afodor_research/krakenInstall/kraken --threads 15 " + 
 			"--db /projects/afodor_research/krakenInstall/krakenStandardDB2 " + 
-			"--output /projects/afodor_research/vanderbilt/krakenOut/" + nextDir.getName() + "_" + topDir.getName() + "_krakenData.txt " + 
-			"--fastq-input --gzip-compressed " + 
-			"--paired " + nextDir.getAbsolutePath() + "/" + seqFiles[0] + " " + nextDir.getAbsolutePath() + "/" + seqFiles[1] + "\n");
+			"--output " + krakenOut.getAbsolutePath() +  " " + seqFile.getAbsolutePath() +  "\n");
 			
-			/*
-			// report goes to standard output
-			writer.write("#/projects/afodor_research/krakenInstall/kraken-mpa-report " + 
-					"--db /projects/afodor_research/krakenInstall/krakenStandardDB2 " + 
-					 " /projects/afodor_research/vanderbilt/krakenOut/" + nextDir.getName() + "_" + topDir.getName() + "_krakenData.txt \n");
-					 */
 			
 			writer.write("/projects/afodor_research/krakenInstall/kraken-report " + 
 					"--db /projects/afodor_research/krakenInstall/krakenStandardDB2 " + 
-					 " /projects/afodor_research/vanderbilt/krakenOut/" + nextDir.getName() + "_" + topDir.getName() + "_krakenData.txt " +
-				      " > /projects/afodor_research/vanderbilt/krakenOut/standardReport_for_" + nextDir.getName() + "_" + topDir.getName()   + ".txt\n");
+					   krakenOut.getAbsolutePath()  +
+				      " > /projects/afodor_research/vanderbilt/krakenOut/standardReport_for_" + name+ "_to16S.txt\n");
 			
-			writer.write("#/projects/afodor_research/krakenInstall/kraken --threads 15 " + 
-					"--db /projects/afodor_research/krakenInstall/krakenHumanDB" + 
-					" --output /projects/afodor_research/vanderbilt/krakenOut/" + nextDir.getName() + "_" + topDir.getName() + "_krakenHumanData.txt " + 
-					" --fastq-input --gzip-compressed " + 
-					"--paired " + nextDir.getAbsolutePath() + "/" + seqFiles[0] + " " + nextDir.getAbsolutePath() + "/" + seqFiles[1] + "\n");
 			
 			writer.flush();  writer.close();
 		}
