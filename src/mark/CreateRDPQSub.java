@@ -14,7 +14,7 @@ public class CreateRDPQSub
 	public static void main(String[] args) throws Exception
 	{
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
-			RUN_RDP_DIR + 	"runAll.sh")));
+			RUN_RDP_DIR + File.separator + 	"runAll.sh")));
 		
 		int x=0;
 		for(String s : BreakOutBySample.OUT_SEQUENCE_DIR.list())
