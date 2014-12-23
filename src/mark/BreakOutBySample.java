@@ -11,10 +11,10 @@ import parsers.FastaSequenceOneAtATime;
 
 public class BreakOutBySample
 {
-	private static final File IN_SEQUENCE_DIR = 
+	public static final File IN_SEQUENCE_DIR = 
 			new File("/projects/afodor_research/mark/sequences/mrg_take2_l25_r25_CR");
 	
-	private static final File OUT_SEQUENCE_DIR = 
+	public static final File OUT_SEQUENCE_DIR = 
 			new File("/projects/afodor_research/mark/fastaBySample");
 	
 	
