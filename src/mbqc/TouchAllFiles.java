@@ -23,7 +23,7 @@ public class TouchAllFiles
 			String name = f.getParentFile().getParentFile().getName() + "_" + 
 							f.getParentFile().getName() + f.getName();
 			names.add( name);
-			System.out.println(f.getAbsolutePath());
+			System.out.println(name);
 		}
 		
 		System.out.println(files.size() + " " + names.size());
