@@ -4,8 +4,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 
 public class CreateRDPQSub
 {
@@ -26,6 +28,7 @@ public class CreateRDPQSub
 		
 		// currently adds 4,404 files
 		recurisvelyAddAllFiles(BIOINFORMATICS_DIR, files);
+		Collections.shuffle(files, new Random(322221));
 		
 		int numJobsDone =0;
 		int fileIndex= 1;
