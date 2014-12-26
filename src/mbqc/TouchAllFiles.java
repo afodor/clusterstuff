@@ -20,7 +20,9 @@ public class TouchAllFiles
 		HashSet<String> names = new HashSet<String>();
 		for( File f : files)
 		{
-			names.add(f.getName());
+			String name = f.getParentFile().getParentFile().getName() + "_" + 
+							f.getParentFile().getName() + f.getName();
+			names.add( name);
 			System.out.println(f.getAbsolutePath());
 		}
 		
