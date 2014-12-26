@@ -28,6 +28,8 @@ public class CreateRDPQSub
 		
 		// currently adds 4,404 files
 		recurisvelyAddAllFiles(BIOINFORMATICS_DIR, files);
+		
+		//shuffle the file list before distributing (otherwise all the HiSeq jobs run together hurting paralleization)
 		Collections.shuffle(files, new Random(322221));
 		
 		int numJobsDone =0;
