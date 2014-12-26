@@ -49,20 +49,29 @@ public class CreateRDPQSub
 			File fastAFile = new File(FASTA_DIR.getAbsolutePath() + File.separator + 
 										name + "_toFasta.txt"	);
 			
+			/*
 			shWriter.write("java -cp /users/afodor/gitInstall/clusterstuff/bin " + 
 					"parsers.FastQToFastA" + " " + f.getAbsolutePath() +
 					" " + fastAFile + "\n"
 								);
+								*/
 			
 			File rdpFile = new File(RDP_OUT_DIR.getAbsolutePath() + File.separator + 
 					name + "_rdpOut.txt"	);
 			
 			
+			/*
 			shWriter.write("java -jar /users/afodor/rdp/rdp_classifier_2.10.1/dist/classifier.jar " + 
 					"-o "+ rdpFile.getAbsolutePath() + " -q " + fastAFile+ "\n" );
 			
 			shWriter.write("gzip " + fastAFile.getAbsolutePath() + "\n");
 			shWriter.write("gzip " + rdpFile.getAbsolutePath() + "\n");
+			*/
+			
+			shWriter.write("java -cp /users/afodor/gitInstall/clusterstuff/bin " + 
+					"parsers.ReduceToThreeColumn" + " " + rdpFile.getAbsolutePath() + "\n"
+								);
+			
 			shWriter.flush();
 			
 			numJobsDone++;
