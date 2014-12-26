@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
-import java.util.HashSet;
 import java.util.StringTokenizer;
 import java.util.zip.GZIPInputStream;
 
@@ -36,15 +35,15 @@ public class FastQToFastA
 		
 		BufferedWriter writer = new BufferedWriter(new FileWriter(outFile));
 		
-		HashSet<String> ids = new HashSet<String>();
+		//HashSet<String> ids = new HashSet<String>();
 		for(FastQ fastq = FastQ.readOneOrNull(reader); fastq != null; 
 				fastq = FastQ.readOneOrNull(reader))
 		{
 			StringTokenizer sToken = new StringTokenizer(fastq.getHeader());
 			String id = sToken.nextToken();
-			if( ids.contains(id))
-				throw new Exception("Duplicate " + id);
-			ids.add(id);
+			//if( ids.contains(id))
+			//	throw new Exception("Duplicate " + id);
+			//ids.add(id);
 			writer.write(">" + id + "\n");
 			writer.write(fastq.getSequence() + "\n");
 		}
