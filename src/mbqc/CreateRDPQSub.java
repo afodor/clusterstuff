@@ -70,14 +70,14 @@ public class CreateRDPQSub
 					"-o "+ rdpFile.getAbsolutePath() + " -q " + fastAFile+ "\n" );
 			
 			shWriter.write("gzip " + fastAFile.getAbsolutePath() + "\n");
+			shWriter.write("gzip " + rdpFile.getAbsolutePath() + "\n");
 			
 			*/
 			
 			shWriter.write("java -cp /users/afodor/gitInstall/clusterstuff/bin " + 
-					"mbqc.ReduceToThreeColumn" + " " + rdpFile.getAbsolutePath() + "\n"
+					"mbqc.ReduceToThreeColumn" + " " + rdpFile.getAbsolutePath() + ".gz" + "\n"
 								);
 			
-			//shWriter.write("gzip " + rdpFile.getAbsolutePath() + "\n");
 			
 			shWriter.flush();
 			
