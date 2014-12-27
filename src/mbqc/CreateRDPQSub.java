@@ -51,10 +51,10 @@ public class CreateRDPQSub
 							f.getParentFile().getName() + f.getName();
 			names.add( name);
 			
+			/*
 			File fastAFile = new File(FASTA_DIR.getAbsolutePath() + File.separator + 
 										name + "_toFasta.txt"	);
 			
-			/*
 			shWriter.write("java -cp /users/afodor/gitInstall/clusterstuff/bin " + 
 					"parsers.FastQToFastA" + " " + f.getAbsolutePath() +
 					" " + fastAFile + "\n"
