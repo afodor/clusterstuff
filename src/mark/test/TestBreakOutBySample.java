@@ -73,8 +73,11 @@ public class TestBreakOutBySample
 		{
 			BufferedReader reader = map.get(s);
 			
-			if ( reader.readLine() != null)
-				throw new Exception("Not at end of file " + s);
+			String lastLine = reader.readLine() ;
+			if ( lastLine != null)
+				throw new Exception("Not at end of file " + s + " \"" + lastLine + "\"");
+			else
+				System.out.println(s + " is empty");
 			
 			reader.close();
 		}
