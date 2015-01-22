@@ -17,7 +17,7 @@ public class CheckPivotedCounts
 		{
 			String level = NewRDPParserFileLine.TAXA_ARRAY[x];
 			
-			OtuWrapper wrapper = new OtuWrapper("/projects/afodor_research/mark/pivots" + 
+			OtuWrapper wrapper = new OtuWrapper("/projects/afodor_research/mark/pivots/" + 
 						level +"_AsColumns.txt" );
 			
 			for(int y=0;y  < wrapper.getSampleNames().size(); y++)
