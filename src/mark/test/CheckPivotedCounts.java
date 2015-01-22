@@ -41,7 +41,8 @@ public class CheckPivotedCounts
 						throw new Exception("Expecting non-zero for " 
 								+ level + " " + sampleName + "  " + otuName + " " + count);
 					
-					if( count != expectedCount )
+					// if count == 0 then expectedCount is null
+					if( count > 0.0 &&  count != expectedCount )
 						throw new Exception("Failed for " 
 								+ level + " " + sampleName + "  " + otuName + " " + count + " " +  expectedCount);
 					
