@@ -23,13 +23,14 @@ public class TestBreakOutBySample
 		StringBuffer stringBuff= null;
 		String lastHeader = null;
 		
+		int numDone =0;
 		while( line != null)
 		{
 			if( line.startsWith(">"))
 			{
 				if( stringBuff!= null)
 				{
-					String brokenheader = lastReader.readLine();
+					String brokenheader = lastReader.readLine().substring(1);
 					
 					if( ! brokenheader.startsWith(lastHeader))
 						throw new Exception("Unexpected " + lastHeader + " " + brokenheader);
@@ -59,6 +60,11 @@ public class TestBreakOutBySample
 			{
 				stringBuff.append(line.trim());
 			}
+			
+			numDone++;
+			
+			if( numDone % 5000 ==0)
+				System.out.println("Pass " + numDone);
 		}
 		
 		for(String s : map.keySet())
@@ -67,6 +73,8 @@ public class TestBreakOutBySample
 			
 			if ( reader.readLine() != null)
 				throw new Exception("Not at end of file " + s);
+			
+			reader.close();
 		}
 		
 		System.out.println("Global pass");
