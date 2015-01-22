@@ -11,7 +11,7 @@ import parsers.NewRDPParserFileLine;
 
 public class WriteSparseThreeColumn
 {
-	private static int THRESHOLD = 50;
+	public static int THRESHOLD = 50;
 	
 	public static final File SPREADSHEETS_DIR = new File( "/projects/afodor_research/mark/spreadsheets");
 	
