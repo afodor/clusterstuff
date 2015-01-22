@@ -41,9 +41,12 @@ public class CheckPivotedCounts
 						throw new Exception("Failed for " 
 								+ level + " " + sampleName + "  " + otuName + " " + count + " " +  expectedCount);
 					
-				}		
+				}	
+				System.out.println("Passed " + sampleName + " " + level);
 			}
 		}
+		
+		System.out.println("global pass");
 	}
 	
 	private static HashMap<String, Integer> getExpected(String sample, String level) throws Exception
