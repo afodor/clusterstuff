@@ -47,6 +47,7 @@ public class TestBreakOutBySample
 				
 				if( brokenOutFasta == null)
 				{
+					System.out.println("Adding " + lastHeader);
 					brokenOutFasta = new BufferedReader(new FileReader(new File(BreakOutBySample.OUT_SEQUENCE_DIR
 							+File.separator + lastHeader)));
 					map.put(lastHeader, brokenOutFasta);
@@ -59,6 +60,7 @@ public class TestBreakOutBySample
 			else while( line != null && ! line.startsWith(">"))
 			{
 				stringBuff.append(line.trim());
+				line = inFasta.readLine();
 			}
 			
 			numDone++;
