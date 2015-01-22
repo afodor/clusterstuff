@@ -30,12 +30,16 @@ public class CheckPivotedCounts
 				{
 					double count = wrapper.getDataPointsUnnormalized().get(y).get(z);
 					
-					String otuName = wrapper.getOtuNames().get(z);
+					String otuName = wrapper.getOtuNames().get(z).replaceAll("\"", "");
 					Integer expectedCount = expectedMap.get(otuName);
 					
 					if( count ==0 &&  expectedCount != null )
 						throw new Exception("Expection 0  for " 
 								+ level + " " + sampleName + "  " + otuName + " " + expectedCount);
+					
+					if( expectedCount == null)
+						throw new Exception("Expecting non-zero for " 
+								+ level + " " + sampleName + "  " + otuName + " " + count);
 					
 					if( count != expectedCount )
 						throw new Exception("Failed for " 
