@@ -69,6 +69,16 @@ public class TestBreakOutBySample
 				System.out.println("Pass " + numDone);
 		}
 		
+		String brokenheader = lastReader.readLine().substring(1);
+		
+		if( ! brokenheader.startsWith(lastHeader))
+			throw new Exception("Unexpected " + lastHeader + " " + brokenheader);
+		
+		String nextSeq = lastReader.readLine();
+		
+		if( ! stringBuff.toString().equals(nextSeq))
+			throw new Exception("Mismatch " + stringBuff+ " " + nextSeq);
+		
 		for(String s : map.keySet())
 		{
 			BufferedReader reader = map.get(s);
