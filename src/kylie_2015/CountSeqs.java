@@ -22,7 +22,7 @@ public class CountSeqs
 		for(String s : CreateRDPQSub.FASTQ_DIR.list())
 		{
 			System.out.println(s);
-			File fastQFile = new File( CreateRDPQSub.FASTA_DIR.getAbsolutePath() + File.separator 
+			File fastQFile = new File( CreateRDPQSub.FASTQ_DIR.getAbsolutePath() + File.separator 
 						+ s);
 			
 			BufferedReader reader =
