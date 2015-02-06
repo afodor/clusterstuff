@@ -38,6 +38,7 @@ public class CountSeqs
 			}
 			
 			writer.write(s + "\t" + count + "\n");
+			writer.flush();
 		}
 		
 		writer.flush();  writer.close();
