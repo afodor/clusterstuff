@@ -37,14 +37,14 @@ public class AllFastQToFastA
 		int index=1;
 		for( File f : list)
 		{
-			File shFile = new File(runDir.getAbsolutePath() + File.separator +  "run_" + index + ".sh");
-			index++;
-			allSHWriter.write("qsub -q \"viper\" " + shFile.getAbsolutePath() +  "\n"  );
-			
-			BufferedWriter writer = new BufferedWriter(new FileWriter(shFile));
-			
 			if (f.getName().endsWith("fastq.gz"))
 			{
+				File shFile = new File(runDir.getAbsolutePath() + File.separator +  "run_" + index + ".sh");
+				index++;
+				allSHWriter.write("qsub -q \"viper\" " + shFile.getAbsolutePath() +  "\n"  );
+				
+				BufferedWriter writer = new BufferedWriter(new FileWriter(shFile));
+				
 				System.out.println(f.getAbsolutePath());
 				
 				String newName = f.getName().replace("fastq.gz", "fasta.txt");
