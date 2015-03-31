@@ -37,7 +37,7 @@ public class AllFastQToFastA
 		int index=1;
 		for( File f : list)
 		{
-			File shFile = new File(runDir.getAbsolutePath() + "run_" + index + ".sh");
+			File shFile = new File(runDir.getAbsolutePath() + File.separator +  "run_" + index + ".sh");
 			index++;
 			allSHWriter.write("qsub -q \"viper\" " + shFile.getAbsolutePath() +  "\n"  );
 			
