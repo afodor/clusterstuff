@@ -30,7 +30,7 @@ public class WriteTestScripts
 			writer.write("java -cp " + CLASSPATH_DIR + " vanderbilt.test.WriteExpectedFromRDP " +  rdpFile.getAbsolutePath() + " "+ 
 							outputFile.getAbsolutePath() + "\n");
 			
-			allWriter.write("qsub -q \"viper\""  + scriptFile.getAbsolutePath() +  "\n"  );
+			allWriter.write("qsub -q \"viper\" "  + scriptFile.getAbsolutePath() +  "\n"  );
 			
 			writer.flush();  writer.close();
 		}
