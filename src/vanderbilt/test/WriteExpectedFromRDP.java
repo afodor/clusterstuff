@@ -66,7 +66,7 @@ public class WriteExpectedFromRDP
 	{
 		StringTokenizer sToken = new StringTokenizer(s, "\t");
 		
-		sToken.nextToken();
+		System.out.println("First " +  sToken.nextToken());
 		
 		String taxaNameToken = null;
 		String taxaLevelToken = null;
