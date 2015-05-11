@@ -7,7 +7,7 @@ import java.io.FileWriter;
 public class WriteTestScripts
 {
 	private static String RDP_DIR = "/projects/afodor/vanderbilt/rdpResults";
-	private static String CLASSPATH_DIR = "/users/afodor/gitInstall/clusterstuff/src";
+	private static String CLASSPATH_DIR = "/users/afodor/gitInstall/clusterstuff/bin";
 	private static String TEST_SCRIPT_DIR = "/projects/afodor/vanderbilt/test/scripts";
 	private static String TEST_RECOUNT_DIR = "/projects/afodor/vanderbilt/test/recountDir";
 	
@@ -28,7 +28,7 @@ public class WriteTestScripts
 			BufferedWriter writer = new BufferedWriter(new FileWriter(scriptFile));
 			
 			writer.write("java -cp " + CLASSPATH_DIR + " vanderbilt.test.WriteExpectedFromRDP " +  rdpFile.getAbsolutePath() + " "+ 
-							outputFile.getAbsolutePath());
+							outputFile.getAbsolutePath() + "\n");
 			
 			allWriter.write("qsub -q \"viper\""  + scriptFile.getAbsolutePath() +  "\n"  );
 			
