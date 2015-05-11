@@ -76,7 +76,17 @@ public class WriteExpectedFromRDP
 		{
 			taxaNameToken = sToken.nextToken();
 			taxaLevelToken = sToken.nextToken();
-			score = Double.parseDouble(sToken.nextToken());
+			
+			try
+			{
+				score = Double.parseDouble(sToken.nextToken());
+			}
+			catch(Exception ex)
+			{
+				System.out.println("Could not parse "  + s);
+				ex.printStackTrace();
+				System.exit(1);
+			}
 			
 			if( taxaLevelToken.equals(level) &&  score >= THRESHOLD)
 				return taxaNameToken;
