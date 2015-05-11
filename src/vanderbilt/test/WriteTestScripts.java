@@ -27,7 +27,7 @@ public class WriteTestScripts
 			
 			BufferedWriter writer = new BufferedWriter(new FileWriter(scriptFile));
 			
-			writer.write("java -cp " + CLASSPATH_DIR + "vanderbilt.test.WriteExpectedFromRDP " +  rdpFile.getAbsolutePath() + " "+ 
+			writer.write("java -cp " + CLASSPATH_DIR + " vanderbilt.test.WriteExpectedFromRDP " +  rdpFile.getAbsolutePath() + " "+ 
 							outputFile.getAbsolutePath());
 			
 			allWriter.write("qsub -q \"viper\""  + scriptFile.getAbsolutePath() +  "\n"  );
