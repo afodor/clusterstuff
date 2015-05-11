@@ -4,7 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 
-public class writeTestScripts
+public class WriteTestScripts
 {
 	private static String RDP_DIR = "/projects/afodor/vanderbilt/rdpResults";
 	private static String CLASSPATH_DIR = "/users/afodor/gitInstall/clusterstuff/src";
