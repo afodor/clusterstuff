@@ -8,7 +8,7 @@ public class WriteTestScripts
 {
 	private static String RDP_DIR = "/projects/afodor/vanderbilt/rdpResults";
 	private static String CLASSPATH_DIR = "/users/afodor/gitInstall/clusterstuff/src";
-	private static String TEST_SCRIPT_DIR = "/projects/afodor/vanderbilt/test";
+	private static String TEST_SCRIPT_DIR = "/projects/afodor/vanderbilt/test/scripts";
 	private static String TEST_RECOUNT_DIR = "/projects/afodor/vanderbilt/test/recountDir";
 	
 	public static void main(String[] args) throws Exception
