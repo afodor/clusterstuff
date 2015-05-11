@@ -8,8 +8,6 @@ import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
-import utils.TabReader;
-
 public class WriteExpectedFromRDP
 {
 	public static final double THRESHOLD =0.49999;
@@ -66,32 +64,12 @@ public class WriteExpectedFromRDP
 	
 	private static String getAtThreshold(String s, String level, double threshold) throws Exception
 	{
-		TabReader sToken = new TabReader(s);
+		String[] splits = s.split("\t");
 		
-		//System.out.println("First " +  sToken.nextToken());
-		
-		String taxaNameToken = null;
-		String taxaLevelToken = null;
-		Double score = null;
-		
-		while(sToken.hasMore())
+		for( int x=0; x < splits.length-1; x++)
 		{
-			taxaNameToken = sToken.nextToken();
-			taxaLevelToken = sToken.nextToken();
-			
-			try
-			{
-				score = Double.parseDouble(sToken.nextToken());
-			}
-			catch(Exception ex)
-			{
-				System.out.println("Could not parse "  + s);
-				ex.printStackTrace();
-				System.exit(1);
-			}
-			
-			if( taxaLevelToken.equals(level) &&  score >= THRESHOLD)
-				return taxaNameToken;
+			if( splits[x].equals(level) && Double.parseDouble(splits[x-1] ) > threshold ) 
+				return splits[x-1].replaceAll("\"", "");
 		}
 		
 		return null;
