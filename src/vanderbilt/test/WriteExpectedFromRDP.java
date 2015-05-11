@@ -64,7 +64,7 @@ public class WriteExpectedFromRDP
 	
 	private static String getAtThreshold(String s, String level, double threshold) throws Exception
 	{
-		StringTokenizer sToken = new StringTokenizer(s);
+		StringTokenizer sToken = new StringTokenizer(s, "\t");
 		
 		sToken.nextToken();
 		
@@ -78,7 +78,7 @@ public class WriteExpectedFromRDP
 			taxaLevelToken = sToken.nextToken();
 			score = Double.parseDouble(sToken.nextToken());
 			
-			if( taxaLevelToken.endsWith(level) &&  score >= THRESHOLD)
+			if( taxaLevelToken.equals(level) &&  score >= THRESHOLD)
 				return taxaNameToken;
 		}
 		
