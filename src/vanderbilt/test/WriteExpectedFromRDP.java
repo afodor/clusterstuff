@@ -68,7 +68,7 @@ public class WriteExpectedFromRDP
 		
 		for( int x=0; x < splits.length-1; x++)
 		{
-			if( splits[x].equals(level) && Double.parseDouble(splits[x-1] ) > threshold ) 
+			if( splits[x].equals(level) && Double.parseDouble(splits[x+1] ) > threshold ) 
 				return splits[x-1].replaceAll("\"", "");
 		}
 		
