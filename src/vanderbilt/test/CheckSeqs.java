@@ -38,15 +38,18 @@ public class CheckSeqs
 		reader = new BufferedReader(new FileReader(bigFile));
 		
 		int index =0;
+		int numPassed = 0;
 		for(String s= reader.readLine(); s != null; s = reader.readLine())
 		{
 			String aSeq = reader.readLine();
 			if( s.startsWith(">" + nameToken) )
 			{
-				if( aSeq.equals(smallSeqs.get(index)))
+				if( ! aSeq.equals(smallSeqs.get(index)))
 					throw new Exception("Mismatch " + smallFile.getAbsolutePath() + " " + 
 										bigFile.getAbsolutePath() + " " + index + 
 										aSeq + " " + smallSeqs.get(index));
+				else
+					numPassed++;
 				
 				index++;
 			}
@@ -55,7 +58,7 @@ public class CheckSeqs
 		if( index != smallSeqs.size())
 			throw new Exception("Expected " + index + " " + smallSeqs.size());
 		
-		System.out.println("passed " + smallFile.getAbsolutePath() + " "+ bigFile.getAbsolutePath());
+		System.out.println("passed " + numPassed + " " + smallFile.getAbsolutePath() + " "+ bigFile.getAbsolutePath());
 		
 		reader.close();
 	}
