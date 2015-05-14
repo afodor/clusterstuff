@@ -29,15 +29,15 @@ public class TestRDPConsistency
 				String name = new StringTokenizer(s2).nextToken();
 				
 				if( set.contains(name))
-					throw new Exception("Duplciate " + name);
-				
-				set.add(name);
-				
-				if( ! name.startsWith(expected))
 				{
 					System.out.println("Mismatch " + name + " " +expected);
 					numDups++;
 				}
+				
+				set.add(name);
+				
+				if( ! name.startsWith(expected))
+					throw new Exception("Mismatch " + expected + " " + name);
 					
 			}
 			
