@@ -11,8 +11,14 @@ public class CheckSeqs
 {
 	public static void main(String[] args) throws Exception
 	{
-		File smallFile = new File("/projects/afodor/vanderbilt/split16S/SW00248_all2.fasta");
-		File largeFile = new File("/projects/afodor/vanderbilt/VanderbiltSequences_Dec52014/MSHR2/seqs_all2.fna");
+		if( args.length !=2 )
+		{
+			System.out.println("usage smallFilePath largeFilePath");
+			System.exit(1);
+		}
+		
+		File smallFile = new File(args[0]);
+		File largeFile = new File(args[1]);
 		
 		testAFile(smallFile, largeFile);
 	}
