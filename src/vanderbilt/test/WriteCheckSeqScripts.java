@@ -9,7 +9,7 @@ public class WriteCheckSeqScripts
 	private static final String CHECK_SEQ_SCRIPT_DIR = "/projects/afodor/vanderbilt/test/checkSeqScripts";
 	private static final String SPLIT_16_DIR = "/projects/afodor/vanderbilt/split16S";
 	private static final String FILE_ALL1 = "/projects/afodor/vanderbilt/VanderbiltSequences_Dec52014/MSHR1/seqs_all1.fna";
-	private static final String FILE_ALL2 = "/projects/afodor/vanderbilt/VanderbiltSequences_Dec52014/MSHR2/seqs_all2.fna";
+	private static final String FILE_ALL2 = "/projects/afodor/vanderbilt/VanderbiltSequences_Dec52014/MSHR2/seqs_all2-CORRECTED.fna";
 	private static String CLASSPATH_DIR = "/users/afodor/gitInstall/clusterstuff/bin";
 	
 	public static void main(String[] args) throws Exception
