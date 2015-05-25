@@ -11,7 +11,6 @@ public class TestRDPConsistency
 	public static void main(String[] args) throws Exception
 	{
 		File topDir = new File("/projects/afodor/vanderbilt/rdpResults");
-		int numDups =0 ;
 		
 		for(String s : topDir.list())
 		{
@@ -31,7 +30,6 @@ public class TestRDPConsistency
 				if( set.contains(name))
 				{
 					System.out.println("Mismatch " + name + " " +expected);
-					numDups++;
 				}
 				
 				set.add(name);
@@ -45,6 +43,6 @@ public class TestRDPConsistency
 			System.out.println("Passed " + s + " " + set.size());
 		}
 		
-		System.out.println("Passed all with " + numDups + " duplicates ");
+		System.out.println("Passed all");
 	}
 }
