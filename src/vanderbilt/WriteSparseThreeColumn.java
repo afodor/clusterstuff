@@ -24,7 +24,7 @@ public class WriteSparseThreeColumn
 			 BufferedWriter writer = new BufferedWriter(
 					 	new FileWriter(new File(
 					 "/projects/afodor/vanderbilt/spreadsheets/sparseThreeColumn_" + 
-					 		NewRDPParserFileLine.TAXA_ARRAY[x] + ".txt")));
+					 		NewRDPParserFileLine.TAXA_ARRAY[x] + "_Corrected.txt")));
 			 taxaWriters.put(NewRDPParserFileLine.TAXA_ARRAY[x], writer);
 			 
 		}
