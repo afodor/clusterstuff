@@ -18,7 +18,7 @@ public class WriteScriptsForCreatingBinaryFiles
 			
 			BufferedWriter aWriter = new BufferedWriter(new FileWriter(outFile));
 			
-			writer.write("qsub -q \"viper\" run_" + index);
+			writer.write("qsub -q \"viper\" run_" + index  + "\n");
 			
 			aWriter.write("java -cp /users/afodor/gitInstall/clusterstuff/bin -mx2800m chs_snps.WriteBinaryContexts "
 					+ "/projects/afodor_chs/fasta/chs_241_" + index + " /projects/afodor_chs/context/chs_241_" + 
@@ -35,7 +35,7 @@ public class WriteScriptsForCreatingBinaryFiles
 			
 			BufferedWriter aWriter = new BufferedWriter(new FileWriter(outFile));
 			
-			writer.write("qsub -q \"viper\" run_" + index);
+			writer.write("qsub -q \"viper\" run_" + index  + "\n");
 			
 			aWriter.write("java -cp /users/afodor/gitInstall/clusterstuff/bin -mx2800m chs_snps.WriteBinaryContexts "
 					+ "/projects/afodor_chs/fasta/chs_242_" + index + " /projects/afodor_chs/context/chs_242_" + 
