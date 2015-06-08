@@ -14,13 +14,15 @@ import parsers.FastaSequenceOneAtATime;
 
 public class WriteBinaryContexts
 {
-	public static void main(String[] args)
+	public static void main(String[] args) throws Exception
 	{
 		if( args.length != 2)
 		{
 			System.out.println("Usage inFile outFile");
 			System.exit(1);
 		}
+		
+		process(new File(args[0]), new File(args[1]));
 	}
 	
 	public static void process(File inFile, File outFile ) throws Exception
@@ -28,7 +30,7 @@ public class WriteBinaryContexts
 		int contextSize = 13;
 		
 		if(outFile.exists())
-			throw new Exception("Out file exists ");
+			throw new Exception("Out file exists " + outFile.getAbsolutePath());
 		
 		FastaSequenceOneAtATime fsoat = new FastaSequenceOneAtATime(inFile);
 		
