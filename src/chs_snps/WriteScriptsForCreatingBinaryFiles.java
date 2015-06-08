@@ -21,7 +21,7 @@ public class WriteScriptsForCreatingBinaryFiles
 			writer.write("qsub -q \"viper\" run_" + index  + "\n");
 			
 			aWriter.write("java -cp /users/afodor/gitInstall/clusterstuff/bin -mx2800m chs_snps.WriteBinaryContexts "
-					+ "/projects/afodor_chs/fasta/chs_241_" + index + " /projects/afodor_chs/context/chs_241_" + 
+					+ "/projects/afodor_chs/fasta/chs241_" + x+ " /projects/afodor_chs/context/chs_241_" + 
 						index + "_context.gz");
 			
 			aWriter.flush();  aWriter.close();
@@ -38,7 +38,7 @@ public class WriteScriptsForCreatingBinaryFiles
 			writer.write("qsub -q \"viper\" run_" + index  + "\n");
 			
 			aWriter.write("java -cp /users/afodor/gitInstall/clusterstuff/bin -mx2800m chs_snps.WriteBinaryContexts "
-					+ "/projects/afodor_chs/fasta/chs_242_" + index + " /projects/afodor_chs/context/chs_242_" + 
+					+ "/projects/afodor_chs/fasta/chs242_" + x+ " /projects/afodor_chs/context/chs_242_" + 
 						index + "_context.gz");
 			
 			aWriter.flush();  aWriter.close();
