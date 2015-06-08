@@ -53,6 +53,9 @@ public class BreakInto5Million
 				
 				writer = new BufferedWriter(new FileWriter( outFile));
 			}
+			
+			writer.write(">" + prefix + "_" + count + "\n");
+			writer.write( fastq.getSequence() + "\n" );
 		}
 		
 		writer.flush();  writer.close();
