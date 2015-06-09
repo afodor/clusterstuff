@@ -21,6 +21,7 @@ public class WriteScriptsForCreatingBinaryFiles
 			aWriter.write("#PBS -l nodes=1:ppn=16\n");
 			aWriter.write("#PBS -W x=NODESET:ONEOF:FEATURE:ib_qdr2\n");
 			aWriter.write("qsub -q \"viper\" run_" + index  + "\n");
+			writer.write("qsub -q \"viper\" run_" + index  + "\n");
 			
 			
 			aWriter.write("java -cp /users/afodor/gitInstall/clusterstuff/bin -mx120000m chs_snps.WriteBinaryContexts "
