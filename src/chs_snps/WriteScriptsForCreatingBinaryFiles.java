@@ -18,9 +18,11 @@ public class WriteScriptsForCreatingBinaryFiles
 			
 			BufferedWriter aWriter = new BufferedWriter(new FileWriter(outFile));
 			
+			writer.write("#PBS -l nodes=1:ppn=16\n");
+			writer.write("#PBS -W x=NODESET:ONEOF:FEATURE:ib_qdr2\n");
 			writer.write("qsub -q \"viper\" run_" + index  + "\n");
 			
-			aWriter.write("java -cp /users/afodor/gitInstall/clusterstuff/bin -mx2800m chs_snps.WriteBinaryContexts "
+			aWriter.write("java -cp /users/afodor/gitInstall/clusterstuff/bin -mx120000m chs_snps.WriteBinaryContexts "
 					+ "/projects/afodor_chs/fasta/chs241_" + x+ " /projects/afodor_chs/context/chs_241_" + 
 						index + "_context.gz");
 			

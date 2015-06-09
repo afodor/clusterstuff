@@ -1,9 +1,11 @@
 package chs_snps;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.zip.GZIPOutputStream;
 
@@ -27,6 +29,13 @@ public class WriteBinaryContexts
 	
 	public static void process(File inFile, File outFile ) throws Exception
 	{
+		int numDone =0;
+		File logFile = new File(outFile.getAbsoluteFile() + "_LOG.txt");
+		BufferedWriter logWriter = new BufferedWriter(new FileWriter(logFile));
+		
+		logWriter.write("numDone\ttotalMemory\tfreeMemory\tmaxMemory\tfractionFree\tfractionAllocated\n");
+		
+		
 		int contextSize = 13;
 		
 		if(outFile.exists())
@@ -39,12 +48,34 @@ public class WriteBinaryContexts
 		for(FastaSequence fs = fsoat.getNextSequence(); fs != null; fs = fsoat.getNextSequence())
 		{
 			ContextHash.addToHash(fs.getSequence(), map, contextSize);
+			numDone++;
+			
+			if( numDone % 10000 == 0 )
+			{
+				System.gc();
+
+				double fractionFree= 1- (Runtime.getRuntime().totalMemory()- ((double)Runtime.getRuntime().freeMemory() ))
+						/Runtime.getRuntime().totalMemory();
+
+				double fractionAllocated = 1-  (Runtime.getRuntime().maxMemory()- ((double)Runtime.getRuntime().totalMemory() ))
+						/Runtime.getRuntime().maxMemory();
+				
+				logWriter.write( numDone + "\t" + Runtime.getRuntime().totalMemory() + "\t" +
+						Runtime.getRuntime().freeMemory()  + "\t" + 
+						Runtime.getRuntime().maxMemory() + "\t" + fractionFree  + "\t" + 
+							fractionAllocated + "\n"
+								);
+				
+				logWriter.close();
+
+			}
 		}
 		
 		if(outFile.exists())
 			throw new Exception("Out file exists " + outFile);
 		
 		writeBinaryFile(outFile, map);
+		logWriter.flush(); logWriter.close();
 	}
 	
 
