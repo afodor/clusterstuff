@@ -18,12 +18,16 @@ public class WriteScriptsForCreatingBinaryFiles
 			
 			BufferedWriter aWriter = new BufferedWriter(new FileWriter(outFile));
 			
-			aWriter.write("#PBS -l nodes=1:ppn=16\n");
-			aWriter.write("#PBS -W x=NODESET:ONEOF:FEATURE:ib_qdr2\n");
-			writer.write("qsub -q \"BIGMEM\" run_" + index  + "\n");
+			aWriter.write("#PBS -l nodes=1:ppn=8\n");
+			aWriter.write("#PBS -W x=NODESET:ONEOF:FEATURE:ib_ddr\n");
+
+			//aWriter.write("#PBS -l nodes=1:ppn=16\n");
+			//aWriter.write("#PBS -W x=NODESET:ONEOF:FEATURE:ib_qdr2\n");
+			
+			writer.write("qsub -q \"viper\" run_" + index  + "\n");
 			
 			
-			aWriter.write("java -cp /users/afodor/gitInstall/clusterstuff/bin -mx720000m chs_snps.WriteBinaryContexts "
+			aWriter.write("java -cp /users/afodor/gitInstall/clusterstuff/bin -mx20000m chs_snps.WriteBinaryContexts "
 					+ "/projects/afodor_chs/fasta/chs241_" + x+ " /projects/afodor_chs/context/chs_241_" + 
 						index + "_context.gz");
 			
@@ -38,12 +42,13 @@ public class WriteScriptsForCreatingBinaryFiles
 			
 			BufferedWriter aWriter = new BufferedWriter(new FileWriter(outFile));
 			
-			aWriter.write("#PBS -l nodes=1:ppn=16\n");
-			aWriter.write("#PBS -W x=NODESET:ONEOF:FEATURE:ib_qdr2\n");
+			aWriter.write("#PBS -l nodes=1:ppn=8\n");
+			aWriter.write("#PBS -W x=NODESET:ONEOF:FEATURE:ib_ddr\n");
+
 			
-			writer.write("qsub -q \"BIGMEM\" run_" + index  + "\n");
+			writer.write("qsub -q \"viper\" run_" + index  + "\n");
 			
-			aWriter.write("java -cp /users/afodor/gitInstall/clusterstuff/bin -mx720000m chs_snps.WriteBinaryContexts "
+			aWriter.write("java -cp /users/afodor/gitInstall/clusterstuff/bin -mx20000m chs_snps.WriteBinaryContexts "
 					+ "/projects/afodor_chs/fasta/chs242_" + x+ " /projects/afodor_chs/context/chs_242_" + 
 						index + "_context.gz");
 			
