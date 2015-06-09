@@ -30,10 +30,11 @@ public class WriteBinaryContexts
 	public static void process(File inFile, File outFile ) throws Exception
 	{
 		int numDone =0;
+		long lastTime = System.currentTimeMillis();
 		File logFile = new File(outFile.getAbsoluteFile() + "_LOG.txt");
 		BufferedWriter logWriter = new BufferedWriter(new FileWriter(logFile));
 		
-		logWriter.write("numDone\ttotalMemory\tfreeMemory\tmaxMemory\tfractionFree\tfractionAllocated\n");
+		logWriter.write("numDone\ttotalMemory\tfreeMemory\tmaxMemory\tfractionFree\tfractionAllocated\ttimeSinceLast\n");
 		
 		
 		int contextSize = 13;
@@ -63,8 +64,10 @@ public class WriteBinaryContexts
 				logWriter.write( numDone + "\t" + Runtime.getRuntime().totalMemory() + "\t" +
 						Runtime.getRuntime().freeMemory()  + "\t" + 
 						Runtime.getRuntime().maxMemory() + "\t" + fractionFree  + "\t" + 
-							fractionAllocated + "\n"
+						fractionAllocated + "\t" + (System.currentTimeMillis() - lastTime) / 1000f  + "\n"
 								);
+				
+				lastTime = System.currentTimeMillis();
 				
 				logWriter.close();
 
