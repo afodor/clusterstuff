@@ -69,7 +69,7 @@ public class WriteBinaryContexts
 				
 				lastTime = System.currentTimeMillis();
 				
-				logWriter.close();
+				logWriter.flush();
 
 			}
 		}
