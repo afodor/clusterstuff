@@ -62,7 +62,8 @@ public class CoPhylogBinaryFileReader
 			}
 			
 		}
-		
+	
+		in.close();
 		return map;
 	}
 	
