@@ -44,6 +44,7 @@ public class WriteSNPFile
 					if( cc1.isDifferentInHighest(cc2))
 					{
 						Holder h = new Holder();
+						h.id = l;
 						h.cc1 = cc1;
 						h.cc2 = cc2;
 						h.distance = cc1.getRawDistance(cc2);
@@ -60,16 +61,26 @@ public class WriteSNPFile
 	
 	private static void writeResults(File outFile, List<Holder> snpList) throws Exception
 	{
-
 		if( outFile.exists())
 			throw new Exception(outFile.getAbsolutePath() + " already exists ");
 		
 		BufferedWriter writer = new BufferedWriter(new FileWriter(outFile));
+		writer.write("longID\tcontext1\tcontext2\tdistance\n");
+		
+		for( Holder h : snpList)
+		{
+			writer.write(h.id + "\t");
+			writer.write(h.cc1 + "\t");
+			writer.write(h.cc2 + "\t");
+			writer.write( h.distance + "\n");
+		}
+		
 		writer.flush();  writer.close();
 	}
 	
 	private static class Holder implements Comparable<Holder>
 	{
+		long id;
 		ContextCount cc1;
 		ContextCount cc2;
 		double distance;
