@@ -36,6 +36,8 @@ public class WriteSNPFile
 		
 		List<Holder> snpList = new ArrayList<WriteSNPFile.Holder>();
 		
+		double numMatch =0;
+		
 		for( Long l : map1.keySet() )
 		{
 			if( map2.containsKey(l))
@@ -94,11 +96,17 @@ public class WriteSNPFile
 		
 					}
 				}
+				else
+				{
+					numMatch++;
+				}
 			}
+			
 		}
 			
 		Collections.sort(snpList);
-		System.out.println("Found " + snpList.size() + " out of " + map1.size() + " " + map2.size());
+		System.out.println("Found " + snpList.size() + " out of " + map1.size() + " " + map2.size() + " " + numMatch + " " + 
+		"fractionMatch = " + (numMatch/map1.size()));
 		writeResults(outFile, snpList);
 	}
 	
