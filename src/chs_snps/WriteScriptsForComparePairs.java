@@ -57,7 +57,7 @@ public class WriteScriptsForComparePairs
 				allWriter.write("qsub -q \"viper\" " + outScriptFile.getName() +  "\n");
 				
 				BufferedWriter scriptWriter = new BufferedWriter(new FileWriter(outScriptFile));
-				scriptWriter.write("java -cp /users/afodor/gitInstall/clusterstuff/bin -mx2800m " + 
+				scriptWriter.write("java -cp /users/afodor/gitInstall/clusterstuff/bin -mx7000m " + 
 				"coPhylog.WriteSNPFile " + xFile.getAbsolutePath()  + " " + yFile.getAbsolutePath() + " " + 
 							outFile.getAbsolutePath());
 				
