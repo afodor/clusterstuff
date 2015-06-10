@@ -29,6 +29,63 @@ public class CoPhylogBinaryFileReader
 		return readBinaryFile(file,-1);
 	}
 	
+	public static void dumpFirstToConsole( File file, int numToWrite  )
+		throws Exception
+	{
+		System.out.println("Reading " + file.getAbsolutePath() );
+		DataInputStream in =new DataInputStream( 
+				new BufferedInputStream(new GZIPInputStream(new FileInputStream(
+					file))));
+	
+		int numRecords = in.readInt();
+		System.out.println("Total records = " + numRecords);
+		
+		for( int x=0; x < numToWrite; x++)
+		{
+			long aLong = in.readLong();
+			
+			ContextCount cc = new ContextCount(in.readByte(), in.readByte(), in.readByte(), in.readByte());
+			
+			System.out.println( aLong + " " + cc);
+		}
+	
+		in.close();
+	}
+	
+	public static HashMap<Long, ContextCount> readBinaryFileRequireMin(File file, int minRequiredReads) 
+				throws Exception
+	{
+		System.out.println("Reading " + file.getAbsolutePath() + " with min " + minRequiredReads);
+		DataInputStream in =new DataInputStream( 
+				new BufferedInputStream(new GZIPInputStream(new FileInputStream(
+					file))));
+		
+		int numRecords = in.readInt();
+		System.out.println(numRecords);
+
+		HashMap<Long, ContextCount> map = new HashMap<Long, ContextCount>(numRecords);
+	
+		for( int x=0; x < numRecords; x++)
+		{
+			long aLong = in.readLong();
+			
+			if( map.containsKey(aLong))
+				throw new Exception("Duplicate");
+			
+			ContextCount cc = new ContextCount(in.readByte(), in.readByte(), in.readByte(), in.readByte());
+			
+			if( cc.getSum() >= minRequiredReads)
+				map.put(aLong,cc);
+			
+			//if( x % 100000==0)
+			//	System.out.println("Reading " + x);
+			
+		}
+	
+		in.close();
+		return map;
+
+	}
 	
 	public static HashMap<Long, ContextCount> readBinaryFile(File file, int maxNum) throws Exception
 	{	
