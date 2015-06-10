@@ -14,7 +14,7 @@ public class WriteSNPFile
 	
 	public static void main(String[] args) throws Exception
 	{
-		if( args.length != 2)
+		if( args.length != 3)
 		{
 			System.out.println("Usage context1 context2 outFile");
 			System.exit(1);
