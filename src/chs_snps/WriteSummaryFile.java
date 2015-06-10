@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.StringTokenizer;
 
 public class WriteSummaryFile
 {
@@ -12,7 +13,7 @@ public class WriteSummaryFile
 	{
 		BufferedWriter writer = new BufferedWriter(new FileWriter("D:\\MelHospital\\snpSummary.txt"));
 		
-		writer.write("file\tcategory\tnumberOfSnps\n");
+		writer.write("file\tcategory\tnumberOfSnps\taverageSupportingReads\n");
 		
 		File topDir = new File("D:\\MelHospital\\comparison");
 		
@@ -25,14 +26,35 @@ public class WriteSummaryFile
 			int numLines =0;
 			
 			reader.readLine();
+			double sum =0;
 			
-			while( reader.readLine() != null)
+			for(String s2= reader.readLine() ; s2 != null; s2 = reader.readLine())
+			{
+				String[] splits = s2.split("\t");
+				sum += getSum(splits[1]) + getSum(splits[2]);
 				numLines++;
+			}
 			
-			writer.write(  toParse.getName() + "\t" + getCategory(toParse.getName()) + "\t" + numLines + "\n" );
+			writer.write(  toParse.getName() + "\t" + getCategory(toParse.getName()) + "\t" + numLines + "\t" 
+							+ (0.5*sum/numLines) + "\n");
 		}
 		
 		writer.flush();  writer.close();
+	}
+	
+	private static int getSum(String s) throws Exception
+	{
+		int sum =0;
+		
+		StringTokenizer sToken = new StringTokenizer(s, "[,]");
+		
+		for( int x=0; x < 4; x++)
+			sum += Integer.parseInt(sToken.nextToken());
+		
+		if( sToken.hasMoreTokens() )
+			throw new Exception("No");
+		
+		return sum;
 	}
 	
 	private static String getCategory(String name) throws Exception
