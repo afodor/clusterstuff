@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 public class WriteSNPFile
@@ -44,12 +45,36 @@ public class WriteSNPFile
 				
 				if( cc1.isDifferentInHighest(cc2))
 				{
-					Holder h = new Holder();
-					h.id = l;
-					h.cc1 = cc1;
-					h.cc2 = cc2;
-					h.distance = cc1.getRawDistance(cc2);
-					snpList.add(h);
+					HashSet<Character>  high1 = cc1.getHighest();
+					
+					boolean allZeros = true;
+					
+					for(Character c : high1)
+					{
+						if( c == 'A' && cc2.getNumA() > 0)
+							allZeros = false;
+						
+						if( c == 'C' && cc2.getNumC() > 0)
+							allZeros = false;
+
+						if( c == 'G' && cc2.getNumG() > 0)
+							allZeros = false;
+						
+						if( c == 'T' && cc2.getNumT() > 0)
+							allZeros = false;
+						
+					}
+					
+					if ( allZeros)
+					{
+						Holder h = new Holder();
+						h.id = l;
+						h.cc1 = cc1;
+						h.cc2 = cc2;
+						h.distance = cc1.getRawDistance(cc2);
+						snpList.add(h);
+		
+					}
 				}
 			}
 		}

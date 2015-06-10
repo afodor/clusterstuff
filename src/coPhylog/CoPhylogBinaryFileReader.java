@@ -74,7 +74,7 @@ public class CoPhylogBinaryFileReader
 			
 			ContextCount cc = new ContextCount(in.readByte(), in.readByte(), in.readByte(), in.readByte());
 			
-			if( cc.getSum() >= minRequiredReads)
+			if( cc.getMax() >= minRequiredReads)
 				map.put(aLong,cc);
 			
 			//if( x % 100000==0)
