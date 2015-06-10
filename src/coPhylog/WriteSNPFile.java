@@ -49,6 +49,7 @@ public class WriteSNPFile
 					
 					boolean allZeros = true;
 					
+					System.out.println("Checking " + high1);
 					for(Character c : high1)
 					{
 						if( c == 'A' && cc2.getNumA() > 0)
@@ -64,6 +65,7 @@ public class WriteSNPFile
 							allZeros = false;
 						
 					}
+					System.out.println(cc1 + " " + cc2 + " " + allZeros);
 					
 					if ( allZeros)
 					{
