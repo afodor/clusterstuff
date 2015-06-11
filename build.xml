@@ -52,4 +52,9 @@
             <classpath refid="clusterstuff.classpath"/>
         </java>
     </target>
+    <target name="WriteSummaryFile">
+        <java classname="chs_snps.WriteSummaryFile" failonerror="true" fork="yes">
+            <classpath refid="clusterstuff.classpath"/>
+        </java>
+    </target>
 </project>
