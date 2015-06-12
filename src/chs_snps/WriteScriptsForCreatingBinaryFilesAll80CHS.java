@@ -11,7 +11,7 @@ public class WriteScriptsForCreatingBinaryFilesAll80CHS
 {
 	public static void main(String[] args) throws Exception
 	{
-		BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/projects/afodor_chs/kwinglee/cophylog_all80chs/run/runAll.sh")));
+		BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/projects/afodor_research/kwinglee/cophylog_all80chs/run/runAll.sh")));
 		
 		File folder = new File("/projects/afodor_research/mjzapata/CRE/CHS_raw/");
 		File[] files = folder.listFiles();
@@ -21,7 +21,7 @@ public class WriteScriptsForCreatingBinaryFilesAll80CHS
 			String inFile = files[i].getName();
 			if(inFile.endsWith(".fastq.gz")) {
 				inFile = inFile.replace(".fastq.gz", "");
-				File outFile = new File("/projects/afodor_chs/kwinglee/cophylog_all80chs/run/run_" + inFile);
+				File outFile = new File("/projects/afodor_research/kwinglee/cophylog_all80chs/run/run_" + inFile);
 				
 				BufferedWriter aWriter = new BufferedWriter(new FileWriter(outFile));
 				
@@ -33,7 +33,7 @@ public class WriteScriptsForCreatingBinaryFilesAll80CHS
 				
 				
 				aWriter.write("java -cp /users/kwinglee/git/clusterstuff/bin -mx20000m chs_snps.WriteBinaryContextsFromFastQ "
-						+ "/projects/afodor_research/mjzapata/CRE/CHS_raw/" + inFile + ".fastq.gz /projects/afodor_chs/kwinglee/cophylog_all80chs/context" + 
+						+ "/projects/afodor_research/mjzapata/CRE/CHS_raw/" + inFile + ".fastq.gz /projects/afodor_research/kwinglee/cophylog_all80chs/context/context" + 
 							inFile + "_context.gz");
 				
 				aWriter.flush();  aWriter.close();
