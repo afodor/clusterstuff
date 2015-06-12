@@ -3,9 +3,9 @@
               Any modifications will be overwritten.
               To include a user specific buildfile here, simply create one in the same
               directory with the processing instruction <?eclipse.ant.import?>
-              as the first entry and export the buildfile again. --><project basedir="." default="build" name="clusterstuff">
+              as the first entry and export the buildfile again. -->
+<project basedir="." default="build" name="clusterstuff">
     <property environment="env"/>
-    <property name="ECLIPSE_HOME" value="../../../../eclipse"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
@@ -16,6 +16,7 @@
         <mkdir dir="bin"/>
         <copy includeemptydirs="false" todir="bin">
             <fileset dir="src">
+                <exclude name="**/*.launch"/>
                 <exclude name="**/*.java"/>
             </fileset>
         </copy>
@@ -46,15 +47,5 @@
     <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
         <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
         <antcall target="build"/>
-    </target>
-    <target name="CollectRDPLines">
-        <java classname="mark.CollectRDPLines" failonerror="true" fork="yes">
-            <classpath refid="clusterstuff.classpath"/>
-        </java>
-    </target>
-    <target name="WriteSummaryFile">
-        <java classname="chs_snps.WriteSummaryFile" failonerror="true" fork="yes">
-            <classpath refid="clusterstuff.classpath"/>
-        </java>
     </target>
 </project>

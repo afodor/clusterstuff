@@ -11,7 +11,7 @@ public class WriteScriptsForCreatingBinaryFilesAll80CHS
 {
 	public static void main(String[] args) throws Exception
 	{
-		BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/projects/afodor_chs/run/runAll.sh")));
+		BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/projects/afodor_chs/kwinglee/cophylog_all80chs/run/runAll.sh")));
 		
 		File folder = new File("/projects/afodor_research/mjzapata/CRE/CHS_raw/");
 		File[] files = folder.listFiles();
@@ -25,13 +25,11 @@ public class WriteScriptsForCreatingBinaryFilesAll80CHS
 				
 				BufferedWriter aWriter = new BufferedWriter(new FileWriter(outFile));
 				
-				aWriter.write("#PBS -l nodes=1:ppn=8\n");
-				aWriter.write("#PBS -W x=NODESET:ONEOF:FEATURE:ib_ddr\n");
-	
-				//aWriter.write("#PBS -l nodes=1:ppn=16\n");
-				//aWriter.write("#PBS -W x=NODESET:ONEOF:FEATURE:ib_qdr2\n");
+				//aWriter.write("#PBS -l nodes=1:ppn=8\n");
+				//aWriter.write("#PBS -W x=NODESET:ONEOF:FEATURE:ib_ddr\n");
+				aWriter.write("#PBS -l nodes=1:ppn=12\n");
 				
-				writer.write("qsub -q \"viper\" run_" + inFile  + "\n");
+				writer.write("qsub -q \"Cobra_batch\" run_" + inFile  + "\n");
 				
 				
 				aWriter.write("java -cp /users/afodor/gitInstall/clusterstuff/bin -mx20000m chs_snps.WriteBinaryContextsFromFastQ "
