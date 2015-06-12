@@ -20,7 +20,7 @@ public class WriteScriptsForCreatingBinaryFilesAll80CHS
 		{
 			String inFile = files[i].getName();
 			if(inFile.endsWith(".fastq.gz")) {
-				inFile.replace(".fastq.gz", "");
+				inFile = inFile.replace(".fastq.gz", "");
 				File outFile = new File("/projects/afodor_chs/kwinglee/cophylog_all80chs/run/run_" + inFile);
 				
 				BufferedWriter aWriter = new BufferedWriter(new FileWriter(outFile));
