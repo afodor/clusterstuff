@@ -32,7 +32,7 @@ public class WriteScriptsForCreatingBinaryFilesAll80CHS
 				writer.write("qsub -q \"Cobra_batch\" run_" + inFile  + "\n");
 				
 				
-				aWriter.write("java -cp /users/afodor/gitInstall/clusterstuff/bin -mx20000m chs_snps.WriteBinaryContextsFromFastQ "
+				aWriter.write("java -cp /users/kwinglee/git/clusterstuff/bin -mx20000m chs_snps.WriteBinaryContextsFromFastQ "
 						+ "/projects/afodor_research/mjzapata/CRE/CHS_raw/" + inFile + ".fastq.gz /projects/afodor_chs/kwinglee/cophylog_all80chs/context" + 
 							inFile + "_context.gz");
 				
