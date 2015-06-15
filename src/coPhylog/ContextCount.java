@@ -141,6 +141,46 @@ public class ContextCount
 			numT++;
 	}
 	
+	public void increaseA(int i) {
+		if(numA<=127){
+			if(numA+i > 127) {
+				numA=127;
+			} else {
+				numA += i;
+			}
+		}
+	}
+	
+	public void increaseC(int i) {
+		if(numC <= 127) {
+			if(numC+i > 127) {
+				numC=127;
+			} else {
+				numC += i;
+			}
+		}
+	}
+	
+	public void increaseG(int i) {
+		if(numG <= 127) {
+			if(numG+i > 127) {
+				numG=127;
+			} else {
+				numG += i;
+			}
+		}
+	}
+	
+	public void increaseT(int i) {
+		if(numT <= 127) {
+			if(numT+1 > 127) {
+				numT=127;
+			} else {
+				numT += i;
+			}
+		}
+	}
+	
 	
 	public boolean isSingleton()
 	{
