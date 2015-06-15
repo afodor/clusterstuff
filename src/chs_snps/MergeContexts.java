@@ -2,11 +2,13 @@ package chs_snps;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.zip.GZIPOutputStream;
@@ -20,10 +22,19 @@ public class MergeContexts {
 	public static String contextDir = "/projects/afodor_research/kwinglee/cophylog_all80chs/context/";//path to all context files
 	
 	public static void main(String[] args) throws Exception {
+		//set up log file
+		int numDone =0;
+		long lastTime = System.currentTimeMillis();
+		File logFile = new File(outDir + "MergeContexts_LOG.txt");
+		BufferedWriter logWriter = new BufferedWriter(new FileWriter(logFile));
+		
+		logWriter.write("numDone\ttotalMemory\tfreeMemory\tmaxMemory\tfractionFree\tfractionAllocated\ttimeSinceLast\n");
+		
+		//get conversion file
 		BufferedReader convert = new BufferedReader(new FileReader (new File(conversionFile)));
-		String cline = convert.readLine();
-		while(cline != null) {
-			String[] csp = cline.split("\t");
+		String line = convert.readLine();
+		while(line != null) {
+			String[] csp = line.split("\t");
 			String chs;
 			if(csp[0].length() == 1) {
 				chs = "CHS0" + csp[0];
@@ -78,9 +89,35 @@ public class MergeContexts {
 			out.flush();  out.close();
 			
 			
-			cline = convert.readLine();
+			line = convert.readLine();
+			
+			//update log
+			numDone++;
+			
+			if( numDone % 10000 == 0 )
+			{
+				System.gc();
+
+				double fractionFree= 1- (Runtime.getRuntime().totalMemory()- ((double)Runtime.getRuntime().freeMemory() ))
+						/Runtime.getRuntime().totalMemory();
+
+				double fractionAllocated = 1-  (Runtime.getRuntime().maxMemory()- ((double)Runtime.getRuntime().totalMemory() ))
+						/Runtime.getRuntime().maxMemory();
+				
+				logWriter.write( numDone + "\t" + Runtime.getRuntime().totalMemory() + "\t" +
+						Runtime.getRuntime().freeMemory()  + "\t" + 
+						Runtime.getRuntime().maxMemory() + "\t" + fractionFree  + "\t" + 
+						fractionAllocated + "\t" + (System.currentTimeMillis() - lastTime) / 1000f  + "\n"
+								);
+				
+				lastTime = System.currentTimeMillis();
+				
+				logWriter.flush();
+
+			}
 		}
 		convert.close();
+		logWriter.flush(); logWriter.close();
 	}
 
 }
