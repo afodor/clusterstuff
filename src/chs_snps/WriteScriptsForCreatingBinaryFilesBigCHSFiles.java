@@ -29,7 +29,7 @@ public class WriteScriptsForCreatingBinaryFilesBigCHSFiles
 				String line = br.readLine();
 				if(line != null && line.length() > 1) {//had an error
 
-				inFile = inFile.replaceAll("\\.e[0-9]+", "");
+				inFile = inFile.replaceAll("\\.e[0-9]+", "").replace("run_", "");
 				File outFile = new File("/projects/afodor_research/kwinglee/cophylog_all80chs/run/run_big_" + inFile);
 				
 				BufferedWriter aWriter = new BufferedWriter(new FileWriter(outFile));
