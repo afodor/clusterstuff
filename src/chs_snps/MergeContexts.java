@@ -50,23 +50,28 @@ public class MergeContexts {
 			String[] srrlist = csp[1].replace("[", "").replace("]", "").split(",");
 			for(int i = 0; i < srrlist.length; i++) {//for each file
 				for(int j = 1; j < 2; j++) {//forward and reverse reads
-					//read file
-					HashMap<Long, ContextCount> m = CoPhylogBinaryFileReader.readBinaryFileRequireMin(new File(contextDir+"context"+srrlist[i].trim()+"_"+j+"_context.gz"), 1);
-					
-					//merge maps
-					for(Long key : m.keySet()) {
-						ContextCount con = m.get(key);
-						if(map.containsKey(key)) {
-							ContextCount mapcon = map.get(key);
-							mapcon.increaseA(con.getNumA());
-							mapcon.increaseT(con.getNumT());
-							mapcon.increaseC(con.getNumC());
-							mapcon.increaseG(con.getNumG());
-							map.put(key, mapcon);
-						} else {
-							map.put(key, con);
+					try {
+						//read file
+						HashMap<Long, ContextCount> m = CoPhylogBinaryFileReader.readBinaryFileRequireMin(new File(contextDir+"context"+srrlist[i].trim()+"_"+j+"_context.gz"), 1);
+						
+						//merge maps
+						for(Long key : m.keySet()) {
+							ContextCount con = m.get(key);
+							if(map.containsKey(key)) {
+								ContextCount mapcon = map.get(key);
+								mapcon.increaseA(con.getNumA());
+								mapcon.increaseT(con.getNumT());
+								mapcon.increaseC(con.getNumC());
+								mapcon.increaseG(con.getNumG());
+								map.put(key, mapcon);
+							} else {
+								map.put(key, con);
+							}
 						}
+					} catch (Exception e) {
+						System.out.println(e);
 					}
+					
 					
 					//update log
 					numDone++;
