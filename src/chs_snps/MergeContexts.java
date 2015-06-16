@@ -51,7 +51,7 @@ public class MergeContexts {
 			for(int i = 0; i < srrlist.length; i++) {//for each file
 				for(int j = 1; j < 2; j++) {//forward and reverse reads
 					//read file
-					HashMap<Long, ContextCount> m = CoPhylogBinaryFileReader.readBinaryFile(new File(contextDir+"context"+srrlist[i].trim()+"_"+j+"_context.gz"));
+					HashMap<Long, ContextCount> m = CoPhylogBinaryFileReader.readBinaryFileRequireMin(new File(contextDir+"context"+srrlist[i].trim()+"_"+j+"_context.gz"), 1);
 					
 					//merge maps
 					for(Long key : m.keySet()) {
@@ -67,6 +67,26 @@ public class MergeContexts {
 							map.put(key, con);
 						}
 					}
+					
+					//update log
+					numDone++;
+					System.gc();
+
+					double fractionFree= 1- (Runtime.getRuntime().totalMemory()- ((double)Runtime.getRuntime().freeMemory() ))
+							/Runtime.getRuntime().totalMemory();
+
+					double fractionAllocated = 1-  (Runtime.getRuntime().maxMemory()- ((double)Runtime.getRuntime().totalMemory() ))
+							/Runtime.getRuntime().maxMemory();
+
+					logWriter.write( numDone + "\t" + Runtime.getRuntime().totalMemory() + "\t" +
+							Runtime.getRuntime().freeMemory()  + "\t" + 
+							Runtime.getRuntime().maxMemory() + "\t" + fractionFree  + "\t" + 
+							fractionAllocated + "\t" + (System.currentTimeMillis() - lastTime) / 1000f  + "\n"
+							);
+
+					lastTime = System.currentTimeMillis();
+
+					logWriter.flush();
 				}
 			}
 			
@@ -94,30 +114,6 @@ public class MergeContexts {
 			
 			line = convert.readLine();
 			
-			//update log
-			numDone++;
-			
-			if( numDone % 10000 == 0 )
-			{
-				System.gc();
-
-				double fractionFree= 1- (Runtime.getRuntime().totalMemory()- ((double)Runtime.getRuntime().freeMemory() ))
-						/Runtime.getRuntime().totalMemory();
-
-				double fractionAllocated = 1-  (Runtime.getRuntime().maxMemory()- ((double)Runtime.getRuntime().totalMemory() ))
-						/Runtime.getRuntime().maxMemory();
-				
-				logWriter.write( numDone + "\t" + Runtime.getRuntime().totalMemory() + "\t" +
-						Runtime.getRuntime().freeMemory()  + "\t" + 
-						Runtime.getRuntime().maxMemory() + "\t" + fractionFree  + "\t" + 
-						fractionAllocated + "\t" + (System.currentTimeMillis() - lastTime) / 1000f  + "\n"
-								);
-				
-				lastTime = System.currentTimeMillis();
-				
-				logWriter.flush();
-
-			}
 		}
 		convert.close();
 		logWriter.flush(); logWriter.close();
