@@ -51,7 +51,7 @@ public class MergeContexts {
 			for(int i = 0; i < srrlist.length; i++) {//for each file
 				for(int j = 1; j < 2; j++) {//forward and reverse reads
 					//read file
-					HashMap<Long, ContextCount> m = CoPhylogBinaryFileReader.readBinaryFile(new File(contextDir+"context"+srrlist[i]+"_"+j+"_context.gz"));
+					HashMap<Long, ContextCount> m = CoPhylogBinaryFileReader.readBinaryFile(new File(contextDir+"context"+srrlist[i].trim()+"_"+j+"_context.gz"));
 					
 					//merge maps
 					for(Long key : m.keySet()) {
