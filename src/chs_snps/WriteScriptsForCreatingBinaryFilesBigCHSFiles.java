@@ -28,6 +28,8 @@ public class WriteScriptsForCreatingBinaryFilesBigCHSFiles
 			if(seq.endsWith(".fastq.gz")) {
 				seq = seq.replaceAll(".fastq.gz", "");
 				File con = new File(contextDir + "context"+seq+"_context.gz");
+				System.out.println(con.getName());
+				System.out.println(con.exists());
 				if(con.exists()) {
 					BufferedWriter aWriter = new BufferedWriter(new FileWriter(new File("/projects/afodor_research/kwinglee/cophylog_all80chs/run/run_big_" + seq)));
 					
