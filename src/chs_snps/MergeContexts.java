@@ -52,7 +52,7 @@ public class MergeContexts {
 				for(int j = 1; j < 2; j++) {//forward and reverse reads
 					try {
 						//read file
-						HashMap<Long, ContextCount> m = CoPhylogBinaryFileReader.readBinaryFileRequireMin(new File(contextDir+"context"+srrlist[i].trim()+"_"+j+"_context.gz"), 1);
+						HashMap<Long, ContextCount> m = CoPhylogBinaryFileReader.readBinaryFileRequireMin(new File(contextDir+"context"+srrlist[i].trim()+"_"+j+"_context.gz"), 2);
 						
 						//merge maps
 						for(Long key : m.keySet()) {
