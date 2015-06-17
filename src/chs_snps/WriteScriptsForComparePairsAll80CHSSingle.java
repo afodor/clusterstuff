@@ -52,7 +52,7 @@ public class WriteScriptsForComparePairsAll80CHSSingle
 	
 	public static void main(String[] args) throws Exception
 	{
-		BufferedWriter allWriter = new BufferedWriter(new FileWriter(new File("/projects/afodor_research/kwinglee/cophylog_all80chs/runCompare/runAll.sh")));
+		BufferedWriter allWriter = new BufferedWriter(new FileWriter(new File("/projects/afodor_research/kwinglee/cophylog_all80chs/runCompareSingle/runAll.sh")));
 		
 		HashMap<String, String> map = new HashMap<String, String>();
 		
@@ -70,11 +70,12 @@ public class WriteScriptsForComparePairsAll80CHSSingle
 				File outFile = new File("/projects/afodor_research/kwinglee/cophylog_all80chs/compareSingle/" + map.get(xFile.getName()) + "_to_" 
 						+ map.get(yFile.getName()) + "_compare.txt");
 				
-				File outScriptFile = new File("/projects/afodor_research/kwinglee/cophylog_all80chs/runCompareSingle/runC_" + index);
-				allWriter.write("#PBS -l nodes=1:ppn=12\n");
+				File outScriptFile = new File("/projects/afodor_research/kwinglee/cophylog_all80chs/runCompareSingle/runC" + index);
+				
 				allWriter.write("qsub -q \"Cobra_batch\" " + outScriptFile.getName() +  "\n");
 				
 				BufferedWriter scriptWriter = new BufferedWriter(new FileWriter(outScriptFile));
+				scriptWriter.write("#PBS -l nodes=1:ppn=12\n");
 				scriptWriter.write("java -cp /users/kwinglee/git/clusterstuff/bin -mx30000m " + 
 							"coPhylog.WriteSNPFile " + xFile.getAbsolutePath()  + " " + yFile.getAbsolutePath() + " " + 
 							outFile.getAbsolutePath());
