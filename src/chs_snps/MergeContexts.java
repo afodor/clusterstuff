@@ -20,7 +20,7 @@ public class MergeContexts {
 	public static String conversionFile = "/projects/afodor_research/mjzapata/CRE/CHS_raw/chs_batch_download_results.csv";//file containing the conversion
 	public static String outDir = "/projects/afodor_research/kwinglee/cophylog_all80chs/contextCombined/";//Name of directory to write results to
 	public static String contextDir = "/projects/afodor_research/kwinglee/cophylog_all80chs/context/";//path to all context files
-	public static int MIN_READS = 10; //minimum number of reads to keep key
+	public static int MIN_READS = 1; //minimum number of reads to keep key
 	
 	public static void main(String[] args) throws Exception {
 		//set up log file

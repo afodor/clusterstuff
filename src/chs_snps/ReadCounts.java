@@ -1,6 +1,7 @@
 /**
  * determine the number of reads in each fasta for each strain
  * also write a file that indicates the biggest file for each strain
+ * 6/17/15
  */
 
 package chs_snps;
