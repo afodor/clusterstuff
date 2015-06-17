@@ -8,13 +8,47 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 
 import utils.ConfigReader;
 
 
 public class WriteScriptsForCreatingBinaryFilesBigCHSFiles
 {
-	public static void main(String[] args) throws Exception
+	//based on whether the context file exists
+	public static void main(String[] args) throws IOException {
+		BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/projects/afodor_research/kwinglee/cophylog_all80chs/run/runAllBig.sh")));
+		
+		String seqDir = "/projects/afodor_research/mjzapata/CRE/CHS_raw";
+		String contextDir = "/projects/afodor_research/kwinglee/cophylog_all80chs/context";
+		File seqFolder = new File(seqDir);
+		File[] seqs = seqFolder.listFiles();
+		for(int i=0; i < seqs.length; i++) {
+			String seq = seqs[i].getName();
+			if(seq.endsWith(".fastq.gz")) {
+				seq = seq.replaceAll(".fastq.gz", "");
+				File con = new File(contextDir + "context"+seq+"_context.gz");
+				if(con.exists()) {
+					BufferedWriter aWriter = new BufferedWriter(new FileWriter(new File("/projects/afodor_research/kwinglee/cophylog_all80chs/run/run_big_" + seq)));
+					
+					aWriter.write("#PBS -l nodes=1:ppn=12\n");
+					aWriter.write("#PBS -W x=NODESET:ONEOF:FEATURE:ib_qdr\n");
+					aWriter.write("java -cp /users/kwinglee/git/clusterstuff/bin -mx60000m chs_snps.WriteBinaryContextsFromFastQ "
+							+ "/projects/afodor_research/mjzapata/CRE/CHS_raw/" + seq + ".fastq.gz /projects/afodor_research/kwinglee/cophylog_all80chs/context/context" + 
+								seq + "_context.gz");
+					
+					aWriter.flush();  aWriter.close();
+					
+					writer.write("qsub -q \"viper_batch\" run_big_" + seq  + "\n");
+					
+				}
+			}
+		}
+		writer.close();
+	}
+	
+	//based on whether there were any errors
+	/*public static void main(String[] args) throws Exception
 	{
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/projects/afodor_research/kwinglee/cophylog_all80chs/run/runAllBig.sh")));
 		
@@ -51,5 +85,5 @@ public class WriteScriptsForCreatingBinaryFilesBigCHSFiles
 		}
 		
 		writer.flush();  writer.close();
-	}
+	}*/
 }
