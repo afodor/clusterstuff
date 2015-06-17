@@ -20,7 +20,7 @@ public class WriteScriptsForCreatingBinaryFilesBigCHSFiles
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/projects/afodor_research/kwinglee/cophylog_all80chs/run/runAllBig.sh")));
 		
 		String seqDir = "/projects/afodor_research/mjzapata/CRE/CHS_raw";
-		String contextDir = "/projects/afodor_research/kwinglee/cophylog_all80chs/context";
+		String contextDir = "/projects/afodor_research/kwinglee/cophylog_all80chs/context/";
 		File seqFolder = new File(seqDir);
 		File[] seqs = seqFolder.listFiles();
 		for(int i=0; i < seqs.length; i++) {
@@ -30,7 +30,7 @@ public class WriteScriptsForCreatingBinaryFilesBigCHSFiles
 				File con = new File(contextDir + "context"+seq+"_context.gz");
 				System.out.println(con.getName());
 				System.out.println(con.exists());
-				if(con.exists()) {
+				if(!con.exists()) {
 					BufferedWriter aWriter = new BufferedWriter(new FileWriter(new File("/projects/afodor_research/kwinglee/cophylog_all80chs/run/run_big_" + seq)));
 					
 					aWriter.write("#PBS -l nodes=1:ppn=12\n");
