@@ -35,9 +35,9 @@ public class FindErrors {
 				BufferedReader br = new BufferedReader(new FileReader(files[i]));
 				String line = br.readLine();
 				if(line != null) {//file is not empty
-					out.write("###########\n"+name+":\n");
+					out.write("==========================\n"+name+":\n");
 					while(line != null) {
-						out.write(line);
+						out.write(line+"\n");
 						line = br.readLine();
 					}
 					out.flush();
