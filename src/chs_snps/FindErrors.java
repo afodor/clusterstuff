@@ -44,7 +44,7 @@ public class FindErrors {
 				BufferedReader br = new BufferedReader(new FileReader(files[i]));
 				String line = br.readLine();
 				if(line != null) {//file is not empty
-					sh.write("qsub -q \"" + args[1] + "\" " + name.replace("\\.e[0-9]+$", "") + "\n");
+					sh.write("qsub -q \"" + args[1] + "\" " + name.replaceFirst("\\.e[0-9]+$", "") + "\n");
 					out.write("==========================\n"+name+":\n");
 					while(line != null) {
 						out.write(line+"\n");
