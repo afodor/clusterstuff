@@ -189,7 +189,7 @@ public class BitHolder
 		return getASequence(bits, true, contextSize) + getASequence(bits, false, contextSize);
 	}
 	
-	private static String getASequence( long bits, boolean left, int contextSize) throws Exception
+	public static String getASequence( long bits, boolean left, int contextSize) throws Exception
 	{
 		StringBuffer buff = new StringBuffer();
 		
