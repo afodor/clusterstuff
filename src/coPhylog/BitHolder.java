@@ -362,8 +362,30 @@ public class BitHolder
 	
 	public static void main(String[] args) throws Exception
 	{
-		BitHolder bh = new BitHolder(3);
-		System.out.println( Long.toBinaryString(bh.RIGHT_MASK));
-		System.out.println( Long.toBinaryString(bh.LEFT_MASK));
+		BitHolder bh = new BitHolder(13);
+		String aString = "ACGTAGGTACCCTACCCCAAATTTTTTAACCCCCC";
+		bh.setToString(aString, true, false);
+		long aLong =  bh.getBits();
+		
+		System.out.println(aLong);
+		
+		System.out.println(getASequence(aLong, true, 13));
+		System.out.println(getASequence(aLong, true, 13).equals(aString.substring(0,13)));
+
+		System.out.println(getASequence(aLong, false, 13));
+		System.out.println(getASequence(aLong, false, 13).equals(aString.substring(14,14+13)));
+		
+		bh.advance();
+		aLong =  bh.getBits();
+		
+		System.out.println(aLong);
+		
+		System.out.println(getASequence(aLong, true, 13));
+		System.out.println(getASequence(aLong, true, 13).equals(aString.substring(1,14)));
+
+		System.out.println(getASequence(aLong, false, 13));
+		System.out.println(getASequence(aLong, false, 13).equals(aString.substring(15,15+13)));
+
+		
 	}
 }
