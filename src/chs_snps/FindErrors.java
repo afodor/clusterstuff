@@ -31,7 +31,9 @@ public class FindErrors {
 		
 		for(int i = 0; i < files.length; i++) {
 			String name = files[i].getName();
-			if(name.matches("//.e[0-9]*")) {
+			System.out.println(name);
+			if(name.matches("*///.e[0-9]+$")) {
+				System.out.println("Match");
 				BufferedReader br = new BufferedReader(new FileReader(files[i]));
 				String line = br.readLine();
 				if(line != null) {//file is not empty
