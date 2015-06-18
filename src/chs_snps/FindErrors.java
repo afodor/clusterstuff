@@ -31,17 +31,16 @@ public class FindErrors {
 		
 		for(int i = 0; i < files.length; i++) {
 			String name = files[i].getName();
-			System.out.println(name);
-			if(name.matches("*///.e[0-9]+$")) {
-				System.out.println("Match");
+			if(name.matches(".*e[0-9]+$")) {
 				BufferedReader br = new BufferedReader(new FileReader(files[i]));
 				String line = br.readLine();
 				if(line != null) {//file is not empty
-					out.write("=====================\n"+name+":\n");
+					out.write("###########\n"+name+":\n");
 					while(line != null) {
 						out.write(line);
 						line = br.readLine();
 					}
+					out.flush();
 				}
 				br.close();
 			}
