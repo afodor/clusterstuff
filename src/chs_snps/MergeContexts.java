@@ -69,7 +69,7 @@ public class MergeContexts {
 							}
 						}
 					} catch (Exception e) {
-						System.out.println(e);
+						System.err.println(e);
 					}
 					
 					
