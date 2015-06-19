@@ -60,7 +60,7 @@ public class WriteScriptsForComparePairsAll80CHSSingleSameStrain
 		int index=1;
 		List<File> list = getFiles(map);
 		
-		for( int x=0; x  < list.size() -1; x++)
+		for( int x=0; x  < list.size(); x++)
 		{
 			File xFile = list.get(x);
 			File yFile = new File(xFile.getParent()+"/"+xFile.getName().replace("_1", "_2"));
