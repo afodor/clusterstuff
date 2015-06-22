@@ -33,9 +33,9 @@ public class WriteScriptsForCreatingBinaryFilesBigCHSFiles
 				if(!con.exists()) {
 					BufferedWriter aWriter = new BufferedWriter(new FileWriter(new File("/projects/afodor_research/kwinglee/cophylog_all80chs/run/run_big_" + seq)));
 					
-					aWriter.write("#PBS -l nodes=1:ppn=12\n");
-					aWriter.write("#PBS -W x=NODESET:ONEOF:FEATURE:ib_qdr\n");
-					aWriter.write("java -cp /users/kwinglee/git/clusterstuff/bin -mx60000m chs_snps.WriteBinaryContextsFromFastQ "
+					aWriter.write("#PBS -l nodes=1:ppn=16\n");
+					aWriter.write("#PBS -W x=NODESET:ONEOF:FEATURE:ib_qdr2\n");
+					aWriter.write("java -cp /users/kwinglee/git/clusterstuff/bin -Xmx124000m chs_snps.WriteBinaryContextsFromFastQ "
 							+ "/projects/afodor_research/mjzapata/CRE/CHS_raw/" + seq + ".fastq.gz /projects/afodor_research/kwinglee/cophylog_all80chs/context/context" + 
 								seq + "_context.gz");
 					
