@@ -21,9 +21,10 @@ public class SnpEffScripts {
 		for(int i = 0; i < files.length; i++) {
 			String name = files[i].getName();
 			BufferedWriter br = new BufferedWriter(new FileWriter(new File(outdir+"run_"+name)));
-			br.write("java -cp /projects/afodor_research/kwinglee/snpeff/snpEff/snpEff.jar GCA_000598005.1.26 "+
+			br.write("java -jar /projects/afodor_research/kwinglee/snpeff/snpEff/snpEff.jar -s " + name + ".stats -csvStats GCA_000598005.1.26 "+
 					indir+name + " > " + outdir+name.replace("vcf", "annotate.vcf"));
 			br.close();
+			all.write("sed -i \'s/CP006923/Chromosome/g\'" + indir+name);
 			all.write("qsub -q \"Cobra\" run_" + name);
 		}
 		all.close();
