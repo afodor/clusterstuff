@@ -24,8 +24,8 @@ public class SnpEffScripts {
 			br.write("java -jar /projects/afodor_research/kwinglee/snpeff/snpEff/snpEff.jar -s " + name + ".stats -csvStats GCA_000598005.1.26 "+
 					indir+name + " > " + outdir+name.replace("vcf", "annotate.vcf"));
 			br.close();
-			all.write("sed -i \'s/CP006923/Chromosome/g\'" + indir+name);
-			all.write("qsub -q \"Cobra\" run_" + name);
+			all.write("sed -i \'s/CP006923/Chromosome/g\'" + indir+name+"\n");
+			all.write("qsub -q \"Cobra\" run_" + name+"\n");
 		}
 		all.close();
 		
