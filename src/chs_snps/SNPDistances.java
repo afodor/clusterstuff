@@ -39,19 +39,21 @@ public class SNPDistances {
 		
 		//calculate snp distances for each file
 		for(int i = 0; i < files.length; i++) {
-			BufferedReader br = new BufferedReader(new FileReader(files[i]));
-			String line = br.readLine();
-			int count = 0;
-			while(line != null) {
-				count++;
-				line = br.readLine();
+			if(files[i].getName().endsWith("_compare.txt")) {
+				BufferedReader br = new BufferedReader(new FileReader(files[i]));
+				String line = br.readLine();
+				int count = 0;
+				while(line != null) {
+					count++;
+					line = br.readLine();
+				}
+				br.close();
+				count--;//remove header
+				count/=2;//divide by 2 because files contain forward and reverse sequence
+				String[] name = files[i].getName().split("_");
+				out.write(name[0]+"\t"+name[2]+"\t"+count+"\n");
+				out.flush();
 			}
-			br.close();
-			count--;//remove header
-			count/=2;//divide by 2 because files contain forward and reverse sequence
-			String[] name = files[i].getName().split("_");
-			out.write(name[0]+"\t"+name[2]+"\t"+count+"\n");
-			out.flush();
 		}
 		
 		out.close();
