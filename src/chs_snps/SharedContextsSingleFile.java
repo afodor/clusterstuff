@@ -107,7 +107,7 @@ public class SharedContextsSingleFile {
 				}
 				
 				out.write(chsmap.get(xFile.getName())+"\t"+xFile.getName()+"\t"+
-						chsmap.get(yFile.getName())+"\t"+yFile.getName()+"\t"+
+						chsmap.get(xFile.getName())+"\t"+yFile.getName()+"\t"+
 						len1+"\t"+len2+"\t"+shared+"\t"+((double)shared/(len1+len2-shared))+"\n");
 				
 				out.flush();
