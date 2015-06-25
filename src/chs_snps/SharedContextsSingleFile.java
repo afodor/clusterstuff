@@ -93,6 +93,24 @@ public class SharedContextsSingleFile {
 					
 					out.flush(); 
 				}
+				//compare to self
+				File yFile = new File(xFile.getName().replace("_1", "_2"));
+				HashMap<Long, ContextCount> map2 = 
+						CoPhylogBinaryFileReader.readBinaryFileRequireMin(yFile, MIN_NUMBER_READS);
+				
+				int len2 = map2.keySet().size();//number of contexts in map2
+				int shared = 0;//number of shared contexts
+				for( Long l : map1.keySet() ) {
+					if( map2.containsKey(l)) {
+						shared++;
+					}
+				}
+				
+				out.write(chsmap.get(xFile.getName())+"\t"+xFile.getName()+"\t"+
+						chsmap.get(yFile.getName())+"\t"+yFile.getName()+"\t"+
+						len1+"\t"+len2+"\t"+shared+"\t"+((double)shared/(len1+len2-shared))+"\n");
+				
+				out.flush();
 			} catch(IOException e) {
 				System.err.println("Ignored: "+e);
 			}
