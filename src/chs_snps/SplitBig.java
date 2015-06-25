@@ -36,7 +36,7 @@ public class SplitBig {
 		for(int i = 0; i < big.length; i++) {
 			String f = big[i];
 			//set up scripts to run contexts
-			all.write("qsub -q \"Cobra_batch\" run_" + f  + "A\n");
+			/*all.write("qsub -q \"Cobra_batch\" run_" + f  + "A\n");
 			all.write("qsub -q \"Cobra_batch\" run_" + f  + "B\n");
 			all.write("qsub -q \"Cobra_batch\" run_" + f  + "C\n");
 			all.write("qsub -q \"Cobra_batch\" run_" + f  + "D\n");
@@ -67,10 +67,47 @@ public class SplitBig {
 			script.write("java -cp /users/kwinglee/git/clusterstuff/bin -mx30000m chs_snps.WriteBinaryContextsFromFastQ "
 					+ outdir + f + "D.fastq.gz " + outdir + "context" + 
 						f + "D_context.gz");
+			script.close();*/
+			
+			all.write("qsub -q \"viper_batch\" run_" + f  + "A\n");
+			all.write("qsub -q \"viper_batch\" run_" + f  + "B\n");
+			all.write("qsub -q \"viper_batch\" run_" + f  + "C\n");
+			all.write("qsub -q \"viper_batch\" run_" + f  + "D\n");
+			
+			BufferedWriter script = new BufferedWriter(new FileWriter(new File(outdir+"run_"+f+"A")));
+			script.write("#PBS -l nodes=1:ppn=8\n");
+			script.write("#PBS -W x=NODESET:ONEOF:FEATURE:ib_ddr\n");
+			script.write("java -cp /users/kwinglee/git/clusterstuff/bin -Xmx24g chs_snps.WriteBinaryContextsFromFastQ "
+					+ outdir + f + "A.fastq.gz " + outdir + "context" + 
+						f + "A_context.gz");
+			script.close();
+			
+			script = new BufferedWriter(new FileWriter(new File(outdir+"run_"+f+"B")));
+			script.write("#PBS -l nodes=1:ppn=8\n");
+			script.write("#PBS -W x=NODESET:ONEOF:FEATURE:ib_ddr\n");
+			script.write("java -cp /users/kwinglee/git/clusterstuff/bin -Xmx24g chs_snps.WriteBinaryContextsFromFastQ "
+					+ outdir + f + "B.fastq.gz " + outdir + "context" + 
+						f + "B_context.gz");
+			script.close();
+			
+			script = new BufferedWriter(new FileWriter(new File(outdir+"run_"+f+"C")));
+			script.write("#PBS -l nodes=1:ppn=8\n");
+			script.write("#PBS -W x=NODESET:ONEOF:FEATURE:ib_ddr\n");
+			script.write("java -cp /users/kwinglee/git/clusterstuff/bin -Xmx24g chs_snps.WriteBinaryContextsFromFastQ "
+					+ outdir + f + "C.fastq.gz " + outdir + "context" + 
+						f + "C_context.gz");
+			script.close();
+			
+			script = new BufferedWriter(new FileWriter(new File(outdir+"run_"+f+"D")));
+			script.write("#PBS -l nodes=1:ppn=8\n");
+			script.write("#PBS -W x=NODESET:ONEOF:FEATURE:ib_ddr\n");
+			script.write("java -cp /users/kwinglee/git/clusterstuff/bin -Xmx24g chs_snps.WriteBinaryContextsFromFastQ "
+					+ outdir + f + "D.fastq.gz " + outdir + "context" + 
+						f + "D_context.gz");
 			script.close();
 			
 			//split file
-			BufferedReader reader = 
+			/*BufferedReader reader = 
 					new BufferedReader(new InputStreamReader( 
 							new GZIPInputStream( new FileInputStream(new File(indir+f+".fastq.gz")))));
 			BufferedWriter out1 = new BufferedWriter(new OutputStreamWriter(
@@ -96,8 +133,10 @@ public class SplitBig {
 					c2++;
 				} else if(count <=12) {
 					out3.write(line + "\n");
+					c3++;
 				} else if(count <=16) {
 					out4.write(line+"\n");
+					c4++;
 					if(count == 16) {
 						count = 0;
 					}
@@ -113,7 +152,7 @@ public class SplitBig {
 			out1.close();
 			out2.close();
 			out3.close();
-			out4.close();
+			out4.close();*/
 		}
 		log.close();
 		all.close();
