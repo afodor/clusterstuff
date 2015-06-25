@@ -43,7 +43,7 @@ public class SharedContextsSingleFile {
 			String[] sp = line.split("\t");
 			String file = "context"+sp[1]+"_context.gz";
 			list.add(new File(contextPath + file));
-			map.put(file, sp[0]);
+			map.put(file, sp[0].replaceAll("CHS0?", ""));
 			line = convert.readLine();
 		}
 		

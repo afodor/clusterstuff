@@ -51,7 +51,7 @@ public class SNPDistances {
 				count--;//remove header
 				count/=2;//divide by 2 because files contain forward and reverse sequence
 				String[] name = files[i].getName().split("_");
-				out.write(name[0]+"\t"+name[2]+"\t"+count+"\n");
+				out.write(name[0].replaceAll("CHS0?", "")+"\t"+name[2].replaceAll("CHS0?", "")+"\t"+count+"\n");
 				out.flush();
 			}
 		}
