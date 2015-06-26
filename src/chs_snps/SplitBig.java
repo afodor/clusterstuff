@@ -36,7 +36,7 @@ public class SplitBig {
 		for(int i = 0; i < big.length; i++) {
 			String f = big[i];
 			//set up scripts to run contexts
-			/*all.write("qsub -q \"Cobra_batch\" run_" + f  + "A\n");
+			all.write("qsub -q \"Cobra_batch\" run_" + f  + "A\n");
 			all.write("qsub -q \"Cobra_batch\" run_" + f  + "B\n");
 			all.write("qsub -q \"Cobra_batch\" run_" + f  + "C\n");
 			all.write("qsub -q \"Cobra_batch\" run_" + f  + "D\n");
@@ -67,9 +67,9 @@ public class SplitBig {
 			script.write("java -cp /users/kwinglee/git/clusterstuff/bin -mx30000m chs_snps.WriteBinaryContextsFromFastQ "
 					+ outdir + f + "D.fastq.gz " + outdir + "context" + 
 						f + "D_context.gz");
-			script.close();*/
+			script.close();
 			
-			all.write("qsub -q \"viper_batch\" run_" + f  + "A\n");
+			/*all.write("qsub -q \"viper_batch\" run_" + f  + "A\n");
 			all.write("qsub -q \"viper_batch\" run_" + f  + "B\n");
 			all.write("qsub -q \"viper_batch\" run_" + f  + "C\n");
 			all.write("qsub -q \"viper_batch\" run_" + f  + "D\n");
@@ -104,7 +104,7 @@ public class SplitBig {
 			script.write("java -cp /users/kwinglee/git/clusterstuff/bin -Xmx24g chs_snps.WriteBinaryContextsFromFastQ "
 					+ outdir + f + "D.fastq.gz " + outdir + "context" + 
 						f + "D_context.gz");
-			script.close();
+			script.close();*/
 			
 			//split file
 			/*BufferedReader reader = 
