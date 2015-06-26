@@ -94,7 +94,7 @@ public class SharedContextsSingleFile {
 					out.flush(); 
 				}
 				//compare to self
-				File yFile = new File(xFile.getName().replace("_1", "_2"));
+				File yFile = new File(contextPath + xFile.getName().replace("_1", "_2"));
 				HashMap<Long, ContextCount> map2 = 
 						CoPhylogBinaryFileReader.readBinaryFileRequireMin(yFile, MIN_NUMBER_READS);
 				
