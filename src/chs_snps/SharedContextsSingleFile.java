@@ -76,7 +76,7 @@ public class SharedContextsSingleFile {
 					File yFile = list.get(y);
 					
 					
-					HashMap<Long, ContextCount> map2 = 
+					/*HashMap<Long, ContextCount> map2 = 
 							CoPhylogBinaryFileReader.readBinaryFileRequireMin(yFile, MIN_NUMBER_READS);
 					
 					int len2 = map2.keySet().size();//number of contexts in map2
@@ -91,11 +91,13 @@ public class SharedContextsSingleFile {
 							chsmap.get(yFile.getName())+"\t"+yFile.getName()+"\t"+
 							len1+"\t"+len2+"\t"+shared+"\t"+((double)shared/(len1+len2-shared))+"\n");
 					
-					out.flush(); 
+					out.flush(); */
+					out.write(chsmap.get(xFile.getName())+"\t"+xFile.getName()+"\t"+
+							chsmap.get(yFile.getName())+"\t"+yFile.getName()+"\n");
 				}
 				//compare to self
 				File yFile = new File(contextPath + xFile.getName().replace("_1", "_2"));
-				HashMap<Long, ContextCount> map2 = 
+				/*HashMap<Long, ContextCount> map2 = 
 						CoPhylogBinaryFileReader.readBinaryFileRequireMin(yFile, MIN_NUMBER_READS);
 				
 				int len2 = map2.keySet().size();//number of contexts in map2
@@ -110,7 +112,9 @@ public class SharedContextsSingleFile {
 						chsmap.get(xFile.getName())+"\t"+yFile.getName()+"\t"+
 						len1+"\t"+len2+"\t"+shared+"\t"+((double)shared/(len1+len2-shared))+"\n");
 				
-				out.flush();
+				out.flush();*/
+				out.write(chsmap.get(xFile.getName())+"\t"+xFile.getName()+"\t"+
+						chsmap.get(xFile.getName())+"\t"+yFile.getName()+"\n");
 			} catch(IOException e) {
 				System.err.println("Ignored: "+e);
 			}
