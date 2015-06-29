@@ -92,9 +92,7 @@ public class SharedContextsSingleFile {
 								len1+"\t"+len2+"\t"+shared+"\t"+((double)shared/(len1+len2-shared))+"\n");
 
 						out.flush(); 
-						out.write(chsmap.get(xFile.getName())+"\t"+xFile.getName()+"\t"+
-								chsmap.get(yFile.getName())+"\t"+yFile.getName()+"\n");
-					} catch(IOException e) {
+						} catch(IOException e) {
 						System.err.println("Ignored: "+e);
 					}
 				}
@@ -116,8 +114,6 @@ public class SharedContextsSingleFile {
 						len1+"\t"+len2+"\t"+shared+"\t"+((double)shared/(len1+len2-shared))+"\n");
 				
 				out.flush();
-				out.write(chsmap.get(xFile.getName())+"\t"+xFile.getName()+"\t"+
-						chsmap.get(xFile.getName())+"\t"+yFile.getName()+"\n");
 			} catch(IOException e) {
 				System.err.println("Ignored: "+e);
 			}
