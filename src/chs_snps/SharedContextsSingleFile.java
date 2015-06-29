@@ -66,11 +66,11 @@ public class SharedContextsSingleFile {
 		{
 			File xFile = list.get(x);
 			try {
-				HashMap<Long, ContextCount> map1 = 
+				/*HashMap<Long, ContextCount> map1 = 
 						CoPhylogBinaryFileReader.readBinaryFileRequireMin(xFile, MIN_NUMBER_READS);
 				
 				int len1 = map1.keySet().size();//number of contexts in map1
-				
+				*/
 				for( int y=x+1 ; y < list.size(); y++)
 				{
 					File yFile = list.get(y);
