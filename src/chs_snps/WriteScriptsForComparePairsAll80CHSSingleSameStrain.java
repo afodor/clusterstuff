@@ -70,11 +70,20 @@ public class WriteScriptsForComparePairsAll80CHSSingleSameStrain
 				
 			File outScriptFile = new File("/projects/afodor_research/kwinglee/cophylog_all80chs/runCompareSingleToSelf/runC" + index);
 				
-			allWriter.write("qsub -q \"Cobra_batch\" " + outScriptFile.getName() +  "\n");
+			/*allWriter.write("qsub -q \"Cobra_batch\" " + outScriptFile.getName() +  "\n");
 				
 			BufferedWriter scriptWriter = new BufferedWriter(new FileWriter(outScriptFile));
 			scriptWriter.write("#PBS -l nodes=1:ppn=12\n");
 			scriptWriter.write("java -cp /users/kwinglee/git/clusterstuff/bin -mx30000m " + 
+					"coPhylog.WriteSNPFile " + xFile.getAbsolutePath()  + " " + yFile.getAbsolutePath() + " " + 
+					outFile.getAbsolutePath());*/
+			
+			allWriter.write("qsub -q \"viper_batch\" " + outScriptFile.getName() +  "\n");
+			
+			BufferedWriter scriptWriter = new BufferedWriter(new FileWriter(outScriptFile));
+			scriptWriter.write("#PBS -l nodes=1:ppn=12\n");
+			scriptWriter.write("#PBS -W x=NODESET:ONEOF:FEATURE:ib_qdr\n");
+			scriptWriter.write("java -cp /users/kwinglee/git/clusterstuff/bin -Xmx64g " + 
 					"coPhylog.WriteSNPFile " + xFile.getAbsolutePath()  + " " + yFile.getAbsolutePath() + " " + 
 					outFile.getAbsolutePath());
 				
