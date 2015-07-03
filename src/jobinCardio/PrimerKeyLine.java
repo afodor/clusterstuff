@@ -58,7 +58,7 @@ public class PrimerKeyLine
 	
 	public boolean matchesForward(String s )
 	{
-		s = s.substring(0, forwardKey.length() + 5);
+		s = s.substring(0, forwardKey.length());
 		return forwardPattern.matcher(s).matches();
 	}
 
@@ -90,7 +90,7 @@ public class PrimerKeyLine
 				
 		}
 		
-		return buff.toString();
+		return "*" + buff.toString() + "*";
 	}
 	
 	private static String stripSpaces(String s) throws Exception
