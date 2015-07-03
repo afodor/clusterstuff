@@ -16,6 +16,7 @@ public class PrimerKeyLine
 	private final String experiment;
 	private final int experimentNum;
 	private final String group;
+	private final Pattern forwardPattern;
 	
 	private static final String FORWARD_PRIMER = 
 			"AATGATACGGCGACCACCGAGATCTACACTCTTTCCCTACACGACGCTCTTCCGATCT";
@@ -54,6 +55,12 @@ public class PrimerKeyLine
 	{
 		return FORWARD_PRIMER;
 	}
+	
+	public boolean matchesForward(String s )
+	{
+		s = s.substring(0, forwardKey.length());
+		return forwardPattern.matcher(s).matches();
+	}
 
 	private PrimerKeyLine(String s) throws Exception
 	{
@@ -64,6 +71,26 @@ public class PrimerKeyLine
 		this.experiment = splits[3];
 		this.experimentNum = Integer.parseInt(splits[4]);
 		this.group = splits[5];
+		this.forwardPattern= Pattern.compile(getForwardPatternString());
+	}
+	
+	private final String getForwardPatternString() throws Exception
+	{
+		StringBuffer buff = new StringBuffer();
+		
+		for(int x=0; x < this.forwardKey.length(); x++)
+		{
+			char c = this.forwardKey.charAt(x);
+			
+			if( c == 'A' || c== 'C' || c == 'G' || c == 'T')
+				buff.append(c);
+			else if ( c == 'M')
+				buff.append("[AC]");
+			else throw new Exception("No");
+				
+		}
+		
+		return buff.toString();
 	}
 	
 	private static String stripSpaces(String s) throws Exception
