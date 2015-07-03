@@ -16,8 +16,6 @@ import java.util.zip.GZIPOutputStream;
 import coPhylog.ContextCount;
 import coPhylog.ContextHash;
 import parsers.FastQ;
-import parsers.FastaSequence;
-import parsers.FastaSequenceOneAtATime;
 
 public class WriteBinaryContextsFromFastQ
 {

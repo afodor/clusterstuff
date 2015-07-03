@@ -4,18 +4,11 @@
  */
 package chs_snps;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
 public class SplitBig {
 	public static String outdir = "/projects/afodor_research/kwinglee/cophylog_all80chs/splitBig/";
