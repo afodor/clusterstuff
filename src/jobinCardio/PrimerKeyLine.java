@@ -16,6 +16,7 @@ public class PrimerKeyLine
 	private final int experimentNum;
 	private final String group;
 	private final Pattern forwardPattern;
+	private final Pattern reversePattern;
 	
 	private static final String FORWARD_PRIMER = 
 			"AATGATACGGCGACCACCGAGATCTACACTCTTTCCCTACACGACGCTCTTCCGATCT";
@@ -60,8 +61,14 @@ public class PrimerKeyLine
 	
 	public boolean matchesForward(String s )
 	{
-		s = s.substring(0, forwardKey.length());
+		s = s.substring(0, forwardKey.length() + 5);
 		return forwardPattern.matcher(s).find();
+	}
+	
+	public boolean matchesReverse(String s )
+	{
+		s = s.substring(0, reverseKey.length() + 5);
+		return reversePattern.matcher(s).find();
 	}
 
 	private PrimerKeyLine(String s) throws Exception
@@ -74,6 +81,28 @@ public class PrimerKeyLine
 		this.experimentNum = Integer.parseInt(splits[4]);
 		this.group = splits[5];
 		this.forwardPattern= Pattern.compile(getForwardPatternString());
+		this.reversePattern = Pattern.compile(getReversePatternString());
+	}
+	
+	private final String getReversePatternString() throws Exception
+	{
+		StringBuffer buff = new StringBuffer();
+		
+		for(int x=0; x < this.reverseKey.length(); x++)
+		{
+			char c = this.reverseKey.charAt(x);
+			
+			if( c == 'A' || c== 'C' || c == 'G' || c == 'T')
+				buff.append(c);
+			else if ( c == 'Y')
+				buff.append("[CT]");
+			else if ( c == 'R')
+				buff.append("[AG]");
+			else throw new Exception("No");
+				
+		}
+		
+		return buff.toString();
 	}
 	
 	private final String getForwardPatternString() throws Exception

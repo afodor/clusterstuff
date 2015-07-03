@@ -8,13 +8,14 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 import parsers.FastQ;
+import utils.Translate;
 
 public class Demultiplex
 {
 	public static File forwardSeqs = new File(
 			"/projects/afodor_research/JobinCardio/*/Sample_1-26241228/Data/Intensities/BaseCalls/Sample-Name-1_S1_L001_R1_001.fastq.gz");
 	
-	public static File ReverseSeqs = new File(
+	public static File reverseSeqs = new File(
 			"/projects/afodor_research/JobinCardio/*/Sample_1-26241228/Data/Intensities/BaseCalls/Sample-Name-1_S1_L001_R1_001.fastq.gz");
 	
 	public static File keyFile = new File(
@@ -27,17 +28,31 @@ public class Demultiplex
 		BufferedReader forwardReader =
 				new BufferedReader(new InputStreamReader( 
 						new GZIPInputStream( new FileInputStream( forwardSeqs))));
+		
+		BufferedReader backwardsReader =
+				new BufferedReader(new InputStreamReader( 
+						new GZIPInputStream( new FileInputStream( reverseSeqs))));		
 				
 		int numForwardMatch =0;
 		int numExamined =0;
 		for( FastQ forward = FastQ.readOneOrNull(forwardReader); forward != null;
 								forward = FastQ.readOneOrNull(forwardReader))
 		{
+			FastQ back = FastQ.readOneOrNull(backwardsReader);
+			
+			if(! forward.getFirstTokenOfHeader().equals(back.getFirstTokenOfHeader()))
+				throw new Exception("No " + forward.getFirstTokenOfHeader() + " " + 
+							back.getFirstTokenOfHeader());
+			
+			String reveseSeq = 
+					Translate.safeReverseTranscribe(back.getSequence());
+			
 			boolean gotOne = false;
 			
 			for( PrimerKeyLine pkl : primerList)
 			{
-				if( pkl.matchesForward(forward.getSequence()))
+				if( pkl.matchesForward(forward.getSequence()) &&
+							pkl.matchesReverse(reveseSeq))
 					gotOne = true;
 			}
 			
@@ -48,7 +63,7 @@ public class Demultiplex
 			
 			System.out.println(numForwardMatch + " " + numExamined);
 			
-			if( numExamined == 5000)
+			if( numExamined == 50000)
 				System.exit(1);
 		}
 	}
