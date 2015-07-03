@@ -58,7 +58,7 @@ public class PrimerKeyLine
 	
 	public boolean matchesForward(String s )
 	{
-		s = s.substring(0, forwardKey.length());
+		s = s.substring(0, forwardKey.length() + 5);
 		return forwardPattern.matcher(s).matches();
 	}
 
