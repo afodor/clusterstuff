@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import utils.Translate;
+
 public class PrimerKeyLine
 {
 	private final int sampleIndex;
@@ -180,10 +182,20 @@ public class PrimerKeyLine
 		Matcher m = myPattern.matcher("AATTTG");
 		*/
 			
+		/*
 		List<PrimerKeyLine> aList = getList("C:\\JobinCardio\\barcode Run2 5-30-2015.txt");
 		
 		for(PrimerKeyLine pkl : aList)
 			System.out.println(pkl.getExperiment());
+			*/
+		
+		String aSeq = "TCATCCAGCCGCCGCGGTAATACGGAGGATCCGAGCGTTATCCGGATTTATTGGGTTTAAAGGGAGCGTAGGCGGGTTGT" + 
+"TAAGTCAGTTGTGAAAGTTTGCGGCTCAACCGTAAAATTGCAGTTGATACTGGCGACCTTGAGTGCAACAGAGGTAGGCG"+
+"GAATTCGTGGTGTAGCGGTGAAATGCTTAGATATCACGAAGAACTCCGATTGCGAAGGCAGCTTACTGGATTGTAACTGA"+
+"CGCTGATGCTC";
+		
+		System.out.println(Translate.safeReverseTranscribe(aSeq));
+
 	}
 	
 }

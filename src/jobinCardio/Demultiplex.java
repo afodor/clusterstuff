@@ -16,7 +16,7 @@ public class Demultiplex
 			"/projects/afodor_research/JobinCardio/*/Sample_1-26241228/Data/Intensities/BaseCalls/Sample-Name-1_S1_L001_R1_001.fastq.gz");
 	
 	public static File reverseSeqs = new File(
-			"/projects/afodor_research/JobinCardio/*/Sample_1-26241228/Data/Intensities/BaseCalls/Sample-Name-1_S1_L001_R1_001.fastq.gz");
+			"/projects/afodor_research/JobinCardio/*/Sample_1-26241228/Data/Intensities/BaseCalls/Sample-Name-1_S1_L001_R1_002.fastq.gz");
 	
 	public static File keyFile = new File(
 			"/projects/afodor_research/JobinCardio/keys/barcode Run2 5-30-2015.txt");
@@ -44,12 +44,14 @@ public class Demultiplex
 				throw new Exception("No " + forward.getFirstTokenOfHeader() + " " + 
 							back.getFirstTokenOfHeader());
 			
+			String revSeq = Translate.safeReverseTranscribe(back.getSequence());
+			
 			boolean gotOne = false;
 			
 			for( PrimerKeyLine pkl : primerList)
 			{
 				if( pkl.matchesForward(forward.getSequence()) &&
-							pkl.matchesReverse(back.getSequence()))
+							pkl.matchesReverse(revSeq))
 					gotOne = true;
 			}
 			
