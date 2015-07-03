@@ -29,8 +29,10 @@ public class Demultiplex
 	{
 		List<PrimerKeyLine> primerList = PrimerKeyLine.getList(keyFile.getAbsolutePath());
 		
-		BufferedReader forwardReader = new BufferedReader(new InputStreamReader(new FileInputStream(forwardSeqs)));
-		
+		BufferedReader forwardReader =
+				new BufferedReader(new InputStreamReader( 
+						new GZIPInputStream( new FileInputStream( forwardSeqs))));
+				
 		int numForwardMatch =0;
 		int numExamined =0;
 		for( FastQ forward = FastQ.readOneOrNull(forwardReader); forward != null;
