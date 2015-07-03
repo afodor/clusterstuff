@@ -25,7 +25,7 @@ public class WriteSparseThreeColumn
 		{
 			 BufferedWriter writer = new BufferedWriter(
 					 	new FileWriter(new File(
-					 SPREADSHEETS_DIR.getAbsolutePath() + 
+					 SPREADSHEETS_DIR.getAbsolutePath() + File.separator + 
 					 		NewRDPParserFileLine.TAXA_ARRAY[x] + "_SparseThreeCol.txt")));
 			 taxaWriters.put(NewRDPParserFileLine.TAXA_ARRAY[x], writer);
 		}
