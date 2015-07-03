@@ -44,14 +44,14 @@ public class Demultiplex
 				throw new Exception("No " + forward.getFirstTokenOfHeader() + " " + 
 							back.getFirstTokenOfHeader());
 			
-			String revSeq = Translate.safeReverseTranscribe(back.getSequence());
+			//String revSeq = Translate.safeReverseTranscribe(back.getSequence());
 			
 			boolean gotOne = false;
 			
 			for( PrimerKeyLine pkl : primerList)
 			{
 				if( pkl.matchesForward(forward.getSequence()) &&
-							pkl.matchesReverse(revSeq))
+							pkl.matchesReverse(back.getSequence()))
 					gotOne = true;
 			}
 			
