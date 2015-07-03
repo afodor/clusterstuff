@@ -44,15 +44,12 @@ public class Demultiplex
 				throw new Exception("No " + forward.getFirstTokenOfHeader() + " " + 
 							back.getFirstTokenOfHeader());
 			
-			String reveseSeq = 
-					Translate.safeReverseTranscribe(back.getSequence());
-			
 			boolean gotOne = false;
 			
 			for( PrimerKeyLine pkl : primerList)
 			{
 				if( pkl.matchesForward(forward.getSequence()) &&
-							pkl.matchesReverse(reveseSeq))
+							pkl.matchesReverse(back.getSequence()))
 					gotOne = true;
 			}
 			
@@ -63,7 +60,7 @@ public class Demultiplex
 			
 			System.out.println(numForwardMatch + " " + numExamined);
 			
-			if( numExamined == 50000)
+			if( numExamined == 10000)
 				System.exit(1);
 		}
 	}
