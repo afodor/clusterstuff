@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class PrimerKeyLine
@@ -59,7 +58,7 @@ public class PrimerKeyLine
 	public boolean matchesForward(String s )
 	{
 		s = s.substring(0, forwardKey.length());
-		return forwardPattern.matcher(s).matches();
+		return forwardPattern.matcher(s).find();
 	}
 
 	private PrimerKeyLine(String s) throws Exception
@@ -90,7 +89,7 @@ public class PrimerKeyLine
 				
 		}
 		
-		return "*" + buff.toString() + "*";
+		return buff.toString();
 	}
 	
 	private static String stripSpaces(String s) throws Exception
@@ -134,9 +133,10 @@ public class PrimerKeyLine
 	
 	public static void main(String[] args) throws Exception
 	{
+		/*
 		Pattern myPattern = Pattern.compile("[AG]ATTT[CG]");
 		Matcher m = myPattern.matcher("AATTTG");
-		System.out.println( m.matches() );
+		*/
 			
 		List<PrimerKeyLine> aList = getList("C:\\JobinCardio\\barcode Run2 5-30-2015.txt");
 		
