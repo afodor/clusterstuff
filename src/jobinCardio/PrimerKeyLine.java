@@ -20,6 +20,9 @@ public class PrimerKeyLine
 	private static final String FORWARD_PRIMER = 
 			"AATGATACGGCGACCACCGAGATCTACACTCTTTCCCTACACGACGCTCTTCCGATCT";
 	
+	private static final String REVERSE_PRIMER = 
+			"CAAGCAGAAGACGGCATACGAGATCGGCATTCCTGCTGAACCGCTCTTCCGATCT";
+	
 	public int getSampleIndex()
 	{
 		return sampleIndex;
@@ -66,7 +69,7 @@ public class PrimerKeyLine
 		String[] splits = s.split("\t");
 		this.sampleIndex = Integer.parseInt(splits[0]);
 		this.forwardKey = removeForwardPrimer(splits[1]);
-		this.reverseKey = splits[2];
+		this.reverseKey = removeReversePrimer(splits[2]);
 		this.experiment = splits[3];
 		this.experimentNum = Integer.parseInt(splits[4]);
 		this.group = splits[5];
@@ -101,6 +104,16 @@ public class PrimerKeyLine
 				buff.append(s.charAt(x));
 		
 		return buff.toString();
+	}
+	
+	private static String removeReversePrimer(String s) throws Exception
+	{
+		s = stripSpaces(s);
+		
+		if ( ! s.startsWith(REVERSE_PRIMER))
+			throw new Exception("No");
+		
+		return s.replace(REVERSE_PRIMER, "");
 	}
 	
 	private static String removeForwardPrimer(String s) throws Exception
