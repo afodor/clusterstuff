@@ -47,7 +47,7 @@ public class MergeContexts {
 			//combine files into hash
 			String[] srrlist = csp[1].replace("[", "").replace("]", "").split(",");
 			for(int i = 0; i < srrlist.length; i++) {//for each file
-				for(int j = 1; j < 2; j++) {//forward and reverse reads
+				for(int j = 1; j <= 2; j++) {//forward and reverse reads
 					try {
 						//read file
 						HashMap<Long, ContextCount> m = CoPhylogBinaryFileReader.readBinaryFileRequireMin(new File(contextDir+"context"+srrlist[i].trim()+"_"+j+"_context.gz"), 2);
