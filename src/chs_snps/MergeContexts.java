@@ -73,7 +73,7 @@ public class MergeContexts {
 					
 					//update log
 					numDone++;
-					System.gc();
+					/*System.gc();
 
 					double fractionFree= 1- (Runtime.getRuntime().totalMemory()- ((double)Runtime.getRuntime().freeMemory() ))
 							/Runtime.getRuntime().totalMemory();
@@ -89,7 +89,7 @@ public class MergeContexts {
 
 					lastTime = System.currentTimeMillis();
 
-					logWriter.flush();
+					logWriter.flush();*/
 				}
 			}
 			
@@ -97,23 +97,25 @@ public class MergeContexts {
 			DataOutputStream out =new DataOutputStream( new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(outDir + chs + "_context.gz"))));
 			
 			out.writeInt(map.size());
+			int tot = 0;
 			
-			for( Long l : map.keySet() )
-			{
+			for( Long l : map.keySet() ) {
 
 				ContextCount cc = map.get(l);
 				int sum = cc.getSum();
+				tot += sum;
 				if(sum > MIN_READS) {
 					out.writeLong(l);
-					out.writeByte( cc.getAAsByte() );
-					out.writeByte( cc.getCAsByte());
+					out.writeByte(cc.getAAsByte());
+					out.writeByte(cc.getCAsByte());
 					out.writeByte(cc.getGAsByte());
-					out.writeByte( cc.getTAsByte());
+					out.writeByte(cc.getTAsByte());
 				}
-			}
+			} 
+			out.close();
 			
-			out.flush();  out.close();
-			
+			logWriter.write(chs + "\t" + tot + "\n");
+			logWriter.flush();
 			
 			line = convert.readLine();
 			
