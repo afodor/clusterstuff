@@ -4,9 +4,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 
-import utils.ConfigReader;
-
-
 public class WriteScriptsForCreatingBinaryFilesAll80CHS
 {
 	public static void main(String[] args) throws Exception
