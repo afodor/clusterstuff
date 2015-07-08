@@ -106,11 +106,34 @@ public class Test {
 		return(map);
 	}
 	
-	public static void writeZip(String strain) throws IOException {
+	private static void writeBinaryFile(File outFile, HashMap<Long, ContextCount> map ) throws Exception
+	{
+		DataOutputStream out =new DataOutputStream( new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(outFile))));
+		
+		out.writeInt(map.size());
+		
+		for( Long l : map.keySet() )
+		{
+			out.writeLong(l);
+			
+			ContextCount cc = map.get(l);
+			
+			out.writeByte( cc.getAAsByte() );
+			out.writeByte( cc.getCAsByte());
+			out.writeByte(cc.getGAsByte());
+			out.writeByte( cc.getTAsByte());
+		}
+		
+		out.flush();  out.close();
+		
+	}
+	
+	public static void writeZip(String strain) throws Exception {
 		HashMap<Long, ContextCount> map = getHash(strain);
 
 		//write results
-		DataOutputStream out =new DataOutputStream( new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(outDir + strain + "_context.gz"))));
+		writeBinaryFile(new File(outDir + strain + "_context.gz"), map);
+		/*DataOutputStream out =new DataOutputStream( new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(outDir + strain + "_context.gz"))));
 
 		out.writeInt(map.size());
 
@@ -127,7 +150,7 @@ public class Test {
 			}
 		} 
 		out.flush(); 
-		out.close();
+		out.close();*/
 			
 	}
 
