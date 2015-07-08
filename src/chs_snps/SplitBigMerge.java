@@ -11,7 +11,6 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.zip.GZIPOutputStream;
 
@@ -23,7 +22,28 @@ public class SplitBigMerge {
 	public static int MIN_READS = 2; //minimum number of reads to keep key; since files are split in 4, singletons will never be more than 5 (cutoff for context comparison) so can discard; note the code is >=
 	public static int MIN_READS_WRITE = 2; //minimum number of reads to write key; note the code is >
 	
-	public static void main(String[] args) throws IOException {
+	private static void writeBinaryFile(File outFile, HashMap<Long, ContextCount> map ) throws Exception {
+		DataOutputStream out =new DataOutputStream( new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(outFile))));
+		
+		out.writeInt(map.size());
+		
+		for( Long l : map.keySet() )
+		{
+			out.writeLong(l);
+			
+			ContextCount cc = map.get(l);
+			
+			out.writeByte(cc.getAAsByte());
+			out.writeByte(cc.getCAsByte());
+			out.writeByte(cc.getGAsByte());
+			out.writeByte(cc.getTAsByte());
+		}
+		
+		out.flush();  out.close();
+		
+	}
+	
+	public static void main(String[] args) throws Exception {
 		//set up log file
 		int numDone =0;
 		long lastTime = System.currentTimeMillis();
@@ -89,27 +109,8 @@ public class SplitBigMerge {
 			}
 					
 			//write results
-			DataOutputStream out =new DataOutputStream( new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(dir + "context" + big[b] + "_context.gz"))));
-					
-			out.writeInt(map.size());
-					
-			for( Long l : map.keySet() )
-			{
-
-				ContextCount cc = map.get(l);
-				int sum = cc.getSum();
-				if(sum > MIN_READS_WRITE) {
-					out.writeLong(l);
-					out.writeByte(cc.getAAsByte());
-					out.writeByte(cc.getCAsByte());
-					out.writeByte(cc.getGAsByte());
-					out.writeByte(cc.getTAsByte());
-				}
-			}
-					
-			out.flush();  out.close();
+			writeBinaryFile(new File(dir + "context" + big[b] + "_context.gz"), map);
 		}
-
 		logWriter.flush(); logWriter.close();				
 	}
 

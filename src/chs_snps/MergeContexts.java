@@ -20,6 +20,27 @@ public class MergeContexts {
 	public static String contextDir = "/projects/afodor_research/kwinglee/cophylog_all80chs/context/";//path to all context files
 	public static int MIN_READS = 1; //minimum number of reads to keep key
 	
+	private static void writeBinaryFile(File outFile, HashMap<Long, ContextCount> map ) throws Exception{
+		DataOutputStream out =new DataOutputStream( new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(outFile))));
+		
+		out.writeInt(map.size());
+		
+		for( Long l : map.keySet() )
+		{
+			out.writeLong(l);
+			
+			ContextCount cc = map.get(l);
+			
+			out.writeByte(cc.getAAsByte());
+			out.writeByte(cc.getCAsByte());
+			out.writeByte(cc.getGAsByte());
+			out.writeByte(cc.getTAsByte());
+		}
+		
+		out.flush();  out.close();
+		
+	}
+	
 	public static void main(String[] args) throws Exception {
 		//set up log file
 		int numDone =0;
@@ -46,7 +67,7 @@ public class MergeContexts {
 			
 			//combine files into hash
 			String[] srrlist = csp[1].replace("[", "").replace("]", "").split(",");
-			for(int i = 0; i < srrlist.length; i++) {//for each file
+			for(int i = 0; i < srrlist.length; i+=2) {//for each file
 				for(int j = 1; j <= 2; j++) {//forward and reverse reads
 					try {
 						//read file
@@ -94,28 +115,7 @@ public class MergeContexts {
 			}
 			
 			//write results
-			DataOutputStream out =new DataOutputStream( new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(outDir + chs + "_context.gz"))));
-			
-			out.writeInt(map.size());
-			int tot = 0;
-			
-			for( Long l : map.keySet() ) {
-
-				ContextCount cc = map.get(l);
-				int sum = cc.getSum();
-				tot += sum;
-				if(sum > MIN_READS) {
-					out.writeLong(l);
-					out.writeByte(cc.getAAsByte());
-					out.writeByte(cc.getCAsByte());
-					out.writeByte(cc.getGAsByte());
-					out.writeByte(cc.getTAsByte());
-				}
-			} 
-			out.close();
-			
-			logWriter.write(chs + "\t" + tot + "\n");
-			logWriter.flush();
+			writeBinaryFile(new File(outDir + chs + "_context.gz"), map);
 			
 			line = convert.readLine();
 			
