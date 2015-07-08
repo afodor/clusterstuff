@@ -73,6 +73,8 @@ public class Test {
 							//read file
 							HashMap<Long, ContextCount> m = CoPhylogBinaryFileReader.readBinaryFileRequireMin(new File(contextDir+"context"+srrlist[i].trim()+"_"+j+"_context.gz"), 2);
 
+							System.out.println(srrlist[i].trim()+"_"+j);
+							
 							//merge maps
 							for(Long key : m.keySet()) {
 								ContextCount con = m.get(key);
@@ -146,6 +148,8 @@ public class Test {
 							//read file
 							HashMap<Long, ContextCount> m = CoPhylogBinaryFileReader.readBinaryFileRequireMin(new File(contextDir+"context"+srrlist[i].trim()+"_"+j+"_context.gz"), 2);
 
+							System.out.println(srrlist[i].trim()+"_"+j);
+							
 							//merge maps
 							for(Long key : m.keySet()) {
 								ContextCount con = m.get(key);
