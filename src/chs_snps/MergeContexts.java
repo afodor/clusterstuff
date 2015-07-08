@@ -73,7 +73,7 @@ public class MergeContexts {
 					
 					//update log
 					numDone++;
-					/*System.gc();
+					System.gc();
 
 					double fractionFree= 1- (Runtime.getRuntime().totalMemory()- ((double)Runtime.getRuntime().freeMemory() ))
 							/Runtime.getRuntime().totalMemory();
@@ -89,7 +89,7 @@ public class MergeContexts {
 
 					lastTime = System.currentTimeMillis();
 
-					logWriter.flush();*/
+					logWriter.flush();
 				}
 			}
 			
