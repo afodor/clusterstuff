@@ -35,7 +35,7 @@ public class Test {
 		} else if(args[0].equals("4")) {
 			read(outDir + strain + "_context_unzip.gz");
 		} else if(args[0].equals("5")) {
-			read("/projects/afodor_research/kwinglee/cophylog_all80chs/splitBig/contextSRR1159345_1_context.gz");
+			read("/projects/afodor_research/kwinglee/cophylog_all80chs/splitBig/contextSRR1159345_1A_context.gz");
 			//read("/projects/afodor_research/kwinglee/cophylog_all80chs/context/contextSRR1206030_2_context.gz");
 		} else {
 			System.err.println("Usage: 1=write gzip file, 2=write unzipped file, 3=read gzip file, 4=read unzipped file, 5=read context file");
@@ -134,8 +134,8 @@ public class Test {
 		System.out.println(map.size());
 
 		//write results
-		//writeBinaryFile(new File(outDir + strain + "_context.gz"), map);
-		File outFile = new File(outDir + strain + "_context.gz");
+		writeBinaryFile(new File(outDir + strain + "_context.gz"), map);
+		/*File outFile = new File(outDir + strain + "_context.gz");
 		DataOutputStream out =new DataOutputStream( new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(outFile))));
 
 		out.writeInt(map.size());
@@ -153,7 +153,7 @@ public class Test {
 			}
 		} 
 		out.flush(); 
-		out.close();
+		out.close();*/
 			
 	}
 
