@@ -135,7 +135,8 @@ public class Test {
 
 		//write results
 		//writeBinaryFile(new File(outDir + strain + "_context.gz"), map);
-		DataOutputStream out =new DataOutputStream( new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(new File(outDir + strain + "_context.gz")))));
+		File outFile = new File(outDir + strain + "_context.gz");
+		DataOutputStream out =new DataOutputStream( new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(outFile))));
 
 		out.writeInt(map.size());
 
