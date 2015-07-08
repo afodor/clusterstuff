@@ -67,7 +67,7 @@ public class Test {
 
 				//combine files into hash
 				String[] srrlist = csp[1].replace("[", "").replace("]", "").split(",");
-				for(int i = 0; i < srrlist.length; i++) {//for each file
+				for(int i = 0; i < srrlist.length; i+=2) {//for each file
 					for(int j = 1; j <= 2; j++) {//forward and reverse reads
 						try {
 							//read file
@@ -142,7 +142,7 @@ public class Test {
 
 				//combine files into hash
 				String[] srrlist = csp[1].replace("[", "").replace("]", "").split(",");
-				for(int i = 0; i < srrlist.length; i++) {//for each file
+				for(int i = 0; i < srrlist.length; i+=2) {//read every other file, because each file is listed twice
 					for(int j = 1; j <= 2; j++) {//forward and reverse reads
 						try {
 							//read file
