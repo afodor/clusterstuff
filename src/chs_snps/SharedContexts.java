@@ -82,11 +82,11 @@ public class SharedContexts {
 
 						out.flush(); 
 						} catch(IOException e) {
-						System.err.println("Ignored: "+e);
+						System.err.println(yFile.getName() + " : "+e);
 					}
 				}
 			} catch(IOException e) {
-				System.err.println("Ignored: "+e);
+				System.err.println(xFile.getName() + " : "+e);
 			}
 			
 		}
