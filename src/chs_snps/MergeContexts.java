@@ -88,7 +88,7 @@ public class MergeContexts {
 							}
 						}
 					} catch (Exception e) {
-						System.err.println(e);
+						System.err.println(chs + " : " + srrlist[i].trim()+"_"+j + " : " + e);
 					}
 					
 					
