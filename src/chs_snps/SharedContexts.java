@@ -83,10 +83,12 @@ public class SharedContexts {
 						out.flush(); 
 						} catch(IOException e) {
 						System.err.println(yFile.getName() + " : "+e);
+						System.err.println(e.getMessage() + "\n");
 					}
 				}
 			} catch(IOException e) {
 				System.err.println(xFile.getName() + " : "+e);
+				System.err.println(e.getMessage() + "\n");
 			}
 			
 		}

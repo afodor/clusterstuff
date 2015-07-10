@@ -94,6 +94,7 @@ public class SharedContextsSingleFile {
 						out.flush(); 
 						} catch(IOException e) {
 						System.err.println(yFile.getName() + " : "+e);
+						System.err.println(e.getMessage() + "\n");
 					}
 				}
 				//compare to self
@@ -116,6 +117,7 @@ public class SharedContextsSingleFile {
 				out.flush();
 			} catch(IOException e) {
 				System.err.println(xFile.getName() + " : "+e);
+				System.err.println(e.getMessage() + "\n");
 			}
 			
 		}
