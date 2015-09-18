@@ -20,7 +20,7 @@ public class CreateRDPQSub
 		List<File> allShFiles = new ArrayList<File>();
 		
 		for(String s : files)
-			if( s.endsWith("fasta"))
+			if( s.endsWith("fasta") && s.indexOf(" ") != -1)
 		{
 			countNum++;
 			File fastaFile = new File(FASTA_DIR.getAbsolutePath() + File.separator + s);
@@ -34,7 +34,7 @@ public class CreateRDPQSub
 			BufferedWriter writer = new BufferedWriter( new FileWriter(runFile));
 			
 			writer.write("java -jar /users/afodor/rdp/rdp_classifier_2.10.1/dist/classifier.jar " + 
-					"-o " + rdpOutFile.getAbsolutePath()  + " -q " + fastaFile+ "\n" );
+					"-o \"" + rdpOutFile.getAbsolutePath()  + "\" -q \"" + fastaFile+ "\"\n" );
 					
 			writer.flush();  writer.close();
 			
