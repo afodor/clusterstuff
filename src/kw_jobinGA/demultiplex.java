@@ -19,11 +19,12 @@ import java.util.zip.GZIPInputStream;
 
 public class demultiplex {
 	//directory containing the needed files; also where will write results
-	//public static final String DIR = "/projects/afodor_research/kwinglee/jobin/ga-stool/";
-	public static final String DIR = "C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\GA-stools\\V1_V3_16S_GA+stools_2-25611692\\Sample_1-29344834\\Data\\Intensities\\BaseCalls\\";
+	public static final String DIR = "/projects/afodor_research/kwinglee/jobin/ga-stool/";
+	//public static final String DIR = "C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\GA-stools\\V1_V3_16S_GA+stools_2-25611692\\Sample_1-29344834\\Data\\Intensities\\BaseCalls\\";
 
 	public static void main(String[] args) throws IOException {
-		analyze("Sample-Name-1_S1_L001_R1_001.fastq.gz", "Run2_R1_");
+		//analyze("Sample-Name-1_S1_L001_R1_001.fastq.gz", "Run2_R1_");
+		analyze("Run2-Sample-Name-1_S1_L001_R1_001.fastq.gz", "Run2_R1_");
 	}
 	
 	/**
