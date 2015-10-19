@@ -19,12 +19,23 @@ import java.util.zip.GZIPInputStream;
 
 public class demultiplex {
 	//directory containing the needed files; also where will write results
-	public static final String DIR = "/projects/afodor_research/kwinglee/jobin/ga-stool/";
-	//public static final String DIR = "C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\GA-stools\\V1_V3_16S_GA+stools_2-25611692\\Sample_1-29344834\\Data\\Intensities\\BaseCalls\\";
+	//public static final String DIR = "/projects/afodor_research/kwinglee/jobin/ga-stool/";
+	public static final String DIR = "C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\GA-stools\\V1_V3_16S_GA+stools_2-25611692\\Sample_1-29344834\\Data\\Intensities\\BaseCalls\\";
 
+	public static final String[] FWD_PRIMERS = {"F12", "F13", "F14", "F15"};//forward primers used
+	public static String[] REV_PRIMERS = {};//reverse primers; filled in in main
+	private static HashMap<String, String> pToSeq;//hash of primer to primer sequence
+	private static int numMultiple = 0;
+	
 	public static void main(String[] args) throws IOException {
-		//analyze("Sample-Name-1_S1_L001_R1_001.fastq.gz", "Run2_R1_");
-		analyze("Run2-Sample-Name-1_S1_L001_R1_001.fastq.gz", "Run2_R1_");
+		//make list of reverse primers used
+		REV_PRIMERS = new String[16];
+		for(int i = 1; i < 17; i++) {
+			REV_PRIMERS[i-1] = "R" + Integer.toString(i);
+		}
+				
+		analyze("Sample-Name-1_S1_L001_R1_001.fastq.gz", "Sample-Name-1_S1_L001_R2_001.fastq.gz", "Run2_");
+		//analyze("Run2-Sample-Name-1_S1_L001_R1_001.fastq.gz", "Run2-Sample-Name-1_S1_L001_R2_001.fastq.gz", "Run2_R1_");
 	}
 	
 	/**
@@ -51,22 +62,78 @@ public class demultiplex {
 		return(rev);
 	}
 	
-	public static void analyze(String fastqFile, String outPrefix) throws IOException {
+	/**
+	 * Return the primer sequence for a given read (seq)
+	 * @param seq
+	 * @return
+	 */
+	public static String getPrimer(String seq) {
+		String primer = null;
+		//iterate over primers
+		Iterator<String> it = pToSeq.keySet().iterator();
+		while(it.hasNext()) {
+			String p = it.next();
+			String pseq = pToSeq.get(p);
+			if(seq.startsWith(pseq) ||
+					seq.startsWith(revComp(pseq)) ||
+					seq.endsWith(pseq) ||
+					seq.endsWith(revComp(pseq))){
+				if(primer != null) {//multiple primers
+					numMultiple++;
+					return(null);
+				}
+				primer = p;
+			}
+		}
+		return(primer);
+		
+		
+		/*for(int f = 0; f < FWD_PRIMERS.length; f++) {//iterate over forward primers
+			String fseq = pToSeq.get(FWD_PRIMERS[f]);
+			if(seq.startsWith(fseq) ||
+					seq.startsWith(revComp(fseq)) ||
+					seq.endsWith(fseq) ||
+					seq.endsWith(revComp(fseq))){ //f is the beginning of the sequence
+				//remove forward primer
+				seq = seq.replace(fseq, "");
+				seq = seq.replace(revComp(fseq), "");
+				for(int r = 0; r < REV_PRIMERS.length; r++) {
+					String rseq = pToSeq.get(REV_PRIMERS[r]);
+					if(seq.startsWith(rseq) ||
+							seq.startsWith(revComp(rseq)) ||
+							seq.endsWith(rseq) ||
+							seq.endsWith(revComp(rseq))) {
+						//remove reverse primer
+						seq = seq.replace(rseq, "");
+						seq = seq.replace(revComp(rseq), "");
+						numRevEnd++;
+						break;
+					}
+				}
+				break;
+			}
+		}*/
+	}
+	
+	public static void analyze(String fastqFileF, String fastqFileR, String outPrefix) throws IOException {
 		//set up dictionary of primer name to primer sequence
-		HashMap<String, String> pToSeq = new HashMap<String, String>();
+		pToSeq = new HashMap<String, String>();
 		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(DIR + "primer_to_sequence.txt"))));
 		br.readLine();//header
 		String line = br.readLine();
 		while(line != null) {
 			String[] sp = line.split("\t");
-			pToSeq.put(sp[0].split("_")[2], sp[1]);
+			String pseq = sp[1].replace("AATGATACGGCGACCACCGAGATCTACACTCTTTCCCTACACGACGCTCTTCCGATCT", "");//this initial part of the forward primer seems to have been already removed
+			pseq = pseq.replace("CAAGCAGAAGACGGCATACGAGATCGGCATTCCTGCTGAACCGCTCTTCCGATCT", "");//5' reverse read
+			//pseq = pseq.replace("ATTACCGCGGCTGCTGG", "");//3' of reverse
+			pToSeq.put(sp[0].split("_")[2], pseq);
 			line = br.readLine();
 		}
 		br.close();
 		//check
-		/*Iterator<String> it = pToSeq.keySet().iterator();
-		while(it.hasNext()) {
-			String k = it.next();
+		/*Iterator<String> test = pToSeq.keySet().iterator();
+		while(test.hasNext()) {
+			String k = test.next();
 			System.out.println(k + "\t" + pToSeq.get(k));
 		}
 		System.out.println(pToSeq.get("F12"));
@@ -75,7 +142,7 @@ public class demultiplex {
 		//set up dictionary of forward-reverse primer pair to sample (ex F12R1 -> S1)
 		//and set up dictionary of sample id to writer
 		HashMap<String, String> pToSamp = new HashMap<String, String>();//primer pair to sample
-		HashMap<String, BufferedWriter> sToFile = new HashMap<String, BufferedWriter>();//sample to sample's output file
+		HashMap<String, BufferedWriter[]> sToFile = new HashMap<String, BufferedWriter[]>();//sample to sample's output file
 		br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(DIR + "primer_to_sample.txt"))));
 		br.readLine();//header
 		line = br.readLine();
@@ -83,8 +150,9 @@ public class demultiplex {
 			String[] sp = line.split("\t");
 			String samp = sp[1]; //sample name
 			pToSamp.put(sp[2]+sp[3], samp);
-			sToFile.put(samp, 
-					new BufferedWriter(new FileWriter(new File(DIR + outPrefix + samp))));
+			BufferedWriter[] files = {new BufferedWriter(new FileWriter(new File(DIR + outPrefix + "R1_" + samp + ".fasta"))),
+					new BufferedWriter(new FileWriter(new File(DIR + outPrefix + "R2_" + samp + ".fasta")))};
+			sToFile.put(samp, files);
 			line = br.readLine();
 		}
 		br.close();
@@ -96,28 +164,32 @@ public class demultiplex {
 		}*/
 		
 		//add extra "other" file for unmatched reads
-		sToFile.put("other",
-				new BufferedWriter(new FileWriter(new File(DIR + outPrefix + "other"))));
-		
-		//list of primers used
-		String[] forward = {"F12", "F13", "F14", "F15"};
-		String[] reverse = new String[16];
-		for(int i = 1; i < 17; i++) {
-			reverse[i-1] = "R" + Integer.toString(i);
-		}
+		BufferedWriter[] files = {new BufferedWriter(new FileWriter(new File(DIR + outPrefix + "R1_other.fasta"))),
+				new BufferedWriter(new FileWriter(new File(DIR + outPrefix + "R2_other.fasta")))};
+		sToFile.put("other", files);
 		
 		
 		//read fastq file
 		//convert each read to fast and determine the correct read
-		BufferedReader fastq = new BufferedReader(new InputStreamReader(new GZIPInputStream( new FileInputStream(DIR + fastqFile))));
-		String l1 = fastq.readLine();//first line of read (@Seqid)
-		while(l1 != null) {
+		BufferedReader fastqF = new BufferedReader(new InputStreamReader(new GZIPInputStream( new FileInputStream(DIR + fastqFileF))));
+		BufferedReader fastqR = new BufferedReader(new InputStreamReader(new GZIPInputStream( new FileInputStream(DIR + fastqFileR))));
+		String headF = fastqF.readLine();//first line of read (@Seqid) for forward reads
+		String headR = fastqR.readLine();
+		int numRead = 0;
+		int numMatch = 0;
+		while(headF != null && headR != null) {
 			//get rest of read info
-			String l2 = fastq.readLine(); //second line of read (actual sequence)
-			fastq.readLine();//third line (+)
-			fastq.readLine();//4th line (quality scores)
+			String readF = fastqF.readLine(); //second line of read (actual sequence) for forward reads
+			fastqF.readLine();//third line (+)
+			fastqF.readLine();//4th line (quality scores)
+			String readR = fastqR.readLine();
+			fastqR.readLine();
+			fastqR.readLine();
+			numRead++;
+			//System.out.println(seq);
 			
-			String header = l1.replace("@", ">");//fasta header
+			String headerF = headF.replace("@", ">");//fasta header
+			String headerR = headR.replace("@", ">");
 			
 			//figure out what the sample is
 			/**
@@ -125,52 +197,70 @@ public class demultiplex {
 			 * not checking that both are reverse complemented or both forward
 			 */
 			String samp = "other";
-			String fwd = "";
-			String rev = "";
-			for(int f = 0; f < forward.length; f++) {//iterate over forward primers
-				String fseq = pToSeq.get(forward[f]);
-				if(l1.startsWith(fseq) ||
-						l1.startsWith(revComp(fseq)) ||
-						l1.endsWith(fseq) ||
-						l1.endsWith(revComp(fseq))){ //f is the beginning of the sequence
-					fwd = forward[f];
-					//remove forward primer
-					l1 = l1.replace(fseq, "");
-					l1 = l1.replace(revComp(fseq), "");
-					for(int r = 0; r < reverse.length; r++) {
-						String rseq = pToSeq.get(reverse[r]);
-						if(l1.startsWith(rseq) ||
-								l1.startsWith(revComp(rseq)) ||
-								l1.endsWith(rseq) ||
-								l1.endsWith(revComp(rseq))) {
-							rev = reverse[r];
-							//remove reverse primer
-							l1 = l1.replace(rseq, "");
-							l1 = l1.replace(revComp(rseq), "");
-							break;
-						}
-					}
-					break;
+			String pF = getPrimer(readF);
+			String pR = getPrimer(readR);
+			
+			
+			//trim primers from sequence
+			String key = "";
+			if(pF != null && pR != null) {
+				readF = readF.replace(pToSeq.get(pF), "");
+				readF = readF.replace(revComp(pToSeq.get(pF)), "");
+				readR = readR.replace(pToSeq.get(pR), "");
+				readR = readR.replace(revComp(pToSeq.get(pR)), "");
+				
+				//check that one is a fwd primer and one is rev
+				String fwd = "";
+				String rev = "";
+				if(pF.startsWith("F") && pR.startsWith("R")) {
+					fwd = pF;
+					rev = pR;
+					numMatch++;
+				} else if(pF.startsWith("R") && pR.startsWith("F")) {
+					fwd = pR;
+					rev = pF;
+					numMatch++;
 				}
+				
+				key = fwd+rev;
 			}
-			String key = fwd+rev;
+			
 			if(pToSamp.containsKey(key)) {
 				samp = pToSamp.get(key);
 			}
 			
-			//write to file
-			BufferedWriter out = sToFile.get(samp);
-			out.write(header + "\n" + l1 + "\n");
+			if(numRead % 10000 == 0) {
+				System.out.println("numread = " + numRead + " num sorted = " + numMatch + " num multiple " + numMultiple);
+			}
 			
-			l1 = fastq.readLine();
+			//write to file
+			//Forward read
+			BufferedWriter out = sToFile.get(samp)[0];
+			out.write(headerF + "\n" + readF + "\n");
+			//Reverse read
+			out = sToFile.get(samp)[1];
+			out.write(headerR = "\n" + readR + "\n");
+			
+			headF = fastqF.readLine();
+			headR = fastqR.readLine();
+		}
+		
+		if((headF != null && headR == null) ||
+				headF == null && headR != null) {
+			System.out.println("Uneven number of reads");
 		}
 		
 		//close all files
-		fastq.close();
+		System.out.println("Total reads = " + numRead);//13896021
+		System.out.println("Reads matched = " + numMatch);//8081744
+		System.out.println("Reads with multiple primers = " + numMultiple);//1166833
+		fastqF.close();
+		fastqR.close();
 		Iterator<String> it = sToFile.keySet().iterator();
 		while(it.hasNext()) {
 			String k = it.next();
-			sToFile.get(k).close();
+			sToFile.get(k)[0].close();
+			sToFile.get(k)[1].close();
 		}
 	}
 }
