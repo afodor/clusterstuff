@@ -17,8 +17,8 @@ import java.util.zip.GZIPInputStream;
 
 public class demultiplex {
 	//directory containing the needed files; also where will write results
-	//public static final String DIR = "/projects/afodor_research/kwinglee/jobin/ga-stool/";
-	public static final String DIR = "C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\GA-stools\\V1_V3_16S_GA+stools_2-25611692\\Sample_1-29344834\\Data\\Intensities\\BaseCalls\\";
+	public static final String DIR = "/projects/afodor_research/kwinglee/jobin/ga-stool/";
+	//public static final String DIR = "C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\GA-stools\\V1_V3_16S_GA+stools_2-25611692\\Sample_1-29344834\\Data\\Intensities\\BaseCalls\\";
 
 	public static final String[] FWD_PRIMERS = {"F12", "F13", "F14", "F15"};//forward primers used
 	public static String[] REV_PRIMERS = {};//reverse primers; filled in in main
@@ -32,9 +32,9 @@ public class demultiplex {
 			REV_PRIMERS[i-1] = "R" + Integer.toString(i);
 		}
 				
-		analyze("Sample-Name-1_S1_L001_R1_001.fastq.gz", "Sample-Name-1_S1_L001_R2_001.fastq.gz", "Run2_");
-		//analyze("Run2-Sample-Name-1_S1_L001_R1_001.fastq.gz", "Run2-Sample-Name-1_S1_L001_R2_001.fastq.gz", "Run2_");
-		//analyze("Run1-Sample-Name-1_S1_L001_R1_001.fastq.gz", "Run1-Sample-Name-1_S1_L001_R2_001.fastq.gz", "Run1_");
+		//analyze("Sample-Name-1_S1_L001_R1_001.fastq.gz", "Sample-Name-1_S1_L001_R2_001.fastq.gz", "Run2_");
+		analyze("Run2-Sample-Name-1_S1_L001_R1_001.fastq.gz", "Run2-Sample-Name-1_S1_L001_R2_001.fastq.gz", "Run2_");
+		analyze("Run1-Sample-Name-1_S1_L001_R1_001.fastq.gz", "Run1-Sample-Name-1_S1_L001_R2_001.fastq.gz", "Run1_");
 	}
 	
 	/**
