@@ -20,18 +20,10 @@ public class demultiplex {
 	public static final String DIR = "/projects/afodor_research/kwinglee/jobin/ga-stool/";
 	//public static final String DIR = "C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\GA-stools\\V1_V3_16S_GA+stools_2-25611692\\Sample_1-29344834\\Data\\Intensities\\BaseCalls\\";
 
-	public static final String[] FWD_PRIMERS = {"F12", "F13", "F14", "F15"};//forward primers used
-	public static String[] REV_PRIMERS = {};//reverse primers; filled in in main
-	private static HashMap<String, String> pToSeq;//hash of primer to primer sequence
+	private static HashMap<String, String> P_TO_SEQ;//hash of primer to primer sequence
 	private static int numMultiple = 0;
 	
 	public static void main(String[] args) throws IOException {
-		//make list of reverse primers used
-		REV_PRIMERS = new String[16];
-		for(int i = 1; i < 17; i++) {
-			REV_PRIMERS[i-1] = "R" + Integer.toString(i);
-		}
-				
 		//analyze("Sample-Name-1_S1_L001_R1_001.fastq.gz", "Sample-Name-1_S1_L001_R2_001.fastq.gz", "Run2_");
 		analyze("Run2-Sample-Name-1_S1_L001_R1_001.fastq.gz", "Run2-Sample-Name-1_S1_L001_R2_001.fastq.gz", "Run2_");
 		analyze("Run1-Sample-Name-1_S1_L001_R1_001.fastq.gz", "Run1-Sample-Name-1_S1_L001_R2_001.fastq.gz", "Run1_");
@@ -69,10 +61,10 @@ public class demultiplex {
 	public static String getPrimer(String seq) {
 		String primer = null;
 		//iterate over primers
-		Iterator<String> it = pToSeq.keySet().iterator();
+		Iterator<String> it = P_TO_SEQ.keySet().iterator();
 		while(it.hasNext()) {
 			String p = it.next();
-			String pseq = pToSeq.get(p);
+			String pseq = P_TO_SEQ.get(p);
 			if(seq.startsWith(pseq) ||
 					seq.startsWith(revComp(pseq)) ||
 					seq.endsWith(pseq) ||
@@ -86,37 +78,11 @@ public class demultiplex {
 		}
 		return(primer);
 		
-		
-		/*for(int f = 0; f < FWD_PRIMERS.length; f++) {//iterate over forward primers
-			String fseq = pToSeq.get(FWD_PRIMERS[f]);
-			if(seq.startsWith(fseq) ||
-					seq.startsWith(revComp(fseq)) ||
-					seq.endsWith(fseq) ||
-					seq.endsWith(revComp(fseq))){ //f is the beginning of the sequence
-				//remove forward primer
-				seq = seq.replace(fseq, "");
-				seq = seq.replace(revComp(fseq), "");
-				for(int r = 0; r < REV_PRIMERS.length; r++) {
-					String rseq = pToSeq.get(REV_PRIMERS[r]);
-					if(seq.startsWith(rseq) ||
-							seq.startsWith(revComp(rseq)) ||
-							seq.endsWith(rseq) ||
-							seq.endsWith(revComp(rseq))) {
-						//remove reverse primer
-						seq = seq.replace(rseq, "");
-						seq = seq.replace(revComp(rseq), "");
-						numRevEnd++;
-						break;
-					}
-				}
-				break;
-			}
-		}*/
 	}
 	
 	public static void analyze(String fastqFileF, String fastqFileR, String outPrefix) throws IOException {
 		//set up dictionary of primer name to primer sequence
-		pToSeq = new HashMap<String, String>();
+		P_TO_SEQ = new HashMap<String, String>();
 		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(DIR + "primer_to_sequence.txt"))));
 		br.readLine();//header
 		String line = br.readLine();
@@ -125,21 +91,13 @@ public class demultiplex {
 			String pseq = sp[1].replace("AATGATACGGCGACCACCGAGATCTACACTCTTTCCCTACACGACGCTCTTCCGATCT", "");//this initial part of the forward primer seems to have been already removed
 			pseq = pseq.replace("CAAGCAGAAGACGGCATACGAGATCGGCATTCCTGCTGAACCGCTCTTCCGATCT", "");//5' reverse read
 			//pseq = pseq.replace("ATTACCGCGGCTGCTGG", "");//3' of reverse
-			pToSeq.put(sp[0].split("_")[2], pseq);
+			P_TO_SEQ.put(sp[0].split("_")[2], pseq);
 			line = br.readLine();
 		}
 		br.close();
-		//check
-		/*Iterator<String> test = pToSeq.keySet().iterator();
-		while(test.hasNext()) {
-			String k = test.next();
-			System.out.println(k + "\t" + pToSeq.get(k));
-		}
-		System.out.println(pToSeq.get("F12"));
-		System.out.println(revComp(pToSeq.get("F12")));*/
 		
 		//set up dictionary of forward-reverse primer pair to sample (ex F12R1 -> S1)
-		//and set up dictionary of sample id to writer
+		//and set up dictionary of sample id to writers
 		HashMap<String, String> pToSamp = new HashMap<String, String>();//primer pair to sample
 		HashMap<String, BufferedWriter[]> sToFile = new HashMap<String, BufferedWriter[]>();//sample to sample's output file
 		br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(DIR + "primer_to_sample.txt"))));
@@ -155,12 +113,6 @@ public class demultiplex {
 			line = br.readLine();
 		}
 		br.close();
-		//check
-		/*Iterator<String> it = pToSamp.keySet().iterator();
-		while(it.hasNext()) {
-			String k = it.next();
-			System.out.println(k + "\t" + pToSamp.get(k));
-		}*/
 		
 		//add extra "other" file for unmatched reads
 		BufferedWriter[] files = {new BufferedWriter(new FileWriter(new File(DIR + outPrefix + "R1_other.fasta"))),
@@ -185,7 +137,6 @@ public class demultiplex {
 			fastqR.readLine();
 			fastqR.readLine();
 			numRead++;
-			//System.out.println(seq);
 			
 			String headerF = headF.replaceFirst("@", ">");//fasta header
 			String headerR = headR.replaceFirst("@", ">");
@@ -222,10 +173,10 @@ public class demultiplex {
 			if(pToSamp.containsKey(key)) {
 				samp = pToSamp.get(key);
 				//only remove primers if not going into other category
-				readF = readF.replace(pToSeq.get(pF), "");
-				readF = readF.replace(revComp(pToSeq.get(pF)), "");
-				readR = readR.replace(pToSeq.get(pR), "");
-				readR = readR.replace(revComp(pToSeq.get(pR)), "");
+				readF = readF.replace(P_TO_SEQ.get(pF), "");
+				readF = readF.replace(revComp(P_TO_SEQ.get(pF)), "");
+				readR = readR.replace(P_TO_SEQ.get(pR), "");
+				readR = readR.replace(revComp(P_TO_SEQ.get(pR)), "");
 			}
 			
 			if(numRead % 1000000 == 0) {
