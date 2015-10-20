@@ -8,19 +8,17 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
 public class demultiplex {
 	//directory containing the needed files; also where will write results
-	public static final String DIR = "/projects/afodor_research/kwinglee/jobin/ga-stool/";
-	//public static final String DIR = "C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\GA-stools\\V1_V3_16S_GA+stools_2-25611692\\Sample_1-29344834\\Data\\Intensities\\BaseCalls\\";
+	//public static final String DIR = "/projects/afodor_research/kwinglee/jobin/ga-stool/";
+	public static final String DIR = "C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\GA-stools\\V1_V3_16S_GA+stools_2-25611692\\Sample_1-29344834\\Data\\Intensities\\BaseCalls\\";
 
 	public static final String[] FWD_PRIMERS = {"F12", "F13", "F14", "F15"};//forward primers used
 	public static String[] REV_PRIMERS = {};//reverse primers; filled in in main
@@ -34,9 +32,9 @@ public class demultiplex {
 			REV_PRIMERS[i-1] = "R" + Integer.toString(i);
 		}
 				
-		//analyze("Sample-Name-1_S1_L001_R1_001.fastq.gz", "Sample-Name-1_S1_L001_R2_001.fastq.gz", "Run2_");
-		analyze("Run2-Sample-Name-1_S1_L001_R1_001.fastq.gz", "Run2-Sample-Name-1_S1_L001_R2_001.fastq.gz", "Run2_");
-		analyze("Run1-Sample-Name-1_S1_L001_R1_001.fastq.gz", "Run1-Sample-Name-1_S1_L001_R2_001.fastq.gz", "Run1_");
+		analyze("Sample-Name-1_S1_L001_R1_001.fastq.gz", "Sample-Name-1_S1_L001_R2_001.fastq.gz", "Run2_");
+		//analyze("Run2-Sample-Name-1_S1_L001_R1_001.fastq.gz", "Run2-Sample-Name-1_S1_L001_R2_001.fastq.gz", "Run2_");
+		//analyze("Run1-Sample-Name-1_S1_L001_R1_001.fastq.gz", "Run1-Sample-Name-1_S1_L001_R2_001.fastq.gz", "Run1_");
 	}
 	
 	/**
@@ -204,10 +202,7 @@ public class demultiplex {
 			
 			//trim primers from sequence
 			String key = "";
-			if(pF != null && pR != null) {
-				readF = readF.replace(pToSeq.get(pF), "");
-				readR = readR.replace(pToSeq.get(pR), "");
-				
+			if(pF != null && pR != null) {				
 				//check that one is a fwd primer and one is rev
 				String fwd = "";
 				String rev = "";
@@ -227,11 +222,13 @@ public class demultiplex {
 			if(pToSamp.containsKey(key)) {
 				samp = pToSamp.get(key);
 				//only remove primers if not going into other category
+				readF = readF.replace(pToSeq.get(pF), "");
 				readF = readF.replace(revComp(pToSeq.get(pF)), "");
+				readR = readR.replace(pToSeq.get(pR), "");
 				readR = readR.replace(revComp(pToSeq.get(pR)), "");
 			}
 			
-			if(numRead % 10000 == 0) {
+			if(numRead % 1000000 == 0) {
 				System.out.println("numread = " + numRead + " num sorted = " + numMatch + " num multiple " + numMultiple);
 			}
 			
@@ -241,7 +238,7 @@ public class demultiplex {
 			out.write(headerF + "\n" + readF + "\n");
 			//Reverse read
 			out = sToFile.get(samp)[1];
-			out.write(headerR = "\n" + readR + "\n");
+			out.write(headerR + "\n" + readR + "\n");
 			
 			headF = fastqF.readLine();
 			headR = fastqR.readLine();
