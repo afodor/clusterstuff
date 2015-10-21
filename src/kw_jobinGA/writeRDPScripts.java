@@ -24,7 +24,7 @@ public class writeRDPScripts {
 		BufferedWriter allWriter = new BufferedWriter(new FileWriter(new File(scriptFolder + "runAll.sh")));
 		
 		for(int i = 0; i < files.length; i++) {
-			String name = files[i].getName().replace(".fasta", ".txt");
+			String name = files[i].getName().replace(".fasta", "");
 			
 			//write script to run RDP on that file
 			File scriptName = new File(scriptFolder + "runRDP_" + name);
