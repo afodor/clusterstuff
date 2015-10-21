@@ -21,13 +21,14 @@ public class writeRDPScripts {
 		File[] files = ffolder.listFiles();
 		
 		//writes script to launch all other scripts
-		BufferedWriter allWriter = new BufferedWriter(new FileWriter(new File(rootFolder + "runAll.sh")));
+		BufferedWriter allWriter = new BufferedWriter(new FileWriter(new File(scriptFolder + "runAll.sh")));
 		
 		for(int i = 0; i < files.length; i++) {
 			String name = files[i].getName();
 			
 			//write script to run RDP on that file
 			File scriptName = new File(scriptFolder + "runRDP_" + name);
+			name = name.replace(".fasta", ".txt");
 			BufferedWriter scriptWriter = new BufferedWriter(new FileWriter(scriptName));
 			scriptWriter.write("java -Xmx2g -jar ~/rdp/RDPTools/classifier.jar classify -h " + 
 					rdpFolder + "hier_" + name + " -o " + rdpFolder + "rdp_" + name + " " + 
