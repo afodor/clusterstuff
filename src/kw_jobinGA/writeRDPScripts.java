@@ -24,15 +24,15 @@ public class writeRDPScripts {
 		BufferedWriter allWriter = new BufferedWriter(new FileWriter(new File(scriptFolder + "runAll.sh")));
 		
 		for(int i = 0; i < files.length; i++) {
-			String name = files[i].getName();
+			String name = files[i].getName().replace(".fasta", ".txt");
 			
 			//write script to run RDP on that file
 			File scriptName = new File(scriptFolder + "runRDP_" + name);
 			BufferedWriter scriptWriter = new BufferedWriter(new FileWriter(scriptName));
 			scriptWriter.write("java -Xmx2g -jar ~/rdp/RDPTools/classifier.jar classify -h " + 
-					rdpFolder + "hier_" + name.replace(".fasta", ".txt") + 
-					" -o " + rdpFolder + "rdp_" + name.replace(".fasta", ".txt") + 
-					" " + fastaFolder + name);
+					rdpFolder + "hier_" + name + ".txt" +
+					" -o " + rdpFolder + "rdp_" + name + ".txt" +
+					" " + fastaFolder + name + ".fasta");
 			
 			//add script to full list
 			allWriter.write("qsub -q \"Cobra_batch\" " + scriptName.getName() +  "\n");
