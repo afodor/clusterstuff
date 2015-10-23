@@ -23,6 +23,9 @@ public class ConfigReader
 
 	private static ConfigReader configReader = null;
 	private static Properties props = new Properties();
+	
+	public static final String JOBIN_GA_STOOL_RDP_DIR = "JOBIN_GA_STOOL_RDP_DIR";
+	public static final String JOBIN_GA_STOOL_DIR = "JOBIN_GA_STOOL_DIR";
 
 	public static final String TRUE = "TRUE";
 	public static final String YES = "YES";
@@ -72,6 +75,14 @@ public class ConfigReader
 	public static final String SCOTT_PILOT_DIR = "SCOTT_PILOT_DIR";
 	public static final String CHINA_DIR = "CHINA_DIR";
 	public static final String HMP_DIR = "HMP_DIR";
+	
+	public static String getJobinGAStoolRDPDir() throws Exception {
+		return getConfigReader().getAProperty(JOBIN_GA_STOOL_RDP_DIR);
+	}
+	
+	public static String getJobinGAStoolDir() throws Exception {
+		return getConfigReader().getAProperty(JOBIN_GA_STOOL_DIR);
+	}
 	
 	public static boolean isVerboseConsole() throws Exception
 	{
