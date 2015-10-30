@@ -1,0 +1,85 @@
+##Compare diversity and richness
+##plot shannon, inverted simpson and richness against group and against gestational age
+##indicate delivery by point shape
+##10/29/15
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\GA-stools\\rdpResults\\gastricAspirate")
+
+library("vegan")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+##function that returns colors by group
+##use color scheme in original Excel table
+##1 = blue
+##2 = orange
+##3 = green
+##4 = yellow
+##5 = purple
+getColors <- function(group) {
+  colors = rep(NA, length(group))
+  colors[group==1] = "blue"
+  colors[group==2] = "orange"
+  colors[group==3] = "green"
+  colors[group==4] = "yellow"
+  colors[group==5] = "purple"
+  return(colors)
+}
+
+pdf("diversityGastricAspirate.pdf", width=6, height=9)
+par(mfrow=c(3,2), mar=c(4, 4, 1, 1))
+for(taxa in taxaLevels) {
+  print(taxa)
+  fileName = paste("ga_taxaAsCol_logNorm_with_metadata_", taxa, ".txt", sep="")
+  table <-read.table(fileName,header=TRUE,sep="\t")
+  numCols <- ncol(table)
+  table <-read.table(fileName,header=TRUE,sep="\t",colClasses=c("character", rep("numeric", numCols-1)))
+  
+  ##calculate gestational age in days
+  ga = table$ga.wk*7 + table$ga.day
+  
+  colors = getColors(table$group)
+  shapes = ifelse(table$delivery==0, 15, 17)
+  
+  ##shannon diversity
+  shan = diversity(table[,-c(1:8)], index="shannon") #margin=1=row
+  boxplot(shan~factor(table$group), xlab="group", ylab="Shannon Diversity")
+  points(x=jitter(table$group), y=shan, col=colors, pch=shapes)
+  plot(x=ga, y=shan, xlab="Gestational Age (days)", ylab="Shannon Diversity", col=colors, pch=shapes)
+  lm = lm(shan~ga)
+  abline(lm)
+  r = summary(lm)$r.squared
+  text(x=200, y=min(shan), paste("R^2 = ", format(r, digits=2), sep=""))
+  
+  ##inverted simpson
+  is = diversity(table[,-c(1:8)], index="invsimpson") #margin=1=row
+  boxplot(is~factor(table$group), xlab="group", ylab="Inverted Simpson")
+  points(x=jitter(table$group), y=is, col=colors, pch=shapes)
+  plot(x=ga, y=is, xlab="Gestational Age (days)", ylab="Inverted Simpson", col=colors, pch=shapes)
+  lm = lm(is~ga)
+  abline(lm)
+  r = summary(lm)$r.squared
+  text(x=200, y=min(is), paste("R^2 = ", format(r, digits=2), sep=""))
+  
+  ##richness
+  rich = specnumber(table[,-c(1:8)])
+  boxplot(rich~factor(table$group), xlab="group", ylab="richness")
+  points(x=jitter(table$group), y=rich, col=colors, pch=shapes)
+  plot(x=ga, y=rich, xlab="Gestational Age(days)", ylab="richness", col=colors, pch=shapes)
+  lm = lm(rich~ga)
+  abline(lm)
+  r = summary(lm)$r.squared
+  text(x=200, y=min(rich), paste("R^2 = ", format(r, digits=2), sep=""))
+  
+}
+
+##add legend
+par(mfrow=c(1,1), mar=c(3,3,3,3))
+plot(1, type = "n", bty = "n", xaxt = "n", yaxt = "n", ylab="", xlab="", main="legend")
+legend("top", bty="n", cex=1,
+       legend=c("Group 1", "Group 2", "Group 3", "Group 4", "Group 5", "vaginal delivery", "C-section"),
+       col=c("blue", "orange", "green", "yellow", "purple", "gray", "gray"),
+       pch=c(rep(16, 5), 15, 17))
+
+dev.off()

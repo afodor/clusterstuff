@@ -1,0 +1,77 @@
+##draw pcoa of gastric aspirate samples, run2_r1
+##color by group (gestational age), shape by delivery mode
+##use updated normalized data
+##write pcoa axes
+##10/29/14
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\GA-stools\\rdpResults\\gastricAspirate")
+
+library("vegan")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+##function that returns colors by group
+##use color scheme in original Excel table
+##1 = blue
+##2 = orange
+##3 = green
+##4 = yellow
+##5 = purple
+getColors <- function(group) {
+  colors = rep(NA, length(group))
+  colors[group==1] = "blue"
+  colors[group==2] = "orange"
+  colors[group==3] = "green"
+  colors[group==4] = "yellow"
+  colors[group==5] = "purple"
+  return(colors)
+}
+
+##function that gets data for given taxa, plots pcoa (including sample names in lab=T) and returns pcoa axes
+drawPcoa <- function(taxa, lab) {
+  print(taxa)
+  fileName = paste("ga_taxaAsCol_logNorm_with_metadata_", taxa, ".txt", sep="")
+  table <-read.table(fileName,header=TRUE,sep="\t")
+  numCols <- ncol(table)
+  table <-read.table(fileName,header=TRUE,sep="\t",colClasses=c("character", rep("numeric", numCols-1)))
+  
+  colors = getColors(table$group)
+  shapes = ifelse(table$delivery==0, 15, 17)
+  
+  ##pcoa using vegan capscale
+  par(mar=c(4,4,4,8), xpd=T)
+  pcoa <- capscale(table[,-(1:8)]~1,distance="bray")
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], xlab="MDS1", ylab="MDS2", main=taxa, col=colors, pch=shapes)
+  
+  ##legend
+  legend("topright", inset=c(-.27,0),
+         legend=c("Group 1", "Group 2", "Group 3", "Group 4", "Group 5", "vaginal delivery", "C-section"),
+         col=c("blue", "orange", "green", "yellow", "purple", "gray", "gray"),
+         pch=c(rep(16, 5), 15, 17))
+  
+  ##draw names in lab is true
+  if(lab) {
+    offset = 0.015
+    text(x=pcoa$CA$u[,1]+offset, y=pcoa$CA$u[,2]+offset, labels=sub("G", "", table$id), col=colors)
+  }
+  
+  ##return pcoa axes with metadata
+  return(cbind(table[,1:8], pcoa$CA$u))
+}
+
+##no names on plot, write out results
+pdf("pcoaGastricAspirate_v2.pdf", width=8)
+for(taxa in taxaLevels) {
+  pcoa = drawPcoa(taxa, F)
+  ##write results
+  write.table(pcoa, sep="\t", file=paste("pcoaCorrected_", taxa, ".txt",sep=""), quote=F, row.names=F, col.names=T)
+}
+dev.off()
+
+##names on plot
+pdf("pcoaGastricAspirate_v2_withSampleNames.pdf", width=8)
+for(taxa in taxaLevels) {
+  pcoa = drawPcoa(taxa, T)
+}
+dev.off()

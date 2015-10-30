@@ -1,0 +1,23 @@
+##plot p-values
+##10/30/15
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\GA-stools\\rdpResults\\gastricAspirate")
+
+taxaLevels <- c("phylum","class","order","family","genus")
+hiq <- paste("highqPCR_", taxaLevels, sep="")
+
+pdf("GAotuModel_pValuePlot.pdf")
+for(taxa in c(taxaLevels, hiq)) {
+  print(taxa)
+  table = read.table(paste("GAotuModel_pValues_", taxa, ".txt", sep=""), sep="\t", header=T, colClasses=c("character", rep("numeric", 9)))
+  par(mfrow=c(2,2), oma=c(.5,.5,3,.5), mar=c(4.5,4,1,1))
+  hist(table$pValuesGA, main="gestational age", xlab="p-values")
+  hist(table$pValuesROM, main="rupture of membranes", xlab="p-values")
+  hist(table$pValuesDelivery, main="mode of delivery", xlab="p-values")
+  hist(table$pValuesLogqPCRCopyNumber, main="log qPCR copy number", xlab="p-values")
+  par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+  plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+  legend("top", horiz=T, legend=taxa, cex=1.2, bty="n")
+}
+dev.off()
