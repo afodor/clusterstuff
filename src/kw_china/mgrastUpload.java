@@ -29,7 +29,7 @@ public class mgrastUpload {
 				BufferedWriter script = new BufferedWriter(new FileWriter(scriptName));
 				script.write("curl -H \"auth: dMnui98NUNFF7rGjxfgHwpyd9\" -X POST -F " //authentication may need to change later
 						+ "\"upload=@/projects/afodor_research/ChinaSequences/rdpResults/" + name +
-						"\" \"http://api.metagenomics.anl.gov/1/inbox/\" > "); //+
+						"\" \"http://api.metagenomics.anl.gov/1/inbox/\" ");// > " +
 						//outDir + "curl_output_" + name + "\n");//don't need because output will just get print to error or output files of script
 				script.close();
 				//update scriptAll
