@@ -27,9 +27,9 @@ public class mgrastUpload {
 				//set up script to upload individual file
 				File scriptName = new File(outDir + "runUpload_" + name);
 				BufferedWriter script = new BufferedWriter(new FileWriter(scriptName));
-				script.write("curl -H \"auth: dMnui98NUNFF7rGjxfgHwpyd9\" -X POST -F" //authentication may need to change later
+				script.write("curl -H \"auth: dMnui98NUNFF7rGjxfgHwpyd9\" -X POST -F " //authentication may need to change later
 						+ "\"upload=@/projects/afodor_research/ChinaSequences/rdpResults/" + name +
-						"\" \"http:////api.metagenomics.anl.gov//1//inbox//\" >" +
+						"\" \"http://api.metagenomics.anl.gov/1/inbox/\" > " +
 						outDir + "curl_output_" + name + "\n");
 				script.close();
 				//update scriptAll
