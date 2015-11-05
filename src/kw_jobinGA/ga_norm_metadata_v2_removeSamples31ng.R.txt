@@ -1,0 +1,68 @@
+##Get just the gastric aspirate samples, Run2_R1
+##remove samples with less than 31 ng or hard to amplify
+##log normalize
+##add metadata
+##remove samples with less than 1000 reads
+##11/4/15
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\GA-stools\\rdpResults")
+
+taxaLevels <- c("phylum","class","order","family","genus")
+
+##get needed metadata
+meta1 = read.table("..\\Gast.Asp. Microbiome for Miseq 10-5-2015.txt", header=T, sep="\t", skip=1)#table with group
+meta2 = read.table("..\\Gastric Aspirate deidentified demographics.txt", header=T, sep="\t")
+meta3 = read.table("..\\Info stool-Gast. aspir. library.txt", header=T, sep="\t") #qpcr results
+meta3 = meta3[meta3$sample.type=="Gastric aspirates",]
+pid = as.numeric(sub("G", "", meta3$samples))
+meta3 = cbind(PID=pid, meta3)
+mrg = merge(meta1, meta2, by="PID")
+mrg = merge(mrg, meta3, by="PID")
+meta = data.frame(id=mrg$assay.ID, ga.wk=mrg$GA.weeks., ga.day=mrg$days, group=mrg$analysis.group,
+                  delivery=mrg$Mode.of.Delivery, rom=mrg$ROM..hours., qpcr=mrg$copy.number..2..40.Cq.)
+
+##get list of samples to remove
+rem.table = read.table("..\\stool and gast. aspir , samples to remove.txt", sep="\t", colClasses="character", header=T)
+rem = rem.table$X.remove..to.low.for.analysis...........................amplification.may.represent.what.is.in.the.kit
+
+for(taxa in taxaLevels) {
+  ##get count table
+  file = paste("rdp_taxaAsCol_", taxa, ".txt", sep="")
+  table = read.table(file, sep="\t", header=T)
+  nc = ncol(table)
+  table = read.table(file, sep="\t", header=T, colClasses=c("character", rep("numeric", nc-1)))
+  
+  ##Get just Run2_R1
+  table = table[grepl("Run2_R1", table$fileName),]
+  ##Fix names
+  table$fileName = sub("Run2_R1_", "", table$fileName)
+  table$fileName = sub(".fasta", "", table$fileName)
+  ##remove stool
+  table = table[grepl("G", table$fileName),]
+  ##remove samples from Josee
+  table = table[!(table$fileName %in% rem),]
+  
+  ##log normalize
+  n = rowSums(table[,-1]) #tot num reads in sample
+  sumX = sum(table[,-1]) #total number reads in all samples
+  N = nrow(table) #number of samples
+  for(col in 2:ncol(table)) {
+    for(row in 1:nrow(table)) {
+      table[row,col] = log10(table[row,col]/n[row] * sumX/N + 1)
+    }
+  }
+  ##add original number of reads to frame
+  table = cbind(table[,1], n, table[,2:ncol(table)])
+  names(table)[1:2]=c("id", "numReads")
+  
+  ##remove samples with n < 1000
+  table = table[table$numReads > 1000,]
+  
+  ##add metadata
+  mrg = merge(meta, table, by="id")
+  
+  ##write results
+  write.table(mrg, paste("gastricAspirate\\ga_taxaAsCol_logNorm_with_metadata_remove31ng_", taxa, ".txt", sep=""), sep="\t", row.names = F, col.names = T, quote=F)
+}
