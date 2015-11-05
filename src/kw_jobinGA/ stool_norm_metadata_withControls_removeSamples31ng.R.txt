@@ -1,0 +1,71 @@
+##Get just the stool samples and controls, Run2_R1
+##remove samples with less than 31 ng or hard to amplify
+##log normalize
+##add metadata
+##remove samples with less than 1000 reads
+##11/4/15
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\GA-stools\\rdpResults")
+
+taxaLevels <- c("phylum","class","order","family","genus")
+
+##get needed metadata
+meta1 = read.table("..\\Stool for Microbiome with deliverry mode -no DOB 11-2015.txt", header=T, sep="\t", comment.char='')#table with group
+meta2 = read.table("..\\Info stool-Gast. aspir. library.txt", header=T, sep="\t") #qpcr results
+ctrl.values = c(as.character(meta2$copy.number..2..40.Cq.[meta2$samples=="Neg. ctrl"]), NA, as.character(meta2$copy.number..2..40.Cq.[meta2$samples=="water"]))
+meta2 = meta2[meta2$sample.type=="stool",]
+names(meta2)[1] = "assay.ID"
+mrg = merge(meta1, meta2, by="assay.ID")
+group = ifelse(mrg$Group=="check", "check", "no check")
+meta = data.frame(id=mrg$assay.ID, group, ga=mrg$GA, bw=mrg$BW, 
+                  delivery=mrg$Mode.of.delivery, qpcr=mrg$copy.number..2..40.Cq.)
+##controls
+ctrl = data.frame(id=c("H20", "NC101", "neg"), group=rep("ctrl",3), ga=rep(NA,3), bw=rep(NA,3),
+                  delivery=rep(NA,3), qpcr=ctrl.values)
+meta = rbind(meta, ctrl)
+
+##get list of samples to remove
+rem.table = read.table("..\\stool and gast. aspir , samples to remove.txt", sep="\t", colClasses="character", header=T)
+rem = rem.table$X.remove..to.low.for.analysis...........................amplification.may.represent.what.is.in.the.kit
+
+for(taxa in taxaLevels) {
+  ##get count table
+  file = paste("rdp_taxaAsCol_", taxa, ".txt", sep="")
+  table = read.table(file, sep="\t", header=T)
+  nc = ncol(table)
+  table = read.table(file, sep="\t", header=T, colClasses=c("character", rep("numeric", nc-1)))
+  
+  ##Get just Run2_R1
+  table = table[grepl("Run2_R1", table$fileName),]
+  ##Fix names
+  table$fileName = sub("Run2_R1_", "", table$fileName)
+  table$fileName = sub(".fasta", "", table$fileName)
+  ##remove samples from Josee
+  table = table[!(table$fileName %in% rem),]
+  ##remove GA
+  table = table[!grepl("G", table$fileName),]
+  
+  ##log normalize
+  n = rowSums(table[,-1]) #tot num reads in sample
+  sumX = sum(table[,-1]) #total number reads in all samples
+  N = nrow(table) #number of samples
+  for(col in 2:ncol(table)) {
+    for(row in 1:nrow(table)) {
+      table[row,col] = log10(table[row,col]/n[row] * sumX/N + 1)
+    }
+  }
+  ##add original number of reads to frame
+  table = cbind(table[,1], n, table[,2:ncol(table)])
+  names(table)[1:2]=c("id", "numReads")
+  
+  ##remove samples with n < 1000
+  table = table[table$numReads > 1000,]
+  
+  ##add metadata
+  mrg = merge(meta, table, by="id")
+  
+  ##write results
+  write.table(mrg, paste("stool\\stool_taxaAsCol_logNorm_with_metadata_and_controls_remove31ng_", taxa, ".txt", sep=""), sep="\t", row.names = F, col.names = T, quote=F)
+}

@@ -1,0 +1,67 @@
+##Compare diversity and richness
+##plot shannon, inverted simpson and richness against metadata
+##11/4/15
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\GA-stools\\rdpResults\\stool")
+
+library("vegan")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+pdf("diversityStool.pdf", width=6, height=9)
+par(mfrow=c(3,2), mar=c(4, 4, 4, 1))
+for(taxa in taxaLevels) {
+  print(taxa)
+  fileName = paste("stool_taxaAsCol_logNorm_with_metadata_remove31ng_", taxa, ".txt", sep="")
+  table <-read.table(fileName,header=TRUE,sep="\t")
+  numCols <- ncol(table)
+  table <-read.table(fileName,header=TRUE,sep="\t",colClasses=c("character", "character", "numeric", "numeric", "character", rep("numeric", numCols-5)))
+  
+  colors = ifelse(table$group=="check", "red", "blue")
+  shapes = ifelse(table$delivery=="SVD", 15, 17)
+  
+  ##shannon diversity
+  shan = diversity(table[,-c(1:7)], index="shannon") #margin=1=row
+  t = t.test(shan~factor(table$group))$p.value
+  boxplot(shan~factor(table$group), xlab="group", ylab="Shannon Diversity", main=paste(taxa, " p = ", format(t, digits=4), sep=""))
+  points(x=factor(table$group), y=shan, col=colors, pch=shapes)
+  plot(x=table$ga, y=shan, xlab="Gestational Age", ylab="Shannon Diversity", main=taxa, col=colors, pch=shapes)
+  lm = lm(shan~table$ga)
+  abline(lm)
+  r = summary(lm)$r.squared
+  text(x=30, y=min(shan), paste("R^2 = ", format(r, digits=2), sep=""))
+  
+  ##inverted simpson
+  is = diversity(table[,-c(1:7)], index="invsimpson") #margin=1=row
+  t = t.test(shan~factor(table$group))$p.value
+  boxplot(is~factor(table$group), xlab="group", ylab="Inverted Simpson", main=paste(taxa, " p = ", format(t, digits=4), sep=""))
+  points(x=factor(table$group), y=is, col=colors, pch=shapes)
+  plot(x=table$ga, y=is, xlab="Gestational Age", ylab="Inverted Simpson", main=taxa, col=colors, pch=shapes)
+  lm = lm(is~table$ga)
+  abline(lm)
+  r = summary(lm)$r.squared
+  text(x=30, y=min(is), paste("R^2 = ", format(r, digits=2), sep=""))
+  
+  ##richness
+  rich = specnumber(table[,-c(1:7)])
+  t = t.test(shan~factor(table$group))$p.value
+  boxplot(rich~factor(table$group), xlab="group", ylab="richness", main=paste(taxa, " p = ", format(t, digits=4), sep=""))
+  points(x=factor(table$group), y=rich, col=colors, pch=shapes)
+  plot(x=table$ga, y=rich, xlab="Gestational Age", ylab="richness", main=taxa, col=colors, pch=shapes)
+  lm = lm(rich~table$ga)
+  abline(lm)
+  r = summary(lm)$r.squared
+  text(x=30, y=min(rich), paste("R^2 = ", format(r, digits=2), sep=""))
+  
+}
+
+##add legend
+par(mfrow=c(1,1), mar=c(3,3,3,3))
+plot(1, type = "n", bty = "n", xaxt = "n", yaxt = "n", ylab="", xlab="", main="legend")
+legend("top", bty="n", cex=1,
+       legend=c("Check", "No check", "vaginal delivery", "C-section"),
+       col=c("red", "blue", "gray", "gray"),
+       pch=c(rep(16, 2), 15, 17))
+
+dev.off()

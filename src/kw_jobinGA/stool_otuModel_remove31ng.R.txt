@@ -1,0 +1,93 @@
+##linear model for stool OTU data
+##run on data with samples < 31 ng removed
+##11/4/15
+
+rm(list=ls())
+
+library("pscl")
+library("lmtest")
+library("nlme")
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\GA-stools\\rdpResults\\stool")
+
+taxaLevels <- c("phylum","class","order","family","genus")
+
+for(taxa in taxaLevels) {
+  print(taxa)
+  inFileName = paste("stool_taxaAsCol_logNorm_with_metadata_remove31ng_", taxa, ".txt", sep ="")
+  myT = read.table(inFileName,header=TRUE,sep="\t")
+  numCols = ncol(myT)
+  myT = read.table(inFileName,header=TRUE,sep="\t",colClasses=c("character", "character", "numeric", "numeric", "character", rep("numeric", numCols-5)))
+  
+  ##remove samples with < 1000 reads
+  myT = myT[myT$numReads > 1000, ]
+  
+  ##set up output
+  names <- vector()
+  pValuesGroup <- vector()
+  pValuesGA <- vector()
+  pValuesBW <- vector()
+  pValuesDelivery <- vector()
+  pValuesCN <- vector()
+  meanBug <- vector()
+  index <- 1
+  pdf( paste("stoolOTUmodel_boxplots_remove31ng_", taxa, ".pdf", sep=""), height=9, width=6)
+  
+  for(i in 8:numCols) 
+    if(sum(myT[,i] != 0 ) > nrow(myT) / 4 ) {
+      bug <- myT[,i]
+      meanBug[index] <- mean(bug)
+      group <- factor(myT$group)
+      ga <- myT$ga
+      bw <- myT$bw
+      delivery <- factor(myT$delivery)
+      qpcr <- log10(myT$qpcr)
+      
+      myFrame <- data.frame(bug, group, ga, bw, delivery, qpcr)
+      
+      pValuesGroup[index] <- anova(lm(bug ~ group))$"Pr(>F)"[1]
+      pValuesGA[index] <- anova(lm(bug ~ ga))$"Pr(>F)"[1]
+      pValuesBW[index] <- anova(lm(bug ~ bw))$"Pr(>F)"[1]
+      pValuesDelivery[index] <- anova(lm(bug ~ delivery))$"Pr(>F)"[1]
+      pValuesCN[index] <- anova(lm(bug ~ qpcr))$"Pr(>F)"[1]
+
+      
+      names[index] = names(myT)[i]
+      
+      graphMain =  paste(names(myT)[i], ":\n  pGroup=",  format(pValuesGroup[index], digits=3),
+                         "   pGA=", format(pValuesGA[index], digits=3),  "\n",
+                          "   pBW= ", format(pValuesBW[index],digits=3), 
+                          "   pDelivery= " , format(pValuesDelivery[index], digits=3), "\n",
+                         "   pCopyNumber= ", format(pValuesCN[index], digits=3), 
+                          sep="")
+      
+      ##plots
+      colors = ifelse(group=="check", "red", "blue")
+      shapes = ifelse(delivery=="SVD", 15, 17)
+      par(mfrow=c(3,2), oma=c(.5,.5,10,.5), mar=c(4.5,4,1,1))
+      boxplot(bug~group, xlab="Group", ylab="relative abundance")
+      points(bug~group, col=colors, pch=shapes)
+      plot(x=ga, y=bug, xlab="Gestational Age", ylab="relative abundance", col=colors, pch=shapes)
+      plot(x=bw, y=bug, xlab="birthweight", ylab="relative abundance", col=colors, pch=shapes)
+      boxplot(bug~delivery, xlab="mode of delivery", ylab="relative abundance")
+      points(bug~delivery, col=colors,pch=shapes)
+      plot(x=qpcr, y=bug, xlab="log qPCR copy number", ylab="relative abundance", col=colors, pch=shapes)
+      ##label
+      par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+      plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+      legend("top", horiz=T, legend=graphMain, cex=1.2, bty="n")
+      
+      index=index+1
+      
+    }
+  
+  df <- data.frame(names, meanBug, pValuesGroup, pValuesGA, pValuesBW, pValuesDelivery, pValuesLogqPCRCopyNumber=pValuesCN)
+  df$pAdjGroup <- p.adjust(df$pValuesGroup, method="BH")
+  df$pAdjGA <- p.adjust(df$pValuesGA, method="BH")
+  df$pAdjBW <- p.adjust(df$pValuesBW, method="BH")
+  df$pAdjDelivery <- p.adjust(df$pValuesDelivery, method="BH")
+  df$pAdLogjCN <- p.adjust(df$pValuesLogqPCRCopyNumber, method="BH")
+  df <- df[order(df$pValuesGroup),]
+  write.table(df, file=paste("stoolOTUmodel_pValues_remove31ng_", taxa, ".txt",sep=""), sep="\t",row.names=FALSE, col.names=T, quote=F)
+  dev.off()
+}

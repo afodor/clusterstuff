@@ -1,0 +1,123 @@
+##linear model for gastric aspirate data
+##run on data with samples < 31 ng removed
+##add model for interaction between gestational age and delivery
+##11/4/15
+
+rm(list=ls())
+
+library("pscl")
+library("lmtest")
+library("nlme")
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\GA-stools\\rdpResults\\gastricAspirate")
+
+taxaLevels <- c("phylum","class","order","family","genus")
+
+##function that returns colors by group
+##use color scheme in original Excel table
+##1 = blue
+##2 = orange
+##3 = green
+##4 = yellow
+##5 = purple
+getColors <- function(group) {
+  colors = rep(NA, length(group))
+  colors[group==1] = "blue"
+  colors[group==2] = "orange"
+  colors[group==3] = "green"
+  colors[group==4] = "yellow"
+  colors[group==5] = "purple"
+  return(colors)
+}
+
+for(taxa in taxaLevels) {
+  print(taxa)
+  inFileName = paste("pcoaCorrected_remove31ng_", taxa, ".txt", sep ="")
+  myT = read.table(inFileName,header=TRUE,sep="\t")
+  numCols = ncol(myT)
+  myT = read.table(inFileName,header=TRUE,sep="\t",colClasses=c("character", rep("numeric", numCols-1)))
+  
+  ##remove samples with < 1000 reads
+  myT = myT[myT$numReads > 1000, ]
+  
+  ##set up output
+  names <- vector()
+  pValuesGA <- vector()
+  pValuesROM <- vector()
+  pValuesDelivery <- vector()
+  pValuesCN <- vector()
+  pValuesGAintn <- vector()
+  pValuesDeliveryIntn <- vector()
+  pValuesGADeliveryIntn <- vector()
+  index <- 1
+  pdf( paste("GApcoaModel_boxplots_remove31ng_", taxa, ".pdf", sep=""))
+  
+  for(i in 9:numCols) 
+    if(sum(myT[,i] != 0 ) > nrow(myT) / 4 ) {
+      mds <- myT[,i]
+      ga <- myT$ga.wk*7 + myT$ga.day
+      rom <- myT$rom
+      delivery <- factor(myT$delivery)
+      qpcr <- log10(myT$qpcr)
+      
+      myFrame <- data.frame(mds, ga, rom, delivery, qpcr)
+      
+#       model <- lm(mds ~ ga + rom + delivery + qpcr, data = myFrame)
+#       pValuesGA[index] <- anova(model)$"Pr(>F)"[1]
+#       pValuesROM[index] <- anova(model)$"Pr(>F)"[2]
+#       pValuesDelivery[index] <-  anova(model)$"Pr(>F)"[3]
+#       pValuesCN[index] <- anova(model)$"Pr(>F)"[4]
+      
+#       pValuesGA[index] <- anova(lm(mds ~ ga + qpcr))$"Pr(>F)"[1]
+#       pValuesROM[index] <- anova(lm(mds ~ rom + qpcr))$"Pr(>F)"[1]
+#       pValuesDelivery[index] <- anova(lm(mds ~ delivery + qpcr))$"Pr(>F)"[1]
+#       pValuesCN[index] <- anova(lm(mds ~ qpcr))$"Pr(>F)"[1]
+      
+      pValuesGA[index] <- anova(lm(mds ~ ga))$"Pr(>F)"[1]
+      pValuesROM[index] <- anova(lm(mds ~ rom))$"Pr(>F)"[1]
+      pValuesDelivery[index] <- anova(lm(mds ~ delivery))$"Pr(>F)"[1]
+      pValuesCN[index] <- anova(lm(mds ~ qpcr))$"Pr(>F)"[1]
+      ##interaction
+      intnModel <- lm(mds~ga*delivery)
+      pValuesGAintn[index] <- anova(intnModel)$"Pr(>F)"[1]
+      pValuesDeliveryIntn <- anova(intnModel)$"Pr(>F)"[2]
+      pValuesGADeliveryIntn <- anova(intnModel)$"Pr(>F)"[3]
+      
+      names[index] = names(myT)[i]
+      
+      graphMain =  paste(names(myT)[i], ": pGA=", format(pValuesGA[index], digits=3), "\n",
+                          " pROM= ", format(pValuesROM[index],digits=3), 
+                          " pDelivery= " , format(pValuesDelivery[index], digits=3), "\n",
+                         " pCopyNumber= ", format(pValuesCN[index], digits=3), "\n",
+                          sep="")
+      
+      ##plots
+      colors = getColors(myT$group)
+      shapes = ifelse(myT$delivery==0, 15, 17)
+      par(mfrow=c(2,2), oma=c(.5,.5,5,.5), mar=c(4.5,4,1,1))
+      plot(x=ga, y=mds, xlab="Gestational Age (days)", ylab="MDS", col=colors, pch=shapes)
+      plot(x=rom, y=mds, xlab="rupture of membranes", ylab="MDS", col=colors, pch=shapes)
+      boxplot(mds~delivery, xlab="mode of delivery", ylab="MDS")
+      points(mds~delivery, col=colors,pch=shapes)
+      plot(x=qpcr, y=mds, xlab="log qPCR copy number", ylab="MDS", col=colors, pch=shapes)
+      ##label
+      par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+      plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+      legend("top", horiz=T, legend=graphMain, cex=1.2, bty="n")
+      
+      index=index+1
+      
+    }
+  
+  df <- data.frame(names, pValuesGA, pValuesROM, pValuesDelivery, pValuesLogqPCRCopyNumber=pValuesCN, pValuesGAintn, pValuesDeliveryIntn, pValuesGADeliveryIntn)
+  df$pAdjGA <- p.adjust(df$pValuesGA, method="BH")
+  df$pAdjROM <- p.adjust(df$pValuesROM, method="BH")
+  df$pAdjDelivery <- p.adjust(df$pValuesDelivery, method="BH")
+  df$pAdLogjCN <- p.adjust(df$pValuesLogqPCRCopyNumber, method="BH")
+  df$pAdjGAintn <- p.adjust(df$pValuesGAintn, method="BH")
+  df$pAdjDeliveryIntn <- p.adjust(df$pValuesDeliveryIntn, method="BH")
+  df$pAdjGADeliveryIntn <- p.adjust(df$pValuesGADeliveryIntn, method="BH")
+ # df <- df[order(df$pValuesGA),]
+  write.table(df, file=paste("GApcoaModel_pValues_remove31ng_", taxa, ".txt",sep=""), sep="\t",row.names=FALSE, col.names=T, quote=F)
+  dev.off()
+}
