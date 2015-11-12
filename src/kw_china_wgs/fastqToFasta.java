@@ -49,13 +49,15 @@ public class fastqToFasta implements Runnable {
 		
 		File inDir = new File(fqDir);
 		File[] fqList = inDir.listFiles();
-		Thread[] allThreads = new Thread[fqList.length];
+		Thread[] allThreads = new Thread[fqList.length-1];//extra file in this directory: Cleandata.stat
+		int tPos = 0;//position in allThreads to add next thread to
 		for(int i = 0; i < fqList.length; i++) {
 			if(fqList[i].getName().endsWith(".fq.gz")) {
 				Runnable r = new fastqToFasta(fqList[i]);
 				Thread t = new Thread(r);
 				t.start();	
-				allThreads[i] = t;
+				allThreads[tPos] = t;
+				tPos++;
 			}
 		}
 		
