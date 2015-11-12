@@ -1,7 +1,8 @@
 ##linear model for gastric aspirate data
 ##run on data with samples < 31 ng removed
 ##add model for interaction between gestational age and delivery
-##11/4/15
+##add term vs. pre-term model
+##11/12/15
 
 rm(list=ls())
 
@@ -49,8 +50,9 @@ for(taxa in taxaLevels) {
   pValuesGAintn <- vector()
   pValuesDeliveryIntn <- vector()
   pValuesGADeliveryIntn <- vector()
+  pValuesTerm <- vector()
   index <- 1
-  pdf( paste("GApcoaModel_boxplots_remove31ng_", taxa, ".pdf", sep=""))
+  pdf( paste("GApcoaModel_boxplots_remove31ng_", taxa, ".pdf", sep=""), width=9)
   
   for(i in 9:numCols) 
     if(sum(myT[,i] != 0 ) > nrow(myT) / 4 ) {
@@ -60,7 +62,10 @@ for(taxa in taxaLevels) {
       delivery <- factor(myT$delivery)
       qpcr <- log10(myT$qpcr)
       
-      myFrame <- data.frame(mds, ga, rom, delivery, qpcr)
+      ##get term vs. pre-term
+      term = factor(ifelse(ga > 37*7, "term", "pre-term"))
+      
+      myFrame <- data.frame(mds, ga, rom, delivery, qpcr, term)
       
 #       model <- lm(mds ~ ga + rom + delivery + qpcr, data = myFrame)
 #       pValuesGA[index] <- anova(model)$"Pr(>F)"[1]
@@ -77,6 +82,7 @@ for(taxa in taxaLevels) {
       pValuesROM[index] <- anova(lm(mds ~ rom))$"Pr(>F)"[1]
       pValuesDelivery[index] <- anova(lm(mds ~ delivery))$"Pr(>F)"[1]
       pValuesCN[index] <- anova(lm(mds ~ qpcr))$"Pr(>F)"[1]
+      pValuesTerm[index] <- anova(lm(mds ~ term))$"Pr(>F)"[1]
       ##interaction
       intnModel <- lm(mds~ga*delivery)
       pValuesGAintn[index] <- anova(intnModel)$"Pr(>F)"[1]
@@ -88,14 +94,17 @@ for(taxa in taxaLevels) {
       graphMain =  paste(names(myT)[i], ": pGA=", format(pValuesGA[index], digits=3), "\n",
                           " pROM= ", format(pValuesROM[index],digits=3), 
                           " pDelivery= " , format(pValuesDelivery[index], digits=3), "\n",
-                         " pCopyNumber= ", format(pValuesCN[index], digits=3), "\n",
+                         " pCopyNumber= ", format(pValuesCN[index], digits=3), 
+                         " pTerm= ", format(pValuesTerm[index], digits=3),
                           sep="")
       
       ##plots
       colors = getColors(myT$group)
       shapes = ifelse(myT$delivery==0, 15, 17)
-      par(mfrow=c(2,2), oma=c(.5,.5,5,.5), mar=c(4.5,4,1,1))
+      par(mfrow=c(2,3), oma=c(.5,.5,5,.5), mar=c(4.5,4,1,1))
       plot(x=ga, y=mds, xlab="Gestational Age (days)", ylab="MDS", col=colors, pch=shapes)
+      boxplot(mds~term, xlab="Term vs. pre-term", ylab="relative abundance")
+      points(mds~term, col=colors, pch=shapes)
       plot(x=rom, y=mds, xlab="rupture of membranes", ylab="MDS", col=colors, pch=shapes)
       boxplot(mds~delivery, xlab="mode of delivery", ylab="MDS")
       points(mds~delivery, col=colors,pch=shapes)
@@ -109,7 +118,7 @@ for(taxa in taxaLevels) {
       
     }
   
-  df <- data.frame(names, pValuesGA, pValuesROM, pValuesDelivery, pValuesLogqPCRCopyNumber=pValuesCN, pValuesGAintn, pValuesDeliveryIntn, pValuesGADeliveryIntn)
+  df <- data.frame(names, pValuesGA, pValuesROM, pValuesDelivery, pValuesLogqPCRCopyNumber=pValuesCN, pValuesGAintn, pValuesDeliveryIntn, pValuesGADeliveryIntn, pValuesTerm)
   df$pAdjGA <- p.adjust(df$pValuesGA, method="BH")
   df$pAdjROM <- p.adjust(df$pValuesROM, method="BH")
   df$pAdjDelivery <- p.adjust(df$pValuesDelivery, method="BH")
@@ -117,7 +126,7 @@ for(taxa in taxaLevels) {
   df$pAdjGAintn <- p.adjust(df$pValuesGAintn, method="BH")
   df$pAdjDeliveryIntn <- p.adjust(df$pValuesDeliveryIntn, method="BH")
   df$pAdjGADeliveryIntn <- p.adjust(df$pValuesGADeliveryIntn, method="BH")
- # df <- df[order(df$pValuesGA),]
+  df$pAdjTerm <- p.adjust(df$pValuesTerm, method="BH")
   write.table(df, file=paste("GApcoaModel_pValues_remove31ng_", taxa, ".txt",sep=""), sep="\t",row.names=FALSE, col.names=T, quote=F)
   dev.off()
 }
