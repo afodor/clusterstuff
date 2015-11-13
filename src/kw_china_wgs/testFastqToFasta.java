@@ -21,7 +21,7 @@ public class testFastqToFasta {
 		
 		//set up output
 		BufferedWriter out = new BufferedWriter(new FileWriter(new File("/projects/afodor_research/kwinglee/china/wgs/fastaCheck.txt")));
-		out.write("numLines_fastq\tnumLines_fasta\tpass\n");
+		out.write("file\tnumLines_fastq\tnumLines_fasta\tpass?\n");
 		
 		File inDir = new File(fqDir);
 		File[] fqList = inDir.listFiles();
@@ -49,7 +49,7 @@ public class testFastqToFasta {
 				fa.close();
 				
 				//write results
-				out.write(numLinesFq + "\t" + numLinesFa + "\t");
+				out.write(name + "\t" + numLinesFq + "\t" + numLinesFa + "\t");
 				if(numLinesFq == numLinesFa * 2) {
 					out.write("pass\n");
 				} else {
