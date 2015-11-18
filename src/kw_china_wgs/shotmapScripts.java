@@ -31,7 +31,7 @@ public class shotmapScripts {
 			scriptWriter.write("#PBS -l walltime=300:00:00\n");
 			scriptWriter.write("module load R\n");
 			scriptWriter.write("perl " + shotmap + " -i " + inDir + name + " -d " + sfamDB +
-					" -o " + outDir + name + " --nprocs=2\n");
+					" -o " + outDir + name.replace(".fa.gz", "") + " --nprocs=2\n");
 			
 			//add script to full list
 			allWriter.write("qsub -q \"viper_batch\" " + script.getName() +  "\n");
