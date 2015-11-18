@@ -25,7 +25,7 @@ public class shotmapScripts {
 		
 		for(File f:fastas) {
 			String name = f.getName();
-			if(name.endsWith(".gz.fa")) { //ignore metadata file
+			if(name.endsWith(".fa.gz")) { //ignore metadata file
 				//write script to run shotmap on that file
 				File script = new File(scriptDir + "runSfamShotmap_" + name.replace(".fa.gz", ""));
 				BufferedWriter scriptWriter = new BufferedWriter(new FileWriter(script));
