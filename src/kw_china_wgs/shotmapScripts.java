@@ -25,18 +25,20 @@ public class shotmapScripts {
 		
 		for(File f:fastas) {
 			String name = f.getName();
-			//write script to run shotmap on that file
-			File script = new File(scriptDir + "runSfamShotmap_" + name.replace(".fa.gz", ""));
-			BufferedWriter scriptWriter = new BufferedWriter(new FileWriter(script));
-			scriptWriter.write("#PBS -l walltime=300:00:00\n");
-			scriptWriter.write("module load R\n");
-			scriptWriter.write("perl " + shotmap + " -i " + inDir + name + " -d " + sfamDB +
-					" -o " + outDir + name.replace(".fa.gz", "") + " --nprocs=2\n");
-			
-			//add script to full list
-			allWriter.write("qsub -q \"viper_batch\" " + script.getName() +  "\n");
-			
-			scriptWriter.close();
+			if(name.endsWith(".gz.fa")) { //ignore metadata file
+				//write script to run shotmap on that file
+				File script = new File(scriptDir + "runSfamShotmap_" + name.replace(".fa.gz", ""));
+				BufferedWriter scriptWriter = new BufferedWriter(new FileWriter(script));
+				scriptWriter.write("#PBS -l walltime=300:00:00\n");
+				scriptWriter.write("module load R\n");
+				scriptWriter.write("perl " + shotmap + " -i " + inDir + name + " -d " + sfamDB +
+						" -o " + outDir + name.replace(".fa.gz", "") + " --nprocs=2\n");
+				
+				//add script to full list
+				allWriter.write("qsub -q \"Cobra_batch\" " + script.getName() +  "\n");
+				
+				scriptWriter.close();
+			}
 		}
 		allWriter.close();
 	}
