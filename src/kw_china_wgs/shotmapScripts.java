@@ -29,8 +29,9 @@ public class shotmapScripts {
 			File script = new File(scriptDir + "runSfamShotmap_" + name.replace(".fa.gz", ""));
 			BufferedWriter scriptWriter = new BufferedWriter(new FileWriter(script));
 			scriptWriter.write("#PBS -l walltime=300:00:00\n");
+			scriptWriter.write("module load R\n");
 			scriptWriter.write("perl " + shotmap + " -i " + inDir + name + " -d " + sfamDB +
-					" -o " + outDir + name + "\n");
+					" -o " + outDir + name + " --nprocs=2\n");
 			
 			//add script to full list
 			allWriter.write("qsub -q \"viper_batch\" " + script.getName() +  "\n");
