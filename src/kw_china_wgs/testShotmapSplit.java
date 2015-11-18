@@ -7,8 +7,11 @@ package kw_china_wgs;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.zip.GZIPInputStream;
 
 public class testShotmapSplit {
 	//test 081A
@@ -19,7 +22,7 @@ public class testShotmapSplit {
 		int total = 0;
 		for(File f: fastas) {
 			int fileTotal = 0;
-			BufferedReader br = new BufferedReader(new FileReader(f));
+			BufferedReader br = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(f))));
 			String line = br.readLine();
 			while(line != null) {
 				fileTotal++;
