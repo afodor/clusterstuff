@@ -30,7 +30,7 @@ public class shotmapScripts {
 			BufferedWriter scriptWriter = new BufferedWriter(new FileWriter(script));
 			scriptWriter.write("#PBS -l walltime=300:00:00\n");
 			scriptWriter.write("perl " + shotmap + " -i " + inDir + name + " -d " + sfamDB +
-					" -o " + outDir + "\n");
+					" -o " + outDir + name + "\n");
 			
 			//add script to full list
 			allWriter.write("qsub -q \"viper_batch\" " + script.getName() +  "\n");
