@@ -15,7 +15,7 @@ public class MakeBlastDB
 	public static void main(String[] args) throws Exception
 	{
 		BufferedWriter runAllWriter = new BufferedWriter(new FileWriter(new File( 
-			SCRIPT_DIR + "runAll.sh"	)));
+			SCRIPT_DIR + File.separator +  "runAll.sh"	)));
 		HashMap<Integer, BufferedWriter> shellMap = new HashMap<Integer, BufferedWriter>();
 		
 		for( int x=1; x <= 50; x++)
@@ -23,7 +23,7 @@ public class MakeBlastDB
 			File outFile = new File(SCRIPT_DIR.getAbsoluteFile() + File.separator + "run_" + x + ".sh" );
 			
 			shellMap.put(x, new BufferedWriter(new FileWriter(outFile)));
-			runAllWriter.write("qsub -q\"viper\" " + outFile.getAbsolutePath());
+			runAllWriter.write("qsub -q\"viper\" " + outFile.getAbsolutePath() + "\n");
 		}
 		
 		runAllWriter.flush();  runAllWriter.close();
