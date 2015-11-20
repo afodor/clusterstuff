@@ -44,6 +44,7 @@ public class Gather
 							if( numDone % 1000 == 0 )
 							{
 								logWriter.write(numDone + " " + numFound + " " +((double)numDone / numFound));
+								logWriter.flush();
 							}
 							
 						}
