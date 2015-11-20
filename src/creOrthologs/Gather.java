@@ -42,7 +42,7 @@ public class Gather
 							}
 							else
 							{
-								logWriter.write("Could not find " + outFile.getAbsoluteFile());
+								logWriter.write("Could not find " + outFile.getAbsoluteFile() + "\n");
 							}
 								
 							numDone++;

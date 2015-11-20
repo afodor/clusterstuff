@@ -6,7 +6,7 @@ import java.io.FileWriter;
 
 public class RunBlastAll
 {
-	public static final String BLAST_RESULTS_PATH = "/projects/afodor_research/af_broad/blastResults";
+	public static final String BLAST_RESULTS_PATH = "/projects/afodor_research/af_broad/blastResultsByDir";
 	
 	public static final String[] DIRECTORIES = { "carolina", "resistant", "susceptible" };
 	
@@ -30,6 +30,11 @@ public class RunBlastAll
 			{	
 				if( s.endsWith("fasta"))
 				{
+					File outSubDir = new File(BLAST_RESULTS_PATH + File.separator + s.replaceAll(".scaffolds.fasta",""));
+					
+					if( ! outSubDir.exists())
+						outSubDir.mkdir();
+					
 					File shellFile = new File( SCRIPT_DIR + File.separator + "run_" + index + ".sh" );
 					runAllWriter.write("qsub -q \"viper_batch\" -N \"CountJob" 
 							+ index + "\" " + shellFile.getAbsolutePath() +  "\n" );
@@ -47,7 +52,8 @@ public class RunBlastAll
 							File databaseFile = new File( MakeBlastDB.ORTHOLOG_DIR.getAbsoluteFile() + File.separator + 
 													s2);
 							
-							File outFile = new File( BLAST_RESULTS_PATH + File.separator + 
+							
+							File outFile = new File( outSubDir.getAbsolutePath()+ File.separator + 
 									s.replaceAll(".scaffolds.fasta","") + "_" + d + "_to_" + 
 									s2.replaceAll("dnaseq", "") + "txt");
 							
