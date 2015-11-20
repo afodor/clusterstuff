@@ -55,7 +55,7 @@ public class RunBlastAll
 							databaseFile.getAbsolutePath() + " -out " + 
 								outFile.getAbsolutePath() +  
 								" -query " + genomeDir.getAbsolutePath() + File.separator + s + 
-								"-outfmt 6\n");
+								" -outfmt 6\n");
 							
 							writer.write("gzip " + outFile.getAbsolutePath() + "\n");
 						}
