@@ -37,13 +37,19 @@ public class Gather
 									s2.replaceAll("dnaseq", "") + "txt");
 							
 							if( outFile.exists())
+							{
 								numFound++;
-							
+							}
+							else
+							{
+								logWriter.write("Could not find " + outFile.getAbsoluteFile());
+							}
+								
 							numDone++;
 							
 							if( numDone % 1000 == 0 )
 							{
-								logWriter.write(numDone + " " + numFound + " " +((double)numDone / numFound));
+								logWriter.write(numDone + " " + numFound + " " +((double)numFound / numDone) + "\n");
 								logWriter.flush();
 							}
 							
