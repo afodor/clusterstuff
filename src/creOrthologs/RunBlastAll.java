@@ -49,7 +49,7 @@ public class RunBlastAll
 							
 							File outFile = new File( BLAST_RESULTS_PATH + File.separator + 
 									s.replaceAll(".scaffolds.fasta","") + "_" + d + "_to_" + 
-									s2.replaceAll("dnaseq", "") + ".txt");
+									s2.replaceAll("dnaseq", "") + "txt");
 							
 							writer.write("/apps/pkg/ncbi-blast-2.2.29+/rhel6_u5-x86_64/gnu/bin/blastn -db " + 
 							databaseFile.getAbsolutePath() + " -out " + 
