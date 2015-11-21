@@ -19,20 +19,22 @@ public class Gather
 		
 		for(String d : RunBlastAll.DIRECTORIES)
 		{
+			
 			File genomeDir = new File("/projects/afodor_research/af_broad" + File.separator + d);
 			
 			String[] list = genomeDir.list();
 
 			for( String s : list)
-			{	
+			{
 				if( s.endsWith("fasta"))
 				{
+					File outSubDir = new File( RunBlastAll.BLAST_RESULTS_PATH + File.separator + s.replaceAll(".scaffolds.fasta",""));
+					
 					for(String s2 : innerList)
 					{
 						if( s2.endsWith("dnaseq"))
 						{
-							
-							File outFile = new File( RunBlastAll.BLAST_RESULTS_PATH + File.separator + 
+							File outFile = new File( outSubDir.getAbsolutePath()+ File.separator + 
 									s.replaceAll(".scaffolds.fasta","") + "_" + d + "_to_" + 
 									s2.replaceAll("dnaseq", "") + "txt");
 							
