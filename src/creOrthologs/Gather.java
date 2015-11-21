@@ -36,7 +36,7 @@ public class Gather
 						{
 							File outFile = new File( outSubDir.getAbsolutePath()+ File.separator + 
 									s.replaceAll(".scaffolds.fasta","") + "_" + d + "_to_" + 
-									s2.replaceAll("dnaseq", "") + "txt");
+									s2.replaceAll("dnaseq", "") + "txt.gz");
 							
 							if( outFile.exists())
 							{
