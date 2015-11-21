@@ -4,11 +4,17 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 
+import parsers.HitScores;
+
 public class Gather
 {
 	public static void main(String[] args) throws Exception
 	{
+		BufferedWriter writer = new BufferedWriter(new FileWriter(
+				new File("/projects/afodor_research/af_broad/blastResults.txt")));
 	
+		writer.write( "query\ttarget\tgenomeFileName\tmaxBitScore\n");
+		
 		long numDone =0;
 		long numFound = 0;
 		
@@ -41,6 +47,14 @@ public class Gather
 							if( outFile.exists())
 							{
 								numFound++;
+								
+								HitScores hs = HitScores.getTopHitByBitScore(outFile);
+								
+								//writer.write( "query\ttarget\tparentDir\tmaxBitScore\n");
+								
+								writer.write(hs.getQueryId() + "\t" + hs.getTargetId() + "\t" + 
+										s.replaceAll(".scaffolds.fasta","") + "\t" + hs.getBitScore() + "\n"
+											);
 							}
 							else
 							{
@@ -62,5 +76,6 @@ public class Gather
 		}
 		
 		logWriter.flush();  logWriter.close();
+		writer.flush();  writer.close();
 	}
 }
