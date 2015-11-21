@@ -53,8 +53,7 @@ public class Gather
 							{
 								logWriter.write(numDone + " " + numFound + " " +((double)numFound / numDone) + "\n");
 								logWriter.flush();
-							}
-							
+							}	
 						}
 					}
 				}
