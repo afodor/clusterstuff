@@ -50,11 +50,13 @@ public class Gather
 								
 								HitScores hs = HitScores.getTopHitByBitScore(outFile);
 								
-								//writer.write( "query\ttarget\tparentDir\tmaxBitScore\n");
+								if( hs != null )
+								{
+									writer.write(hs.getQueryId() + "\t" + hs.getTargetId() + "\t" + 
+											s.replaceAll(".scaffolds.fasta","") + "\t" + hs.getBitScore() + "\n"
+												);
+								}
 								
-								writer.write(hs.getQueryId() + "\t" + hs.getTargetId() + "\t" + 
-										s.replaceAll(".scaffolds.fasta","") + "\t" + hs.getBitScore() + "\n"
-											);
 							}
 							else
 							{
