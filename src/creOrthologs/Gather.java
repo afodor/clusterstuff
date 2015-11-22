@@ -13,7 +13,7 @@ public class Gather
 		BufferedWriter writer = new BufferedWriter(new FileWriter(
 				new File("/projects/afodor_research/af_broad/blastResults.txt")));
 	
-		writer.write( "query\ttarget\tgenomeFileName\tmaxBitScore\n");
+		writer.write( "filepath\tquery\ttarget\tgenomeFileName\tmaxBitScore\n");
 		
 		long numDone =0;
 		long numFound = 0;
@@ -52,7 +52,8 @@ public class Gather
 								
 								if( hs != null )
 								{
-									writer.write(hs.getQueryId() + "\t" + hs.getTargetId() + "\t" + 
+									writer.write( outFile.getAbsolutePath() + "\t" + 
+													hs.getQueryId() + "\t" + hs.getTargetId() + "\t" + 
 											s.replaceAll(".scaffolds.fasta","") + "\t" + hs.getBitScore() + "\n"
 												);
 								}
