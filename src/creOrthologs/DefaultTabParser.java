@@ -21,7 +21,7 @@ public class DefaultTabParser
 		
 		BufferedReader reader = new BufferedReader(new InputStreamReader( 
 				new GZIPInputStream( new FileInputStream("/projects/afodor_research/af_broad/bygenes/" + 
-						File.separator + "mbgd_2015-01_default.tab.gz"))));
+						File.separator + "mbgd_2015-01_extended.tab.gz"))));
 		
 		for( int x=0; x< 9; x++)
 			reader.readLine();
