@@ -18,8 +18,8 @@ import java.util.zip.GZIPInputStream;
 
 public class demultiplex {
 	//directory containing the needed files; also where will write results
-	public static final String DIR = "/projects/afodor_research/kwinglee/jobin/biofilm/";
-	//public static final String DIR = "C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\JG_V1_V3_16S_Biofilm-26532895\\Sample_1-30786868\\Data\\Intensities\\BaseCalls\\";
+	//public static final String DIR = "/projects/afodor_research/kwinglee/jobin/biofilm/";
+	public static final String DIR = "C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\JG_V1_V3_16S_Biofilm-26532895\\Sample_1-30786868\\Data\\Intensities\\BaseCalls\\";
 
 	private static HashMap<String, String> P_TO_SEQ;//hash of primer to primer sequence
 	private static int numMultiple = 0;
@@ -71,6 +71,10 @@ public class demultiplex {
 					seq.endsWith(pseq) ||
 					seq.endsWith(revComp(pseq))){
 				if(primer != null) {//multiple primers
+					/*System.out.println(p);
+					System.out.println(primer);
+					System.out.println(seq);
+					System.out.println();*/
 					numMultiple++;
 					return(null);
 				}
@@ -204,18 +208,33 @@ public class demultiplex {
 					fwd = pR;
 					rev = pF;
 					numMatch++;
-				}
+				} /*else {
+					System.out.println(pF + "\t" + pR);
+					System.out.println(readF);
+					System.out.println(readR);
+				}*/
 				
 				key = fwd+rev;
 			}
 			
 			if(pToSamp.containsKey(key)) {
 				samp = pToSamp.get(key);
+				/*if(samp.equals("183")) {
+					System.out.println("Full sequence:");
+					System.out.println(readF);
+					System.out.println(readR);
+				}*/
 				//only remove primers if not going into other category
 				readF = readF.replace(P_TO_SEQ.get(pF), "");
 				readF = readF.replace(revComp(P_TO_SEQ.get(pF)), "");
 				readR = readR.replace(P_TO_SEQ.get(pR), "");
 				readR = readR.replace(revComp(P_TO_SEQ.get(pR)), "");
+				/*if(samp.equals("183")) {
+					System.out.println("Primers removed:");
+					System.out.println(readF);
+					System.out.println(readR);
+					System.out.println();
+				}*/
 			}
 			
 			if(numRead % 1000000 == 0) {

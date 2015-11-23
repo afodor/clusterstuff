@@ -25,19 +25,20 @@ public class writeRDPScripts {
 		
 		for(int i = 0; i < files.length; i++) {
 			String name = files[i].getName().replace(".fasta", "");
-			
-			//write script to run RDP on that file
-			File scriptName = new File(scriptFolder + "runRDP_" + name);
-			BufferedWriter scriptWriter = new BufferedWriter(new FileWriter(scriptName));
-			scriptWriter.write("java -Xmx2g -jar ~/rdp/RDPTools/classifier.jar classify -h " + 
-					rdpFolder + "hier_" + name + ".txt" +
-					" -o " + rdpFolder + "rdp_" + name + ".txt" +
-					" " + fastaFolder + name + ".fasta");
-			
-			//add script to full list
-			allWriter.write("qsub -q \"Cobra_batch\" " + scriptName.getName() +  "\n");
-			
-			scriptWriter.close();
+			if(!name.contains("other")) {
+				//write script to run RDP on that file
+				File scriptName = new File(scriptFolder + "runRDP_" + name);
+				BufferedWriter scriptWriter = new BufferedWriter(new FileWriter(scriptName));
+				scriptWriter.write("java -Xmx2g -jar ~/rdp/RDPTools/classifier.jar classify -h " + 
+						rdpFolder + "hier_" + name + ".txt" +
+						" -o " + rdpFolder + "rdp_" + name + ".txt" +
+						" " + fastaFolder + name + ".fasta");
+				
+				//add script to full list
+				allWriter.write("qsub -q \"Cobra_batch\" " + scriptName.getName() +  "\n");
+				
+				scriptWriter.close();
+			}
 		}
 		
 		allWriter.close();
