@@ -140,8 +140,8 @@ public class demultiplex {
 			String[] sp = line.split("\t");
 			String samp = sp[0]; //sample name
 			pToSamp.put(sp[sp.length-2]+sp[sp.length-1], samp);
-			BufferedWriter[] files = {new BufferedWriter(new FileWriter(new File(DIR + "R1_" + samp + ".fasta"))),
-					new BufferedWriter(new FileWriter(new File(DIR + "R2_" + samp + ".fasta")))};
+			BufferedWriter[] files = {new BufferedWriter(new FileWriter(new File(DIR + File.separator + "fastas" + File.separator + "R1_" + samp + ".fasta"))),
+					new BufferedWriter(new FileWriter(new File(DIR + File.separator + "fastas" + File.separator + "R2_" + samp + ".fasta")))};
 			sToFile.put(samp, files);
 			line = br.readLine();
 		}
@@ -153,8 +153,8 @@ public class demultiplex {
 		}*/
 		
 		//add extra "other" file for unmatched reads
-		BufferedWriter[] files = {new BufferedWriter(new FileWriter(new File(DIR + "R1_other.fasta"))),
-				new BufferedWriter(new FileWriter(new File(DIR + "R2_other.fasta")))};
+		BufferedWriter[] files = {new BufferedWriter(new FileWriter(new File(DIR + File.separator + "fastas" + File.separator + "R1_other.fasta"))),
+				new BufferedWriter(new FileWriter(new File(DIR + File.separator + "fastas" + File.separator + "R2_other.fasta")))};
 		sToFile.put("other", files);
 		
 		
