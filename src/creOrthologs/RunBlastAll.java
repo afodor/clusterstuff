@@ -47,7 +47,7 @@ public class RunBlastAll
 					
 					for(String s2 : innerList)
 					{
-						if( s2.endsWith("dnaseq"))
+						if( s2.endsWith("geneseq"))
 						{
 							File databaseFile = new File( MakeBlastDB.ORTHOLOG_DIR.getAbsoluteFile() + File.separator + 
 													s2);
