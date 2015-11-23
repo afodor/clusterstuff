@@ -82,7 +82,7 @@ public class Gather
 	
 	private static HashMap<String, Float> getCountMap() throws Exception
 	{
-		HashMap<String, Float> countMap = getCountMap();
+		HashMap<String, Float> countMap = new HashMap<String, Float>();
 		HashMap<String, HashSet<Integer>> orthoMap = DefaultTabParser.getFileLineMap();
 	
 		long numDone =0;
