@@ -143,7 +143,7 @@ public class Gather
 									}
 									else
 									{
-										logWriter.write("Could not find cluster " + target );
+										logWriter.write("Could not find cluster " + target + "\n");
 									}
 								}
 								
@@ -159,6 +159,7 @@ public class Gather
 							{
 								logWriter.write(numDone + " " + numFound + " " +((double)numFound / numDone) + "\n");
 								logWriter.flush();
+								System.exit(1);
 							}	
 						}
 					}
