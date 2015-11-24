@@ -167,7 +167,7 @@ public class Gather
 									//"queryID\ttargetLine\tqueryStart\tqueryEnd\tbitScore\n"
 									HitScores hs = hitScoresMap.get(key);
 									topHitsWriter.write(hs.getQueryId()  + "\t" + hs.getQueryStart() + "\t" 
-													+ hs.getTargetEnd() + "\t" + hs.getBitScore() + "\n");
+													+ hs.getQueryEnd() + "\t" + hs.getBitScore() + "\n");
 								}
 								
 							}
