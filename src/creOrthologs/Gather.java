@@ -110,7 +110,7 @@ public class Gather
 					
 					BufferedWriter topHitsWriter = new BufferedWriter(new FileWriter(new File( 
 						"/projects/afodor_research/af_broad/topHitsDir/" + genome + "topHits.txt"	)));
-					topHitsWriter.write("queryID\ttargetLine\tqueryStart\tqueryEnd\tbitScore\n");
+					topHitsWriter.write("lineID@genome\tqueryID\ttargetLine\tqueryStart\tqueryEnd\tbitScore\n");
 					
 					for(String s2 : innerList)
 					{
@@ -164,9 +164,8 @@ public class Gather
 								
 								for(String key : hitScoresMap.keySet() )
 								{
-									//"queryID\ttargetLine\tqueryStart\tqueryEnd\tbitScore\n"
 									HitScores hs = hitScoresMap.get(key);
-									topHitsWriter.write(hs.getQueryId()  + "\t" + hs.getQueryStart() + "\t" 
+									topHitsWriter.write( key + "\t" +  hs.getQueryId()  + "\t" + hs.getQueryStart() + "\t" 
 													+ hs.getQueryEnd() + "\t" + hs.getBitScore() + "\n");
 								}
 								
