@@ -116,7 +116,6 @@ public class Gather
 					{
 						if( s2.endsWith("geneseq"))
 						{
-							HashMap<String, HitScores> hitScoresMap = new HashMap<String, HitScores>();
 							
 							File outFile = new File( outSubDir.getAbsolutePath()+ File.separator + 
 									s.replaceAll(".scaffolds.fasta","") + "_" + d + "_to_" + 
@@ -124,6 +123,8 @@ public class Gather
 							
 							if( outFile.exists())
 							{
+								HashMap<String, HitScores> hitScoresMap = new HashMap<String, HitScores>();
+								
 								numFound++;
 								
 								List<HitScores> hsList = HitScores.getAsList(outFile,true);
