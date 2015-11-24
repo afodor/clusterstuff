@@ -87,6 +87,8 @@ public class Gather
 	
 		long numDone =0;
 		long numFound = 0;
+		long numFoundClusters = 0;
+		long numMissedClusters = 0;
 		
 		BufferedWriter logWriter =new BufferedWriter(new FileWriter(new File( 
 				"/projects/afodor_research/af_broad/logOrthoPivot.txt")));
@@ -103,6 +105,7 @@ public class Gather
 			{
 				if( s.endsWith("fasta"))
 				{
+					String genome = s.replaceAll(".scaffolds.fasta","");
 					File outSubDir = new File( RunBlastAll.BLAST_RESULTS_PATH + File.separator + s.replaceAll(".scaffolds.fasta",""));
 					
 					for(String s2 : innerList)
@@ -121,7 +124,6 @@ public class Gather
 								
 								for( HitScores hs : hsList )
 								{
-									String genome = hs.getQueryId();
 									String target = hs.getTargetId();
 									
 									if( genome.indexOf("@") != -1 ) 
@@ -131,6 +133,7 @@ public class Gather
 									
 									if( lineIDs != null)
 									{
+										numFoundClusters++;
 										for(Integer i : lineIDs)
 										{
 											String key = i +"@" + genome;
@@ -143,7 +146,8 @@ public class Gather
 									}
 									else
 									{
-										logWriter.write("Could not find cluster " + target + "\n");
+										numMissedClusters++;
+										//logWriter.write("Could not find cluster " + target + "\n");
 									}
 								}
 								
@@ -157,7 +161,9 @@ public class Gather
 							
 							if( numDone % 1000 == 0 )
 							{
-								logWriter.write(numDone + " " + numFound + " " +((double)numFound / numDone) + "\n");
+								logWriter.write("Files " + numDone + " " + numFound + " " +((double)numFound / numDone) + "\n");
+								logWriter.write("Clusters " + numFoundClusters + " " + numMissedClusters + " " + 
+										((double)numFoundClusters /numMissedClusters));
 								logWriter.flush();
 							}	
 						}
