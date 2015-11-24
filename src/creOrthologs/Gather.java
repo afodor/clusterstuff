@@ -108,10 +108,16 @@ public class Gather
 					String genome = s.replaceAll(".scaffolds.fasta","");
 					File outSubDir = new File( RunBlastAll.BLAST_RESULTS_PATH + File.separator + s.replaceAll(".scaffolds.fasta",""));
 					
+					BufferedWriter topHitsWriter = new BufferedWriter(new FileWriter(new File( 
+						"/projects/afodor_research/af_broad/topHitsDir/" + genome + "topHits.txt"	)));
+					topHitsWriter.write("queryID\ttargetLine\tqueryStart\tqueryEnd\tbitScore\n");
+					
 					for(String s2 : innerList)
 					{
 						if( s2.endsWith("geneseq"))
 						{
+							HashMap<String, HitScores> hitScoresMap = new HashMap<String, HitScores>();
+							
 							File outFile = new File( outSubDir.getAbsolutePath()+ File.separator + 
 									s.replaceAll(".scaffolds.fasta","") + "_" + d + "_to_" + 
 									s2.replaceAll("geneseq.", "") + "txt.gz");
@@ -141,7 +147,11 @@ public class Gather
 											Float old = countMap.get(key);
 											
 											if( old == null || hs.getBitScore() > old)
+											{
 												countMap.put(key,hs.getBitScore());
+												hitScoresMap.put(key, hs);
+											}
+												
 										}
 									}
 									else
@@ -149,6 +159,14 @@ public class Gather
 										numMissedClusters++;
 										//logWriter.write("Could not find cluster " + target + "\n");
 									}
+								}
+								
+								for(String key : hitScoresMap.keySet() )
+								{
+									//"queryID\ttargetLine\tqueryStart\tqueryEnd\tbitScore\n"
+									HitScores hs = hitScoresMap.get(key);
+									topHitsWriter.write(hs.getQueryId()  + "\t" + hs.getQueryStart() + "\t" 
+													+ hs.getTargetEnd() + "\t" + hs.getBitScore() + "\n");
 								}
 								
 							}
@@ -168,6 +186,8 @@ public class Gather
 							}	
 						}
 					}
+					
+					topHitsWriter.flush(); topHitsWriter.close();
 				}
 			}
 			
