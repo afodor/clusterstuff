@@ -1,0 +1,50 @@
+##DC pcoa
+##and write pcoa axes
+##11/24/15
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\DC")
+
+library("vegan")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+pdf("dcPCoA_noApcMin.pdf")
+for(taxa in taxaLevels) {
+  fname = paste("dc_", taxa, "_taxaAsCol_noApcMin_logNorm.txt", sep="")
+  table = read.table(fname, sep="\t", header=T, comment.char="")
+  nc = ncol(table)
+  cc = c(rep(c("numeric", "character"),4), rep("numeric", 4), rep("character", 3), rep("numeric", nc-15))
+  table = read.table(fname, sep="\t", header=T, comment.char="", na.strings="N/A", colClasses=cc)
+  
+  ##pcoa with vegan capscale
+  par(mar=c(4,4,4,8), xpd=T)
+  pcoa <- capscale(table[,-(1:17)]~1,distance="bray")
+  
+  ##color by group
+  groups = sort(unique(table$Group..Associated.with.)) #[1] "BF-bx"   "BF+bx"   "BF+NF"   "BF+T #1" "BF+T #2" "BF+T #3"
+  col = c("blue", "red", "green", "gold", "purple", "black")
+  colors = rep(NA, nrow(table))
+  for(i in 1:length(groups)) {
+    colors[table$Group..Associated.with.==groups[i]] = col[i]
+  }
+  
+  ##shape by time; inoculum is time 0
+  time = sort(unique(table$Timepoint..weeks.))
+  sh = c(15, 16, 17, 18, 9, 11)
+  shapes = rep(NA, nrow(table))
+  for(i in 1:length(time)) {
+    shapes[table$Timepoint..weeks.==time[i]] = sh[i]
+  }
+  
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], xlab="MDS1", ylab="MDS2", main=taxa, col=colors, pch=shapes)
+  
+  legend("topright", inset=c(-.27,0),
+         legend=c(groups, paste(time, "weeks")),
+         col=c(col, rep("gray", length(time))),
+         pch=c(rep(20, length(groups)), sh))
+  
+  ##write axes
+  write.table(cbind(table[,1:17], pcoa$CA$u), sep="\t", file=paste("dcPcoaCorrected_", taxa, "_noApcMin.txt",sep=""), quote=F, row.names=F, col.names=T)
+}
+dev.off()
