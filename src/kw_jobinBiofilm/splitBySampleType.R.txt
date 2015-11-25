@@ -1,0 +1,38 @@
+##take all biofilm data
+##transpose
+##split by experiment
+##11/23/15
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+##transpose tables and write results
+for(taxa in taxaLevels) {
+  table = read.table(paste("rdp_", taxa, ".txt", sep=""), sep="\t")#, header=T, colClasses=c("character", rep("numeric", 410)))
+  transp = t(table)
+  write.table(transp, paste("rdp_", taxa, "_taxaAsCol.txt", sep=""), sep="\t", quote=F, row.names=F, col.names=F)
+}
+
+##split by experiment
+controls = c(17, 34, 51, 68:70, 87:89, 106, 123:125, 181, 182, 204, 205) #list of controls
+inoc = c(18, 27, 39, 77, 91, 113, 119) #list of inoculum
+for(taxa in taxaLevels) {
+  fname = paste("rdp_", taxa, "_taxaAsCol.txt", sep="")
+  table = read.table(fname, sep="\t", header=T)
+  nc = ncol(table)
+  table = read.table(fname, sep="\t", header=T, colClasses=c("character", rep("numeric", nc-1)))
+  ##stool (remove controls)
+  stool = table[table$sampleID<123 & !(table$sampleID %in% controls),]
+  write.table(stool, paste("stool\\stool_", taxa, "_taxaAsCol.txt", sep=""), sep="\t", quote=F, row.names=F, col.names=T)
+  ##DC
+  dc = table[table$sampleID>125 & table$sampleID<181,]
+  write.table(dc, paste("DC\\dc_", taxa, "_taxaAsCol.txt", sep=""), sep="\t", quote=F, row.names=F, col.names=T)
+  ##DC + inoc
+  inocData = table[table$sampleID %in% inoc,]
+  write.table(rbind(dc, inocData), paste("DC\\dcWithInoc_", taxa, "_taxaAsCol.txt", sep=""), sep="\t", quote=F, row.names=F, col.names=T)
+  ##IgA (remove controls)
+  iga = table[table$sampleID>182 & table$sampleID<204,]
+  write.table(iga, paste("IgA\\iga_", taxa, "_taxaAsCol.txt", sep=""), sep="\t", quote=F, row.names=F, col.names=T)
+}

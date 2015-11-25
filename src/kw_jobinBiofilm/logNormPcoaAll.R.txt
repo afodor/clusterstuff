@@ -1,0 +1,109 @@
+##log normalize and pcoa of all samples
+##11/23/15
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults")
+
+library("vegan")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+controls = c(17, 34, 51, 68:70, 87:89, 106, 123:125, 181, 182, 204, 205) #list of controls
+inoc = c(18, 27, 39, 77, 91, 113, 119) #list of inoculum
+
+##all samples
+pdf("AllSamples.pdf")
+for(taxa in taxaLevels) {
+  print(taxa)
+  fname = paste("rdp_", taxa, "_taxaAsCol.txt", sep="")
+  table = read.table(fname, sep="\t", header=T)
+  nc = ncol(table)
+  table = read.table(fname, sep="\t", header=T, colClasses=c("character", rep("numeric", nc-1)))
+  
+  ##get colors
+  group = rep(NA, nrow(table))
+  group[table$sampleID < 123] = "blue" #stool
+  group[table$sampleID>125 & table$sampleID<181] = "red" #DC
+  group[table$sampleID>182] = "green" #IgA
+  group[table$sampleID %in% controls] = "black" #control
+  group[table$sampleID %in% inoc] = "gold" #inoculum
+  
+  ##log normalize
+  lognorm = table
+  n = rowSums(table[,4:nc]) #number of reads in each sample
+  sumX = sum(n) #total number of reads in all samples = sum(table[,4:nc])
+  N = nrow(table) #total number of samples
+  for(col in 4:nc) {
+    for(row in 1:N) {
+      lognorm[row, col] = log10(table[row, col]/n[row] * sumX/N + 1)
+    }
+  }
+  write.table(lognorm, paste("rdp_", taxa, "_taxaAsCol_logNorm.txt", sep=""), sep="\t", row.names=F, col.names=T, quote=F)
+  
+  ##pcoa using vegan capscale
+  par(mar=c(4,4,4,8), xpd=T)
+  pcoa <- capscale(table[,-(1:3)]~1,distance="bray")
+  shapes = ifelse(table$read==1, 16, 17)
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], xlab="MDS1", ylab="MDS2", main=taxa, col=group, pch=shapes)
+  
+  ##legend
+  legend("topright", inset=c(-.27,0),
+         legend=c("inoculum", "stool", "DC", "IgA", "control", "read1", "read2"),
+         col=c("gold", "blue", "red", "green", "black", "grey", "grey"),
+         pch=c(rep(15, 5), 16, 17))
+  
+  ##label samples -> see which stool is clustering with controls
+  offset = 0.015
+#   text(x=pcoa$CA$u[,1]+offset, y=pcoa$CA$u[,2]+offset, labels=table$sampleID, col=group)
+#  text(x=pcoa$CA$u[group=="blue"&table$read==1,1]+offset, y=pcoa$CA$u[group=="blue"&table$read==1,2]+offset, labels=table$sampleID[group=="blue"&table$read==1], col=group[group=="blue"&table$read==1])
+  
+  
+}
+dev.off()
+
+##remove controls and 114 (the sample clustering with controls)
+pdf("AllSamplesMinusControls.pdf")
+for(taxa in taxaLevels) {
+  print(taxa)
+  fname = paste("rdp_", taxa, "_taxaAsCol.txt", sep="")
+  table = read.table(fname, sep="\t", header=T)
+  nc = ncol(table)
+  table = read.table(fname, sep="\t", header=T, colClasses=c("character", rep("numeric", nc-1)))
+  
+  ##remove controls and 114
+  table = table[!(table$sampleID %in% controls) | table$sampleID==114,]
+  
+  ##get colors
+  group = rep(NA, nrow(table))
+  group[table$sampleID < 123] = "blue" #stool
+  group[table$sampleID>125 & table$sampleID<181] = "red" #DC
+  group[table$sampleID>182] = "green" #IgA
+  group[table$sampleID %in% controls] = "black" #control
+  group[table$sampleID %in% inoc] = "gold" #inoculum
+  shapes = ifelse(table$read==1, 16, 17)
+  
+  ##log normalize
+  lognorm = table
+  n = rowSums(table[,4:nc]) #number of reads in each sample
+  sumX = sum(n) #total number of reads in all samples = sum(table[,4:nc])
+  N = nrow(table) #total number of samples
+  for(col in 4:nc) {
+    for(row in 1:N) {
+      lognorm[row, col] = log10(table[row, col]/n[row] * sumX/N + 1)
+    }
+  }
+  write.table(lognorm, paste("rdp_", taxa, "_taxaAsCol_logNorm_noCtrl.txt", sep=""), sep="\t", row.names=F, col.names=T, quote=F)
+  
+  ##pcoa using vegan capscale
+  par(mar=c(4,4,4,8), xpd=T)
+  pcoa <- capscale(table[,-(1:3)]~1,distance="bray")
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], xlab="MDS1", ylab="MDS2", main=taxa, col=group, pch=shapes)
+  
+  ##legend
+  legend("topright", inset=c(-.27,0),
+         legend=c("inoculum", "stool", "DC", "IgA", "control", "read1", "read2"),
+         col=c("gold", "blue", "red", "green", "black", "grey", "grey"),
+         pch=c(rep(15, 5), 16, 17))
+ 
+}
+dev.off()
