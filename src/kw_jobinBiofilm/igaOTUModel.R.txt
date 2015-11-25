@@ -1,0 +1,95 @@
+##linear model for IgA dataset
+##try two different models: group and type together and separately
+##11/25/15
+
+rm(list=ls())
+
+library("pscl")
+library("lmtest")
+library("nlme")
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\IgA")
+
+taxaLevels <- c("phylum","class","order","family","genus")
+
+for(taxa in taxaLevels ) {
+  print(taxa)
+  fname = paste("iga_", taxa, "_taxaAsCol_logNorm.txt", sep="")
+  table = read.table(fname, sep="\t", header=T, comment.char="")
+  numCols = ncol(table)
+  cc = c(rep(c("numeric", "character"),3), rep("character", 9), rep("numeric", numCols-15))
+  table = read.table(fname, sep="\t", header=T, comment.char="", na.strings="N/A", colClasses=cc)
+
+  ##output vectors
+  names = vector()
+  meanTaxa = vector()
+  pGroup = vector()
+  pType = vector()
+  pGroupCombined = vector()
+  pTypeCombined = vector()
+  index = 1
+  pdf(paste("iga_otuModel_boxplots_", taxa, ".pdf", sep=""), width=9, height=8)
+  
+  for( i in 18:numCols) {
+    if(sum(table[,i] != 0 ) > nrow(table) / 4 ) {
+      
+      names[index] <- names(table)[i]
+      bug <- table[,i]
+      meanTaxa[index] <- mean(bug)
+      group <- factor(table$Group..Associated.with.)
+      type <- factor(table$Sample.Type)
+      
+      myFrame <- data.frame(bug, group, type)
+      
+      pGroup[index] <- anova(lm(bug ~ group))$"Pr(>F)"[1] 
+      pType[index] <- anova(lm(bug ~ type))$"Pr(>F)"[1]
+      
+      glsModel <- gls(bug~group+type, method="REML",	data = myFrame) #lm(bug~group+type)
+      
+      pGroupCombined[index] <- anova(glsModel)$"p-value"[2]
+      pTypeCombined[index] <- anova(glsModel)$"p-value"[3]
+      
+      ##plots
+      graphMain =  paste( names[index], 
+                          ":\n pGroup= ", format(pGroup[index],digits=3), 
+                          "; pType= ", format(pType[index], digits=3), sep="")
+      
+     
+      ##color by group
+      groups = sort(unique(table$Group..Associated.with.)) #[1] "BF-bx"       "BF+bx"       "BF+NF"       "BF+T (#1)"   "BF+T (#1,3)"
+      col = c("blue", "red", "green", "gold", "pink")
+      colors = rep(NA, nrow(table))
+      for(i in 1:length(groups)) {
+        colors[table$Group..Associated.with.==groups[i]] = col[i]
+      }
+      
+      ##shape by sample type
+      shapes = ifelse(table$Sample.Type=="presorted", 16, 17)
+      shapes[grepl("positive", table$Sample.Type)] = 18
+      
+      par(mfrow=c(1,2), oma=c(.5,.5,5,.5), mar=c(11,4,1,1))
+      ##group
+      boxplot(bug~group, xlab="", ylab="relative abundance", las=2, main="group")
+      points(bug~group, col=colors, pch=shapes)
+      ##type
+      boxplot(bug~type, xlab="", ylab="relative abundance", las=2, main="sample type")
+      points(bug~type, col=colors, pch=shapes)
+      
+      ##add title
+      par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+      plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+      legend("top", horiz=T, legend=graphMain, cex=1.2, bty="n")
+      
+      index=index+1
+    }
+  }
+  
+  dFrame <- data.frame(names, meanTaxa, pGroup, pType, pGroupCombined, pTypeCombined)
+  dFrame$pAdjGroup <- p.adjust(dFrame$pGroup, method = "BH")
+  dFrame$pAdjType <- p.adjust(dFrame$pType, method = "BH")
+  dFrame$pAdjGroupCombined <- p.adjust(dFrame$pGroupCombined, method = "BH")
+  dFrame$pAdjTypeCombined <- p.adjust(dFrame$pTypeCombined, method = "BH")
+  dFrame <- dFrame[order(dFrame$pGroup),]
+  write.table(dFrame, file=paste("iga_otuModel_pValues_", taxa, ".txt",sep=""), sep="\t",row.names=FALSE)
+  dev.off()
+}

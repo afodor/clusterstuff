@@ -1,0 +1,46 @@
+##IgA pcoa
+##and write pcoa axes
+##11/25/15
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\IgA")
+
+library("vegan")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+pdf("igaPCoA.pdf")
+for(taxa in taxaLevels) {
+  fname = paste("iga_", taxa, "_taxaAsCol_logNorm.txt", sep="")
+  table = read.table(fname, sep="\t", header=T, comment.char="")
+  nc = ncol(table)
+  cc = c(rep(c("numeric", "character"),3), rep("character", 9), rep("numeric", nc-15))
+  table = read.table(fname, sep="\t", header=T, comment.char="", na.strings="N/A", colClasses=cc)
+  
+  ##pcoa with vegan capscale
+  par(mar=c(4,4,4,8.7), xpd=T)
+  pcoa <- capscale(table[,-(1:17)]~1,distance="bray")
+  
+  ##color by group
+  groups = sort(unique(table$Group..Associated.with.)) #[1] "BF-bx"       "BF+bx"       "BF+NF"       "BF+T (#1)"   "BF+T (#1,3)"
+  col = c("blue", "red", "green", "gold", "pink")
+  colors = rep(NA, nrow(table))
+  for(i in 1:length(groups)) {
+    colors[table$Group..Associated.with.==groups[i]] = col[i]
+  }
+  
+  ##shape by sample type
+  shapes = ifelse(table$Sample.Type=="presorted", 16, 17)
+  shapes[grepl("positive", table$Sample.Type)] = 18
+  
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], xlab="MDS1", ylab="MDS2", main=taxa, col=colors, pch=shapes)
+  
+  legend("topright", inset=c(-.4,0),
+         legend=c(groups, "presorted", "sorted IgA negative", "sorted IgA positive"),
+         col=c(col, rep("gray", 3)),
+         pch=c(rep(15, length(groups)),16, 17, 18))
+  
+  ##write axes
+  write.table(cbind(table[,1:17], pcoa$CA$u), sep="\t", file=paste("igaPcoaCorrected_", taxa, "_noApcMin.txt",sep=""), quote=F, row.names=F, col.names=T)
+}
+dev.off()
