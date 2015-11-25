@@ -1,0 +1,145 @@
+##linear model for stool dataset
+##11/23/15
+
+rm(list=ls())
+
+# library("pscl")
+# library("lmtest")
+# library("nlme")
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\stool")
+
+taxaLevels <- c("phylum","class","order","family","genus")
+
+for(taxa in taxaLevels ) {
+  print(taxa)
+  fname = paste("stool_", taxa, "_taxaAsCol_noApcMin_logNorm.txt", sep="")
+  table = read.table(fname, sep="\t", header=T, comment.char="")
+  numCols = ncol(table)
+  cc = c("numeric", rep("character",3), "numeric", rep("character",3), rep("numeric", 4), rep("character", 3), rep("numeric", numCols-15))
+  table = read.table(fname, sep="\t", header=T, comment.char="", na.strings="N/A", colClasses=cc)
+  
+  ##inoculum doesn't have cage or mouse, which messes up below so set both to 0
+  table$Mouse..[grepl("inoculum", table$Sample.Type)] = 0
+  table$Cage.Number[grepl("inoculum", table$Sample.Type)] = 0
+  table$Sex[grepl("inoculum", table$Sample.Type)] = "inoculum"
+  # table = table[table$Sample.Type!="remaining inoculum",]#this is a repeat; remove
+  table$Sample.Type[table$Sample.Type=="remaining inoculum"] = "inoculum"
+  
+  ##output vectors
+  names = vector()
+  meanTaxa = vector()
+  pTime = vector()
+  pGroup = vector()
+  pType = vector()
+  pCage = vector()
+  pMouse = vector()
+  pSex = vector()
+  index = 1
+  pdf(paste("stool_otuModel_boxplots_", taxa, ".pdf", sep=""), height = 10)
+  
+  for( i in 18:numCols) {
+    if(sum(table[,i] != 0 ) > nrow(table) / 4 ) {
+      
+      names[index] <- names(table)[i]
+      bug <- table[,i]
+      meanTaxa[index] <- mean(bug)
+      time <- table$Timepoint..weeks.
+      group <- factor(table$Group..Associated.with.)
+      type <- factor(table$Sample.Type)
+      sex <- factor(table$Sex)
+      cage <- factor(paste(table$Group..Associated.with., table$Cage.Number, sep=":"))
+      mouse <- factor(paste(cage, table$Mouse.., sep=":"))
+      
+      myFrame <- data.frame(bug, time, group, type, sex, cage, mouse)
+      
+#       fullModel <- gls(bug~time+group+type, method="REML",correlation=corCompSymm(form=~1|cageMouse),
+#                         data = myFrame )
+#       
+#       reducedModel <- gls(bug~time+group+type, method="REML",	data = myFrame )
+#       
+#       fullModelLME <- lme(bug~time+group+type, method="REML", random = ~1|cageMouse, data = myFrame)		
+#       
+#       pTime[index] <- anova(fullModelLME)$"p-value"[2]
+#       pGroup[index] <- anova(fullModelLME)$"p-value"[3]
+#       pType[index] <- anova(fullModelLME)$"p-value"[4]
+#       pCageMouse[index] <- anova(fullModelLME, reducedModel)$"p-value"[2]
+#       intraclassCoefficient<- coef(fullModel$modelStruct[1]$corStruct,unconstrained=FALSE)[[1]]
+
+      ##plots
+#       graphMain =  paste( names[index], " pTime=", format(pTime[index], digits=3), "\n",
+#                           " pGroup= ", format(pGroup[index],digits=3), 
+#                           " pType= " , format(pType[index], digits=3), "\n",
+#                           " pCageMouse= ", format(pCageMouse[index], digits=3),
+#                           " icc= " , format( intraclassCoefficient, digits=3 ), sep="")
+#       
+      pTime[index] <- anova(lm(bug ~ time))$"Pr(>F)"[1]
+      pGroup[index] <- anova(lm(bug ~ group))$"Pr(>F)"[1] 
+      pType[index] <- anova(lm(bug ~ type))$"Pr(>F)"[1]
+      pCage[index] <- anova(lm(bug ~ cage))$"Pr(>F)"[1]
+      pMouse[index] <- anova(lm(bug ~ mouse))$"Pr(>F)"[1]
+      pSex[index] <- anova(lm(bug ~ sex))$"Pr(>F)"[1]
+      
+      graphMain =  paste(names[index], 
+                         ":\n pGroup = ", format(pGroup[index],digits=3), 
+                         "; pTime =", format(pTime[index], digits=3),
+                          "; pType = " , format(pType[index], digits=3), "\n",
+                          " pCage = ", format(pCage[index], digits=3),
+                          "; pMouse = " , format(pMouse[index], digits=3 ),
+                          "; pSex = ", format(pSex[index], digits=3), sep="")
+      
+      ##color by group
+      groups = sort(unique(table$Group..Associated.with.)) #[1] "BF-bx"   "BF+bx"   "BF+NF"   "BF+T #1" "BF+T #2" "BF+T #3"
+      col = c("blue", "red", "green", "gold", "purple", "black")
+      colors = rep(NA, nrow(table))
+      for(i in 1:length(groups)) {
+        colors[table$Group..Associated.with.==groups[i]] = col[i]
+      }
+      ##shape by time; inoculum is time 0
+      times = sort(unique(table$Timepoint..weeks.))
+      sh = c(8, 15, 16, 17, 18, 9, 11)
+      shapes = rep(NA, nrow(table))
+      for(i in 1:length(times)) {
+        shapes[table$Timepoint..weeks.==times[i]] = sh[i]
+      }
+      
+      par(mfrow=c(3,2), oma=c(.5,.5,5,.5), mar=c(4.5,4,1,1))
+      ##group
+      boxplot(bug~group, xlab="", ylab="relative abundance", las=2, main="group")
+      points(bug~group, col=colors, pch=shapes)
+      ##time
+      plot(x=time, y=bug, xlab="weeks", ylab="relative abundance", main="time", col=colors, pch=shapes)
+      ##type
+      boxplot(bug~type, xlab="", ylab="relative abundance", main="sample type")
+      points(bug~type, col=colors, pch=shapes)
+      ##cage
+      boxplot(bug~cage, xlab="", ylab="relative abundance", las=2, main="cage")
+      points(bug~cage, col=colors, pch=shapes)
+      ##mouse
+      boxplot(bug~mouse, xlab="", ylab="relative abundance", las=2, main="mouse")
+      points(bug~mouse, col=colors, pch=shapes)
+      ##sex
+      boxplot(bug~sex, xlab="", ylab="relative abundance", main="sex")
+      points(bug~sex, col=colors, pch=shapes)
+      
+      ##add title
+      par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+      plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+      legend("top", horiz=T, legend=graphMain, cex=1.2, bty="n")
+      
+      index=index+1
+      
+    }
+  }
+  
+  dFrame <- data.frame(names, meanTaxa, pGroup, pTime, pType, pCage, pMouse, pSex)
+  dFrame$pAdjGroup <- p.adjust(dFrame$pGroup, method = "BH")
+  dFrame$pAdjTime <- p.adjust(dFrame$pTime, method = "BH")
+  dFrame$pAdjType <- p.adjust( dFrame$pType, method = "BH")
+  dFrame$pAdjCage <- p.adjust(dFrame$pCage, method="BH")
+  dFrame$pAdjMouse <- p.adjust(dFrame$pMouse, method="BH")
+  dFrame$pAdjSex <- p.adjust(dFrame$pSex, method="BH")
+  dFrame <- dFrame[order(dFrame$pGroup),]
+  write.table(dFrame, file=paste("stool_otuModel_pValues_", taxa, ".txt",sep=""), sep="\t",row.names=FALSE)
+  dev.off()
+}
