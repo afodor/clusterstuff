@@ -10,12 +10,16 @@ public class ExtractAlignment
 		
 		String[] list = topDir.list();
 		
-		for( String s : list)
+		for( String s : list) 
 		{
-			String[] splits = s.split("_");
-			String aName = splits[2] + "_" + splits[3] + "_" + splits[4] + "_" + splits[5] + "scaffolds.fasta";
-			File aFile = findFile(aName);
-			System.out.println(aFile.getAbsolutePath());
+			if( ! s.endsWith("fasta"))
+			{
+				System.out.println(s);
+				String[] splits = s.split("_");
+				String aName = splits[2] + "_" + splits[3] + "_" + splits[4] + "_" + splits[5] + "scaffolds.fasta";
+				File aFile = findFile(aName);
+				System.out.println(aFile.getAbsolutePath());	
+			}
 			
 		}
 		
