@@ -39,8 +39,10 @@ public class ExtractAlignment
 				
 				List<HitScores> hitList = HitScores.getTopHits(topDir.getAbsolutePath() + File.separator + s);
 				
-				if( hitList.size() != 1)
+				if( hitList.size() > 1)
 					throw new Exception("No");
+				
+				System.out.println(hitList.size());
 			}
 			else
 			{
