@@ -18,7 +18,7 @@ public class ExtractOne
 		String toFind = "7000000220927531";
 		
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
-			"/projects/afodor_research/af_broad/individualBlastRuns/conting_" + toFind + 
+			"/projects/afodor_research/af_broad/individualBlastRuns/contig_" + toFind + 
 			File.separator + toFind + ".fasta")));
 		
 		

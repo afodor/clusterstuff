@@ -41,7 +41,7 @@ public class RunSingleQueryAgainstBlastDBGenomeDirectories
 				{
 					File inSeqs= new File( genomeDir.getAbsolutePath() + File.separator + s);
 					File outFile = new File("/projects/afodor_research/af_broad/individualBlastRuns/" + 
-					"contig" + toFind + File.separator + toFind + "_to_" + 
+					"contig_" + toFind + File.separator + toFind + "_to_" + 
 							s.replaceAll(".scaffolds.fasta", ".txt"));
 					
 					File queryFile = new File("/projects/afodor_research/af_broad/individualBlastRuns/" + 
