@@ -59,7 +59,7 @@ public class ExtractAlignment
 				{
 					HitScores hs = hitList.get(0);
 					
-					System.out.println(hs.getQueryAlignmentLength() + " "+ queryLength + " " +
+					System.out.println( hs.getTargetId() + " " +  hs.getQueryAlignmentLength() + " "+ queryLength + " " +
 							((float)hs.getQueryAlignmentLength()) + " " + hs.getBitScore() + " " + hs.getEScore());
 					if( ((float)hs.getQueryAlignmentLength())/ queryLength > 0.9f)
 					{
