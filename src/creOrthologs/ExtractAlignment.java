@@ -52,7 +52,7 @@ public class ExtractAlignment
 					throw new Exception("No");
 				
 				writer.write(">" + fastaList.get(0).getHeader()  + "\n");
-				writer.write(fastaList.get(1).getSequence() + "\n");
+				writer.write(fastaList.get(0).getSequence() + "\n");
 				
 			}
 			
