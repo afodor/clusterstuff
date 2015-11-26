@@ -27,7 +27,7 @@ public class ExtractOne
 			if(fs.getFirstTokenOfHeader().equals(toFind))
 			{
 				writer.write(fs.getHeader() + "\n");
-				writer.write(fs.getSequence() + "\n");
+				writer.write(fs.getSequence().substring(2482, 4032) + "\n");
 			}
 		}
 			
