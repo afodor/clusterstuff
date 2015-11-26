@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 public class MakeBlastDBGenomeDirectories
 {
-	private static File SCRIPT_DIR = new File( "/projects/afodor_research/af_broad/scripts/makeBlastDBScripts");
+	private static File SCRIPT_DIR = new File( "/projects/afodor_research/af_broad/individualBlastRuns/scripts");
 	
 	public static final int NUM_CORES = 50;
 	
