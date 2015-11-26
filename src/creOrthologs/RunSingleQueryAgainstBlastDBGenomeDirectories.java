@@ -53,7 +53,7 @@ public class RunSingleQueryAgainstBlastDBGenomeDirectories
 					writer.write("/apps/pkg/ncbi-blast-2.2.29+/rhel6_u5-x86_64/gnu/bin/blastn -db " + 
 							inSeqs.getAbsolutePath() + " -out " + 
 							outFile.getAbsolutePath() +  
-							" -query " + queryFile.getAbsolutePath() + File.separator + s + 
+							" -query " + queryFile.getAbsolutePath() +
 							" -outfmt 6\n");
 			
 					writer.flush();
