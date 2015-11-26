@@ -12,8 +12,21 @@ import utils.OrderedSequenceRange;
 
 public class ExtractAlignment
 {
+	private static int getQuerySequenceLength() throws Exception
+	{
+		List<FastaSequence> list = 
+				FastaSequence.readFastaFile(
+						"/projects/afodor_research/af_broad/individualBlastRuns/contig_7000000220927531/7000000220927531.fasta");
+		
+		if( list.size() != 1)
+			throw new Exception("No");
+		
+		return list.get(0).getSequence().length();
+	}
+	
 	public static void main(String[] args) throws Exception
 	{
+		int queryLength = getQuerySequenceLength();
 		File topDir = new File( "/projects/afodor_research/af_broad/individualBlastRuns/contig_7000000220927531");
 		
 		String[] list = topDir.list();
@@ -49,19 +62,24 @@ public class ExtractAlignment
 				if( hitList.size() >0 )
 				{
 					HitScores hs = hitList.get(0);
-					HashMap<String, FastaSequence> fastaMap = FastaSequence.getFirstTokenSequenceMap(aFile);
-					FastaSequence aSeq = fastaMap.get(hs.getTargetId());
 					
-					if( aSeq == null)
-						throw new Exception("Could not find " + hs.getTargetId() + " in " + aFile.getAbsolutePath() );
-					
-					OrderedSequenceRange osr = hs.getTargetRange();
-					
-					writer.write(">" + hs.getTargetId() + " " + aFile.getName() + " " 
-							+ osr.getStartPosition() + " " + osr.getEndPosition() + " bit=" + hs.getBitScore() + " escore=" + 
-										hs.getEScore() + "\n");
-					
-					writer.write(aSeq.getSequence().substring(osr.getStartPosition() - 1, osr.getEndPosition()) + "\n");
+					if( ((float)hs.getQueryAlignmentLength())/ queryLength > 0.9f)
+					{
+						HashMap<String, FastaSequence> fastaMap = FastaSequence.getFirstTokenSequenceMap(aFile);
+						FastaSequence aSeq = fastaMap.get(hs.getTargetId());
+						
+						if( aSeq == null)
+							throw new Exception("Could not find " + hs.getTargetId() + " in " + aFile.getAbsolutePath() );
+						
+						OrderedSequenceRange osr = hs.getTargetRange();
+						
+						writer.write(">" + hs.getTargetId() + " " + aFile.getName() + " " 
+								+ osr.getStartPosition() + " " + osr.getEndPosition() + " bit=" + hs.getBitScore() + " escore=" + 
+											hs.getEScore() + "\n");
+						
+						writer.write(aSeq.getSequence().substring(osr.getStartPosition() - 1, osr.getEndPosition()) + "\n");
+				
+					}
 				}
 			}
 			else
