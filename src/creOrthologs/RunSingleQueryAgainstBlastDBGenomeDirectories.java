@@ -45,7 +45,7 @@ public class RunSingleQueryAgainstBlastDBGenomeDirectories
 							s.replaceAll(".scaffolds.fasta", ".txt"));
 					
 					File queryFile = new File("/projects/afodor_research/af_broad/individualBlastRuns/" + 
-					"contig" + toFind + File.separator + toFind + ".fasta");
+					"contig_" + toFind + File.separator + toFind + ".fasta");
 			
 					BufferedWriter writer = shellMap.get(index);
 				
