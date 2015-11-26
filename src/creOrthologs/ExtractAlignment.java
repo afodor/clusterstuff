@@ -15,9 +15,16 @@ public class ExtractAlignment
 			if( ! s.endsWith("fasta"))
 			{
 				System.out.println(s);
-				String[] splits = s.split("_");
+				String[] splits = s.split("_"
+						+ "");
+				
+				StringBuffer b = new StringBuffer();
+				
+				for( int x=2; x < splits.length; x++)
+					b.append(splits[x] + (x < splits.length - 1 ? "_" : ""));
+				
 				String aName = 
-						(splits[2] + "_" + splits[3] + "_" + splits[4] + "_" + splits[5] + ".scaffolds.fasta").replace(".txt", "");
+						(b.toString() + ".scaffolds.fasta").replace(".txt", "");
 				File aFile = findFile(aName);
 				System.out.println(aFile.getAbsolutePath());	
 			}
