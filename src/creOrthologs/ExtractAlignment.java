@@ -1,6 +1,12 @@
 package creOrthologs;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.util.List;
+
+import parsers.FastaSequence;
+import parsers.HitScores;
 
 public class ExtractAlignment
 {
@@ -9,6 +15,9 @@ public class ExtractAlignment
 		File topDir = new File( "/projects/afodor_research/af_broad/individualBlastRuns/contig_7000000220927531");
 		
 		String[] list = topDir.list();
+		
+		BufferedWriter writer = new BufferedWriter(
+				new FileWriter( "/projects/afodor_research/af_broad/contig_7000000220927531_forAlign.txt" ));
 		
 		for( String s : list) 
 		{
@@ -26,11 +35,28 @@ public class ExtractAlignment
 				String aName = 
 						(b.toString() + ".scaffolds.fasta").replace(".txt", "");
 				File aFile = findFile(aName);
-				System.out.println(aFile.getAbsolutePath());	
+				System.out.println(aFile.getAbsolutePath());
+				
+				List<HitScores> hitList = HitScores.getTopHits(topDir.getAbsolutePath() + File.separator + s);
+				
+				if( hitList.size() != 1)
+					throw new Exception("No");
+			}
+			else
+			{
+				List<FastaSequence> fastaList = FastaSequence.readFastaFile(topDir.getAbsolutePath() + File.separator + s);
+				
+				if( fastaList.size() != 1)
+					throw new Exception("No");
+				
+				writer.write(">" + fastaList.get(0).getHeader()  + "\n");
+				writer.write(fastaList.get(1).getSequence() + "\n");
+				
 			}
 			
 		}
 		
+		writer.flush();  writer.close();
 		
 	}
 	
