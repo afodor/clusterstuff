@@ -38,7 +38,6 @@ public class ExtractAlignment
 		{
 			if( ! s.endsWith("fasta"))
 			{
-				System.out.println(s);
 				String[] splits = s.split("_"
 						+ "");
 				
@@ -50,19 +49,18 @@ public class ExtractAlignment
 				String aName = 
 						(b.toString() + ".scaffolds.fasta").replace(".txt", "");
 				File aFile = findFile(aName);
-				System.out.println(aFile.getAbsolutePath());
 				
 				List<HitScores> hitList = HitScores.getTopHits(topDir.getAbsolutePath() + File.separator + s);
 				
 				if( hitList.size() > 1)
 					throw new Exception("No");
 				
-				System.out.println(hitList.size());
-				
 				if( hitList.size() >0 )
 				{
 					HitScores hs = hitList.get(0);
 					
+					System.out.println(hs.getQueryAlignmentLength() + " "+ queryLength + " " +
+							((float)hs.getQueryAlignmentLength()) + " " + hs.getBitScore() + " " + hs.getEScore());
 					if( ((float)hs.getQueryAlignmentLength())/ queryLength > 0.9f)
 					{
 						HashMap<String, FastaSequence> fastaMap = FastaSequence.getFirstTokenSequenceMap(aFile);
