@@ -16,7 +16,8 @@ public class ExtractAlignment
 			{
 				System.out.println(s);
 				String[] splits = s.split("_");
-				String aName = splits[2] + "_" + splits[3] + "_" + splits[4] + "_" + splits[5] + ".scaffolds.fasta";
+				String aName = 
+						(splits[2] + "_" + splits[3] + "_" + splits[4] + "_" + splits[5] + ".scaffolds.fasta").replace(".txt", "");
 				File aFile = findFile(aName);
 				System.out.println(aFile.getAbsolutePath());	
 			}
