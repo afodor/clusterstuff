@@ -1,0 +1,51 @@
+##Perform ANOSIM to get R from stool data
+##split into BF-bx vs. BF+bx and BF+NF vs. BF+T
+##11/30/15
+
+rm(list=ls())
+
+library(vegan)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis2_combineT\\stool")
+
+taxaLevels <- c("phylum","class","order","family","genus")
+
+res = data.frame(level=vector(), bx.group.r=vector(), bx.group.p=vector(), bx.time.r=vector(), bx.time.p=vector(),
+           nt.group.r=vector(), nt.group.p=vector(), nt.time.r=vector(), nt.time.p=vector())
+for(taxa in taxaLevels ) {
+  print(taxa)
+  fname = paste("analysis2_stoolCombineT_", taxa, "_taxaAsCol_logNorm.txt", sep="")
+  table = read.table(fname, sep="\t", header=T, comment.char="")
+  numCols = ncol(table)
+  cc = c("numeric", rep("character",3), "numeric", rep("character",3), rep("numeric", 4), rep("character", 3), rep("numeric", numCols-15))
+  table = read.table(fname, sep="\t", header=T, comment.char="", na.strings="N/A", colClasses=cc)
+
+  ##BF-bx vs. BF+bx
+  bx = table[table$Group..Associated.with.=="BF-bx" | table$Group..Associated.with.=="BF+bx",]
+  bx.dat = bx[,-(1:17)]
+  ##group
+  an = anosim(bx.dat, bx$Group..Associated.with.)
+  bx.group.r = an$statistic
+  bx.group.p = an$signif
+  ##time
+  an = anosim(bx.dat, bx$Timepoint..weeks.)
+  bx.time.r = an$statistic
+  bx.time.p = an$signif
+  
+  ##BF+NF vs. BF+T
+  nt = table[table$Group..Associated.with.=="BF+NF" | table$Group..Associated.with.=="BF+T",]
+  nt.dat = nt[, -(1:17)]
+  ##group
+  an = anosim(nt.dat, nt$Group..Associated.with.)
+  nt.group.r = an$statistic
+  nt.group.p = an$signif
+  ##time
+  an = anosim(nt.dat, nt$Timepoint..weeks.)
+  nt.time.r = an$statistic
+  nt.time.p = an$signif
+  
+  res = rbind(res, data.frame(level=taxa, 
+                     bx.group.r=bx.group.r, bx.group.p=bx.group.p, bx.time.r=bx.time.r, bx.time.p=bx.time.p, 
+                     nt.group.r=nt.group.r, nt.group.p=nt.group.p, nt.time.r=nt.time.r, nt.time.p=nt.time.p))
+}
+write.table(res, "stoolSplitGroupAnosimOTU.txt", sep="\t", quote=F, row.names=F, col.names=T)

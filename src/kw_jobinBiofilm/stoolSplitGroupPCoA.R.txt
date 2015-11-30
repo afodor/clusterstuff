@@ -1,0 +1,75 @@
+##stool pcoa without inoculum and combined BF+T
+##split into BF-bx vs. BF+bx and BF+NF vs. BF+T
+##and write pcoa axes
+##11/30/15
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis2_combineT\\stool")
+
+library("vegan")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+groups = c("BF-bx", "BF+bx", "BF+NF", "BF+T") #sort(unique(table$Group..Associated.with.)) 
+col = c("blue", "red", "gold", "purple")
+##function that returns the colors; color by groups
+getColors <- function(g) {
+  colors = rep(NA, length(g))
+  for(i in 1:length(groups)) {
+    colors[g==groups[i]] = col[i]
+  }
+  return(colors)
+}
+
+##shape by time
+time = c(1, 12) #sort(unique(table$Timepoint..weeks.))
+sh = c(15, 16)
+getShapes <- function(t) {
+  shapes = rep(NA, length(t))
+  for(i in 1:length(time)) {
+    shapes[t==time[i]] = sh[i]
+  }
+  return(shapes)
+}
+
+pdf("stoolSplitGroupPCoA.pdf", width=10, height=5)
+for(taxa in taxaLevels) {
+  fname = paste("analysis2_stoolCombineT_", taxa, "_taxaAsCol_logNorm.txt", sep="")
+  table = read.table(fname, sep="\t", header=T, comment.char="")
+  nc = ncol(table)
+  cc = c("numeric", rep("character",3), "numeric", rep("character",3), rep("numeric", 4), rep("character", 3), rep("numeric", nc-15))
+  table = read.table(fname, sep="\t", header=T, comment.char="", na.strings="N/A", colClasses=cc)
+  
+  
+  ####BF-bx vs. BF+bx
+  bx = table[table$Group..Associated.with.=="BF-bx" | table$Group..Associated.with.=="BF+bx",]
+  
+  ##pcoa with vegan capscale
+  par(mar=c(4,4,4,4), xpd=T, mfrow=c(1,2))
+  pcoa <- capscale(bx[,-(1:17)]~1,distance="bray")
+  
+  ##plot
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], xlab="MDS1", ylab="MDS2", 
+       main=paste(taxa, ": BF-bx vs. BF+bx", sep=""), 
+       col=getColors(bx$Group..Associated.with.), pch=getShapes(bx$Timepoint..weeks.))
+  
+  ##write axes
+  write.table(cbind(bx[,1:17], pcoa$CA$u), sep="\t", file=paste("stoolSplitGroup_bx_PcoaCorrected_", taxa, ".txt",sep=""), quote=F, row.names=F, col.names=T)
+  
+  
+  ####BF+NF vs. BF+T
+  nt = table[table$Group..Associated.with.=="BF+NF" | table$Group..Associated.with.=="BF+T",]
+  
+  ##pcoa with vegan capscale
+  pcoa <- capscale(nt[,-(1:17)]~1,distance="bray")
+  
+  ##plot
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], xlab="MDS1", ylab="MDS2", 
+       main=paste(taxa, ": BF+NF vs. BF+T", sep=""), 
+       col=getColors(nt$Group..Associated.with.), pch=getShapes(nt$Timepoint..weeks.))
+  
+  ##write axes
+  write.table(cbind(nt[,1:17], pcoa$CA$u), sep="\t", file=paste("stoolSplitGroup_nt_PcoaCorrected_", taxa, ".txt",sep=""), quote=F, row.names=F, col.names=T)
+  
+}
+dev.off()
