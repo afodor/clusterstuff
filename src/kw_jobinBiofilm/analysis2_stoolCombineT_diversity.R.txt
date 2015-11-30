@@ -1,0 +1,70 @@
+##diversity and richness analysis for stool samples
+##11/30/15
+
+rm(list=ls())
+
+library(vegan)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis2_combineT\\stool")
+
+taxaLevels <- c("phylum","class","order","family","genus")
+
+pdf("stoolCombineTdiversity.pdf", width=12, height=4)
+for(taxa in taxaLevels ) {
+  print(taxa)
+  fname = paste("analysis2_stoolCombineT_", taxa, "_taxaAsCol_logNorm.txt", sep="")
+  table = read.table(fname, sep="\t", header=T, comment.char="")
+  numCols = ncol(table)
+  cc = c("numeric", rep("character",3), "numeric", rep("character",3), rep("numeric", 4), rep("character", 3), rep("numeric", numCols-15))
+  table = read.table(fname, sep="\t", header=T, comment.char="", na.strings="N/A", colClasses=cc)
+ 
+  group <- factor(table$Group..Associated.with.)
+  ##color by group
+  groups = sort(unique(table$Group..Associated.with.)) #[1] "BF-bx" "BF+bx" "BF+NF" "BF+T" 
+  col = c("blue", "red", "gold", "purple")
+  colors = rep(NA, nrow(table))
+  for(i in 1:length(groups)) {
+    colors[table$Group..Associated.with.==groups[i]] = col[i]
+  }
+  
+  ##shape by time
+  time = sort(unique(table$Timepoint..weeks.)) #[1]  1 12
+  sh = c(15, 16)
+  shapes = rep(NA, nrow(table))
+  for(i in 1:length(time)) {
+    shapes[table$Timepoint..weeks.==time[i]] = sh[i]
+  }
+  
+  par(mfrow=c(1,3))
+  
+  ##shannon
+  shan = diversity(table[,-c(1:17)], index="shannon") #margin=1=row
+  bart = bartlett.test(shan, group)$p.value
+  print(paste("shannon variance homogeneity", bart)) #want p >0.05
+  fk = fligner.test(shan,group)$p.value
+  print(paste("shannon homoskedasticity", fk)) #want p >0.05
+  p = anova(lm(shan~group))$"Pr(>F)"[1]
+  boxplot(shan~group, xlab="group", ylab="Shannon Diversity", main=paste(taxa, ": p = ", format(p, digits=3), sep=""))
+  points(shan~group, col=colors, pch=shapes)
+  
+  ##inverted simpson
+  simp = diversity(table[,-c(1:17)], index="invsimpson")
+  bart = bartlett.test(simp, group)$p.value
+  print(paste("simpson variance homogeneity", bart))
+  fk = fligner.test(simp,group)$p.value
+  print(paste("simpson homoskedasticity", fk))
+  p = anova(lm(simp~group))$"Pr(>F)"[1]
+  boxplot(simp~group, xlab="group", ylab="Inverted Simpson", main=paste(taxa, ": p = ", format(p, digits=3), sep=""))
+  points(simp~group, col=colors, pch=shapes)
+  
+  ##richness
+  rich = specnumber(table[,-c(1:17)])
+  bart = bartlett.test(rich, group)$p.value
+  print(paste("richness homogeneity", bart))
+  fk = fligner.test(rich,group)$p.value
+  print(paste("richness homoskedasticity", fk))
+  p = anova(lm(rich~group))$"Pr(>F)"[1]
+  boxplot(rich~group, xlab="group", ylab="richness", main=paste(taxa, ": p = ", format(p, digits=3), sep=""))
+  points(rich~group, col=colors, pch=shapes)
+}
+dev.off()
