@@ -1,0 +1,13 @@
+##histograms of unadjusted p-values
+##12/2/15
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis2_combineT\\DC\\2015-11-30 dc model results")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+pdf("otuModel_pValuesHistogram.pdf")
+for(taxa in taxaLevels) {
+  table = read.table(paste("dcCombineT_otuModel_pValues_", taxa, ".txt", sep=""), sep="\t", header=T, colClasses=c("character", rep("numeric", 9)))
+  hist(table$pGroup, main=taxa, xlab="p-values group")
+}
+dev.off()

@@ -1,0 +1,15 @@
+##histograms of unadjusted p-values
+##12/2/15
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis2_combineT\\stool\\2015-11-30 stool model results")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+pdf("otuModel_pValuesHistogram.pdf", height=4, width=8)
+par(mfrow=c(1,2))
+for(taxa in taxaLevels) {
+  table = read.table(paste("stoolCombineT_otuModel_pValues_", taxa, ".txt", sep=""), sep="\t", header=T, colClasses=c("character", rep("numeric", 11)))
+  hist(table$pGroup, main=taxa, xlab="p-values group")
+  hist(table$pTime, main=taxa, xlab="p-values time")
+}
+dev.off()
