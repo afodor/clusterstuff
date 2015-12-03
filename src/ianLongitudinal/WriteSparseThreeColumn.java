@@ -32,6 +32,7 @@ public class WriteSparseThreeColumn
 		}
 		
 		for(String s : topDir.list())
+			if( s.endsWith("toRDP.txt"))
 		{
 			System.out.println(s);
 				List<NewRDPParserFileLine> list = NewRDPParserFileLine.getRdpListSingleThread(
@@ -46,7 +47,7 @@ public class WriteSparseThreeColumn
 				
 				for(String key: countMap.keySet())
 				{
-					writer.write( s.replaceAll(".txttoRDP.txt", "") + "\t" + 
+					writer.write( s.replaceAll(".fastatoRDP.txt", "") + "\t" + 
 								key + "\t" + countMap.get(key) + "\n");
 				}
 				
