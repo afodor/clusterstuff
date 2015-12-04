@@ -89,9 +89,10 @@ public class getRDPtaxonomy {
 		
 		//write results
 		BufferedWriter out = new BufferedWriter(new FileWriter(new File("/projects/afodor_research/kwinglee/china/RDPtaxonomy.txt")));
+		out.write("phylum\tclass\torder\tfamily\tgenus\n");
 		Set<String> gen = taxonomy.keySet();
 		for(String g : gen) {
-			System.out.println(taxonomy.get(g));
+			out.write(taxonomy.get(g) + "\n");
 		}
 		out.close();
 	}
