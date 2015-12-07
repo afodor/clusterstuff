@@ -8,13 +8,11 @@ package kw_china;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.*;
 
@@ -26,9 +24,11 @@ public class getRDPtaxonomy {
 		private HashMap<String, String> taxonomy;
 		public AnalyzeFileCallable(File f) {
 			this.file = f;
+			taxonomy = new HashMap<String, String>();//map of genus to taxonomy
 		}
 		
 		public HashMap<String, String> call() throws IOException {
+			System.out.println(file.getName());
 			BufferedReader br = new BufferedReader(new FileReader(file));
 			String line = br.readLine();
 			while(line != null) {
@@ -51,6 +51,7 @@ public class getRDPtaxonomy {
 						taxonomy.put(gen,  tax);
 					}
 				}
+				line = br.readLine();
 			}
 			br.close();
 			return(taxonomy);
@@ -97,9 +98,11 @@ public class getRDPtaxonomy {
 				}
 			}
 		}
+	
 		
 		//analyze files
 		ExecutorService pool = Executors.newCachedThreadPool();
+		//ExecutorService pool = Executors.newFixedThreadPool(4);
 		HashSet<Future<HashMap<String, String>>> taxa = new HashSet<Future<HashMap<String, String>>>();
 		for(File file : files) {
 			Callable<HashMap<String, String>> call= new AnalyzeFileCallable(file);
