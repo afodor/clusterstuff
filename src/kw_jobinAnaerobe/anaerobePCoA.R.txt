@@ -1,0 +1,47 @@
+##PCoA of anaerobe data
+##no controls
+##color by group, shape by time
+##12/7/15
+
+rm(list=ls())
+
+library(vegan)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\C jejuni anaerobe v aerobe\\rdpResults")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+pdf("anaerobePCoA.pdf")
+for(taxa in taxaLevels) {
+  print(taxa)
+  fname = paste("stool_", taxa, "_taxaAsCol_logNorm.txt", sep="")
+  table = read.table(fname, sep="\t", header=T)
+  nc = ncol(table)
+  cc = c(rep("character", 3), rep("numeric", 4), rep("character", 6), rep("numeric", nc-13))
+  table = read.table(fname, sep="\t", header=T, colClasses=cc)
+  
+  ##pcoa using vegan capscale
+  par(mar=c(4,4,4,8), xpd=T)
+  pcoa <- capscale(table[,-(1:14)]~1,distance="bray")
+  groups = unique(table$Group) #[1] 1 2 3 4
+  colors = c("blue", "red", "green", "gold")
+  col = rep(NA, nrow(table))
+  for(i in 1:length(groups)) {
+    col[table$Group==groups[i]] = colors[i]
+  }
+  times = unique(table$Timepoint..day) #[1] 14 26
+  shapes = c(16,17)
+  sh = rep(NA, nrow(table))
+  for(i in 1:length(times)) {
+    sh[table$Timepoint..day==times[i]] = shapes[i]
+  }
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], xlab="MDS1", ylab="MDS2", main=taxa, col=col, pch=sh)
+  
+  ##legend
+  legend("topright", inset=c(-.27,0),
+         legend=c(groups, times),
+         col=c(colors, rep("grey", length(groups))),
+         pch=c(rep(15, length(groups)), shapes))
+  
+}
+dev.off()
