@@ -1,0 +1,34 @@
+##combine library metadata for demultiplexing
+##add a column at the end that contains a unique id consisting of sample name, library and line number
+##12/14/15
+
+out = open("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\Tope\\colorectal adenoma\\libraryMetadataForDemultiplexing.txt", "w")
+lib1 = open("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\Tope\\colorectal adenoma\\Copy_of_DHSV_Illumina_Sets_1_and_2_Metadata_Library1.txt", "r")
+lib2 = open("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\Tope\\colorectal adenoma\\Copy_of_DHSV_Illumina_Sets_1_and_2_Metadata_Library2.txt", "r")
+
+##header
+head = lib1.readline()
+out.write(head.strip() + "\tSampleID\n")
+lib2.readline()
+
+l = 1
+for line in lib1:
+    sp = line.split("\t")
+    sample = sp[0].replace(" ", "-")
+    out.write(line.strip() + "\t" + sample + "_Lib1Line" + str(l) + "\n")
+    l = l + 1
+
+##lib1 has an extra column (library number), need to add this in
+l = 1
+for line in lib2:
+    sp = line.split("\t")
+    sample = sp[0].replace(" ", "-")
+    for i in range(0, 12):
+        out.write(sp[i] + "\t")
+    out.write("L2\t" + sp[12] + "\t" + sample + "_Lib2Line" + str(l) + "\n")
+    l = l + 1
+
+out.close()
+lib1.close()
+lib2.close()
+    
