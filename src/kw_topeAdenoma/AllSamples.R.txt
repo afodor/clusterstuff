@@ -1,0 +1,144 @@
+##analyze all colorectal adenoma samples
+##12/16/15
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\Tope\\colorectal adenoma\\rdpResults")
+
+library(vegan)
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+##transpose counts
+for(taxa in taxaLevels) {
+  table = read.table(paste("rdp_", taxa, ".txt", sep=""), sep="\t")
+  write.table(t(table), paste("rdp_", taxa, "_taxaAsCol.txt", sep=""), sep="\t", quote=F, row.names=F, col.names=F)
+}
+
+##histogram of number of counts, adding number of otus to table
+pdf("NumberReadHistogram.pdf")
+for(taxa in taxaLevels) {
+  fileName = paste("rdp_", taxa, "_taxaAsCol.txt", sep="")
+  table = read.table(fileName, sep="\t", header=T)
+  nc = ncol(table)
+  table = read.table(fileName, sep="\t", header=T, colClasses=c(rep("character", 3), rep("numeric", nc-3)))
+  
+  numOTU = rowSums(table[,-c(1:4)])
+  hist(numOTU, xlab="number of reads", main=taxa, breaks=seq(from=0, to=max(numOTU)+1000, by=1000))
+}
+dev.off()
+
+##add metadata, log normalize, pcoa
+meta = read.table("..\\libraryMetadataForDemultiplexing.txt", sep="\t", header=T, colClasses="character")
+names(meta)[15] = "sampleID"
+meta1 = meta
+meta4 = meta
+meta1$sampleID = paste(meta1$sampleID, "_1", sep="")
+meta4$sampleID = paste(meta4$sampleID, "_4", sep="")
+meta = rbind(meta1, meta4)
+pdf("PCoA_AllSamples.pdf")
+for(taxa in taxaLevels) {
+  print(taxa)
+  fileName = paste("rdp_", taxa, "_taxaAsCol.txt", sep="")
+  table = read.table(fileName, sep="\t", header=T)
+  nc = ncol(table)
+  table = read.table(fileName, sep="\t", header=T, colClasses=c(rep("character", 3), rep("numeric", nc-3)))
+  
+  ##merge with metadata
+  mrg = merge(meta, table, by="sampleID")
+  n = rowSums(mrg[,19:ncol(mrg)]) #number of reads in each sample
+  table = cbind(sampleID=mrg$sampleID, studyid=mrg$studyid, caseControl=mrg$Case.Control.Status,
+                     read=mrg$read, numReads=n, fileName=mrg$fileName, mrg[,19:ncol(mrg)])
+
+  oc = 7 #column the otus start at
+  nc = ncol(table) 
+  
+  ##log normalize
+  lognorm = table
+  n = rowSums(table[,oc:nc]) #number of reads in each sample
+  sumX = sum(n) #total number of reads in all samples = sum(table[,4:nc])
+  N = nrow(table) #total number of samples
+  for(col in oc:nc) {
+    for(row in 1:N) {
+      lognorm[row, col] = log10(table[row, col]/n[row] * sumX/N + 1)
+    }
+  }
+  write.table(lognorm, paste("rdp_", taxa, "_taxaAsCol_logNorm_all.txt", sep=""), sep="\t", row.names=F, col.names=T, quote=F)
+  
+  ##remove samples with < 10 reads
+  lognorm = lognorm[lognorm$numReads>1000,]
+  print(nrow(lognorm))
+  
+  ##pcoa using vegan capscale
+  par(mar=c(4,4,4,8), xpd=T)
+  pcoa <- capscale(lognorm[,-(1:(oc-1))]~1,distance="bray") 
+  shapes = ifelse(lognorm$read==1, 16, 17)
+  caseCtrl = as.character(lognorm$caseControl)
+  color = rep("black", length(caseCtrl))
+  color[caseCtrl=="1"] = "blue" #case
+  color[caseCtrl=="0"] = "red" #control
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], xlab="MDS1", ylab="MDS2", main=taxa, col=color, pch=shapes)
+  
+  ##legend
+  legend("topright", inset=c(-.27,0),
+         legend=c("case", "control", "other", "read1", "read2"),
+         col=c("blue", "red", "black", "grey", "grey"),
+         pch=c(15, 15, 15, 16, 17))
+  
+}
+dev.off()
+
+##look at duplicates
+taxa="phylum"
+fileName = paste("rdp_", taxa, "_taxaAsCol_logNorm_all.txt", sep="")
+table = read.table(fileName, sep="\t", header=T)
+nc = ncol(table)
+table = read.table(fileName, sep="\t", header=T, colClasses=c(rep("character", 3), rep("numeric", 2), "character", rep("numeric", nc-6)))
+##forward reads only
+table = table[table$read==1,]
+##number duplicated
+dup = table$studyid[duplicated(table$studyid)]
+print(dup) ##only D5-798-450 is in the DHS metadata for the next step
+##look at number of reads
+for(d in unique(dup)) {
+  print(d)
+  dtab = table[table$studyid==d,c(1,5)]
+  print(dtab)
+}
+##only D5-798-450 is in the DHS metadata for the next step; the Lib2Lin177 only has 6 reads and will drop out
+# [1] "5BM-007"
+# sampleID numReads
+# 5   5BM-007_Lib2Line11_1    23944
+# 7  5BM-007_Lib2Line202_1    48782
+# 9  5BM-007_Lib2Line206_1    16479
+# 11 5BM-007_Lib2Line214_1    25303
+# [1] "Bacteria-Pool"
+# sampleID numReads
+# 17   Bacteria-Pool_Lib1Line2_1        8
+# 19 Bacteria-Pool_Lib2Line186_1    50461
+# 21 Bacteria-Pool_Lib2Line190_1    16566
+# 23 Bacteria-Pool_Lib2Line198_1    24031
+# 25 Bacteria-Pool_Lib2Line400_1    15197
+# [1] "D5-798-450"
+# sampleID numReads
+# 813 D5-798-450_Lib2Line177_1        6
+# 815 D5-798-450_Lib2Line244_1    12449
+# [1] "DHSV-Pool"
+# sampleID numReads
+# 855  DHSV-Pool_Lib1Line61_1        3
+# 857 DHSV-Pool_Lib2Line218_1    54511
+# 859 DHSV-Pool_Lib2Line222_1    18516
+# 861 DHSV-Pool_Lib2Line230_1    25931
+# 863  DHSV-Pool_Lib2Line29_1    22164
+# [1] "Mouse-13"
+# sampleID numReads
+# 869 Mouse-13_Lib2Line234_1    43854
+# 871 Mouse-13_Lib2Line238_1    14316
+# 873 Mouse-13_Lib2Line246_1    18441
+# 875  Mouse-13_Lib2Line46_1    15608
+# [1] "NTC"
+# sampleID numReads
+# 881 NTC_Lib2Line250_1      450
+# 883 NTC_Lib2Line254_1      748
+# 885 NTC_Lib2Line262_1     2185
+# 887  NTC_Lib2Line63_1     3729

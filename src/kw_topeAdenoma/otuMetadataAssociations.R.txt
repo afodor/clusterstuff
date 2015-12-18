@@ -1,0 +1,87 @@
+##Associations between all metadata and OTU table
+##12/17/15
+
+rm(list=ls())
+
+library(Kendall)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\Tope\\colorectal adenoma\\rdpResults")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+meta = read.table("..\\DHS_Metadata_121115.txt", sep="\t", header=T, 
+                  colClasses=c("character", rep("numeric", 8), "character", rep("numeric", 12), "character", rep("numeric", 26), rep("character", 5), rep(c("numeric", rep("character", 2)), 2), rep("numeric", 2)))
+##remove duplicated sampleid and empty columns
+meta = meta[,-c(23, 42, 43)]
+numMeta = ncol(meta)+1 #add number of reads later
+
+for(taxa in taxaLevels) {
+  print(taxa)
+  fileName = paste("rdp_", taxa, "_taxaAsColWithCaseCtrlR1_logNorm.txt", sep="")
+  table = read.table(fileName, header=T, sep="\t")
+  nc = ncol(table)
+  table =read.table(fileName, header=T, sep="\t", colClasses=c(rep("character", 2), rep("numeric", 3), "character", rep("numeric", nc-6)))
+  table = table[,-c(2,3,4,6)] #remove all metadata from this table except number of reads
+  mrg = merge(meta, table, by="studyid")
+  
+  ##set up output
+  namesOTU <- vector()
+  namesMetadata <- vector()
+  r <- vector()
+  pValues <- vector()
+  kendallP <- vector()
+  index = 1
+  
+  pdf(paste("otuMetadataAssociationBoxplots_", taxa, ".pdf", sep=""))
+  
+  for(m in 2:numMeta) { #metadata
+    subT = mrg[!is.na(mrg[,m]),]
+    md = subT[,m]
+    if(length(unique(md)) > 1) { #skip if only one value in metadata, ex bacteriadata
+      for(o in (numMeta+1):ncol(subT)) { #otu data
+        if(sum(subT[,o] != 0) > nrow(subT)/4) { #only analyze if OTU is present in more than a quarter of the samples
+         namesOTU[index] = names(subT)[o]
+         namesMetadata[index] = names(subT)[m]
+         bug = subT[,o]
+         
+         colors = ifelse(subT$casecon==1, "blue", "red")
+         shape = 16
+         
+         if(class(md) == "character" | class(md) == "factor" | (class(md)=="numeric" & length(unique(md)) ==2)) {
+           md = factor(md)
+           r[index] = NA
+           mod = lm(bug ~ md)
+           pValues[index] <- anova(mod)$"Pr(>F)"[1]
+           kendallP[index] <- Kendall(bug, md)$sl[1]
+           title = paste(namesOTU[index], " vs. " ,namesMetadata[index] ,"\n", "p=" ,  
+                         format(	pValues[index] , digits=3), "r=", 
+                         format( r[index], digits=3), "kendall p=" , 
+                         format( kendallP[index], digits=3)) 
+           boxplot(bug~md, ylab=namesOTU[index], xlab=namesMetadata[index], main=title)
+           points(bug~md, col=colors, pch=shape)
+         } else if (class(md) == "numeric") {
+           r[index] <- cor(bug, md, method="spearman")
+           mod = lm(bug ~ md)
+           pValues[index] <- anova(mod)$"Pr(>F)"[1]
+           kendallP[index] <- Kendall(bug, md)$sl[1]
+           title = paste(namesOTU[index], " vs. " ,namesMetadata[index] ,"\n", "p=" ,  
+                 format(	pValues[index] , digits=3), "r=", 
+                 format( r[index], digits=3), "kendall p=" , 
+                 format( kendallP[index], digits=3)) 
+           plot(bug~md, ylab=namesOTU[index], xlab=namesMetadata[index], col=colors, pch=shape, main=title)
+         } else {
+           warning(paste("Bad class: ", namesMetadata[index], " ", m, sep=""))
+         }
+         
+         index = index + 1 
+        }
+      }
+    }
+  }
+  df = data.frame(namesOTU, namesMetadata, r, pLM = pValues, pKendall=kendallP)
+  df$pAdjLM = p.adjust(df$pLM, method="BH")
+  df$pAdjKendall = p.adjust(df$pKendall, method="BH")
+  df <- df[order(df$pLM),]
+  write.table(df, paste("otuMetadataAssociationPvalues_", taxa, ".txt", sep=""), sep="\t", quote=F, row.names=F, col.names=T)
+  dev.off()
+}

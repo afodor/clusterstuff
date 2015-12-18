@@ -26,6 +26,8 @@ public class ConfigReader
 	
 	public static final String JOBIN_GA_STOOL_RDP_DIR = "JOBIN_GA_STOOL_RDP_DIR";
 	public static final String JOBIN_GA_STOOL_DIR = "JOBIN_GA_STOOL_DIR";
+	
+	public static final String TOPE_ADENOMA_RDP_DIR = "TOPE_ADENOMA_RDP_DIR";
 
 	public static final String TRUE = "TRUE";
 	public static final String YES = "YES";
@@ -82,6 +84,10 @@ public class ConfigReader
 	
 	public static String getJobinGAStoolDir() throws Exception {
 		return getConfigReader().getAProperty(JOBIN_GA_STOOL_DIR);
+	}
+	
+	public static String getTopeAdenomaRDPDir() throws Exception {
+		return getConfigReader().getAProperty(TOPE_ADENOMA_RDP_DIR);
 	}
 	
 	public static boolean isVerboseConsole() throws Exception

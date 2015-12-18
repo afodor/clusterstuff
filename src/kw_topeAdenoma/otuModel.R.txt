@@ -1,0 +1,52 @@
+##OTU model of case-control vs. each taxa
+##12/16/15
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\Tope\\colorectal adenoma\\rdpResults")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+for(taxa in taxaLevels) {
+  print(taxa)
+  fileName = paste("rdp_", taxa, "_taxaAsColWithCaseCtrlR1_logNorm.txt", sep="")
+  table = read.table(fileName, header=T, sep="\t")
+  nc = ncol(table)
+  table =read.table(fileName, header=T, sep="\t", colClasses=c(rep("character", 2), rep("numeric", 3), "character", rep("numeric", nc-6)))
+  
+  ##D5-681-697 is blank for case/control; remove from analysis (causes NAs in the means)
+  table = table[!is.na(table$caseControl),]
+  
+  ##output vectors
+  taxaName = vector()
+  meanCase = vector()
+  meanControl = vector()
+  pCaseControl = vector()
+  index = 1
+  
+  pdf(paste("otuModel_boxplots_", taxa, ".pdf", sep=""))
+  
+  for(i in 7:nc) {
+    if(sum(table[,i] != 0 ) > nrow(table) / 4 ) {
+      bug = table[,i]
+      taxaName[index] = names(table)[i]
+      meanCase[index] = mean(bug[table$caseControl==1])
+      meanControl[index] = mean(bug[table$caseControl==0])
+      caseCtrl = as.factor(table$caseControl)
+     
+      pCaseControl[index] = anova(lm(bug ~ caseCtrl))$"Pr(>F)"[1]
+      
+      boxplot(bug ~ caseCtrl, ylab="log normalized relative abundance", xlab="Case vs. Control", 
+              main=paste(taxaName[index], "\nunadjusted p = ", format(pCaseControl[index], digits = 3), sep=""))
+      color = ifelse(table$caseControl==1, "blue", "red")
+      points(bug ~ caseCtrl, col=color, pch=16)
+      
+      index = index + 1
+    }
+  }
+  dev.off()
+  df = data.frame(taxaName, meanCase, meanControl, pCaseControl)
+  df$pAdjCaseControl = p.adjust(df$pCaseControl, method="BH")
+  df <- df[order(df$pCaseControl),]
+  write.table(df, paste("otuModel_pValues_", taxa, ".txt", sep=""), sep="\t", quote=F, row.names=F, col.names=T)
+}

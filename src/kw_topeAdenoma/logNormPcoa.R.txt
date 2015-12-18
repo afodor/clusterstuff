@@ -1,0 +1,96 @@
+##log normalize and add metadata and draw pcoa:
+##remove samples with < 1000 reads
+##forward reads only
+##remove controls/samples not in metadata
+##add metadata
+##remove duplicated samples
+##log normalize
+##draw pcoa
+##12/16/15
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\Tope\\colorectal adenoma\\rdpResults")
+
+library(vegan)
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+meta = read.table("..\\DHS_Metadata_121115.txt", sep="\t", header=T, 
+                  colClasses=c("character", rep("numeric", 8), "character", rep("numeric", 12), "character", rep("numeric", 26), rep("character", 5), rep(c("numeric", rep("character", 2)), 2), rep("numeric", 2)))
+meta2 = cbind(studyid=meta$studyid, caseControl=meta$casecon)
+
+##merge metadata
+for(taxa in taxaLevels) {
+  ##read table
+  print(taxa)
+  fileName = paste("rdp_", taxa, "_taxaAsCol.txt", sep="")
+  table = read.table(fileName, sep="\t", header=T)
+  nc = ncol(table)
+  table = read.table(fileName, sep="\t", header=T, colClasses=c(rep("character", 3), rep("numeric", nc-3)))
+  
+  ##forward reads only
+  table = table[table$read==1,]
+  
+  ##add metadata
+  table = merge(meta2, table, by="studyid")
+  
+  ##remove samples with <1000 reads
+  numReads = rowSums(table[,6:ncol(table)]) #number of reads in each sample
+  table = cbind(studyid=table$studyid, sampleid=table$sampleID, read=table$read, 
+                caseControl=table$caseControl, numReads=numReads, fileName=table$fileName, table[6:ncol(table)])
+  table = table[table$numReads>1000,]
+  print(nrow(table))
+  
+  ##remove duplicates; these are duplicated in the metadata file so are exactly the same; take the first
+  table$studyid = as.character(table$studyid)
+  table = table[!duplicated(table$studyid),]
+#   dup = table$studyid[duplicated(table$studyid)]
+#   print(dup)
+#   for(d in unique(dup)) {
+#     print(d)
+#     dtab = table[table$studyid==d,c(1,5)]
+#     print(dtab)
+#   }
+  
+  write.table(table, paste("rdp_", taxa, "_taxaAsColWithCaseCtrlR1.txt", sep=""), row.names = F, col.names = T, quote = F, sep="\t")
+}
+
+##log normalize and pcoa (reread file because R made everything factors when added number of reads)
+pdf("PCoA.pdf")
+for(taxa in taxaLevels) {
+  print(taxa)
+  fileName = paste("rdp_", taxa, "_taxaAsColWithCaseCtrlR1.txt", sep="")
+  table = read.table(fileName, sep="\t", header=T)
+  nc = ncol(table)
+  table = read.table(fileName, sep="\t", header=T, colClasses=c(rep("character", 2), rep("numeric", 3), "character", rep("numeric", nc-6)))
+  
+  oc = 7 #column the otus start at
+  
+  ##log normalize
+  lognorm = table
+  n = rowSums(table[,oc:nc]) #number of reads in each sample
+  sumX = sum(n) #total number of reads in all samples = sum(table[,4:nc])
+  N = nrow(table) #total number of samples
+  for(col in oc:nc) {
+    for(row in 1:N) {
+      lognorm[row, col] = log10(table[row, col]/n[row] * sumX/N + 1)
+    }
+  }
+  write.table(lognorm, paste("rdp_", taxa, "_taxaAsColWithCaseCtrlR1_logNorm.txt", sep=""), sep="\t", row.names=F, col.names=T, quote=F)
+  
+  ##pcoa using vegan capscale
+  par(mar=c(4,4,4,8), xpd=T)
+  pcoa <- capscale(lognorm[,-(1:(oc-1))]~1,distance="bray") 
+  caseCtrl = as.character(lognorm$caseControl)
+  color = ifelse(lognorm$caseControl==1, "blue", "red")
+  color[is.na(lognorm$caseControl)] = "black"
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], xlab="MDS1", ylab="MDS2", main=taxa, col=color, pch=16)
+  write.table(cbind(table[,1:(oc-1)], pcoa$CA$u), paste("pcoaCorrected_", taxa, ".txt", sep=""), sep="\t", quote=F, row.names=F, col.names=T)
+  
+  ##legend
+  legend("topright", inset=c(-.27,0),
+         legend=c("case", "control"),
+         col=c("blue", "red", "black", "grey", "grey"),
+         pch=16)
+}
+dev.off()
