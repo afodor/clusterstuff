@@ -1,0 +1,36 @@
+##PCoA of anaerobe data
+##no controls, group 3 and 4 day 26 only
+##color by group
+##12/14/15
+
+rm(list=ls())
+
+library(vegan)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\C jejuni anaerobe v aerobe\\rdpResults")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+pdf("anaerobePCoA_G3G4D26.pdf")
+for(taxa in taxaLevels) {
+  print(taxa)
+  fname = paste("stool_", taxa, "_taxaAsCol_logNorm_G3G4D26.txt", sep="")
+  table = read.table(fname, sep="\t", header=T)
+  nc = ncol(table)
+  cc = c(rep("character", 3), rep("numeric", 4), rep("character", 6), rep("numeric", nc-13))
+  table = read.table(fname, sep="\t", header=T, colClasses=cc)
+  
+  ##pcoa using vegan capscale
+  par(mar=c(4,4,4,8), xpd=T)
+  pcoa <- capscale(table[,-(1:14)]~1,distance="bray")
+  col = ifelse(table$Group==3, "blue", "red")
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], xlab="MDS1", ylab="MDS2", main=taxa, col=col, pch=16)
+  
+  ##legend
+  legend("topright", inset=c(-.27,0),
+         legend=c("Group 3", "Group 4"),
+         col=c("blue", "red"),
+         pch=16)
+  
+}
+dev.off()

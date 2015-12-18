@@ -1,0 +1,54 @@
+##for anaerobe vs. aerobe data
+##remove controls
+##add metadata
+##log normalize
+##Group 3 and Group 4 Day 26 only
+##12/14/15
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\C jejuni anaerobe v aerobe\\rdpResults")
+
+##metadata
+metadata = read.table("..\\AnaerobeMetadata.txt", sep="\t", header=T, comment.char="", colClasses="character")
+names(metadata)[1] = "sampleID"
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+for(taxa in taxaLevels) {
+  fname = paste("stool_", taxa, "_taxaAsCol.txt", sep="")
+  table = read.table(fname, sep="\t", header=T)
+  nc = ncol(table)
+  table = read.table(fname, sep="\t", header=T, colClasses=c("character", "character", rep("numeric", nc-2)))
+  
+  ##remove R2
+  table = table[table$read==1,]
+  
+  ##remove controls
+  table = table[table$sampleID != "c1" & table$sampleID != "c2" & table$sampleID != "nc101" & table$sampleID != "h2o",]
+  
+  ##add # reads per sample; reorganize so sampleID is first
+  n = rowSums(table[,4:nc]) #total number reads in each sample
+  table = cbind(sampleID=as.numeric(table$sampleID), fileName=table$fileName, numReads=n, table[,3:nc])
+  table$sampleID = as.character(table$sampleID)
+  
+  ##add metadata
+  tab = merge(metadata, table, by="sampleID")
+  
+  ##subset to group 3 and 4, day 26 only
+  tab = tab[tab$Group=="3" | tab$Group=="4",]
+  tab = tab[tab$Timepoint..day=="26",]
+  
+  ##log normalize and write table
+  lognorm = tab
+  nc = ncol(lognorm)
+  start = 15 #first taxa after metadata
+  n = rowSums(tab[,start:nc]) #number of reads in each sample
+  sumX = sum(n) #total number of reads in all samples = sum(table[,4:nc])
+  N = nrow(tab) #total number of samples
+  for(col in start:nc) {
+    for(row in 1:N) {
+      lognorm[row, col] = log10(tab[row, col]/n[row] * sumX/N + 1)
+    }
+  }
+  write.table(lognorm, paste("stool_", taxa, "_taxaAsCol_logNorm_G3G4D26.txt", sep=""), sep="\t", row.names=F, col.names=T, quote=F)
+}

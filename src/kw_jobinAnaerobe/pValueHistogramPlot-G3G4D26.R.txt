@@ -1,0 +1,15 @@
+##histograms of unadjusted p-values
+##12/14/15
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\C jejuni anaerobe v aerobe\\rdpResults\\2015-12-14 anaerobe model results G3G4D26")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+pdf("otuModel_pValuesHistogram.pdf", width=6, height=3)
+for(taxa in taxaLevels) {
+  par(mfrow=c(1,2))
+  table = read.table(paste("anaerobeStool_otuModel_pValues_", taxa, "_G3G4D26.txt", sep=""), sep="\t", header=T, colClasses=c("character", rep("numeric", 7)))
+  hist(table$pGroup, main=taxa, xlab="unadjusted p-values for group")
+  hist(table$pCage, main=taxa, xlab="unadjusted p-values for cage")
+}
+dev.off()
