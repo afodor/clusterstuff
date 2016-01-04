@@ -16,7 +16,7 @@ for(taxa in taxaLevels ) {
   fname = paste("analysis3.1_dc_", taxa, "_taxaAsCol_logNorm.txt", sep="")
   table = read.table(fname, sep="\t", header=T, comment.char="")
   numCols = ncol(table)
-  cc = c(rep(c("numeric", "character"),5), rep("numeric", 2), rep("character", 3), rep("numeric", numCols-15))
+  cc = c(rep(c("numeric", "character"),5), "character", "numeric", rep("character", 3), rep("numeric", numCols-15))
   table = read.table(fname, sep="\t", header=T, comment.char="", na.strings="N/A", colClasses=cc)
 
   ##output vectors
@@ -33,8 +33,8 @@ for(taxa in taxaLevels ) {
   pdf(paste("analysis3.1_dc_otuModel_boxplots_", taxa, ".pdf", sep=""))
   
   for( i in 18:numCols) {
-    if(sum(table[,i] != 0 ) > nrow(table) / 4 &&
-       !(taxa=="order" && (i==24|| i==27))) { #fullModel throws error: false convergence (8)
+    if(sum(table[,i] != 0 ) > nrow(table) / 4  &&
+      !(taxa=="order" && (i==24|| i==27))) { #fullModel throws error: false convergence (8)
       
       names[index] <- names(table)[i]
       bug <- table[,i]
@@ -44,7 +44,7 @@ for(taxa in taxaLevels ) {
       meanBFplusNF[index] <- mean(bug[table$Group..Associated.with.=="BF+NF"])
       meanBFplusT[index] <- mean(bug[table$Group..Associated.with.=="BF+T"])
       group <- factor(table$Group..Associated.with.)
-      cage <- factor(paste(table$Group..Associated.with., table$Cage.Number, sep=":"))
+      cage <- factor(table$Cage.Number)
       mouse <- paste(cage, table$Mouse.., sep=":")
       
       myFrame <- data.frame(bug, group, cage, mouse)

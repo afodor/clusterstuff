@@ -14,7 +14,7 @@ for(taxa in taxaLevels) {
   fname = paste("analysis3.1_stool_", taxa, "_taxaAsCol_logNorm.txt", sep="")
   table = read.table(fname, sep="\t", header=T, comment.char="")
   nc = ncol(table)
-  cc = c("numeric", rep("character", 3), rep(c("numeric", "character"), 3), "numeric", "numeric", rep("character", 3), rep("numeric", nc-15))
+  cc = c("numeric", rep("character", 3), rep(c("numeric", "character"), 3), "character", "numeric", rep("character", 3), rep("numeric", nc-15))
   table = read.table(fname, sep="\t", header=T, comment.char="", na.strings="N/A", colClasses=cc)
   
   ##pcoa with vegan capscale

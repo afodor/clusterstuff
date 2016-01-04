@@ -40,7 +40,8 @@ for(taxa in taxaLevels) {
   ##remove BF+T#3
   tab = tab[tab$Group..Associated.with.!="BF+T #3",]
   
-  ##combine BF+1#1&2 into one group (BF+T)
+  ##combine BF+1#1&2 into one group (BF+T); update cage so still BF+T still has unique cages
+  tab$Cage.Number = paste(tab$Group..Associated.with., tab$Cage.Number, sep=":")
   tab$Group..Associated.with.[grepl("#", tab$Group..Associated.with.)] = "BF+T"
   
   ##week 12 timepoint only

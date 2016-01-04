@@ -54,7 +54,7 @@ for(taxa in taxaLevels ) {
       
       pGroup[index] <- anova(lm(bug~group))$"Pr(>F)"[1]
       pGenotype[index] <- anova(lm(bug~genotype))$"Pr(>F)"[1]
-      pTumor[index] <- anova(lm(bug~tumor))$"Pr(>F)"[1]
+      pTumor[index] <- anova(lm(bug~tumor))$"Pr(>F)"[1] #lm ignores NAs
       pCage[index] <- anova(lm(bug~cage))$"Pr(>F)"[1]
       
       ##plots
