@@ -23,12 +23,12 @@ for(taxa in taxaLevels) {
   
   ##color by group
   groups = sort(unique(table$Group..Associated.with.)) #[1] "BF-bx"   "BF+bx"   "BF+NF"   "BF+T" 
-  col = c("blue", "red", "gold", "purple")
+  col = c("blue", "red", "gold", "green")
   colors = rep(NA, nrow(table))
   for(i in 1:length(groups)) {
     colors[table$Group..Associated.with.==groups[i]] = col[i]
   }
-  shapes=16
+  shapes=1
   
   plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], xlab="MDS1", ylab="MDS2", main=paste("ApcMin", taxa), 
        col=colors, pch=shapes)

@@ -23,7 +23,7 @@ for(taxa in taxaLevels) {
   
   ##color by group
   groups = sort(unique(table$Group..Associated.with.)) #[1] "BF-bx" "BF+T" 
-  col = c("blue", "purple")
+  col = c("blue", "green")
   colors = rep(NA, nrow(table))
   for(j in 1:length(groups)) {
     colors[table$Group..Associated.with.==groups[j]] = col[j]
@@ -31,7 +31,7 @@ for(taxa in taxaLevels) {
   
   ##shape by time
   time = sort(unique(table$Timepoint..weeks.)) #[1]  1 12
-  sh = c(15, 16)
+  sh = c(0, 1)
   shapes = rep(NA, nrow(table))
   for(j in 1:length(time)) {
     shapes[table$Timepoint..weeks.==time[j]] = sh[j]
