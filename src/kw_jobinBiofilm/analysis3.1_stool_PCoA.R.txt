@@ -1,0 +1,51 @@
+##stool ApcMin pcoa
+##and write pcoa axes
+##1/4/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis3\\3.1_ApcMinGenotype\\stool")
+
+library("vegan")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+pdf("analysis3.1_stool_pcoa.pdf")
+for(taxa in taxaLevels) {
+  fname = paste("analysis3.1_stool_", taxa, "_taxaAsCol_logNorm.txt", sep="")
+  table = read.table(fname, sep="\t", header=T, comment.char="")
+  nc = ncol(table)
+  cc = c("numeric", rep("character", 3), rep(c("numeric", "character"), 3), "numeric", "numeric", rep("character", 3), rep("numeric", nc-15))
+  table = read.table(fname, sep="\t", header=T, comment.char="", na.strings="N/A", colClasses=cc)
+  
+  ##pcoa with vegan capscale
+  par(mar=c(4,4,4,8), xpd=T)
+  pcoa <- capscale(table[,-(1:17)]~1,distance="bray")
+  
+  ##color by group
+  groups = sort(unique(table$Group..Associated.with.)) #[1] "BF-bx" "BF+T" 
+  col = c("blue", "purple")
+  colors = rep(NA, nrow(table))
+  for(j in 1:length(groups)) {
+    colors[table$Group..Associated.with.==groups[j]] = col[j]
+  }
+  
+  ##shape by time
+  time = sort(unique(table$Timepoint..weeks.)) #[1]  1 12
+  sh = c(15, 16)
+  shapes = rep(NA, nrow(table))
+  for(j in 1:length(time)) {
+    shapes[table$Timepoint..weeks.==time[j]] = sh[j]
+  }
+  
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], xlab="MDS1", ylab="MDS2", main=paste("ApcMin", taxa), 
+       col=colors, pch=shapes)
+  
+  legend("topright", inset=c(-.27,0),
+         legend=c(groups, paste(time, "weeks")),
+         col=c(col, rep("gray", length(time))),
+         pch=c(rep(20, length(groups)), sh))
+  
+  ##write axes
+  write.table(cbind(table[,1:17], pcoa$CA$u), sep="\t", file=paste("analysis3.1_stool_pcoacorrected_", taxa, ".txt",sep=""), quote=F, row.names=F, col.names=T)
+}
+dev.off()

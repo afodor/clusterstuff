@@ -1,0 +1,124 @@
+##linear models for stool dataset, analysis 3.1
+##1/4/16
+
+rm(list=ls())
+
+library("pscl")
+library("lmtest")
+library("nlme")
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis3\\3.1_ApcMinGenotype\\stool")
+
+taxaLevels <- c("phylum","class","order","family","genus")
+
+for(taxa in taxaLevels ) {
+  print(taxa)
+  fname = paste("analysis3.1_stool_", taxa, "_taxaAsCol_logNorm.txt", sep="")
+  table = read.table(fname, sep="\t", header=T, comment.char="")
+  numCols = ncol(table)
+  cc = c("numeric", rep("character", 3), rep(c("numeric", "character"), 3), "numeric", "numeric", rep("character", 3), rep("numeric", numCols-15))
+  table = read.table(fname, sep="\t", header=T, comment.char="", na.strings="N/A", colClasses=cc)
+  
+  ##output vectors
+  names = vector()
+  meanTaxa = vector()
+  meanBFminusBX = vector()
+  meanBFplusT = vector()
+  pTime = vector()
+  pGroup = vector()
+  pCageMouse = vector()
+  index = 1
+  pdf(paste("analysis3.1_stool_otuModel_boxplots_", taxa, ".pdf", sep=""), height = 10)
+  
+  for( i in 18:numCols) {
+    if(sum(table[,i] != 0 ) > nrow(table) / 4 ) {
+      
+      names[index] <- names(table)[i]
+      bug <- table[,i]
+      meanTaxa[index] <- mean(bug)
+      meanBFminusBX[index] <- mean(bug[table$Group..Associated.with.=="BF-bx"])
+      meanBFplusT[index] <- mean(bug[table$Group..Associated.with.=="BF+T"])
+      # time <- table$Timepoint..weeks.
+      time <- factor(table$Timepoint..weeks.)
+      group <- factor(table$Group..Associated.with.)
+      cage <- paste(table$Group..Associated.with., table$Cage.Number, sep=":")
+      mouse <- table$Mouse..
+      
+      myFrame <- data.frame(bug, time, group, cage, mouse)
+      
+      fullModel <- gls(bug~time+group, method="REML",correlation=corCompSymm(form=~1|cage/mouse),
+                        data = myFrame )
+      
+      reducedModel <- gls(bug~time+group, method="REML",	data = myFrame )
+      
+      fullModelLME <- lme(bug~time+group, method="REML", random = ~1|cage/mouse, data = myFrame)		
+      
+      pTime[index] <- anova(fullModelLME)$"p-value"[2]
+      pGroup[index] <- anova(fullModelLME)$"p-value"[3]
+      pCageMouse[index] <- anova(fullModelLME, reducedModel)$"p-value"[2]
+      intraclassCoefficient<- coef(fullModel$modelStruct[1]$corStruct,unconstrained=FALSE)[[1]]
+
+      ##plots
+      graphMain =  paste( names[index], 
+                          ":\n pTime=", format(pTime[index], digits=3), 
+                          "; pGroup= ", format(pGroup[index],digits=3), 
+                          "; pCageMouse= ", format(pCageMouse[index], digits=3), "\n",
+                          " icc= " , format( intraclassCoefficient, digits=3 ), sep="")
+      
+     
+      ##color by group
+      groups = sort(unique(table$Group..Associated.with.)) #[1] "BF-bx" "BF+T" 
+      col = c("blue", "purple")
+      colors = rep(NA, nrow(table))
+      for(j in 1:length(groups)) {
+        colors[table$Group..Associated.with.==groups[j]] = col[j]
+      }
+      
+      ##shape by time
+      timepoints = sort(unique(table$Timepoint..weeks.)) #[1]  1 12
+      sh = c(15, 16)
+      shapes = rep(NA, nrow(table))
+      for(j in 1:length(time)) {
+        shapes[table$Timepoint..weeks.==timepoints[j]] = sh[j]
+      }
+      
+      ##additional variables
+      sex <- factor(table$Sex)
+      mouse <- factor(paste(cage, table$Mouse.., sep=":"))
+      
+      par(mfrow=c(3,2), oma=c(.5,.5,5,.5), mar=c(4.5,4,1,1))
+      ##group
+      boxplot(bug~group, xlab="", ylab="relative abundance", las=2, main="group")
+      points(bug~group, col=colors, pch=shapes)
+      ##time
+      # plot(x=time, y=bug, xlab="weeks", ylab="relative abundance", main="time", col=colors, pch=shapes)
+      boxplot(bug~time, xlab="weeks", ylab="relative abundance", main="time")
+      points(bug~time, col=colors, pch=shapes)
+      ##cage
+      boxplot(bug~factor(cage), xlab="", ylab="relative abundance", las=2, main="cage")
+      points(bug~factor(cage), col=colors, pch=shapes)
+      ##mouse
+      boxplot(bug~mouse, xlab="", ylab="relative abundance", las=2, main="mouse")
+      points(bug~mouse, col=colors, pch=shapes)
+      ##sex
+      boxplot(bug~sex, xlab="", ylab="relative abundance", main="sex")
+      points(bug~sex, col=colors, pch=shapes)
+      
+      ##add title
+      par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+      plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+      legend("top", horiz=T, legend=graphMain, cex=1.2, bty="n")
+      
+      index=index+1
+      
+    }
+  }
+  
+  dFrame <- data.frame(names, meanTaxa, meanBFminusBX, meanBFplusT, pGroup, pTime, pCageMouse)
+  dFrame$pAdjGroup <- p.adjust(dFrame$pGroup, method = "BH")
+  dFrame$pAdjTime <- p.adjust(dFrame$pTime, method = "BH")
+  dFrame$pAdjCageMouse <- p.adjust(dFrame$pCageMouse, method="BH")
+  dFrame <- dFrame[order(dFrame$pGroup),]
+  write.table(dFrame, file=paste("analysis3.1_stool_otuModel_pValues_", taxa, ".txt",sep=""), sep="\t",row.names=FALSE)
+  dev.off()
+}

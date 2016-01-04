@@ -1,0 +1,44 @@
+##DC ApcMin pcoa
+##and write pcoa axes
+##1/2/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis3\\3.1_ApcMinGenotype\\DC")
+
+library("vegan")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+pdf("analysis3.1_dc_pcoa.pdf")
+for(taxa in taxaLevels) {
+  fname = paste("analysis3.1_dc_", taxa, "_taxaAsCol_logNorm.txt", sep="")
+  table = read.table(fname, sep="\t", header=T, comment.char="")
+  nc = ncol(table)
+  cc = c(rep(c("numeric", "character"),5), rep("numeric", 2), rep("character", 3), rep("numeric", nc-15))
+  table = read.table(fname, sep="\t", header=T, comment.char="", na.strings="N/A", colClasses=cc)
+  
+  ##pcoa with vegan capscale
+  par(mar=c(4,4,4,8), xpd=T)
+  pcoa <- capscale(table[,-(1:17)]~1,distance="bray")
+  
+  ##color by group
+  groups = sort(unique(table$Group..Associated.with.)) #[1] "BF-bx"   "BF+bx"   "BF+NF"   "BF+T" 
+  col = c("blue", "red", "gold", "purple")
+  colors = rep(NA, nrow(table))
+  for(i in 1:length(groups)) {
+    colors[table$Group..Associated.with.==groups[i]] = col[i]
+  }
+  shapes=16
+  
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], xlab="MDS1", ylab="MDS2", main=paste("ApcMin", taxa), 
+       col=colors, pch=shapes)
+  
+  legend("topright", inset=c(-.27,0),
+         legend=groups,
+         col=col,
+         pch=shapes)
+  
+  ##write axes
+  write.table(cbind(table[,1:17], pcoa$CA$u), sep="\t", file=paste("analysis3.1_dc_pcoacorrected_", taxa, ".txt",sep=""), quote=F, row.names=F, col.names=T)
+}
+dev.off()
