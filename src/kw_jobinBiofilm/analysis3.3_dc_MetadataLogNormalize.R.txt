@@ -1,0 +1,63 @@
+##For DC samples, analysis3.3:
+##add metadata, including # reads per sample
+##look at both genotypes
+##remove R2
+##remove BF+T#1
+##remove gavage order 1*
+##week 12 timepoint only
+##log normalize
+##1/4/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis3\\3.3_gavage\\DC")
+
+##metadata
+metadata = read.table("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\DCMetadata.txt", sep="\t", header=T, comment.char="", colClasses=c("numeric", rep("character", 3), "numeric", rep("character", 9)))
+names(metadata)[1] = "sampleID"
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+for(taxa in taxaLevels) {
+  print(taxa)
+  fname = paste("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\DC\\dc_", taxa, "_taxaAsCol.txt", sep="")
+  table = read.table(fname, sep="\t", header=T)
+  nc = ncol(table)
+  table = read.table(fname, sep="\t", header=T, colClasses=c("character", rep("numeric", nc-1)))
+  
+  ##remove R2
+  table = table[table$read==1,]
+  
+  ##add # reads per sample; reorganize so sampleID is first
+  n = rowSums(table[,4:nc]) #total number reads in each sample
+  table = cbind(sampleID=table$sampleID, fileName=table$fileName, numReads=n, table[,3:nc])
+  
+  ##add metadata
+  tab = merge(metadata, table, by="sampleID")
+  
+  ##filter on number of reads -> none removed
+  tab = tab[tab$numReads>50,]
+  
+  ##remove BF+T#1 and 3
+  tab = tab[tab$Group..Associated.with. != "BF+T #1",]
+  tab = tab[tab$Group..Associated.with. != "BF+T #3",]
+  
+  ##remove gavage 1*
+  tab = tab[tab$Gavage.Order != "1*",]
+  
+  ##week 12 timepoint only
+  tab = tab[tab$Timepoint..weeks.==12,]
+  
+  tab$Genotype[!grepl("IL10", tab$Genotype)] = "ApcMin" #some are Apcmin, make uniform
+  
+  ##log normalize and write table
+  lognorm = tab
+  n = rowSums(tab[,18:nc]) #number of reads in each sample
+  sumX = sum(n) #total number of reads in all samples = sum(table[,4:nc])
+  N = nrow(tab) #total number of samples
+  for(col in 18:nc) {
+    for(row in 1:N) {
+      lognorm[row, col] = log10(tab[row, col]/n[row] * sumX/N + 1)
+    }
+  }
+  write.table(lognorm, paste("analysis3.3_dc_", taxa, "_taxaAsCol_logNorm.txt", sep=""), sep="\t", row.names=F, col.names=T, quote=F)
+}

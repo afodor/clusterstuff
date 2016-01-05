@@ -1,0 +1,137 @@
+##linear model for DC dataset analysis 3.3
+##each gavage for each group/genotype separately
+##1/4/16
+
+rm(list=ls())
+
+library("pscl")
+library("lmtest")
+library("nlme")
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis3\\3.3_gavage\\DC")
+
+taxaLevels <- c("phylum","class","order","family","genus")
+
+for(taxa in taxaLevels ) {
+  print(taxa)
+  fname = paste("analysis3.3_dc_", taxa, "_taxaAsCol_logNorm.txt", sep="")
+  table = read.table(fname, sep="\t", header=T, comment.char="")
+  numCols = ncol(table)
+  cc = c(rep(c("numeric", "character"),4), "numeric", "numeric", "character", "numeric", rep("character", 3), rep("numeric", numCols-15))
+  table = read.table(fname, sep="\t", header=T, comment.char="", na.strings="N/A", colClasses=cc)
+
+  ##output vectors
+  names = vector()
+  pGavageApcMinBFplusBX = vector()
+  pGavageApcMinBFplusNF = vector()
+  pGavageApcMinBFminusBX = vector()
+  pGavageApcMinBFplusT2 = vector()
+  pGavageKOBFplusBX = vector()
+  pGavageKOBFplusNF = vector()
+  pGavageKOBFminusBX = vector()
+  pGavageKOBFplusT2 = vector()
+  index = 1
+  
+  pdf(paste("analysis3.3_dc_otuModel_boxplots_", taxa, ".pdf", sep=""), height=10)
+  
+  for( i in 18:numCols) {
+    if(sum(table[,i] != 0 ) > nrow(table) / 4) { 
+      
+      names[index] <- names(table)[i]
+      bug <- table[,i]
+      gavage = table$Gavage.Order
+      
+      ApcMinBFplusBX = table$Genotype == "ApcMin" & table$Group..Associated.with. == "BF+bx"
+      ApcMinBFplusNF = table$Genotype == "ApcMin" & table$Group..Associated.with. == "BF+NF"
+      ApcMinBFminusBX = table$Genotype == "ApcMin" & table$Group..Associated.with. == "BF-bx"
+      ApcMinBFplusT2 = table$Genotype == "ApcMin" & table$Group..Associated.with. == "BF+T #2"
+      
+      KOBFplusBX = table$Genotype == "ApcMin IL10 KO" & table$Group..Associated.with. == "BF+bx"
+      KOBFplusNF = table$Genotype == "ApcMin IL10 KO" & table$Group..Associated.with. == "BF+NF"
+      KOBFminusBX = table$Genotype == "ApcMin IL10 KO" & table$Group..Associated.with. == "BF-bx"
+      KOBFplusT2 = table$Genotype == "ApcMin IL10 KO" & table$Group..Associated.with. == "BF+T #2"
+     
+      pGavageApcMinBFplusBX[index] = anova(lm(bug[ApcMinBFplusBX]~gavage[ApcMinBFplusBX]))$"Pr(>F)"[1]
+      pGavageApcMinBFplusNF[index] = anova(lm(bug[ApcMinBFplusNF]~gavage[ApcMinBFplusNF]))$"Pr(>F)"[1]
+      pGavageApcMinBFminusBX[index] = anova(lm(bug[ApcMinBFminusBX]~gavage[ApcMinBFminusBX]))$"Pr(>F)"[1]
+      pGavageApcMinBFplusT2[index] = anova(lm(bug[ApcMinBFplusT2]~gavage[ApcMinBFplusT2]))$"Pr(>F)"[1]
+      
+      pGavageKOBFplusBX[index] = anova(lm(bug[KOBFplusBX]~gavage[KOBFplusBX]))$"Pr(>F)"[1]
+      pGavageKOBFplusNF[index] = anova(lm(bug[KOBFplusNF]~gavage[KOBFplusNF]))$"Pr(>F)"[1]
+      pGavageKOBFminusBX[index] = anova(lm(bug[KOBFminusBX]~gavage[KOBFminusBX]))$"Pr(>F)"[1]
+      pGavageKOBFplusT2[index] = anova(lm(bug[KOBFplusT2]~gavage[KOBFplusT2]))$"Pr(>F)"[1]
+      
+      ##plots
+      graphMain =  names[index]
+     
+      ##color by group
+      groups = sort(unique(table$Group..Associated.with.)) #[1] "BF-bx" "BF+bx" "BF+NF" "BF+T #2" 
+      col = c("blue", "red", "gold", "green")
+      colors = rep(NA, nrow(table))
+      for(j in 1:length(groups)) {
+        colors[table$Group..Associated.with.==groups[j]] = col[j]
+      }
+      
+      ##shape by time; have open shape for ApcMin and closed for KO
+      shapes=ifelse(grepl("IL10", table$Genotype), 16, 1)
+      
+      par(mfrow=c(4,2), oma=c(.5,.5,5,.5), mar=c(4,4,2,1), cex.main=1.5)
+      ###ApcMin
+      plot(bug[ApcMinBFplusBX]~gavage[ApcMinBFplusBX], 
+           col=colors[ApcMinBFplusBX], pch=shapes[ApcMinBFplusBX], 
+           main=paste("ApcMin BF+bx; p=", format(pGavageApcMinBFplusBX[index], digits=3)), 
+           xlab="Gavage order", ylab="relative abundance")
+      plot(bug[ApcMinBFplusNF]~gavage[ApcMinBFplusNF], 
+           col=colors[ApcMinBFplusNF], pch=shapes[ApcMinBFplusNF], 
+           main=paste("ApcMin BF+NF; p=", format(pGavageApcMinBFplusNF[index], digits=3)), 
+           xlab="Gavage order", ylab="relative abundance")
+      plot(bug[ApcMinBFminusBX]~gavage[ApcMinBFminusBX], 
+           col=colors[ApcMinBFminusBX], pch=shapes[ApcMinBFminusBX], 
+           main=paste("ApcMin BF-bx; p=", format(pGavageApcMinBFminusBX[index], digits=3)), 
+           xlab="Gavage order", ylab="relative abundance")
+      plot(bug[ApcMinBFplusT2]~gavage[ApcMinBFplusT2], 
+           col=colors[ApcMinBFplusT2], pch=shapes[ApcMinBFplusT2], 
+           main=paste("ApcMin BF+T #2; p=", format(pGavageApcMinBFplusT2[index], digits=3)), 
+           xlab="Gavage order", ylab="relative abundance")
+      ###IL10 KO
+      plot(bug[KOBFplusBX]~gavage[KOBFplusBX], 
+           col=colors[KOBFplusBX], pch=shapes[KOBFplusBX], 
+           main=paste("ApcMin IL10 KO BF+bx; p=", format(pGavageKOBFplusBX[index], digits=3)), 
+           xlab="Gavage order", ylab="relative abundance")
+      plot(bug[KOBFplusNF]~gavage[KOBFplusNF], 
+           col=colors[KOBFplusNF], pch=shapes[KOBFplusNF], 
+           main=paste("ApcMin IL10 KO BF+NF; p=", format(pGavageKOBFplusNF[index], digits=3)), 
+           xlab="Gavage order", ylab="relative abundance")
+      plot(bug[KOBFminusBX]~gavage[KOBFminusBX], 
+           col=colors[KOBFminusBX], pch=shapes[KOBFminusBX], 
+           main=paste("ApcMin IL10 KO BF-bx; p=", format(pGavageKOBFminusBX[index], digits=3)), 
+           xlab="Gavage order", ylab="relative abundance")
+      plot(bug[KOBFplusT2]~gavage[KOBFplusT2], 
+           col=colors[KOBFplusT2], pch=shapes[KOBFplusT2], 
+           main=paste("ApcMin IL10 KO BF+T #2; p=", format(pGavageKOBFplusT2[index], digits=3)), 
+           xlab="Gavage order", ylab="relative abundance")
+      
+      ##add title
+      par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+      plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+      legend("top", horiz=T, legend=graphMain, cex=2, bty="n")
+      
+      index=index+1
+      
+    }
+  }
+  
+  dFrame <- data.frame(names, pGavageApcMinBFplusBX, pGavageApcMinBFplusNF, pGavageApcMinBFminusBX, 
+                       pGavageApcMinBFplusT2, pGavageKOBFplusBX, pGavageKOBFplusNF, pGavageKOBFminusBX,
+                       pGavageKOBFplusT2)
+  dFrame$pAdjGavageApcMinBFplusBX = p.adjust(dFrame$pGavageApcMinBFplusBX, method = "BH")
+  dFrame$pAdjGavageApcMinBFplusNF = p.adjust(dFrame$pGavageApcMinBFplusNF, method = "BH")
+  dFrame$pAdjGavageApcMinBFminusBX = p.adjust(dFrame$pGavageApcMinBFminusBX, method = "BH")
+  dFrame$pAdjGavageApcMinBFplusT2 = p.adjust(dFrame$pGavageApcMinBFplusT2, method = "BH")
+  dFrame$pAdjGavageKOBFplusBX = p.adjust(dFrame$pGavageKOBFplusBX, method = "BH")
+  dFrame$pAdjGavageKOBFplusNF = p.adjust(dFrame$pGavageKOBFplusNF, method = "BH")
+  dFrame$pAdjGavageKOBFminusBX = p.adjust(dFrame$pGavageKOBFminusBX, method = "BH")
+  dFrame$pAdjGavageKOBFplusT2 = p.adjust(dFrame$pGavageKOBFplusT2, method = "BH")
+  write.table(dFrame, file=paste("analysis3.3_dc_otuModel_pValues_", taxa, ".txt",sep=""), sep="\t",row.names=FALSE)
+  dev.off()
+}
