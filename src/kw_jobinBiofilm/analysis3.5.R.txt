@@ -1,0 +1,109 @@
+##analysis 3.5
+##look at taxa associated with tumors for IgA
+##1/5/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis3\\3.5_IgA")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+for(taxa in taxaLevels) {
+  print(taxa)
+  fname = paste("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\IgA\\iga_", taxa, "_taxaAsCol_logNorm.txt", sep="")
+  table = read.table(fname, sep="\t", header=T, comment.char="")
+  nc = ncol(table)
+  cc = c(rep(c("numeric", "character"),3), rep("character", 9), rep("numeric", nc-15))
+  table = read.table(fname, sep="\t", header=T, comment.char="", na.strings="N/A", colClasses=cc)
+  
+  all.groups = sort(unique(table$Group..Associated.with.)) #[1] "BF-bx"       "BF+bx"       "BF+NF"       "BF+T (#1)"   "BF+T (#1,3)"
+  all.types = sort(unique(table$Sample.Type)) #[1] "presorted" "Sorted IgA negative bacteria" "Sorted IgA positive bacteria"
+  
+  pValues = data.frame(character(), numeric(), numeric(),
+                       numeric(), numeric(), numeric(),
+                       numeric(), numeric(), numeric(),
+                       numeric())
+  names(pValues) = c("taxa.name", "p.all", 
+                     paste("p", all.groups, sep="."), paste("p", all.types, sep="."))
+                       
+  
+  pdf(paste("analysis3.5_plots_", taxa, ".pdf", sep=""), height=10, width=10)
+  for(i in 18:nc) {
+    if(sum(table[,i] != 0 ) > nrow(table) / 4) { 
+      bug = table[,i]
+      name = names(table)[i]
+      group = table$Group..Associated.with.
+      type = table$Sample.Type
+      tumor = factor(table$Colon.tumor..s..low.vs.high.)
+      
+      results = data.frame(taxa.name=name)
+      
+      ##color by group
+      col = c("blue", "red", "green", "gold", "pink")
+      colors = rep(NA, nrow(table))
+      for(c in 1:length(all.groups)) {
+        colors[table$Group..Associated.with.==all.groups[c]] = col[c]
+      }
+      
+      ##shape by sample type
+      shapes = ifelse(table$Sample.Type=="presorted", 16, 17)
+      shapes[grepl("positive", table$Sample.Type)] = 18
+      
+      ###stats and plots
+      par(mfrow=c(3,3), oma=c(.5,.5,5,.5), mar=c(4,4,2,1), cex.main=1.2)
+      ##all samples
+      p = anova(lm(bug~tumor))$`Pr(>F)`[1]
+      results = cbind(results, p)
+      boxplot(bug~tumor, main=paste("all samples; p =", format(p, digits=3)),
+              xlab="number of tumors", ylab="relative abundance")
+      points(bug~tumor, col=colors, pch=shapes)
+      
+      ##by group
+      for(g in all.groups) {
+        sub = table$Group..Associated.with. == g
+        if(length(unique(as.character(tumor[sub]))) > 1) {
+          p = anova(lm(bug[sub] ~ tumor[sub]))$`Pr(>F)`[1]
+        } else {
+          p = NA
+        }
+        results = cbind(results, p)
+        boxplot(bug[sub]~tumor[sub], main=paste(g, "; p = ", format(p, digits=3), sep=""),
+                xlab="number of tumors", ylab="relative abundance")
+        points(bug[sub]~tumor[sub], col=colors[sub], pch=shapes[sub])
+      }
+      
+      ##by sample type
+      for(t in all.types) {
+        sub = table$Sample.Type == t
+        if(length(unique(as.character(tumor[sub]))) > 1) {
+          p = anova(lm(bug[sub] ~ tumor[sub]))$`Pr(>F)`[1]
+        } else {
+          p = NA
+        }
+        results = cbind(results, p)
+        boxplot(bug[sub]~tumor[sub], main=paste(t, "; p = ", format(p, digits=3), sep=""),
+                xlab="number of tumors", ylab="relative abundance")
+        points(bug[sub]~tumor[sub], col=colors[sub], pch=shapes[sub])
+      }
+      
+      ##add title
+      par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+      plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+      legend("top", horiz=T, legend=name, cex=2, bty="n")
+      
+      names(results) = c("taxa.name", "p.all", 
+                         paste("p", all.groups, sep="."), paste("p", all.types, sep="."))
+      
+      pValues = rbind(pValues, results)
+      
+      
+    }
+  }
+  dev.off()
+  np = ncol(pValues)
+  for(c in 2:np) {
+    pValues = cbind(pValues, p.adjust(pValues[,c], method="BH"))
+  }
+  names(pValues) = c("taxa.name", "p.all", 
+                     paste("p", all.groups, sep="."), paste("p", all.types, sep="."),
+                     "pAdj.all", paste("pAdj", all.groups, sep="."), paste("pAdj", all.types, sep="."))
+  write.table(pValues, file=paste("analysis3.5_pValues_", taxa, ".txt",sep=""), sep="\t",row.names=FALSE, quote=F)
+}
