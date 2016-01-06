@@ -71,10 +71,10 @@ for(taxa in taxaLevels) {
   
   ##combine into table, add rankings 
   relAbun = data.frame(name, all, alld14, alld26, g3d14, g3d26, g4d14, g4d26,
-                       order(all, decreasing=T), order(alld14, decreasing=T), 
-                       order(alld26, decreasing=T), order(g3d14, decreasing=T), 
-                       order(g3d26, decreasing=T), order(g4d14, decreasing=T), 
-                       order(g4d26, decreasing=T))
+                       rank(-all, ties.method="first"), rank(-alld14, ties.method="first"), 
+                       rank(-alld26, ties.method="first"), rank(-g3d14, ties.method="first"), 
+                       rank(-g3d26, ties.method="first"), rank(-g4d14, ties.method="first"), 
+                       rank(-g4d26, ties.method="first"))
   names(relAbun) = c("taxa.name", paste("rel.abun.", names(relAbun)[2:8], sep=""),
                      paste("rank.", names(relAbun)[2:8], sep=""))
   
