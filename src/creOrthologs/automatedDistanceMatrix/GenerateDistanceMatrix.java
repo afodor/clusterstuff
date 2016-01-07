@@ -45,6 +45,7 @@ public class GenerateDistanceMatrix
 		{
 			if( !foundOne && fs.getFirstTokenOfHeader().equals(toFind))
 			{
+				System.out.println("Writing " + outFile.getAbsolutePath());
 				BufferedWriter writer = new BufferedWriter(new FileWriter(outFile));
 				
 				writer.write(fs.getHeader() + "\n");
