@@ -41,7 +41,7 @@ public class ScriptsForMultipleQueries
 		
 		writer.write(
 				"java -cp /users/afodor/gitInstall/clusterstuff/bin/ " + 
-		"creOrthologs.automatedDistanceMatrix.GenerateDistanceMatrix " 
+		"creOrthologs.automatedDistanceMatrix.ExtractOne " 
 		+ genomePath.getAbsolutePath() + " " + contig + " " + startPos + " " + endPos + " " + 
 					outFile.getAbsolutePath() +  "\n" );
 				

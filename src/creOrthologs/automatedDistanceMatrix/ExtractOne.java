@@ -7,7 +7,7 @@ import java.util.List;
 
 import parsers.FastaSequence;
 
-public class GenerateDistanceMatrix
+public class ExtractOne
 {
 	private static final File WORKING_DIR = new File("/nobackup/afodor_research/af_broad/workingDir");
 	
