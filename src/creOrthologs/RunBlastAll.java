@@ -6,7 +6,7 @@ import java.io.FileWriter;
 
 public class RunBlastAll
 {
-	public static final String BLAST_RESULTS_PATH = "/projects/afodor_research/af_broad/blastResultsByDir";
+	public static final String BLAST_RESULTS_PATH = "/nobackup/afodor_research/af_broad/blastResultsByDir";
 	
 	public static final String[] DIRECTORIES = { "carolina", "resistant", "susceptible" };
 	
