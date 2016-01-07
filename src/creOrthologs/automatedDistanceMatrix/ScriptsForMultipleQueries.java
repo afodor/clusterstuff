@@ -17,7 +17,7 @@ public class ScriptsForMultipleQueries
 	
 	public static void main(String[] args) throws Exception
 	{
-		writeOneFile(INPUT_GENOME, "contig_7000000220927533", 729729, 749719);
+		writeOneFile(INPUT_GENOME, "7000000220927533", 729729, 749719);
 	}
 	
 	private static File writeOneFile( File genomePath, String contig, 

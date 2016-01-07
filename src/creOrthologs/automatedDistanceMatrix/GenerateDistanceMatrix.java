@@ -45,7 +45,6 @@ public class GenerateDistanceMatrix
 		{
 			if( !foundOne && fs.getFirstTokenOfHeader().equals(toFind))
 			{
-				System.out.println("Writing " + outFile.getAbsolutePath());
 				BufferedWriter writer = new BufferedWriter(new FileWriter(outFile));
 				
 				writer.write(fs.getHeader() + "\n");
@@ -58,7 +57,7 @@ public class GenerateDistanceMatrix
 			}
 		}
 			
-		if( foundOne )
+		if(!foundOne )
 			throw new Exception("Could not find query sequence " + 
 					args[0] +"_" + args[1] + "_" + args[2] + "_" + args[3] );
 		
