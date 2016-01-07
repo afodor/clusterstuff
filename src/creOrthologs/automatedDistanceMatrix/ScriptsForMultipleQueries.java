@@ -53,7 +53,7 @@ public class ScriptsForMultipleQueries
 				{
 					File inSeqs= new File( genomeDir.getAbsolutePath() + File.separator + s);
 					File outFile = new File(topDir.getAbsolutePath()+ File.separator + 
-								s.replaceAll(".scaffolds.fasta", ".txt"));
+								s.replaceAll(".scaffolds.fasta", "_blastOut.txt"));
 						
 					writer.write("module load blast\n");
 					writer.write("/apps/pkg/ncbi-blast-2.2.29+/rhel6_u5-x86_64/gnu/bin/blastn -db " + 
