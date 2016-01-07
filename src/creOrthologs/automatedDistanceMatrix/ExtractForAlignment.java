@@ -34,7 +34,7 @@ public class ExtractForAlignment
 		
 		File workingDir = new File(args[0]);
 		
-		if(!  workingDir.exists()  || workingDir.isDirectory())
+		if(!  workingDir.exists()  || ! workingDir.isDirectory())
 			throw new Exception(workingDir.getAbsolutePath() + " does not appear to be a directory");
 		
 		File queryFile = null;
