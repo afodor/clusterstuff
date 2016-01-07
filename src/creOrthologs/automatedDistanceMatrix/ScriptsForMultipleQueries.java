@@ -29,7 +29,7 @@ public class ScriptsForMultipleQueries
 		allWriter.flush();  allWriter.close();
 	}
 	
-	private static void addBlastRuns(BufferedWriter writer, File queryFile,
+	private static void addBlastRuns(BufferedWriter writer, 
 			File genomePath, String contig, 
 			int startPos, int endPos
 			) throws Exception
@@ -40,7 +40,11 @@ public class ScriptsForMultipleQueries
 		for(String d : RunBlastAll.DIRECTORIES)
 		{
 			File genomeDir = new File("/nobackup/afodor_research/af_broad" + File.separator + d);
-				
+			
+			File queryFile =  new File( topDir.getAbsolutePath() + File.separator + 
+					 genomePath.getName() +"_" + contig
+					 		+ "_" + startPos + "_" + endPos + ".fasta");
+			
 			String[] list = genomeDir.list();
 
 			for( String s : list)
@@ -48,7 +52,7 @@ public class ScriptsForMultipleQueries
 				if( s.endsWith("fasta"))
 				{
 					File inSeqs= new File( genomeDir.getAbsolutePath() + File.separator + s);
-					File outFile = new File(topDir.getAbsolutePath()+ 
+					File outFile = new File(topDir.getAbsolutePath()+ File.separator + 
 						"contig_" + contig+ File.separator + startPos + "_to_" + endPos + "_" + 
 								s.replaceAll(".scaffolds.fasta", ".txt"));
 						
@@ -82,7 +86,7 @@ public class ScriptsForMultipleQueries
 		+ genomePath.getAbsolutePath() + " " + contig + " " + startPos + " " + endPos + " " + 
 					outFile.getAbsolutePath() +  "\n" );
 				
-		addBlastRuns(writer, outFile.getAbsoluteFile(), genomePath, contig, startPos, endPos);
+		addBlastRuns(writer, genomePath, contig, startPos, endPos);
 		
 		writer.flush(); writer.close();
 		
