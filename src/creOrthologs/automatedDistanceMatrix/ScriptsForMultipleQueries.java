@@ -17,25 +17,24 @@ public class ScriptsForMultipleQueries
 	
 	public static void main(String[] args) throws Exception
 	{
-		writeOneFile(INPUT_GENOME.getAbsolutePath(), "contig_7000000220927533", 729729, 749719);
+		writeOneFile(INPUT_GENOME, "contig_7000000220927533", 729729, 749719);
 	}
 	
-	private static File writeOneFile( String genomePath, String contig, 
+	private static File writeOneFile( File genomePath, String contig, 
 										int startPos, int endPos)  throws Exception
 	{
 		File shFile = new File(SCRIPT_DIR + File.separator + 
-				genomePath + "_" + contig + "_" + startPos + "_"+ endPos + ".sh");
+				genomePath.getName() + "_" + contig + "_" + startPos + "_"+ endPos + ".sh");
 		
 		File outFile = new File(OUTPUT_DIR + File.separator +
-				genomePath + "_" + contig + "_" + startPos + "_"+ endPos + "_dist.txt");
+				genomePath.getName() + "_" + contig + "_" + startPos + "_"+ endPos + "_dist.txt");
 		
 		BufferedWriter writer = new BufferedWriter(new FileWriter(shFile));
-		
 		
 		writer.write(
 				"java -jar " + 
 		"/users/afodor/gitInstall/clusterstuff/bin/creOrthologs.automatedDistanceMatrix.GenerateDistanceMatrix " 
-		+ genomePath + " " + contig + " " + startPos + " " + endPos + " " + 
+		+ genomePath.getAbsolutePath() + " " + contig + " " + startPos + " " + endPos + " " + 
 					outFile.getAbsolutePath() +  "\n" );
 				
 		writer.flush(); writer.close();
