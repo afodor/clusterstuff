@@ -17,10 +17,18 @@ public class ScriptsForMultipleQueries
 	
 	public static void main(String[] args) throws Exception
 	{
-		writeOneFile(INPUT_GENOME, "7000000220927533", 729729, 749719);
+		BufferedWriter allWriter = new BufferedWriter(new FileWriter(new File(
+			SCRIPT_DIR.getAbsolutePath() + File.separator + "runAll.sh"	)));
+		
+		
+		File queryFile = writeOneExtractionFile(INPUT_GENOME, "7000000220927533", 729729, 749719);
+		
+		allWriter.write("qsub -q \"viper\" " + queryFile.getAbsolutePath());
+		
+		allWriter.flush();  allWriter.close();
 	}
 	
-	private static File writeOneFile( File genomePath, String contig, 
+	private static File writeOneExtractionFile( File genomePath, String contig, 
 										int startPos, int endPos)  throws Exception
 	{
 		File shFile = new File(SCRIPT_DIR + File.separator + 
