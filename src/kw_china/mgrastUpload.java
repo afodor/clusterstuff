@@ -12,8 +12,8 @@ import java.io.IOException;
 public class mgrastUpload {
 
 	public static void main(String[] args) throws IOException {
-		String outDir = "/projects/afodor_research/kwinglee/china/mgrast/";
-		String fastaDir = "/projects/afodor_research/ChinaSequences/rdpResults/";
+		String outDir = "/nobackup/afodor_research/kwinglee/china/mgrast/";
+		String fastaDir = "/nobackup/afodor_research/ChinaSequences/rdpResults/";
 		
 		BufferedWriter fastaOut = new BufferedWriter(new FileWriter(new File(outDir + "fastaList.txt")));//list of of fasta files
 		BufferedWriter scriptAll = new BufferedWriter(new FileWriter(new File(outDir + "runAll.sh")));//script to launch all other scripts
@@ -27,8 +27,8 @@ public class mgrastUpload {
 				//set up script to upload individual file
 				File scriptName = new File(outDir + "runUpload_" + name);
 				BufferedWriter script = new BufferedWriter(new FileWriter(scriptName));
-				script.write("curl -H \"auth: dMnui98NUNFF7rGjxfgHwpyd9\" -X POST -F " //authentication may need to change later
-						+ "\"upload=@/projects/afodor_research/ChinaSequences/rdpResults/" + name +
+				script.write("curl -H \"auth: 3NAT597T8fuQzuyak5dDZyN59\" -X POST -F " //authentication may need to change later
+						+ "\"upload=@/nobackup/afodor_research/ChinaSequences/rdpResults/" + name +
 						"\" \"http://api.metagenomics.anl.gov/1/inbox/\" ");// > " +
 						//outDir + "curl_output_" + name + "\n");//don't need because output will just get print to error or output files of script
 				script.close();
