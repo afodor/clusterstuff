@@ -53,7 +53,6 @@ public class ScriptsForMultipleQueries
 				{
 					File inSeqs= new File( genomeDir.getAbsolutePath() + File.separator + s);
 					File outFile = new File(topDir.getAbsolutePath()+ File.separator + 
-						"contig_" + contig +"_" + startPos + "_to_" + endPos + "_" + 
 								s.replaceAll(".scaffolds.fasta", ".txt"));
 						
 					writer.write("module load blast\n");
