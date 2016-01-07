@@ -19,8 +19,10 @@ public class GenerateDistanceMatrix
 			System.exit(1);
 		}
 		
+		File genomePath = new File(args[0]);
+		
 		File topDir = new File(WORKING_DIR.getAbsolutePath() + File.separator + 
-						args[0] +"_" + args[1] + "_" + args[2] + "_" + args[3] );
+						genomePath.getName() +"_" + args[1] + "_" + args[2] + "_" + args[3] );
 		
 		topDir.mkdir();
 		writeQuerySequence(args, topDir);
@@ -32,12 +34,13 @@ public class GenerateDistanceMatrix
 		List<FastaSequence> list = 
 				FastaSequence.readFastaFile(args[0]);
 		
+		File genomePath = new File(args[0]);
 		String toFind = args[1];
 		
 		File outFile = 
 				new File(
 						topDir.getAbsolutePath() + File.separator + 
-						args[0] +"_" + args[1] + "_" + args[2] + "_" + args[3] + ".fasta");
+						 genomePath.getName() +"_" + args[1] + "_" + args[2] + "_" + args[3] + ".fasta");
 		
 		boolean foundOne = false;
 			
