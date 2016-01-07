@@ -29,6 +29,7 @@ public class ExtractForAlignment
 		if( args.length != 1)
 		{
 			System.out.println("usage workingDirectory");
+			System.exit(1);
 		}
 		
 		File workingDir = new File(args[0]);
