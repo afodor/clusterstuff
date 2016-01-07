@@ -32,7 +32,7 @@ public class ScriptsForMultipleQueries
 		BufferedWriter writer = new BufferedWriter(new FileWriter(shFile));
 		
 		writer.write(
-				"java -jar " + 
+				"java " + 
 		"/users/afodor/gitInstall/clusterstuff/bin/creOrthologs.automatedDistanceMatrix.GenerateDistanceMatrix " 
 		+ genomePath.getAbsolutePath() + " " + contig + " " + startPos + " " + endPos + " " + 
 					outFile.getAbsolutePath() +  "\n" );
