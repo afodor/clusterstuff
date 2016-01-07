@@ -120,7 +120,7 @@ public class ExtractForAlignment
 	{
 		for(String d : RunBlastAll.DIRECTORIES)
 		{
-			File genomeDir = new File("/projects/afodor_research/af_broad" + File.separator + d + 
+			File genomeDir = new File("/nobackup/afodor_research/af_broad" + File.separator + d + 
 					File.separator +  genome + ".scaffolds.fasta");
 			
 			if(genomeDir.exists())
