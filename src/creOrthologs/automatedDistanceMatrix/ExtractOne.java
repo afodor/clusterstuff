@@ -9,7 +9,7 @@ import parsers.FastaSequence;
 
 public class ExtractOne
 {
-	private static final File WORKING_DIR = new File("/nobackup/afodor_research/af_broad/workingDir");
+	public static final File WORKING_DIR = new File("/nobackup/afodor_research/af_broad/workingDir");
 	
 	public static void main(String[] args) throws Exception
 	{
