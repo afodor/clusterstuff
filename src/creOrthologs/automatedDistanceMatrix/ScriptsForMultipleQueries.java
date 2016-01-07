@@ -13,7 +13,7 @@ public class ScriptsForMultipleQueries
 			new File("/nobackup/afodor_research/af_broad/distanceMatrices");
 	
 	private static File INPUT_GENOME = 
-			new File("/projects/afodor_research/af_broad/carolina/klebsiella_pneumoniae_chs_11.0.scaffolds.fasta");
+			new File("/nobackup/afodor_research/af_broad/carolina/klebsiella_pneumoniae_chs_11.0.scaffolds.fasta");
 	
 	public static void main(String[] args) throws Exception
 	{
