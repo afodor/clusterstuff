@@ -87,6 +87,15 @@ public class ScriptsForMultipleQueries
 				
 		addBlastRuns(writer, genomePath, contig, startPos, endPos);
 		
+		File topDir = new File(  ExtractOne.WORKING_DIR.getAbsolutePath() + File.separator + 
+				genomePath.getName() +"_" + contig + "_" + startPos + "_" + endPos );
+		
+		writer.write(
+				"java -cp /users/afodor/gitInstall/clusterstuff/bin/ " + 
+					"creOrthologs.automatedDistanceMatrix. ExtractForAlignment" 
+						+ topDir.getAbsolutePath() +  "\n" );
+		
+		
 		writer.flush(); writer.close();
 		
 		return shFile;
