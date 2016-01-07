@@ -92,7 +92,7 @@ public class ScriptsForMultipleQueries
 		
 		writer.write(
 				"java -cp /users/afodor/gitInstall/clusterstuff/bin/ " + 
-					"creOrthologs.automatedDistanceMatrix.ExtractForAlignment" 
+					"creOrthologs.automatedDistanceMatrix.ExtractForAlignment " 
 						+ topDir.getAbsolutePath() +  "\n" );
 		
 		
