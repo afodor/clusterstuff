@@ -3,8 +3,10 @@ package creOrthologs.automatedDistanceMatrix;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.List;
 
 import creOrthologs.RunBlastAll;
+import creOrthologs.automatedDistanceMatrix.GetDistinctAlignedOrthologs.Holder;
 
 public class ScriptsForMultipleQueries
 {
@@ -22,12 +24,21 @@ public class ScriptsForMultipleQueries
 	
 	public static void main(String[] args) throws Exception
 	{
+		
 		BufferedWriter allWriter = new BufferedWriter(new FileWriter(new File(
 			SCRIPT_DIR.getAbsolutePath() + File.separator + "runAll.sh"	)));
 		
-		File queryFile = writeOneExtractionFile(INPUT_GENOME, "7000000220927533", 729729, 749719);
+		//File queryFile = writeOneExtractionFile(INPUT_GENOME, "7000000220927533", 729729, 749719);
 		
-		allWriter.write("qsub -q \"viper\" " + queryFile.getAbsolutePath());
+		List<Holder> list = GetDistinctAlignedOrthologs.getList();
+		
+		for( Holder h : list)
+		{
+			File queryFile = writeOneExtractionFile(INPUT_GENOME, h.contingName, h.startPos, h.endPos);
+			
+			allWriter.write("qsub -q \"viper_batch\" " + queryFile.getAbsolutePath());
+			
+		}
 		
 		allWriter.flush();  allWriter.close();
 	}
