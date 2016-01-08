@@ -95,6 +95,12 @@ public class ScriptsForMultipleQueries
 					"creOrthologs.automatedDistanceMatrix.ExtractForAlignment " 
 						+ topDir.getAbsolutePath() +  "\n" );
 		
+		File postAlign = new File(topDir.getAbsolutePath() + File.separator + 
+									"postAlign.post");
+		
+		writer.write("/users/afodor/muscle/muscle3.8.31_i86linux64 " + 
+				"-in " + topDir.getAbsolutePath() + File.separator + "forAlign.align " + 
+					" -out " + postAlign.getAbsolutePath() + "\n");
 		
 		writer.flush(); writer.close();
 		
