@@ -36,7 +36,7 @@ public class ScriptsForMultipleQueries
 		{
 			File queryFile = writeOneExtractionFile(INPUT_GENOME, h.contingName, h.startPos, h.endPos);
 			
-			allWriter.write("qsub -q \"viper_batch\" " + queryFile.getAbsolutePath());
+			allWriter.write("qsub -q \"viper_batch\" " + queryFile.getAbsolutePath() + "\n");
 			
 		}
 		
