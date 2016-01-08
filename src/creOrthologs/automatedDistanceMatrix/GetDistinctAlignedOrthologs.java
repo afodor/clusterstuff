@@ -64,10 +64,10 @@ public class GetDistinctAlignedOrthologs
 				{
 					Holder oldHolder = list.get(x);
 					
-					if( h.startPos > oldHolder.startPos && h.startPos < oldHolder.endPos)
+					if( h.startPos >= oldHolder.startPos && h.startPos <= oldHolder.endPos)
 						okToAdd = false;
 					
-					if( h.endPos > oldHolder.startPos && h.endPos < oldHolder.endPos)
+					if( h.endPos >= oldHolder.startPos && h.endPos <= oldHolder.endPos)
 						okToAdd = false;
 				}
 				
