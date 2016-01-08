@@ -17,6 +17,9 @@ public class ScriptsForMultipleQueries
 	private static File INPUT_GENOME = 
 			new File("/nobackup/afodor_research/af_broad/carolina/klebsiella_pneumoniae_chs_11.0.scaffolds.fasta");
 	
+	private static File DISTANCE_MATRIX_DIR = 
+			new File("/nobackup/afodor_research/af_broad/distanceMatrices");
+	
 	public static void main(String[] args) throws Exception
 	{
 		BufferedWriter allWriter = new BufferedWriter(new FileWriter(new File(
@@ -101,6 +104,14 @@ public class ScriptsForMultipleQueries
 		writer.write("/users/afodor/muscle/muscle3.8.31_i86linux64 " + 
 				"-in " + topDir.getAbsolutePath() + File.separator + "forAlign.align " + 
 					" -out " + postAlign.getAbsolutePath() + "\n");
+		
+		File matrixOut = new File(DISTANCE_MATRIX_DIR.getAbsolutePath() + File.separator + 
+				genomePath.getName() +"_" + contig + "_" + startPos + "_" + endPos );
+		
+		writer.write(
+				"java -cp /users/afodor/gitInstall/clusterstuff/bin/ " + 
+					"creOrthologs.automatedDistanceMatrix.WriteDistanceMatrix " 
+						+ postAlign.getAbsolutePath() + " " + matrixOut.getAbsolutePath() +  "\n" );
 		
 		writer.flush(); writer.close();
 		
