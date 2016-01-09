@@ -18,25 +18,14 @@ public class PivotDistanceMatrices
 	
 	public static void main(String[] args) throws Exception
 	{
-		HashMap<String, HashMap<String,Integer>>  map = parseAll();
-		writeResults(map);
+		List<String> columnNames = getAllColumnNames();
+		writeResults(columnNames);
 	}
 	
-	private static void writeResults(HashMap<String, HashMap<String,Integer>>  map) throws Exception
+	private static void writeResults(List<String> keyList ) throws Exception
 	{
-		System.out.println("Writing");
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
 				"/nobackup/afodor_research/af_broad/pivotedTo11.txt")));
-		
-		HashSet<String> innerKeys = new HashSet<String>();
-		
-		for(HashMap<String, Integer> innerMap : map.values())
-		{
-			innerKeys.addAll(innerMap.keySet());
-		}
-		
-		List<String> keyList = new ArrayList<String>(innerKeys);
-		Collections.sort(keyList);
 		
 		writer.write("region");
 		
@@ -44,35 +33,6 @@ public class PivotDistanceMatrices
 			writer.write("\t" + s);
 		
 		writer.write("\n");
-		
-		for(String s : map.keySet())
-		{
-			writer.write(s);
-			
-			HashMap<String, Integer> innerMap = map.get(s);
-			
-			for(String s2 : keyList)
-			{
-				Integer val = innerMap.get(s2);
-				
-				if( val == null)
-					writer.write("\tNA");
-				else
-					writer.write("\t" + val);
-			}
-			
-			writer.write("\n");
-		}
-		
-		writer.flush();  writer.close();
-	}
-	
-	// outer key is region (e.g. 7000000220927531_3367_4032 ) 
-	// inner key is genome1@genome2 ; inner value is count
-	private static HashMap<String, HashMap<String,Integer>> parseAll() throws Exception
-	{
-		HashMap<String, HashMap<String,Integer>> map = 
-				new HashMap<String, HashMap<String,Integer>>();
 		
 		String[] files = distanceMatrix.list();
 		
@@ -83,44 +43,84 @@ public class PivotDistanceMatrices
 			System.out.println("reading " +  numDone + " "+ files.length + " "+  s);
 			if( s.startsWith("klebsiella_pneumoniae_chs_11.0.scaffolds.fasta_"))
 			{
-				String key = s.replace("klebsiella_pneumoniae_chs_11.0.scaffolds.fasta_", "");
+				writer.write(s.replaceAll("klebsiella_pneumoniae_chs_11.0.scaffolds.fasta_", ""));
 				
-				if( map.containsKey(key))
-					throw new Exception("No");
+				HashMap<String, Integer> innerMap = parseOne(
+					new File(distanceMatrix.getAbsolutePath() + File.separator + s)	);
 				
-				HashMap<String, Integer> innerMap = new HashMap<String,Integer>();
-				
-				map.put(key,innerMap);
-				
-				BufferedReader reader = new BufferedReader(new FileReader(new File(
-					distanceMatrix.getAbsolutePath() + File.separator + s	)));
-				
-				reader.readLine();
-				
-				for(String s2 = reader.readLine(); s2 != null; s2 =reader.readLine())
+				for(String s2 : keyList)
 				{
-					StringTokenizer sToken = new StringTokenizer(s2);
+					Integer val = innerMap.get(s2);
 					
-					List<String> list = new ArrayList<String>();
-					list.add(sToken.nextToken());
-					list.add(sToken.nextToken());
-					Collections.sort(list);
-					
-					String innerKey = list.get(0) + "@" + list.get(1);
-					
-					if( innerMap.containsKey(innerKey))
-						throw new Exception("No");
-					
-					innerMap.put(innerKey, Integer.parseInt(sToken.nextToken()));
-					
-					if( sToken.hasMoreTokens())
-						throw new Exception("No " + sToken.nextToken());
+					if( val == null)
+						writer.write("\tNA");
+					else
+						writer.write("\t" + val);
 				}
 				
-				reader.close();
+				writer.write("\n");
+			}
+		}
+	
+		writer.flush();  writer.close();
+	}
+	
+	private static HashMap<String, Integer> parseOne(File file) throws Exception
+	{
+		HashMap<String, Integer> innerMap = new HashMap<String,Integer>();
+		BufferedReader reader = new BufferedReader(new FileReader(file));
+			
+		reader.readLine();
+			
+		for(String s2 = reader.readLine(); s2 != null; s2 =reader.readLine())
+		{
+			StringTokenizer sToken = new StringTokenizer(s2);
+				
+			List<String> list = new ArrayList<String>();
+			list.add(sToken.nextToken());
+			list.add(sToken.nextToken());
+			Collections.sort(list);
+				
+			String innerKey = list.get(0) + "@" + list.get(1);
+				
+			if( innerMap.containsKey(innerKey))
+					throw new Exception("No");
+				
+				innerMap.put(innerKey, Integer.parseInt(sToken.nextToken()));
+				
+				if( sToken.hasMoreTokens())
+					throw new Exception("No " + sToken.nextToken());
+		}
+			
+		reader.close();
+	
+		return innerMap;
+	}
+	
+	// outer key is region (e.g. 7000000220927531_3367_4032 ) 
+	// inner key is genome1@genome2 ; inner value is count
+	private static List<String> getAllColumnNames() throws Exception
+	{
+		HashSet<String> names = new HashSet<String>();
+		
+		String[] files = distanceMatrix.list();
+		
+		int numDone =1;
+		for(String s : files)
+		{
+			numDone++;
+			System.out.println("reading " +  numDone + " "+ files.length + " "+  s);
+			if( s.startsWith("klebsiella_pneumoniae_chs_11.0.scaffolds.fasta_"))
+			{
+				HashMap<String, Integer> innerMap = parseOne(
+					new File(distanceMatrix.getAbsolutePath() + File.separator + s)	);
+				
+				names.addAll(innerMap.keySet());
 			}
 		}
 		
-		return map;
+		List<String> list = new ArrayList<String>(names);
+		Collections.sort(list);
+		return list;
 	}
 }
