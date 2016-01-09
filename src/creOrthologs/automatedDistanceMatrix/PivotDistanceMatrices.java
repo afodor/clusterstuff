@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.StringTokenizer;
 
 public class PivotDistanceMatrices
 {
@@ -98,14 +99,11 @@ public class PivotDistanceMatrices
 				
 				for(String s2 = reader.readLine(); s2 != null; s2 =reader.readLine())
 				{
-					String[] splits =s2.split("\t");
-					
-					if( s2.length() != 3)
-						throw new Exception("No");
+					StringTokenizer sToken = new StringTokenizer(s2);
 					
 					List<String> list = new ArrayList<String>();
-					list.add(splits[0]);
-					list.add(splits[1]);
+					list.add(sToken.nextToken());
+					list.add(sToken.nextToken());
 					Collections.sort(list);
 					
 					String innerKey = list.get(0) + "@" + list.get(1);
@@ -113,7 +111,10 @@ public class PivotDistanceMatrices
 					if( innerMap.containsKey(innerKey))
 						throw new Exception("No");
 					
-					innerMap.put(innerKey, Integer.parseInt(splits[2]));
+					innerMap.put(innerKey, Integer.parseInt(sToken.nextToken()));
+					
+					if( sToken.hasMoreTokens())
+						throw new Exception("No " + sToken.nextToken());
 				}
 				
 				reader.close();
