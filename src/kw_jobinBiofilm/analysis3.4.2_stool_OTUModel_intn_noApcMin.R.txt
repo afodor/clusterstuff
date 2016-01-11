@@ -1,0 +1,85 @@
+##linear model for stool tumor numbers
+##linear models with interactions
+##ApcMin ILKO only (no ApcMin)
+##1/11/16
+
+rm(list=ls())
+
+library("pscl")
+library("lmtest")
+library("nlme")
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis3\\3.4.2_tumor_number\\stool")
+
+taxaLevels <- c("phylum","class","order","family","genus")
+
+for(taxa in taxaLevels ) {
+  print(taxa)
+  fname = paste("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis2_combineT\\stool\\analysis2_stoolCombineT_", taxa, "_taxaAsCol_logNorm.txt", sep="")
+  table = read.table(fname, sep="\t", header=T, comment.char="")
+  numCols = ncol(table)
+  cc = c("numeric", rep("character", 3), rep(c("numeric", "character"), 3), "character", "numeric", rep("character", 3), rep("numeric", numCols-15))
+  table = read.table(fname, sep="\t", header=T, comment.char="", na.strings="N/A", colClasses=cc)
+
+  ##output vectors
+  names = vector()
+  intnNames = vector()
+  pValues = data.frame()
+  pTumorNoIntn = vector()
+  index = 1
+  
+  pdf(paste("analysis3.4.2_stool_otuModel_intn_noApcMin_boxplots_", taxa, ".pdf", sep=""))
+  
+  for( i in 18:numCols) {
+    if(sum(table[,i] != 0 ) > nrow(table) / 4) { 
+      
+      names[index] <- names(table)[i]
+      bug <- table[,i]
+      tumor = table$Colon.Tumor..
+      group = factor(table$Group..Associated.with.)
+      time = table$Timepoint..weeks.
+      
+      ##tumor only model
+      pTumorNoIntn = anova(lm(bug~tumor))$"Pr(>F)"[1]
+      
+      ##interaction model
+      model = anova(lm(bug~tumor*group))
+      intnNames = row.names(model)
+      pValues = rbind(pValues, model$`Pr(>F)`)
+      names(pValues) = intnNames
+     
+      ##color by group
+      groups = sort(unique(table$Group..Associated.with.)) #[1] "BF-bx" "BF+bx" "BF+NF" "BF+T #2" 
+      col = c("blue", "red", "gold", "green")
+      colors = rep(NA, nrow(table))
+      for(j in 1:length(groups)) {
+        colors[table$Group..Associated.with.==groups[j]] = col[j]
+      }
+      
+      ##shape by time, empty or filled by genotype
+      timeGen = c("ApcMin wk 1", "ApcMin wk 12", "IL10 KO wk 1", "IL10 KO wk 12")
+      sh = c(0, 1, 15, 16)
+      shapes = rep(NA, nrow(table))
+      shapes[table$Genotype=="ApcMin" & table$Timepoint..weeks.==1] = sh[1]
+      shapes[table$Genotype=="ApcMin" & table$Timepoint..weeks.==12] = sh[2]
+      shapes[table$Genotype=="ApcMin IL10 KO" & table$Timepoint..weeks.==1] = sh[3]
+      shapes[table$Genotype=="ApcMin IL10 KO" & table$Timepoint..weeks.==12] = sh[4]
+      
+      plot(bug~tumor, col=colors, pch=shapes, main=names[index], xlab="Tumor Number", ylab="relative abundance")
+      
+      index=index+1
+      
+    }
+  }
+  
+  dFrame <- cbind(names, pTumorNoIntn, pValues[,-ncol(pValues)])
+  colNames = c(names(dFrame), rep("X", ncol(dFrame)-1))
+  ncoldf = ncol(dFrame)
+  for(c in 2:ncoldf) {
+    dFrame = cbind(dFrame, p.adjust(dFrame[,c], method="BH"))
+    colNames[c+ncoldf-1] = paste("pAdj", colNames[c], sep=".")
+  }
+  names(dFrame) = colNames
+  write.table(dFrame, file=paste("analysis3.4.2_stool_otuModel_intn_noApcMin_pValues_", taxa, ".txt",sep=""), sep="\t",row.names=FALSE)
+  dev.off()
+}

@@ -1,0 +1,92 @@
+##log normalize and pcoa of all DC samples except BF-
+##1/11/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults")
+
+library("vegan")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+##metadata
+metadata = read.table("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\DCMetadata.txt", sep="\t", header=T, comment.char="")
+names(metadata)[1] = "sampleID"
+
+pdf("analysis3\\noBFminus_DC_pcoa.pdf")
+for(taxa in taxaLevels) {
+  print(taxa)
+  fname = paste("DC\\dc_", taxa, "_taxaAsCol.txt", sep="")
+  table = read.table(fname, sep="\t", header=T)
+  nc = ncol(table)
+  table = read.table(fname, sep="\t", header=T, colClasses=c("character", rep("numeric", nc-1)))
+  
+  ##remove R2
+  table = table[table$read==1,]
+  
+  ##add # reads per sample; reorganize so sampleID is first
+  n = rowSums(table[,4:nc]) #total number reads in each sample
+  table = cbind(sampleID=table$sampleID, fileName=table$fileName, numReads=n, table[,3:nc])
+  
+  ##add metadata
+  tab = merge(metadata, table, by="sampleID")
+  
+  ##filter on number of reads -> none removed
+  tab = tab[tab$numReads>50,]
+  
+  ##remove BF-
+  tab = tab[!grepl("BF-", tab$Group..Associated.with.),]
+  tab$Genotype[tab$Genotype == "Apcmin"] = "ApcMin" #consistent naming
+  
+  table = data.frame(tab, stringsAsFactors = F)
+  table$Group..Associated.with. = as.character(table$Group..Associated.with.)
+  
+  ##log normalize
+  lognorm = table
+  n = rowSums(table[,18:nc]) #number of reads in each sample
+  sumX = sum(n) #total number of reads in all samples = sum(table[,4:nc])
+  N = nrow(table) #total number of samples
+  for(col in 18:nc) {
+    for(row in 1:N) {
+      lognorm[row, col] = log10(table[row, col]/n[row] * sumX/N + 1)
+    }
+  }
+  
+  table = lognorm
+  
+  ##color by group
+  groups = sort(unique(table$Group..Associated.with.)) #[1] "BF+bx"   "BF+NF"   "BF+T #1" "BF+T #2" "BF+T #3"
+  col = c("red", "green", "gold", "purple", "black")
+  colors = rep(NA, nrow(table))
+  for(i in 1:length(groups)) {
+    colors[table$Group..Associated.with.==groups[i]] = col[i]
+  }
+  
+  ##shape by time
+  # time = sort(unique(paste(table$Timepoint..weeks., table$Genotype, sep=" wk, "))) 
+  #[1] "12 wk, ApcMin"           "12 wk, ApcMin IL10 KO"   "13.5 wk, ApcMin IL10 KO"
+  #[4] "16 wk, ApcMin IL10 KO"   "2 wk, ApcMin IL10 KO"    "20 wk, ApcMin"          
+  #[7] "20 wk, ApcMin IL10 KO"
+  timeApcMin = sort(unique(table$Timepoint..weeks.[table$Genotype=="ApcMin"])) #[1] 12 20
+  timeKO = sort(unique(table$Timepoint..weeks.[table$Genotype=="ApcMin IL10 KO"]))#[1]  2.0 12.0 13.5 16.0 20.0
+  sh = c(3, 15, 4, 18, 16, 0, 1)
+  shapes = rep(NA, nrow(table))
+  for(i in 1:length(timeKO)) {
+    shapes[table$Timepoint..weeks.==timeKO[i] & table$Genotype=="ApcMin IL10 KO"] = sh[i]
+  }
+  for(i in 1:length(timeApcMin)) {
+    shapes[table$Timepoint..weeks.==timeApcMin[i] & table$Genotype=="ApcMin"] = sh[i+length(timeKO)]
+  }
+  
+  ##pcoa using vegan capscale
+  par(mar=c(4,4,4,8), xpd=T)
+  pcoa <- capscale(table[,-(1:17)]~1,distance="bray")
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], xlab="MDS1", ylab="MDS2", main=taxa, col=colors, pch=shapes)
+  
+  ##legend
+  legend("topright", inset=c(-.3,0),
+         legend=c(groups, paste("KO", timeKO, "wk"), paste("ApcMin", timeApcMin, "wk")),
+         col=c(col, rep("gray", length(timeKO)+length(timeApcMin))),
+         pch=c(rep(20, length(groups)), sh))
+  
+}
+dev.off()
