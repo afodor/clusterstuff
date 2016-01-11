@@ -3,8 +3,10 @@ package creOrthologs.automatedDistanceMatrix;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.List;
 
 import creOrthologs.RunBlastAll;
+import creOrthologs.automatedDistanceMatrix.GetDistinctAlignedOrthologs.Holder;
 
 public class ScriptsForMultipleQueries
 {
@@ -17,14 +19,26 @@ public class ScriptsForMultipleQueries
 	private static File INPUT_GENOME = 
 			new File("/nobackup/afodor_research/af_broad/carolina/klebsiella_pneumoniae_chs_11.0.scaffolds.fasta");
 	
+	private static File DISTANCE_MATRIX_DIR = 
+			new File("/nobackup/afodor_research/af_broad/distanceMatrices");
+	
 	public static void main(String[] args) throws Exception
 	{
+		
 		BufferedWriter allWriter = new BufferedWriter(new FileWriter(new File(
 			SCRIPT_DIR.getAbsolutePath() + File.separator + "runAll.sh"	)));
 		
-		File queryFile = writeOneExtractionFile(INPUT_GENOME, "7000000220927533", 729729, 749719);
+		//File queryFile = writeOneExtractionFile(INPUT_GENOME, "7000000220927533", 729729, 749719);
 		
-		allWriter.write("qsub -q \"viper\" " + queryFile.getAbsolutePath());
+		List<Holder> list = GetDistinctAlignedOrthologs.getList();
+		
+		for( Holder h : list)
+		{
+			File queryFile = writeOneExtractionFile(INPUT_GENOME, h.contingName, h.startPos, h.endPos);
+			
+			allWriter.write("qsub -q \"viper_batch\" " + queryFile.getAbsolutePath() + "\n");
+			
+		}
 		
 		allWriter.flush();  allWriter.close();
 	}
@@ -86,6 +100,29 @@ public class ScriptsForMultipleQueries
 					outFile.getAbsolutePath() +  "\n" );
 				
 		addBlastRuns(writer, genomePath, contig, startPos, endPos);
+		
+		File topDir = new File(  ExtractOne.WORKING_DIR.getAbsolutePath() + File.separator + 
+				genomePath.getName() +"_" + contig + "_" + startPos + "_" + endPos );
+		
+		writer.write(
+				"java -cp /users/afodor/gitInstall/clusterstuff/bin/ " + 
+					"creOrthologs.automatedDistanceMatrix.ExtractForAlignment " 
+						+ topDir.getAbsolutePath() +  "\n" );
+		
+		File postAlign = new File(topDir.getAbsolutePath() + File.separator + 
+									"postAlign.post");
+		
+		writer.write("/users/afodor/muscle/muscle3.8.31_i86linux64 " + 
+				"-in " + topDir.getAbsolutePath() + File.separator + "forAlign.align " + 
+					" -out " + postAlign.getAbsolutePath() + "\n");
+		
+		File matrixOut = new File(DISTANCE_MATRIX_DIR.getAbsolutePath() + File.separator + 
+				genomePath.getName() +"_" + contig + "_" + startPos + "_" + endPos );
+		
+		writer.write(
+				"java -cp /users/afodor/gitInstall/clusterstuff/bin/ " + 
+					"creOrthologs.automatedDistanceMatrix.WriteDistanceMatrix " 
+						+ postAlign.getAbsolutePath() + " " + matrixOut.getAbsolutePath() +  "\n" );
 		
 		writer.flush(); writer.close();
 		
