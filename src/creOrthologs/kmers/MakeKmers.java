@@ -5,24 +5,38 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.HashMap;
 
+import creOrthologs.RunBlastAll;
 import parsers.FastaSequence;
 import parsers.FastaSequenceOneAtATime;
 
 public class MakeKmers
 {
 	public static final int KMER_LENGTH = 12;
+	public static final File KMER_DIR = new File("/nobackup/afodor_research/af_broad/kmers");
 	
 	public static void main(String[] args) throws Exception
 	{
-		if( args.length != 2)
+		for(String d : RunBlastAll.DIRECTORIES)
 		{
-			System.out.println("Usage inFile outFile");
-			System.exit(1);
+			File genomeDir = new File("/projects/afodor_research/af_broad" + File.separator + d);
+			
+			String[] list = genomeDir.list();
+
+			for( String s : list)
+			{	
+				if( s.endsWith("fasta"))
+				{
+					System.out.println(s);
+					File inSeqs= new File( genomeDir.getAbsolutePath() + File.separator + s);
+					HashMap<String, Integer> map = breakIntoKmers(inSeqs);
+				 	
+					File outFile = new File( KMER_DIR + File.separator + 
+								s.replace(".scaffolds.fasta", "") + "_kmers.txt");
+					
+					writeResults(outFile, map);
+				}
+			}
 		}
-		
-		HashMap<String, Integer> map = breakIntoKmers(new File(args[0]));
-		writeResults(new File(args[1]), map);
-		
 	}
 	
 	private static boolean isACGT(String s)
