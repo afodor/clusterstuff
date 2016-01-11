@@ -38,7 +38,7 @@ for(taxa in taxaLevels) {
   legend("topright", inset=c(-.36,0),
          legend=c(groups, "ApcMin", "ApcMin IL 10 KO"),
          col=c(col, "gray", "gray"),
-         pch=c(20, 20, 16, 1))
+         pch=c(rep(18, length(groups)), 16, 1))
   
   ##write axes
   write.table(cbind(table[,1:17], pcoa$CA$u), sep="\t", file=paste("analysis3.24_dc_pcoacorrected_", taxa, ".txt",sep=""), quote=F, row.names=F, col.names=T)
