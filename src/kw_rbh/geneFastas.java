@@ -11,6 +11,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.Iterator;
 
 public class geneFastas {
 	public static String GenomeTopDir = "/nobackup/afodor_research/af_broad/";
@@ -39,11 +40,11 @@ public class geneFastas {
 				
 				//get corresponding fasta file as hash map of scaffold name to sequence
 				HashMap<String, String> scaff = getScaffolds(new File(dirName + "/" + name + ".scaffolds.fasta"));
-				/*Iterator<String> itSet = scaff.keySet().iterator();
+				Iterator<String> itSet = scaff.keySet().iterator();
 				while(itSet.hasNext()) {
 					String p = itSet.next();
 					System.out.println(scaff.get(p) + "\t" + p);
-				}*/
+				}
 				
 				//make gene files
 				gtfToGene(gtf, gtfDir.getAbsolutePath() + "/", scaff);
@@ -87,6 +88,9 @@ public class geneFastas {
 			if(sp[2].equals("exon")) { //only include exons (which include start and stop codon)
 				//get sequence
 				String scaffSeq = scaff.get(sp[0]);
+				System.out.println("\n\n" + scaffSeq);
+				System.out.println("start=" + sp[3]);
+				System.out.println("end=" + sp[4]);
 				String seq = scaffSeq.substring(
 						Integer.parseInt(sp[3])-1, Integer.parseInt(sp[4])-1);//minus 1 to go from ones to zero based counting
 				if(sp[6].equals("-")) {//reverse orientation
