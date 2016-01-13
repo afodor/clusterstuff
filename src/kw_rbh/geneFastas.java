@@ -43,7 +43,8 @@ public class geneFastas {
 				Iterator<String> itSet = scaff.keySet().iterator();
 				while(itSet.hasNext()) {
 					String p = itSet.next();
-					System.out.println(scaff.get(p) + "\t" + p);
+					//System.out.println(scaff.get(p) + "\t" + p);
+					System.out.println(p + ".");
 				}
 				
 				//make gene files
@@ -63,6 +64,8 @@ public class geneFastas {
 			if(line.startsWith(">")) { //header/start of new sequence
 				if(seq.length() > 1) { //add to map unless its the beginning of the file
 					map.put(header, seq);
+					System.out.println(header);
+					System.out.println(seq);
 				}
 				header = line.replaceFirst(">", "");
 				seq = "";
@@ -88,9 +91,10 @@ public class geneFastas {
 			if(sp[2].equals("exon")) { //only include exons (which include start and stop codon)
 				//get sequence
 				String scaffSeq = scaff.get(sp[0]);
-				System.out.println("\n\n" + scaffSeq);
+				System.out.println(sp[0] + ".");
+				/*System.out.println("\n\n" + scaffSeq);
 				System.out.println("start=" + sp[3]);
-				System.out.println("end=" + sp[4]);
+				System.out.println("end=" + sp[4]);*/
 				String seq = scaffSeq.substring(
 						Integer.parseInt(sp[3])-1, Integer.parseInt(sp[4])-1);//minus 1 to go from ones to zero based counting
 				if(sp[6].equals("-")) {//reverse orientation
