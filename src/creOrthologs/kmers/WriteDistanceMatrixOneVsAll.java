@@ -17,28 +17,29 @@ public class WriteDistanceMatrixOneVsAll
 		if( args.length != 1)
 		{
 			System.out.println("Usage genome name");
-			
-			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
+			System.exit(1);
+		}
+		
+		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
 				KMER_DISTANCE_MATRIX_DIR + File.separator 
 					+ args[0].replaceAll("_kmers.txt", "") +"_toAll.txt"	)));
 			
-			HashMap<String, Integer> aCounts = getCounts(args[0]);
-			long aSumSquared = getSumSquare(aCounts);
+		HashMap<String, Integer> aCounts = getCounts(args[0]);
+		long aSumSquared = getSumSquare(aCounts);
 			
-			for(String s : MakeKmers.KMER_DIR.list())
+		for(String s : MakeKmers.KMER_DIR.list())
+		{
+			if( s.endsWith("_kmers.txt"))
 			{
-				if( s.endsWith("_kmers.txt"))
-				{
-					HashMap<String, Integer> bMap = getCounts(s);
-					double distance = getDistance(aCounts, bMap, aSumSquared);
-					writer.write(args[0].replaceAll("_kmers.txt", "") + "\t");
-					writer.write(s.replaceAll("_kmers.txt", "") + "\t");
-					writer.write(distance + "\n");			
-				}
+				HashMap<String, Integer> bMap = getCounts(s);
+				double distance = getDistance(aCounts, bMap, aSumSquared);
+				writer.write(args[0].replaceAll("_kmers.txt", "") + "\t");
+				writer.write(s.replaceAll("_kmers.txt", "") + "\t");
+				writer.write(distance + "\n");			
 			}
-			
-			writer.flush();  writer.close();
 		}
+			
+		writer.flush();  writer.close();
 	}
 	
 	private static long getSumSquare(HashMap<String, Integer> counts)
