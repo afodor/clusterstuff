@@ -120,6 +120,8 @@ public class geneFastas {
 				rev += "C";
 			} else if(fwd[i] == 'C') {
 				rev += "G";
+			} else if(fwd[i] == 'N') {
+				rev += "N";
 			} else {
 				System.out.println(seq);
 				System.out.println(fwd[i]);
