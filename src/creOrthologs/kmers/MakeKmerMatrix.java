@@ -25,6 +25,9 @@ public class MakeKmerMatrix
 		return list;
 	}
 	
+	/*
+	 * This currently requires too much RAM...
+	 */
 	public static void main(String[] args) throws Exception
 	{
 		HashMap<String, Integer[]> countMap = getCountMap();
