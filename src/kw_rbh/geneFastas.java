@@ -68,6 +68,7 @@ public class geneFastas {
 			} else {
 				seq += line;
 			}
+			line = br.readLine();
 		}
 		br.close();
 		return(map);
@@ -104,6 +105,7 @@ public class geneFastas {
 				gene.write(">" + id + "\n" + seq + "\n");
 				gene.close();
 			}
+			line = br.readLine();
 		}
 		allGenes.close();
 		br.close();
