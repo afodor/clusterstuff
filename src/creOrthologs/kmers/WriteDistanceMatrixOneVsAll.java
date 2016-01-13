@@ -36,6 +36,7 @@ public class WriteDistanceMatrixOneVsAll
 				writer.write(args[0].replaceAll("_kmers.txt", "") + "\t");
 				writer.write(s.replaceAll("_kmers.txt", "") + "\t");
 				writer.write(distance + "\n");			
+				writer.flush();
 			}
 		}
 			
@@ -63,7 +64,7 @@ public class WriteDistanceMatrixOneVsAll
 			if( bMap.containsKey(s))
 				topSum += aMap.get(s) * bMap.get(s);
 		
-		return 1- topSum / Math.sqrt(sumASquared + sumBSquared);
+		return 1- topSum / Math.sqrt(sumASquared * sumBSquared);
 	}
 	
 	private static HashMap<String, Integer> getCounts(String genomeName) throws Exception
