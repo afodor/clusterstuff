@@ -26,7 +26,7 @@ public class makeBlastDB {
 				BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 						DIR + "makedbScripts/run" + gen)));
 				script.write("module load blast\n");
-				script.write("makeblastdb -in " + f + "_" + gen + "_allGenes.fasta -dbtype 'nucl'\n");
+				script.write("makeblastdb -in " + g.getAbsolutePath() + "/" + f + "_" + gen + "_allGenes.fasta -dbtype 'nucl'\n");
 				script.close();
 				
 				//add to runAll
