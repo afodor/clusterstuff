@@ -66,11 +66,20 @@ public class GatherDistanceMatrix
 				
 				Double val = map.get(key);
 				
+				// some of the jobs failed
+				// we picked up contrasts from duplicate runs (a is compared to b and b to a )
+				// but this will miss some identities (where a is compared to a)
+				// so this hack fixes those since the identities have distances of 0
 				if( val == null)
-					throw new Exception("No " + list.get(x) + " " + list.get(y));
+				{
+					if( list.get(x).equals(list.get(y)))
+							val=0.0;
+					else
+						throw new Exception("No " + list.get(x) + " " + list.get(y));
+				}
 				
 				writer.write(" " + val);
-				System.out.println(list.get(x) + " "+ list.get(y) + " " + val);
+				//System.out.println(list.get(x) + " "+ list.get(y) + " " + val);
 			}
 			
 			writer.write("\n");
