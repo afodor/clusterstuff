@@ -16,7 +16,7 @@ public class ScriptsForMultipleQueries
 	private static File OUTPUT_DIR = 
 			new File("/nobackup/afodor_research/af_broad/distanceMatrices");
 	
-	private static File INPUT_GENOME = 
+	public static File INPUT_GENOME = 
 			new File("/nobackup/afodor_research/af_broad/carolina/klebsiella_pneumoniae_chs_11.0.scaffolds.fasta");
 	
 	private static File DISTANCE_MATRIX_DIR = 
@@ -82,7 +82,7 @@ public class ScriptsForMultipleQueries
 		}
 	}
 	
-	private static File writeOneExtractionFile( File genomePath, String contig, 
+	public static File writeOneExtractionFile( File genomePath, String contig, 
 										int startPos, int endPos)  throws Exception
 	{
 		File shFile = new File(SCRIPT_DIR + File.separator + 

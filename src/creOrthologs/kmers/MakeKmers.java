@@ -8,6 +8,7 @@ import java.util.HashMap;
 import creOrthologs.RunBlastAll;
 import parsers.FastaSequence;
 import parsers.FastaSequenceOneAtATime;
+import utils.Translate;
 
 public class MakeKmers
 {
@@ -81,6 +82,13 @@ public class MakeKmers
 				if( isACGT(sub))
 				{
 					Integer count = map.get(sub);
+					
+					if( count == null)
+					{
+						String reverese = Translate.reverseTranscribe(sub);
+						
+						count = map.get(reverese);
+					}
 					
 					if( count == null)
 						count =0;
