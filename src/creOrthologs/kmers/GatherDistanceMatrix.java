@@ -33,8 +33,28 @@ public class GatherDistanceMatrix
 			set.add(splits[0]);  set.add(splits[1]);
 		}
 		
+		// some of the jobs didn't run; only keep genomes for which we have a pair
 		List<String> list = new ArrayList<String>(set);
+		System.out.println("Start with " + list.size());
+		
+		HashSet<String> removeSet = new HashSet<String>();
+
+		for( int x=0;x < list.size(); x++)
+		{
+			for( int y=0; y < list.size(); y++)
+			{
+				if( getKey(list.get(x), list.get(y)) == null )
+					removeSet.add(list.get(y));
+			}
+		}
+		
+		set.removeAll(removeSet);
+		list = new ArrayList<String>(set);
+		
+		System.out.println("Finish with " + list.size());
+		
 		Collections.sort(list);
+		
 		
 		int index = 0;
 		
@@ -63,7 +83,7 @@ public class GatherDistanceMatrix
 				Double val = map.get(key);
 				
 				if( val == null)
-					throw new Exception("No");
+					throw new Exception("No " + list.get(x) + " " + list.get(y));
 				
 				writer.write(" " + val);
 			}
