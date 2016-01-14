@@ -107,7 +107,7 @@ public class MakeKmers
 		
 		for(String s : map.keySet())
 			if( map.containsKey(Translate.reverseTranscribe(s)))
-				throw new Exception("Logic error");
+				throw new Exception("Logic error " + s + " " + Translate.reverseTranscribe(s));
 		
 		return map;
 		
