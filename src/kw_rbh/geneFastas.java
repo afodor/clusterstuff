@@ -41,7 +41,7 @@ public class geneFastas {
 				HashMap<String, String> scaff = getScaffolds(new File(dirName + "/" + name + ".scaffolds.fasta"));
 				
 				//make gene files
-				gtfToGene(gtf, gtfDir.getAbsolutePath() + "/", scaff);
+				gtfToGene(gtf, folder + "_" + name, gtfDir.getAbsolutePath() + "/", scaff);
 			}
 		}
 	}
@@ -72,10 +72,9 @@ public class geneFastas {
 	
 	//takes the given gtf file, determines the gene sequence from scaff 
 	//and writes the result as a fasta in gtfDir
-	public static void gtfToGene(File gtf, String gtfDir, HashMap<String, String> scaff) throws IOException {
-		String name = gtf.getName().replace(".genes.gtf", "");//genome to analyze
+	public static void gtfToGene(File gtf, String name, String gtfDir, HashMap<String, String> scaff) throws IOException {
 		BufferedWriter allGenes = new BufferedWriter(new FileWriter(
-				new File(gtfDir + "allGenes_" + name + ".fasta")));
+				new File(gtfDir + name + "_allGenes.fasta")));
 		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(gtf)));
 		String line = br.readLine();
 		while(line != null) {
@@ -84,7 +83,7 @@ public class geneFastas {
 				//get sequence
 				String scaffSeq = scaff.get(sp[0]);
 				String seq = scaffSeq.substring(
-						Integer.parseInt(sp[3])-1, Integer.parseInt(sp[4])-1);//minus 1 to go from ones to zero based counting
+						Integer.parseInt(sp[3])-1, Integer.parseInt(sp[4]));//minus 1 to go from ones to zero based counting; end should include the last base so don't substract
 				if(sp[6].equals("-")) {//reverse orientation
 					seq = revComp(seq);
 				}
