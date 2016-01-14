@@ -8,6 +8,7 @@ import java.util.HashMap;
 import creOrthologs.RunBlastAll;
 import parsers.FastaSequence;
 import parsers.FastaSequenceOneAtATime;
+import utils.Translate;
 
 public class MakeKmers
 {
@@ -39,7 +40,7 @@ public class MakeKmers
 		}
 	}
 	
-	private static boolean isACGT(String s)
+	public static boolean isACGT(String s)
 	{
 		
 		for( int x=0; x < s.length(); x++)
@@ -63,6 +64,52 @@ public class MakeKmers
 		writer.flush();  writer.close();
 	}
 	
+	public static void addToMap(HashMap<String, Integer> map, String seq) throws Exception
+	{
+		for( int x=0; x < seq.length()- KMER_LENGTH; x++)
+		{
+			String sub = seq.substring(x, x + KMER_LENGTH);
+			
+			if( isACGT(sub))
+			{
+				Integer count = map.get(sub);
+				
+				if( count == null)
+				{
+					String reverse = Translate.reverseTranscribe(sub);
+					
+					count = map.get(reverse);
+					
+					if( count != null)
+						sub = reverse;
+				}
+				
+				if( count == null)
+					count =0;
+				
+				count++;
+				
+				map.put(sub,count);
+			}
+		}
+	}
+	
+	public static void checkForNoReverse( HashMap<String, Integer>  map ) throws Exception
+	{
+
+		for(String s : map.keySet())
+		{
+			String reverse = Translate.reverseTranscribe(s);
+			
+			if( ! reverse.equals(s))
+			{
+				if( map.containsKey(reverse))
+					throw new Exception("Logic error " + s + " " + Translate.reverseTranscribe(s));
+			
+			}
+		}
+	}
+	
 	private static HashMap<String, Integer> breakIntoKmers(File inFile) throws Exception
 	{
 		HashMap<String, Integer> map = new HashMap<String,Integer>();
@@ -73,26 +120,13 @@ public class MakeKmers
 						fs = fsoat.getNextSequence())
 		{
 			String seq =fs.getSequence();
-			
-			for( int x=0; x < seq.length()- KMER_LENGTH; x++)
-			{
-				String sub = seq.substring(x, x + KMER_LENGTH);
-				
-				if( isACGT(sub))
-				{
-					Integer count = map.get(sub);
-					
-					if( count == null)
-						count =0;
-					
-					count++;
-					
-					map.put(sub,count);
-				}
-			}
+			addToMap(map, seq);
 		}
 	
 		fsoat.close();
+		
+		checkForNoReverse(map);
+			
 		return map;
 		
 	}

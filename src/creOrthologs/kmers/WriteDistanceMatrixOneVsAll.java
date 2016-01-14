@@ -7,6 +7,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.HashMap;
 
+import utils.Translate;
+
 public class WriteDistanceMatrixOneVsAll
 {
 	public static final File KMER_DISTANCE_MATRIX_DIR = 	
@@ -54,16 +56,30 @@ public class WriteDistanceMatrixOneVsAll
 	}
 	
 	private static double getDistance(HashMap<String, Integer> aMap, HashMap<String, Integer> bMap,
-						long sumASquared)
+						long sumASquared) throws Exception
 	{
 		long sumBSquared = getSumSquare(bMap);
 		
 		long topSum = 0;
 		
 		for( String s : aMap.keySet() )
+		{
 			if( bMap.containsKey(s))
+			{
 				topSum += aMap.get(s) * bMap.get(s);
-		
+			}
+			else
+			{
+				String reverse = Translate.reverseTranscribe(s);
+				
+				if( bMap.containsKey(reverse))
+				{
+					topSum += aMap.get(s) * bMap.get(reverse);
+				}
+			}
+				
+		}
+			
 		return 1- topSum / Math.sqrt(sumASquared * sumBSquared);
 	}
 	

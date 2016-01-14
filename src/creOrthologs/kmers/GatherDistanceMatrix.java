@@ -29,8 +29,6 @@ public class GatherDistanceMatrix
 			
 			if( splits.length != 2)
 				throw new Exception("No");
-			
-			set.add(splits[0]);  set.add(splits[1]);
 		}
 		
 		List<String> list = new ArrayList<String>(set);
@@ -38,9 +36,7 @@ public class GatherDistanceMatrix
 		System.out.println("Finish with " + list.size());
 		
 		Collections.sort(list);
-		
-		
-		int index = 0;
+
 		
 		BufferedWriter writer = new BufferedWriter(new FileWriter(GATHERED_DIR.getAbsolutePath() + 
 				File.separator + "allDist.txt"));
@@ -48,15 +44,15 @@ public class GatherDistanceMatrix
 		BufferedWriter keyWriter = new BufferedWriter(new FileWriter(GATHERED_DIR.getAbsolutePath() + 
 				File.separator + "allKey.txt"));
 		
-		String name = "BUG_" + index;
-		
-		while( name.length() < 10)
-			name = name + "_";
-		
 		writer.write(list.size() + "\n");
 		
 		for( int x=0; x < list.size(); x++)
 		{
+			String name = "BUG_" + x;
+			
+			while( name.length() < 10)
+				name = name + "_";
+			
 			writer.write(name);
 			keyWriter.write(name + " " + list.get(x) + "\n");
 			
@@ -66,16 +62,9 @@ public class GatherDistanceMatrix
 				
 				Double val = map.get(key);
 				
-				// some of the jobs failed
-				// we picked up contrasts from duplicate runs (a is compared to b and b to a )
-				// but this will miss some identities (where a is compared to a)
-				// so this hack fixes those since the identities have distances of 0
 				if( val == null)
 				{
-					if( list.get(x).equals(list.get(y)))
-							val=0.0;
-					else
-						throw new Exception("No " + list.get(x) + " " + list.get(y));
+					throw new Exception("No " + list.get(x) + " " + list.get(y));
 				}
 				
 				writer.write(" " + val);
