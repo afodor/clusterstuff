@@ -85,9 +85,12 @@ public class MakeKmers
 					
 					if( count == null)
 					{
-						String reverese = Translate.reverseTranscribe(sub);
+						String reverse = Translate.reverseTranscribe(sub);
 						
-						count = map.get(reverese);
+						count = map.get(reverse);
+						
+						if( count != null)
+							sub = reverse;
 					}
 					
 					if( count == null)
