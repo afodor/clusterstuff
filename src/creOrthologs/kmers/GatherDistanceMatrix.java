@@ -30,7 +30,11 @@ public class GatherDistanceMatrix
 			if( splits.length != 2)
 				throw new Exception("No");
 			
-			set.add(splits[0]);  set.add(splits[1]);
+			if( splits[0].toLowerCase().startsWith("kleb"))
+				set.add(splits[0]);  
+			
+			if( splits[1].toLowerCase().startsWith("kleb"))
+				set.add(splits[1]);
 		}
 		
 		List<String> list = new ArrayList<String>(set);
@@ -41,11 +45,10 @@ public class GatherDistanceMatrix
 
 		
 		BufferedWriter writer = new BufferedWriter(new FileWriter(GATHERED_DIR.getAbsolutePath() + 
-				File.separator + "allDist.txt"));
+				File.separator + "allDistKlebOnly.txt"));
 		
 		BufferedWriter keyWriter = new BufferedWriter(new FileWriter(GATHERED_DIR.getAbsolutePath() + 
-				File.separator + "allKey.txt"));
-		
+				File.separator + "allKeyKlebOnly.txt"));
 		
 		writer.write(list.size() + "\n");
 		
