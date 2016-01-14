@@ -106,9 +106,17 @@ public class MakeKmers
 		fsoat.close();
 		
 		for(String s : map.keySet())
-			if( map.containsKey(Translate.reverseTranscribe(s)))
-				throw new Exception("Logic error " + s + " " + Translate.reverseTranscribe(s));
-		
+		{
+			String reverse = Translate.reverseTranscribe(s);
+			
+			if( ! reverse.equals(s))
+			{
+				if( map.containsKey(reverse))
+					throw new Exception("Logic error " + s + " " + Translate.reverseTranscribe(s));
+			
+			}
+		}
+			
 		return map;
 		
 	}
