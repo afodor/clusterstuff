@@ -10,6 +10,21 @@ import parsers.FastaSequence;
 
 public class ConstrainKMersToRegion
 {
+	// outer key is the genome may; inner key is the k-mer
+	private static HashMap<String, HashMap<String,Integer>> getBigMap() throws Exception
+	{
+		HashSet<String> constrainingSet = getConstrainingSet();
+		
+		
+		for(String s : MakeKmers.KMER_DIR.list() )
+			if( s.endsWith("_kmers.txt"))
+			{
+				
+			}
+		
+		return null;
+	}
+	
 	private static HashSet<String> getConstrainingSet() throws Exception
 	{
 		File queryFile =  ScriptsForMultipleQueries.writeOneExtractionFile(
