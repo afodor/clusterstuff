@@ -12,8 +12,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 
-import kw_china_wgs.fastqToFasta;
-
 public class geneFastas implements Runnable {
 	public static String GenomeTopDir = "/nobackup/afodor_research/af_broad/";
 

@@ -38,9 +38,7 @@ public class GatherDistanceMatrix
 		System.out.println("Finish with " + list.size());
 		
 		Collections.sort(list);
-		
-		
-		int index = 0;
+
 		
 		BufferedWriter writer = new BufferedWriter(new FileWriter(GATHERED_DIR.getAbsolutePath() + 
 				File.separator + "allDist.txt"));
@@ -48,15 +46,16 @@ public class GatherDistanceMatrix
 		BufferedWriter keyWriter = new BufferedWriter(new FileWriter(GATHERED_DIR.getAbsolutePath() + 
 				File.separator + "allKey.txt"));
 		
-		String name = "BUG_" + index;
-		
-		while( name.length() < 10)
-			name = name + "_";
 		
 		writer.write(list.size() + "\n");
 		
 		for( int x=0; x < list.size(); x++)
 		{
+			String name = "BUG_" + x;
+			
+			while( name.length() < 10)
+				name = name + "_";
+			
 			writer.write(name);
 			keyWriter.write(name + " " + list.get(x) + "\n");
 			
