@@ -101,6 +101,11 @@ public class MakeKmers
 		}
 	
 		fsoat.close();
+		
+		for(String s : map.keySet())
+			if( map.containsKey(Translate.reverseTranscribe(s)))
+				throw new Exception("Logic error");
+		
 		return map;
 		
 	}
