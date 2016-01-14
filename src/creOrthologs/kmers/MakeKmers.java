@@ -40,7 +40,7 @@ public class MakeKmers
 		}
 	}
 	
-	private static boolean isACGT(String s)
+	public static boolean isACGT(String s)
 	{
 		
 		for( int x=0; x < s.length(); x++)
@@ -64,47 +64,39 @@ public class MakeKmers
 		writer.flush();  writer.close();
 	}
 	
-	private static HashMap<String, Integer> breakIntoKmers(File inFile) throws Exception
+	public static void addToMap(HashMap<String, Integer> map, String seq) throws Exception
 	{
-		HashMap<String, Integer> map = new HashMap<String,Integer>();
-		
-		FastaSequenceOneAtATime fsoat = new FastaSequenceOneAtATime(inFile);
-		
-		for(FastaSequence fs = fsoat.getNextSequence(); fs != null;
-						fs = fsoat.getNextSequence())
+		for( int x=0; x < seq.length()- KMER_LENGTH; x++)
 		{
-			String seq =fs.getSequence();
+			String sub = seq.substring(x, x + KMER_LENGTH);
 			
-			for( int x=0; x < seq.length()- KMER_LENGTH; x++)
+			if( isACGT(sub))
 			{
-				String sub = seq.substring(x, x + KMER_LENGTH);
+				Integer count = map.get(sub);
 				
-				if( isACGT(sub))
+				if( count == null)
 				{
-					Integer count = map.get(sub);
+					String reverse = Translate.reverseTranscribe(sub);
 					
-					if( count == null)
-					{
-						String reverse = Translate.reverseTranscribe(sub);
-						
-						count = map.get(reverse);
-						
-						if( count != null)
-							sub = reverse;
-					}
+					count = map.get(reverse);
 					
-					if( count == null)
-						count =0;
-					
-					count++;
-					
-					map.put(sub,count);
+					if( count != null)
+						sub = reverse;
 				}
+				
+				if( count == null)
+					count =0;
+				
+				count++;
+				
+				map.put(sub,count);
 			}
 		}
+	}
 	
-		fsoat.close();
-		
+	public static void checkForNoReverse( HashMap<String, Integer>  map ) throws Exception
+	{
+
 		for(String s : map.keySet())
 		{
 			String reverse = Translate.reverseTranscribe(s);
@@ -116,6 +108,24 @@ public class MakeKmers
 			
 			}
 		}
+	}
+	
+	private static HashMap<String, Integer> breakIntoKmers(File inFile) throws Exception
+	{
+		HashMap<String, Integer> map = new HashMap<String,Integer>();
+		
+		FastaSequenceOneAtATime fsoat = new FastaSequenceOneAtATime(inFile);
+		
+		for(FastaSequence fs = fsoat.getNextSequence(); fs != null;
+						fs = fsoat.getNextSequence())
+		{
+			String seq =fs.getSequence();
+			addToMap(map, seq);
+		}
+	
+		fsoat.close();
+		
+		checkForNoReverse(map);
 			
 		return map;
 		

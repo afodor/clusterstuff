@@ -1,6 +1,7 @@
 package creOrthologs.kmers;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -19,9 +20,22 @@ public class ConstrainKMersToRegion
 		if( list.size() != 1 )
 			throw new Exception("No");
 		
-		HashSet<String> set = new HashSet<String>();
+		HashMap<String, Integer> map = new HashMap<String,Integer>();
 		
-		//for( int )
-		return null;
+		String seq =list.get(0).getSequence();
+		
+		for( int x=0; x < seq.length()- MakeKmers.KMER_LENGTH; x++)
+		{
+			String sub = seq.substring(x, x +  MakeKmers.KMER_LENGTH);
+			
+			if( MakeKmers.isACGT(sub))
+			{
+				MakeKmers.addToMap(map, seq);
+			}
+		}
+		
+		MakeKmers.checkForNoReverse(map);
+		
+		return new HashSet<String>(map.keySet());
 	}
 }
