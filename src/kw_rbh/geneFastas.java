@@ -12,18 +12,34 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 
-public class geneFastas {
+import kw_china_wgs.fastqToFasta;
+
+public class geneFastas implements Runnable {
 	public static String GenomeTopDir = "/nobackup/afodor_research/af_broad/";
 
-	public static void main(String[] args) throws IOException {
-		analyzeFolder("carolina");
-		analyzeFolder("susceptible");
-		analyzeFolder("resistant");
+	public static void main(String[] args) throws InterruptedException{
+		String[] folders = {"carolina", "susceptible", "resistant"};
+		Thread[] allThreads = new Thread[folders.length];
+		for(int i = 0; i < folders.length; i++) {
+			Runnable r = new geneFastas(folders[i]);
+			Thread t = new Thread(r);
+			t.start();	
+			allThreads[i] = t;
+		}
+		
+		//make sure all threads finish
+		for(int i = 0; i < allThreads.length; i++) {
+			allThreads[i].join();
+		}
+	}
+	
+	private String folder;
+	public geneFastas(String f) {
+		this.folder = f;
 	}
 	
 	//analyze the genomes in the given folder
-	public static void analyzeFolder(String folder) throws IOException {
-		System.out.println("ANALYZING: " + folder);
+	public  void run() {
 		String outDir = "/nobackup/afodor_research/kwinglee/cre/rbh/" + folder + "/";
 		String dirName = GenomeTopDir + folder;
 		File dir = new File(dirName);
@@ -31,17 +47,20 @@ public class geneFastas {
 		for(File gtf : allFiles) {
 			if(gtf.getName().endsWith(".genes.gtf")) {
 				String name = gtf.getName().replace(".genes.gtf", "");//genome to analyze
-				System.out.println(name);
-				
-				//make directory for output files
-				File gtfDir = new File(outDir + name);
-				gtfDir.mkdirs();
-				
-				//get corresponding fasta file as hash map of scaffold name to sequence
-				HashMap<String, String> scaff = getScaffolds(new File(dirName + "/" + name + ".scaffolds.fasta"));
-				
-				//make gene files
-				gtfToGene(gtf, gtfDir.getAbsolutePath() + "/", scaff);
+				try {
+					//make directory for output files
+					File gtfDir = new File(outDir + name);
+					gtfDir.mkdirs();
+					
+					//get corresponding fasta file as hash map of scaffold name to sequence
+					HashMap<String, String> scaff = getScaffolds(new File(dirName + "/" + name + ".scaffolds.fasta"));
+					
+					//make gene files
+					gtfToGene(gtf, folder + "_" + name, gtfDir.getAbsolutePath() + "/", scaff);
+				} catch(IOException e) {
+					System.err.println("error in " + folder + " " + name);
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -72,10 +91,9 @@ public class geneFastas {
 	
 	//takes the given gtf file, determines the gene sequence from scaff 
 	//and writes the result as a fasta in gtfDir
-	public static void gtfToGene(File gtf, String gtfDir, HashMap<String, String> scaff) throws IOException {
-		String name = gtf.getName().replace(".genes.gtf", "");//genome to analyze
+	public static void gtfToGene(File gtf, String name, String gtfDir, HashMap<String, String> scaff) throws IOException {
 		BufferedWriter allGenes = new BufferedWriter(new FileWriter(
-				new File(gtfDir + "allGenes_" + name + ".fasta")));
+				new File(gtfDir + name + "_allGenes.fasta")));
 		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(gtf)));
 		String line = br.readLine();
 		while(line != null) {
@@ -84,7 +102,7 @@ public class geneFastas {
 				//get sequence
 				String scaffSeq = scaff.get(sp[0]);
 				String seq = scaffSeq.substring(
-						Integer.parseInt(sp[3])-1, Integer.parseInt(sp[4])-1);//minus 1 to go from ones to zero based counting
+						Integer.parseInt(sp[3])-1, Integer.parseInt(sp[4]));//minus 1 to go from ones to zero based counting; end should include the last base so don't substract
 				if(sp[6].equals("-")) {//reverse orientation
 					seq = revComp(seq);
 				}
