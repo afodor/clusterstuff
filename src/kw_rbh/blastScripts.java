@@ -28,8 +28,8 @@ public class blastScripts {
 				runAll.write("./run_" + f1 + "_v_" + f2 + ".sh");
 				
 				//scripts to compare each genome against each other genome
-				File[] genomes1 = new File(f1).listFiles();
-				File[] genomes2 = new File(f2).listFiles();
+				File[] genomes1 = new File(DIR + f1).listFiles();
+				File[] genomes2 = new File(DIR + f2).listFiles();
 				for(File g1 : genomes1) {
 					for(File g2 : genomes2) {
 						String gen1 = g1.getName();
