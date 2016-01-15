@@ -49,11 +49,13 @@ public class geneFastas implements Runnable {
 					//make directory for output files
 					/*File gtfDir = new File(outDir + name);
 					gtfDir.mkdirs();*/
+					new File(outDir).mkdirs();
 					
 					//get corresponding fasta file as hash map of scaffold name to sequence
 					HashMap<String, String> scaff = getScaffolds(new File(dirName + "/" + name + ".scaffolds.fasta"));
 					
 					//make gene files
+					/*gtfToGene(gtf, folder + "_" + name, gtfDir.getName() + "/", scaff);*/
 					gtfToGene(gtf, folder + "_" + name, outDir, scaff);
 				} catch(IOException e) {
 					System.err.println("error in " + folder + " " + name);

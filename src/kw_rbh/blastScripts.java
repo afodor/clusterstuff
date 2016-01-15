@@ -37,7 +37,7 @@ public class blastScripts {
 						
 						//set up individual script
 						BufferedWriter script = new BufferedWriter(new FileWriter(new File(
-								DIR + "makedbScripts/blast_" + gen1 + "_v_" + gen2)));
+								DIR + "blastScripts/blast_" + gen1 + "_v_" + gen2)));
 						script.write("module load blast\n");
 						script.write("blastn -query " + g1.getAbsolutePath() + "/" + gen1 + "_allGenes.fasta -db " + 
 								g2.getAbsolutePath() + "/" + gen2 + "_allGenes.fasta -outfmt 7 -out " +
