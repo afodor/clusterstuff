@@ -13,7 +13,7 @@ public class blastScripts {
 	
 	public static void main(String[] args) throws IOException {
 		BufferedWriter runAll = new BufferedWriter(new FileWriter(new File(
-				DIR + "makedbScripts/runAll.sh")));//script to run all files
+				DIR + "blastScripts/runAll.sh")));//script to run all files
 		String[] folders = {"carolina", "susceptible", "resistant"};
 		for(String f1 : folders) {
 			for(String f2 : folders) {
@@ -39,13 +39,13 @@ public class blastScripts {
 						BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 								DIR + "blastScripts/blast_" + gen1 + "_v_" + gen2)));
 						script.write("module load blast\n");
-						script.write("blastn -query " + g1.getAbsolutePath() + "/" + g1.getName() + " -db " + 
-								g2.getAbsolutePath() + "/" + g2.getName() + " -outfmt 7 -out " +
+						script.write("blastn -query " + g1.getAbsolutePath() + " -db " + 
+								g2.getAbsolutePath() + " -outfmt 7 -out " +
 								resultsFolder + "/" + gen1 + "_v_" + gen2 + ".txt");
 						script.close();
 						
 						//add to runAll
-						runAll.write("qsub -q \"viper_batch\" blast_" + gen1 + "_v_" + gen2 + "\n");
+						compare.write("qsub -q \"viper_batch\" blast_" + gen1 + "_v_" + gen2 + "\n");
 					}
 				}
 				compare.close();

@@ -45,7 +45,7 @@ public class makeBlastDB {
 							DIR + "makedbScripts/run" + gen)));
 					script.write("module load blast\n");
 					/*script.write("makeblastdb -in " + g.getAbsolutePath() + "/" + f + "_" + gen + "_allGenes.fasta -dbtype 'nucl'\n");*/
-					script.write("makeblastdb -in " + g.getAbsolutePath() + "/" + gen + " -dbtype 'nucl'\n");
+					script.write("makeblastdb -in " + g.getAbsolutePath() + " -dbtype 'nucl'\n");
 					script.close();
 					
 					//add to runAll
