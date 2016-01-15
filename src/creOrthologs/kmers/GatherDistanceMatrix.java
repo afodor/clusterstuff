@@ -29,6 +29,8 @@ public class GatherDistanceMatrix
 			
 			if( splits.length != 2)
 				throw new Exception("No");
+			
+			set.add(splits[0]); set.add(splits[1]);
 		}
 		
 		List<String> list = new ArrayList<String>(set);
