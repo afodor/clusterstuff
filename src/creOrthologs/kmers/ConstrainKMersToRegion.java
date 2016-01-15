@@ -171,7 +171,7 @@ public class ConstrainKMersToRegion
 	{
 		List<FastaSequence> list = 
 				FastaSequence.readFastaFile(
-						"/projects/afodor_research/af_broad/carolina/klebsiella_pneumoniae_chs_11.0.scaffolds.fasta");
+						"/nobackup/afodor_research/af_broad/carolina/klebsiella_pneumoniae_chs_11.0.scaffolds.fasta");
 		
 		String toFind = "7000000220927531";
 	
