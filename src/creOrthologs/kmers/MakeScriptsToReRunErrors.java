@@ -27,10 +27,10 @@ public class MakeScriptsToReRunErrors
 			
 			s = s.substring(s.indexOf("java") -1, s.length());
 			
-			writer.write(s + "\n");
+			writer.write(s.trim() + "\n");
 			writer.flush();  writer.close();
 			
-			allWriter.write("qsub -q \"viper\" " + shFile.getAbsolutePath());
+			allWriter.write("qsub -q \"viper\" " + shFile.getAbsolutePath() + "\n");
 			count++;
 			
 		}
