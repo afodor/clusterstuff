@@ -31,6 +31,7 @@ public class MakeScriptsToReRunErrors
 			writer.flush();  writer.close();
 			
 			allWriter.write("qsub -q \"viper\" " + shFile.getAbsolutePath());
+			count++;
 			
 		}
 		
