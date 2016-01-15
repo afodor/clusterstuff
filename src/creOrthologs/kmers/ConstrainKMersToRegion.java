@@ -29,6 +29,18 @@ public class ConstrainKMersToRegion
 		return count;
 	}
 	
+	private static long getSum( HashMap<String, HashMap<String,Integer>> bigMap, String s )
+	{
+		long count =0;
+		
+		HashMap<String, Integer> innerMap = bigMap.get(s);
+		
+		for( Integer i : innerMap.values())
+			count = count + i;
+		
+		return count;
+	}
+	
 	private static double getDistance(HashMap<String, HashMap<String,Integer>> bigMap,
 					String s1, String s2) throws Exception
 	{
@@ -69,6 +81,7 @@ public class ConstrainKMersToRegion
 		
 		BufferedWriter keyWriter = new BufferedWriter(new FileWriter(new File(
 				GatherDistanceMatrix.GATHERED_DIR.getAbsolutePath() + File.separator + "subKey.txt"	)));
+		keyWriter.write("shortName\tlongName\tnumberOfKmers\n");
 		
 		List<String> list = new ArrayList<String>(bigMap.keySet());
 		Collections.sort(list);
@@ -84,7 +97,7 @@ public class ConstrainKMersToRegion
 				name = name + "_";
 			
 			writer.write(name);
-			keyWriter.write(name + " " + list.get(x) + "\n");
+			keyWriter.write(name + " " + list.get(x) + "\t" + getSum(bigMap, list.get(x)) + "\n");
 			
 			for( int y=0; y < list.size(); y++)
 			{
@@ -104,6 +117,7 @@ public class ConstrainKMersToRegion
 	{
 		HashMap<String, HashMap<String,Integer>> map = new HashMap<String, HashMap<String,Integer>>();
 		HashSet<String> constrainingSet = getConstrainingSet();
+		System.out.println("Got constraining set with " + constrainingSet.size());
 		
 		for(String s : MakeKmers.KMER_DIR.list() )
 			if( s.endsWith("_kmers.txt"))
