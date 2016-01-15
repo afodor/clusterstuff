@@ -32,15 +32,15 @@ public class blastScripts {
 				File[] genomes2 = new File(DIR + f2).listFiles();
 				for(File g1 : genomes1) {
 					for(File g2 : genomes2) {
-						String gen1 = g1.getName();
-						String gen2 = g2.getName();
+						String gen1 = g1.getName().replace("_allGenes.fasta", "");
+						String gen2 = g2.getName().replace("_allGenes.fasta", "");
 						
 						//set up individual script
 						BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 								DIR + "blastScripts/blast_" + gen1 + "_v_" + gen2)));
 						script.write("module load blast\n");
-						script.write("blastn -query " + g1.getAbsolutePath() + "/" + gen1 + "_allGenes.fasta -db " + 
-								g2.getAbsolutePath() + "/" + gen2 + "_allGenes.fasta -outfmt 7 -out " +
+						script.write("blastn -query " + g1.getAbsolutePath() + "/" + g1.getName() + " -db " + 
+								g2.getAbsolutePath() + "/" + g2.getName() + " -outfmt 7 -out " +
 								resultsFolder + "/" + gen1 + "_v_" + gen2 + ".txt");
 						script.close();
 						
