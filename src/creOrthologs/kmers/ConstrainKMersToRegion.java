@@ -70,7 +70,7 @@ public class ConstrainKMersToRegion
 		BufferedWriter keyWriter = new BufferedWriter(new FileWriter(new File(
 				GatherDistanceMatrix.GATHERED_DIR.getAbsolutePath() + File.separator + "subKey.txt"	)));
 		
-		List<String> list = new ArrayList<>(bigMap.keySet());
+		List<String> list = new ArrayList<String>(bigMap.keySet());
 		Collections.sort(list);
 	
 		writer.write(list.size() + "\t");
