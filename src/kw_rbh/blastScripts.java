@@ -24,8 +24,8 @@ public class blastScripts {
 				
 				//make script that runs each set of comparisons separately
 				BufferedWriter compare = new BufferedWriter(new FileWriter(new File(
-						DIR + "blastScripts/run_" + f1 + "_v_" + f2)));
-				runAll.write("./run_" + f1 + "_v_" + f2);
+						DIR + "blastScripts/run_" + f1 + "_v_" + f2 + ".sh")));
+				runAll.write("./run_" + f1 + "_v_" + f2 + ".sh");
 				
 				//scripts to compare each genome against each other genome
 				File[] genomes1 = new File(f1).listFiles();
