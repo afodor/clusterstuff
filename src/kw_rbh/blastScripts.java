@@ -31,8 +31,11 @@ public class blastScripts {
 				File[] genomes1 = new File(DIR + f1).listFiles();
 				File[] genomes2 = new File(DIR + f2).listFiles();
 				for(File g1 : genomes1) {
+					String gen1 = g1.getName().replace("_allGenes.fasta", "");
+					//put all comparisons to this genome in their own folder (to make file system easier to access)
+					File genResults = new File(resultsFolder + "/" + gen1);
+					genResults.mkdirs();
 					for(File g2 : genomes2) {
-						String gen1 = g1.getName().replace("_allGenes.fasta", "");
 						String gen2 = g2.getName().replace("_allGenes.fasta", "");
 						
 						//set up individual script
@@ -41,7 +44,7 @@ public class blastScripts {
 						script.write("module load blast\n");
 						script.write("blastn -query " + g1.getAbsolutePath() + " -db " + 
 								g2.getAbsolutePath() + " -outfmt 7 -out " +
-								resultsFolder + "/" + gen1 + "_v_" + gen2 + ".txt\n");
+								genResults.getAbsolutePath() + "/" + gen1 + "_v_" + gen2 + ".txt\n");
 						script.close();
 						
 						//add to runAll
