@@ -17,7 +17,7 @@ import utils.Translate;
 
 public class ConstrainKMersToRegion
 {
-	private static long getSumSquared( HashMap<String, HashMap<String,Integer>> bigMap, String s )
+	private static double getSumSquared( HashMap<String, HashMap<String,Integer>> bigMap, String s )
 	{
 		long count =0;
 		
@@ -44,8 +44,8 @@ public class ConstrainKMersToRegion
 	private static double getDistance(HashMap<String, HashMap<String,Integer>> bigMap,
 					String s1, String s2) throws Exception
 	{
-		long sumASquared = getSumSquared(bigMap, s1);
-		long sumBSquared = getSumSquared(bigMap, s2);
+		double sumASquared = getSumSquared(bigMap, s1);
+		double sumBSquared = getSumSquared(bigMap, s2);
 		
 		if( sumASquared == 0 || sumBSquared == 0 )
 			return 1;
