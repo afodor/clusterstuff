@@ -167,19 +167,28 @@ public class ConstrainKMersToRegion
 		return map;
 	}
 	
-	private static HashSet<String> getConstrainingSet() throws Exception
+	private static String getConstrainingString() throws Exception
 	{
-		File queryFile =  ScriptsForMultipleQueries.writeOneExtractionFile(
-				  ScriptsForMultipleQueries.INPUT_GENOME, "7000000220927533", 729729, 749719);
+		List<FastaSequence> list = 
+				FastaSequence.readFastaFile(
+						"/projects/afodor_research/af_broad/carolina/klebsiella_pneumoniae_chs_11.0.scaffolds.fasta");
 		
-		List<FastaSequence> list = FastaSequence.readFastaFile(queryFile);
+		String toFind = "7000000220927531";
+	
+		for(FastaSequence fs : list)
+			if(fs.getFirstTokenOfHeader().equals(toFind))
+			{
+				return fs.getSequence().substring(2482, 4032);
+			}
 		
-		if( list.size() != 1 )
-			throw new Exception("No");
-		
+		throw new Exception("No");
+	}
+	
+	private static HashSet<String> getConstrainingSet() throws Exception
+	{	
 		HashMap<String, Integer> map = new HashMap<String,Integer>();
 		
-		String seq =list.get(0).getSequence();
+		String seq =getConstrainingString();
 		
 		for( int x=0; x < seq.length()- MakeKmers.KMER_LENGTH; x++)
 		{
