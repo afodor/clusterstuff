@@ -47,14 +47,14 @@ public class geneFastas implements Runnable {
 				String name = gtf.getName().replace(".genes.gtf", "");//genome to analyze
 				try {
 					//make directory for output files
-					File gtfDir = new File(outDir + name);
-					gtfDir.mkdirs();
+					/*File gtfDir = new File(outDir + name);
+					gtfDir.mkdirs();*/
 					
 					//get corresponding fasta file as hash map of scaffold name to sequence
 					HashMap<String, String> scaff = getScaffolds(new File(dirName + "/" + name + ".scaffolds.fasta"));
 					
 					//make gene files
-					gtfToGene(gtf, folder + "_" + name, gtfDir.getAbsolutePath() + "/", scaff);
+					gtfToGene(gtf, folder + "_" + name, outDir, scaff);
 				} catch(IOException e) {
 					System.err.println("error in " + folder + " " + name);
 					e.printStackTrace();
@@ -88,10 +88,10 @@ public class geneFastas implements Runnable {
 	}
 	
 	//takes the given gtf file, determines the gene sequence from scaff 
-	//and writes the result as a fasta in gtfDir
-	public static void gtfToGene(File gtf, String name, String gtfDir, HashMap<String, String> scaff) throws IOException {
+	//and writes the result as a fasta in geneDir, using the given name
+	public static void gtfToGene(File gtf, String name, String geneDir, HashMap<String, String> scaff) throws IOException {
 		BufferedWriter allGenes = new BufferedWriter(new FileWriter(
-				new File(gtfDir + name + "_allGenes.fasta")));
+				new File(geneDir + name + "_allGenes.fasta")));
 		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(gtf)));
 		String line = br.readLine();
 		while(line != null) {
@@ -109,13 +109,13 @@ public class geneFastas implements Runnable {
 				String id = sp[8].split(";")[0].split("\"")[1];
 
 				//write as in file with all genes
-				allGenes.write(">" + id + "\n" + seq + "\n");
+				allGenes.write(">" + name + "_" + id + "\n" + seq + "\n");
 				
 				//write as separate fasta file
-				BufferedWriter gene = new BufferedWriter(new FileWriter(
-						new File(gtfDir + name + "_" + id +".fasta")));
+				/*BufferedWriter gene = new BufferedWriter(new FileWriter(
+						new File(geneDir + name + "_" + id +".fasta")));
 				gene.write(">" + id + "\n" + seq + "\n");
-				gene.close();
+				gene.close();*/
 			}
 			line = br.readLine();
 		}
