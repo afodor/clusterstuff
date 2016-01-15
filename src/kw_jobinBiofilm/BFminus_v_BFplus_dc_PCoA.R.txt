@@ -1,0 +1,46 @@
+##DC pcoa, BF- vs BF+
+##1/15/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis3\\BFminus vs BFplus\\DC")
+
+library("vegan")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+pdf("BFminus_v_BFplus_dc_pcoa.pdf")
+for(taxa in taxaLevels) {
+  fname = paste("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis3\\3.24_genotype_and_tumor_number\\DC\\analysis3.24_dc_", taxa, "_taxaAsCol_logNorm.txt", sep="")
+  table = read.table(fname, sep="\t", header=T, comment.char="")
+  nc = ncol(table)
+  cc = c(rep(c("numeric", "character"),5), "character", "numeric", rep("character", 3), rep("numeric", nc-15))
+  table = read.table(fname, sep="\t", header=T, comment.char="", na.strings="N/A", colClasses=cc)
+  
+  ##change to BF+ or BF-
+  table$Group..Associated.with.[grepl("BF+", table$Group..Associated.with., fixed=T)] = "BF+"
+  table$Group..Associated.with.[grepl("BF-", table$Group..Associated.with., fixed=T)] = "BF-"
+  
+  ##pcoa with vegan capscale
+  par(mar=c(4,4,4,8), xpd=T)
+  pcoa <- capscale(table[,-(1:17)]~1,distance="bray")
+  
+  ##color by group
+  groups = sort(unique(table$Group..Associated.with.)) #[1] "BF-" "BF+"
+  col = c("blue", "black")
+  colors = rep(NA, nrow(table))
+  for(j in 1:length(groups)) {
+    colors[table$Group..Associated.with.==groups[j]] = col[j]
+  }
+  
+  ##shape by time; have open shape for ApcMin and closed for KO
+  shapes=ifelse(grepl("IL10", table$Genotype), 16, 1)
+  
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], xlab="MDS1", ylab="MDS2", main=taxa, 
+       col=colors, pch=shapes)
+  
+  legend("topright", inset=c(-.36,0),
+         legend=c(groups, "ApcMin", "ApcMin IL 10 KO"),
+         col=c(col, "gray", "gray"),
+         pch=c(rep(18, length(groups)), 16, 1))
+}
+dev.off()

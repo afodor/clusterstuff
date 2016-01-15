@@ -1,0 +1,142 @@
+##linear models for stool dataset, BF+ vs BF-
+##1/15/16
+
+rm(list=ls())
+
+library("pscl")
+library("lmtest")
+library("nlme")
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis3\\BFminus vs BFplus\\stool")
+
+taxaLevels <- c("phylum","class","order","family","genus")
+
+for(taxa in taxaLevels ) {
+  print(taxa)
+  fname = paste("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis3\\3.24_genotype_and_tumor_number\\stool\\analysis3.24_stool_", taxa, "_taxaAsCol_logNorm.txt", sep="")
+  table = read.table(fname, sep="\t", header=T, comment.char="")
+  numCols = ncol(table)
+  cc = c("numeric", rep("character", 3), rep(c("numeric", "character"), 3), "character", "numeric", rep("character", 3), rep("numeric", numCols-15))
+  table = read.table(fname, sep="\t", header=T, comment.char="", na.strings="N/A", colClasses=cc)
+  
+  ##change to BF+ or BF-
+  table$Group..Associated.with.[grepl("BF+", table$Group..Associated.with., fixed=T)] = "BF+"
+  table$Group..Associated.with.[grepl("BF-", table$Group..Associated.with., fixed=T)] = "BF-"
+  
+  ##output vectors
+  names = vector()
+  meanTaxa = vector()
+  meanBFminusBX = vector()
+  meanBFplusBX = vector()
+  meanBFplusNF = vector()
+  meanBFplusT = vector()
+  pGenotype = vector()
+  pTumor = vector()
+  pTime = vector()
+  pGroup = vector()
+  pMouse = vector()
+  pCage = vector()
+  index = 1
+  pdf(paste("BFminus_v_BFplus_stool_otuModel_boxplots_", taxa, ".pdf", sep=""), height = 12)
+  
+  for( i in 18:numCols) {
+    if(sum(table[,i] != 0 ) > nrow(table) / 4 ) {
+      
+      names[index] <- names(table)[i]
+      bug <- table[,i]
+      meanTaxa[index] <- mean(bug)
+      meanBFminusBX[index] <- mean(bug[table$Group..Associated.with.=="BF-bx"])
+      meanBFplusBX[index] <- mean(bug[table$Group..Associated.with.=="BF+bx"])
+      meanBFplusNF[index] <- mean(bug[table$Group..Associated.with.=="BF+NF"])
+      meanBFplusT[index] <- mean(bug[table$Group..Associated.with.=="BF+T"])
+      time <- factor(table$Timepoint..weeks.)
+      group <- factor(table$Group..Associated.with.)
+      cage <- factor(paste(table$Genotype, table$Cage.Number, sep=":"))
+      mouse <- factor(paste(cage, table$Mouse.., sep=":"))
+      genotype <- factor(table$Genotype)
+      tumor <- table$Colon.Tumor..
+      
+      myFrame <- data.frame(bug, time, group, genotype, tumor, cage, mouse)
+      
+      pGenotype[index] <- anova(lm(bug~genotype))$"Pr(>F)"[1]
+      pTumor[index] <- anova(lm(bug~tumor))$"Pr(>F)"[1] #lm ignores NAs
+      pTime[index] <- anova(lm(bug~time))$"Pr(>F)"[1]
+      pGroup[index] <- anova(lm(bug~group))$"Pr(>F)"[1]
+      pCage[index] <- anova(lm(bug~cage))$"Pr(>F)"[1]
+      pMouse[index] <- anova(lm(bug~mouse))$"Pr(>F)"[1]
+      
+      ##plots
+      graphMain =  paste( names[index], 
+                          ":\n pGenotype= ", format(pGenotype[index], digits=3),
+                          "; pTumor= ", format(pTumor[index], digits=3),
+                          "; pTime= ", format(pTime[index], digits=3), 
+                          "\n pGroup= ", format(pGroup[index],digits=3), 
+                          "; pCage= ", format(pCage[index], digits=3),
+                          "; pMouse= " , format(pMouse[index], digits=3 ), sep="")
+      
+     
+      ##color by group
+      groups = sort(unique(table$Group..Associated.with.)) #[1] "BF-" "BF+"
+      col = c("blue", "black")
+      colors = rep(NA, nrow(table))
+      for(j in 1:length(groups)) {
+        colors[table$Group..Associated.with.==groups[j]] = col[j]
+      }
+      
+      ##shape by time, empty or filled by genotype
+      timeGen = c("ApcMin wk 1", "ApcMin wk 12", "IL10 KO wk 1", "IL10 KO wk 12")
+      sh = c(0, 1, 15, 16)
+      shapes = rep(NA, nrow(table))
+      shapes[table$Genotype=="ApcMin" & table$Timepoint..weeks.==1] = sh[1]
+      shapes[table$Genotype=="ApcMin" & table$Timepoint..weeks.==12] = sh[2]
+      shapes[table$Genotype=="ApcMin IL10 KO" & table$Timepoint..weeks.==1] = sh[3]
+      shapes[table$Genotype=="ApcMin IL10 KO" & table$Timepoint..weeks.==12] = sh[4]
+      
+      
+      ##additional variables
+      sex <- factor(table$Sex)
+      
+      par(mfrow=c(4,2), oma=c(.5,.5,5,.5), mar=c(6,4,1,1))
+      ##genotype
+      boxplot(bug~genotype, xlab="", ylab="relative abundance", main="genotype")
+      points(bug~genotype, col=colors, pch=shapes)
+      ##tumor
+      plot(bug~tumor, xlab="Number of tumors", ylab="relative abundance", main="tumor", col=colors, pch=shapes)
+      ##group
+      boxplot(bug~group, xlab="", ylab="relative abundance", las=2, main="group")
+      points(bug~group, col=colors, pch=shapes)
+      ##time
+      # plot(x=time, y=bug, xlab="weeks", ylab="relative abundance", main="time", col=colors, pch=shapes)
+      boxplot(bug~time, xlab="weeks", ylab="relative abundance", main="time")
+      points(bug~time, col=colors, pch=shapes)
+      ##cage
+      boxplot(bug~factor(cage), xlab="", ylab="relative abundance", las=2, main="cage", cex.axis=.5)
+      points(bug~factor(cage), col=colors, pch=shapes)
+      ##mouse
+      boxplot(bug~mouse, xlab="", ylab="relative abundance", las=2, main="mouse", cex.axis=.5)
+      points(bug~mouse, col=colors, pch=shapes)
+      ##sex
+      boxplot(bug~sex, xlab="", ylab="relative abundance", main="sex")
+      points(bug~sex, col=colors, pch=shapes)
+      
+      ##add title
+      par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+      plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+      legend("top", horiz=T, legend=graphMain, cex=1.2, bty="n")
+      
+      index=index+1
+      
+    }
+  }
+  
+  dFrame <- data.frame(names, meanTaxa, meanBFminusBX, meanBFplusBX, meanBFplusNF, meanBFplusT, pGroup, pTime, pGenotype, pTumor, pCage, pMouse)
+  dFrame$pAdjGroup <- p.adjust(dFrame$pGroup, method = "BH")
+  dFrame$pAdjTime <- p.adjust(dFrame$pTime, method = "BH")
+  dFrame$pAdjGenotype <- p.adjust(dFrame$pGenotype, method = "BH")
+  dFrame$pAdjTumor <- p.adjust(dFrame$pTumor, method = "BH")
+  dFrame$pAdjCage <- p.adjust(dFrame$pCage, method="BH")
+  dFrame$pAdjMouse <- p.adjust(dFrame$pMouse, method="BH")
+  dFrame <- dFrame[order(dFrame$pGroup),]
+  write.table(dFrame, file=paste("BFminus_v_BFplus_stool_otuModel_pValues_", taxa, ".txt",sep=""), sep="\t",row.names=FALSE)
+  dev.off()
+}

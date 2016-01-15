@@ -1,0 +1,52 @@
+##stool ApcMin pcoa, BF+ vs BF-
+##1/4/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis3\\BFminus vs BFplus\\stool")
+
+library("vegan")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+pdf("BFminus_v_BFplus_stool_pcoa.pdf")
+for(taxa in taxaLevels) {
+  fname = paste("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis3\\3.24_genotype_and_tumor_number\\stool\\analysis3.24_stool_", taxa, "_taxaAsCol_logNorm.txt", sep="")
+  table = read.table(fname, sep="\t", header=T, comment.char="")
+  nc = ncol(table)
+  cc = c("numeric", rep("character", 3), rep(c("numeric", "character"), 3), "character", "numeric", rep("character", 3), rep("numeric", nc-15))
+  table = read.table(fname, sep="\t", header=T, comment.char="", na.strings="N/A", colClasses=cc)
+  
+  ##change to BF+ or BF-
+  table$Group..Associated.with.[grepl("BF+", table$Group..Associated.with., fixed=T)] = "BF+"
+  table$Group..Associated.with.[grepl("BF-", table$Group..Associated.with., fixed=T)] = "BF-"
+  
+  ##pcoa with vegan capscale
+  par(mar=c(4,4,4,8), xpd=T)
+  pcoa <- capscale(table[,-(1:17)]~1,distance="bray")
+  
+  ##color by group
+  groups = sort(unique(table$Group..Associated.with.)) #[1] "BF-" "BF+"
+  col = c("blue", "black")
+  colors = rep(NA, nrow(table))
+  for(j in 1:length(groups)) {
+    colors[table$Group..Associated.with.==groups[j]] = col[j]
+  }
+  
+  ##shape by time, empty or filled by genotype
+  timeGen = c("ApcMin wk 1", "ApcMin wk 12", "IL10 KO wk 1", "IL10 KO wk 12")
+  sh = c(0, 1, 15, 16)
+  shapes = rep(NA, nrow(table))
+  shapes[table$Genotype=="ApcMin" & table$Timepoint..weeks.==1] = sh[1]
+  shapes[table$Genotype=="ApcMin" & table$Timepoint..weeks.==12] = sh[2]
+  shapes[table$Genotype=="ApcMin IL10 KO" & table$Timepoint..weeks.==1] = sh[3]
+  shapes[table$Genotype=="ApcMin IL10 KO" & table$Timepoint..weeks.==12] = sh[4]
+  
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], xlab="MDS1", ylab="MDS2", main=taxa, 
+       col=colors, pch=shapes)
+  
+  legend("topright", inset=c(-.33,0),
+         legend=c(groups, timeGen),
+         col=c(col, rep("gray", length(timeGen))),
+         pch=c(rep(20, length(groups)), sh))
+}
+dev.off()
