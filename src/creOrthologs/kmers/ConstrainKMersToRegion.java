@@ -96,7 +96,7 @@ public class ConstrainKMersToRegion
 		List<String> list = new ArrayList<String>(bigMap.keySet());
 		Collections.sort(list);
 	
-		writer.write(list.size() + "\t");
+		writer.write(list.size() + "\n");
 		
 		for( int x=0; x < list.size(); x++)
 		{
