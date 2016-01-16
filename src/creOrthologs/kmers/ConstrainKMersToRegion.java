@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-import creOrthologs.automatedDistanceMatrix.ScriptsForMultipleQueries;
 import parsers.FastaSequence;
 import utils.Translate;
 
@@ -68,19 +67,30 @@ public class ConstrainKMersToRegion
 	
 	public static void main(String[] args) throws Exception
 	{
-		HashMap<String, HashMap<String,Integer>> bigMap = 
-				getBigMap();
-		writeDistanceMatrix(bigMap);
+		if( args.length != 4)
+		{
+			System.out.println("usage genomeFilepath contig startPos endPos");
+			System.exit(1);
+		}
+		
+		String seq = getConstrainingString(args[0], args[1], Integer.parseInt(args[2]), Integer.parseInt(args[3]));
+		HashMap<String, HashMap<String,Integer>> bigMap = getBigMap( seq );
+		
+		String outFileBase = args[0].substring(args[0].lastIndexOf("/")+1)
+				.replace(".scaffolds.fasta", "") + "_" + args[1] + "_" + args[2] + "_" + args[3];
+		
+		writeDistanceMatrix(bigMap, outFileBase);
 	}
 	
-	private static void writeDistanceMatrix( HashMap<String, HashMap<String,Integer>> bigMap)
+	private static void writeDistanceMatrix( HashMap<String, HashMap<String,Integer>> bigMap,
+			String outFileBase)
 		throws Exception
 	{
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
-			GatherDistanceMatrix.GATHERED_DIR.getAbsolutePath() + File.separator + "sub.txt"	)));
+			GatherDistanceMatrix.GATHERED_DIR.getAbsolutePath() + File.separator + outFileBase + "_dist.txt"	)));
 		
 		BufferedWriter keyWriter = new BufferedWriter(new FileWriter(new File(
-				GatherDistanceMatrix.GATHERED_DIR.getAbsolutePath() + File.separator + "subKey.txt"	)));
+				GatherDistanceMatrix.GATHERED_DIR.getAbsolutePath() + File.separator + outFileBase + "_Key.txt"	)));
 		keyWriter.write("shortName\tlongName\tnumberOfKmers\n");
 		
 		List<String> list = new ArrayList<String>(bigMap.keySet());
@@ -113,10 +123,10 @@ public class ConstrainKMersToRegion
 	}
 	
 	// outer key is the genome may; inner key is the k-mer
-	private static HashMap<String, HashMap<String,Integer>> getBigMap() throws Exception
+	private static HashMap<String, HashMap<String,Integer>> getBigMap(String seq) throws Exception
 	{
 		HashMap<String, HashMap<String,Integer>> map = new HashMap<String, HashMap<String,Integer>>();
-		HashSet<String> constrainingSet = getConstrainingSet();
+		HashSet<String> constrainingSet = getConstrainingSet(seq);
 		System.out.println("Got constraining set with " + constrainingSet.size());
 		
 		for(String s : MakeKmers.KMER_DIR.list() )
@@ -167,28 +177,27 @@ public class ConstrainKMersToRegion
 		return map;
 	}
 	
-	private static String getConstrainingString() throws Exception
+	private static String getConstrainingString(String filepath, String contig, int startPos, int endPos) throws Exception
 	{
 		List<FastaSequence> list = 
 				FastaSequence.readFastaFile(
-						"/nobackup/afodor_research/af_broad/carolina/klebsiella_pneumoniae_chs_11.0.scaffolds.fasta");
+						filepath);
 		
-		String toFind = "7000000220927531";
+		String toFind = contig;
 	
 		for(FastaSequence fs : list)
 			if(fs.getFirstTokenOfHeader().equals(toFind))
 			{
-				return fs.getSequence().substring(2482, 4032);
+				return fs.getSequence().substring(startPos, endPos);
 			}
 		
 		throw new Exception("No");
 	}
 	
-	private static HashSet<String> getConstrainingSet() throws Exception
+	private static HashSet<String> getConstrainingSet(String seq) throws Exception
 	{	
 		HashMap<String, Integer> map = new HashMap<String,Integer>();
 		
-		String seq =getConstrainingString();
 		
 		for( int x=0; x < seq.length()- MakeKmers.KMER_LENGTH; x++)
 		{
