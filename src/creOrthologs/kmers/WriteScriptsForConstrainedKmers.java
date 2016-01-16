@@ -49,7 +49,7 @@ public class WriteScriptsForConstrainedKmers
 			aWriter.flush();
 			index++;
 			
-			if( index == 100)
+			if( index == 20)
 			{
 				index=0;
 				fileNum++;
