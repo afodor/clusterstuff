@@ -39,7 +39,7 @@ public class CorrelationToPosition
 					
 					writer.write(splits[5] + "\t" + 
 								Pearson.getPearsonR(refList, otherList) + "\t" + 
-										Spearman.getSpearFromDouble(refList, otherList) + "\n");
+										Spearman.getSpearFromDouble(refList, otherList).getRs() + "\n");
 					
 					writer.flush();
 				}
