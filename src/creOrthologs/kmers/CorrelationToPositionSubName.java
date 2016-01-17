@@ -32,9 +32,6 @@ public class CorrelationToPositionSubName
 		
 		writer.write("startPos\tPearson\tSpearman\n");
 		
-		if( refList.size() != 	EXPECTED_SIZE * EXPECTED_SIZE)
-			throw new Exception("Unexpected size " + refList.size());
-		
 		for(String s : GatherDistanceMatrix.GATHERED_DIR.list())
 			if( s.startsWith("klebsiella_pneumoniae_") && s.endsWith("_dist.txt"))
 			{
