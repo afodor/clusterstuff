@@ -103,9 +103,10 @@ public class CorrelationToPositionSubName
 			while( sToken.hasMoreTokens())
 			{
 				yPos++;
+				String nextToken = sToken.nextToken();
 				
 				if( nameList.get(xPos).indexOf(subName) != 1 && nameList.get(yPos).indexOf(subName) != -1)				
-					list.add(Double.parseDouble(sToken.nextToken()));
+					list.add(Double.parseDouble(nextToken));
 			}
 		}
 		
