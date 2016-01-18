@@ -70,6 +70,8 @@ public class SpearmansAcrossAll
 						throw new Exception("No " + key);
 					
 					writer.write("\t" + val);
+					
+					map.remove(key);
 				}
 				
 			}
