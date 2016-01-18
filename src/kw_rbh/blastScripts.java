@@ -65,7 +65,7 @@ public class blastScripts {
 								
 								//add to runAll
 								compare.write("qsub -q \"viper_batch\" blast_" + gen1 + "_v_" + gen2 + "\n");
-								subset.write("qsub -q \"viper_batch\" blast_" + gen1 + "_v_" + gen2 + "\n");
+								subset.write("qsub -q \"viper_batch\" ../blast_" + gen1 + "_v_" + gen2 + "\n");
 							}
 						}
 					}
