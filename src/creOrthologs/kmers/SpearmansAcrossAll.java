@@ -43,6 +43,7 @@ public class SpearmansAcrossAll
 			}
 			
 			writer.write("\n");
+			writer.flush();
 		}
 		
 		writer.flush();  writer.close();
