@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -19,27 +20,58 @@ public class SpearmansAcrossAll
 	
 	public static void main(String[] args) throws Exception
 	{
-		List<File> list = getFilesToDo();
+		HashMap<File, List<Float>> map = getFilesToDo();
 		
-		System.out.println("Got " + list.size() + " files ");
+		System.out.println("Got " + map.size() + " files ");
 		
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
 			"/nobackup/afodor_research/af_broad/symmetric1.txt"	)));
+		
+		List<File> list = new ArrayList<File>(map.keySet());
+		Collections.sort(list);
+
+		HashMap<String, Float> cache = new HashMap<String,Float>();
 		
 		for(int x=0; x < list.size(); x++)
 		{
 			writer.write(getIdentifier(list.get(x)));
 			
-			List<Double> xVals = getVals(list.get(x));
+			List<Float> xVals = map.get(list.get(x));
 			
 			for( int y=0; y < list.size(); y++)
 			{
-				List<Double> yVals = getVals(list.get(y));
+				if( x== y)
+				{
+					writer.write("\t" + 1);
+				}
+				else if ( x < y )
+				{
+					List<Float> yVals = getVals(list.get(y));
+					
+					if( xVals.size() != yVals.size())
+						throw new Exception("No " + xVals.size() + " " + yVals.size());
+					
+					float val = (float) Spearman.getSpear(yVals, xVals).getRs();
+					writer.write("\t" + val);
+					
+					String key = y + "@" + x;
+					
+					if( cache.containsKey(key))
+						throw new Exception("No " + key);
+					
+					cache.put(key, val);
+				}
+				else
+				{
+					String key = x + "@" + y;
+					Float val = cache.get(key);
+					
+					if( val == null)
+						throw new Exception("No " + key);
+					
+					writer.write("\t" + val);
+				}
 				
-				if( xVals.size() != yVals.size())
-					throw new Exception("No " + xVals.size() + " " + yVals.size());
-				
-				writer.write("\t" + Spearman.getSpearFromDouble(yVals, xVals).getRs());
 			}
 			
 			writer.write("\n");
@@ -63,9 +95,9 @@ public class SpearmansAcrossAll
 		return count;
 	}
 	
-	private static List<Double> getVals(File f) throws Exception
+	private static List<Float> getVals(File f) throws Exception
 	{
-		List<Double> vals = new ArrayList<Double>();
+		List<Float> vals = new ArrayList<Float>();
 		
 		BufferedReader reader = new BufferedReader(new FileReader(f));
 		
@@ -76,7 +108,7 @@ public class SpearmansAcrossAll
 			sToken.nextToken();
 			
 			while(sToken.hasMoreTokens())
-				vals.add(Double.parseDouble(sToken.nextToken()));
+				vals.add(Float.parseFloat(sToken.nextToken()));
 		}
 		
 		reader.close();
@@ -84,12 +116,12 @@ public class SpearmansAcrossAll
 		return vals;
 	}
 	
-	private static List<File> getFilesToDo() throws Exception
+	private static HashMap<File, List<Float>> getFilesToDo() throws Exception
 	{
+		HashMap<File, List<Float>> map = new HashMap<File, List<Float>>();
 		HashSet<Integer> includeSet = getIncludeSet();
 		String[] files = GatherDistanceMatrix.GATHERED_DIR.list();
 		
-		List<File> list = new ArrayList<File>();
 		
 		for(String s : files)
 			if( s.startsWith("klebsiella_pneumoniae_chs_11.0_") && s.endsWith("_dist.txt"))
@@ -99,13 +131,12 @@ public class SpearmansAcrossAll
 				if( getFileLines(f) == EXPECTED_NUM_LINES ) 
 				{
 					if( includeSet.contains(Integer.parseInt(f.getName().split("_")[5])))
-						list.add(f);
+						map.put(f, getVals(f));
 				}
 					
 			}
 		
-		Collections.sort(list);
-		return list;
+		return map;
 	}
 	
 	private static HashSet<Integer> getIncludeSet() throws Exception
