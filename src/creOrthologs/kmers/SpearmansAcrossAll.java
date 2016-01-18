@@ -72,6 +72,8 @@ public class SpearmansAcrossAll
 		for(String s=  reader.readLine(); s != null; s= reader.readLine())
 		{
 			StringTokenizer sToken = new StringTokenizer(s);
+
+			sToken.nextToken();
 			
 			while(sToken.hasMoreTokens())
 				vals.add(Double.parseDouble(sToken.nextToken()));
