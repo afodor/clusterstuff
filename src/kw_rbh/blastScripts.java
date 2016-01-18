@@ -50,6 +50,7 @@ public class blastScripts {
 									subset = new BufferedWriter(new FileWriter(new File(
 											subset_name + numCmd/SUB_SIZE + ".sh")));
 								}
+								numCmd++;
 								
 								String gen2 = g2.getName().replace("_allGenes.fasta", "");
 								
