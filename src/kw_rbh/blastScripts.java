@@ -19,7 +19,7 @@ public class blastScripts {
 		String[] folders = {"carolina", "susceptible", "resistant"};
 		int numCmd = 0; //number of commands so far
 		BufferedWriter subset = null; //writer to write subset of commands
-		String subset_name = DIR + "subsets/subset_";
+		String subset_name = DIR + "blastScripts/subsets/subset_";
 		for(String f1 : folders) {
 			for(String f2 : folders) {
 				//folder to put comparisons in
