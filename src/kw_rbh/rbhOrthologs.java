@@ -135,9 +135,9 @@ public class rbhOrthologs implements Runnable {
 		while(line != null) {
 			if(!line.startsWith("#")) {
 				String[] sp = line.split("\t");
-				String key = sp[0];
-				String match = sp[1];
-				String score = sp[11];
+				String key = sp[0].trim();
+				String match = sp[1].trim();
+				String score = sp[11].trim();
 				if(!map.containsKey(key)) {
 					map.put(key, new String[] {match, score});
 				} else {//key is already in there
