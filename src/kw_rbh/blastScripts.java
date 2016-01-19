@@ -10,16 +10,12 @@ import java.io.IOException;
 
 public class blastScripts {
 	public static String DIR = "/nobackup/afodor_research/kwinglee/cre/rbh/";
-	public static int SUB_SIZE = 1000;//number of commands per subset file
 	
 	public static void main(String[] args) throws IOException {
-		new File(DIR + "blastScripts/subsets").mkdirs();//folder to put files to run subsets
 		BufferedWriter runAll = new BufferedWriter(new FileWriter(new File(
 				DIR + "blastScripts/runAll.sh")));//script to run all files
 		String[] folders = {"carolina", "susceptible", "resistant"};
 		int numCmd = 0; //number of commands so far
-		BufferedWriter subset = null; //writer to write subset of commands
-		String subset_name = DIR + "blastScripts/subsets/subset_";
 		for(String f1 : folders) {
 			for(String f2 : folders) {
 				//folder to put comparisons in
@@ -41,39 +37,33 @@ public class blastScripts {
 						//put all comparisons to this genome in their own folder (to make file system easier to access)
 						File genResults = new File(resultsFolder + "/" + gen1);
 						genResults.mkdirs();
+						
+						//script for comparisons to all genomes
+						BufferedWriter script = new BufferedWriter(new FileWriter(new File(
+								DIR + "blastScripts/blast_" + gen1)));
+						script.write("module load blast\n");
+						
+						//add to runAll/larger script
+						compare.write("qsub -q \"viper_batch\" blast_" + gen1 + "\n");
+						
 						for(File g2 : genomes2) {
 							if(g2.getName().endsWith(".fasta")) {
-								if(numCmd % SUB_SIZE == 0) {
-									if(numCmd != 0) {
-										subset.close();
-									} 
-									subset = new BufferedWriter(new FileWriter(new File(
-											subset_name + numCmd/SUB_SIZE + ".sh")));
-								}
 								numCmd++;
 								
 								String gen2 = g2.getName().replace("_allGenes.fasta", "");
 								
-								//set up individual script
-								BufferedWriter script = new BufferedWriter(new FileWriter(new File(
-										DIR + "blastScripts/blast_" + gen1 + "_v_" + gen2)));
-								script.write("module load blast\n");
+								//set up individual blast
 								script.write("blastn -query " + g1.getAbsolutePath() + " -db " + 
 										g2.getAbsolutePath() + " -outfmt 7 -out " +
 										genResults.getAbsolutePath() + "/" + gen1 + "_v_" + gen2 + ".txt\n");
-								script.close();
-								
-								//add to runAll
-								compare.write("qsub -q \"viper_batch\" blast_" + gen1 + "_v_" + gen2 + "\n");
-								subset.write("qsub -q \"viper_batch\" ../blast_" + gen1 + "_v_" + gen2 + "\n");
 							}
 						}
+						script.close();
 					}
 				}
 				compare.close();
 			}
 		}
-		subset.close();
 		runAll.close();
 		System.out.println("Total commands = " + numCmd);
 	}
