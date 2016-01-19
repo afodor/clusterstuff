@@ -3,6 +3,9 @@ package creOrthologs.kmers;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.List;
+
+import parsers.FastaSequence;
 
 public class WriteScriptsForConstrainedKmers
 {
@@ -28,38 +31,47 @@ public class WriteScriptsForConstrainedKmers
 		String genomePath = 
 				"/nobackup/afodor_research/af_broad/carolina/klebsiella_pneumoniae_chs_11.0.scaffolds.fasta";
 		
-		String contig = "7000000220927538";
+		List<FastaSequence> list = FastaSequence.readFastaFile(genomePath);
 		
+		int fileNum =0;
+		int index = 0;
+				
 		BufferedWriter allWriter  = new BufferedWriter(new FileWriter(new File(
 			CONSTRAINED_KMER_SCRIPT_DIR.getAbsolutePath() + File.separator + 
 			"runAll.sh")));
 		
-		int fileNum =0;
-		int index = 0;
-		
 		BufferedWriter aWriter = makeNewWriter(allWriter, fileNum);
 		
-		
-		for( int x=0; x < 3985959 - 6000; x = x + 1000)
+		for( FastaSequence fs : list)
 		{
-			aWriter.write("java -cp /users/afodor/gitInstall/clusterstuff/bin "
-					+ "creOrthologs.kmers.ConstrainKMersToRegion "  + 
-					genomePath + " " + contig + " " +  x + " " + (x + 5001)+ "\n");
-				
-			aWriter.flush();
-			index++;
+			String contig = fs.getFirstTokenOfHeader();
+			String seq = fs.getSequence();
+			int length = seq.length();
+			int slice = Math.min(5000, length-1);
 			
-			if( index == 20)
+			for( int x=0; x < Math.max(length-6000, 1); x = x + 1000)
 			{
-				index=0;
-				fileNum++;
+				aWriter.write("java -cp /users/afodor/gitInstall/clusterstuff/bin "
+						+ "creOrthologs.kmers.ConstrainKMersToRegion "  + 
+						genomePath + " " + contig + " " +  x + " " + (x + slice)+ "\n");
+					
+				aWriter.flush();
+				index++;
 				
-				aWriter.flush(); aWriter.close();
-				
-				aWriter = makeNewWriter(allWriter, fileNum);
-				
+				if( index == 25)
+				{
+					index=0;
+					fileNum++;
+					
+					aWriter.flush(); aWriter.close();
+					
+					aWriter = makeNewWriter(allWriter, fileNum);
+					
+				}
 			}
+			
 		}
+		
 		
 		allWriter.flush();  allWriter.close();
 	}
