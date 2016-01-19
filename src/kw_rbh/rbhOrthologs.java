@@ -77,7 +77,7 @@ public class rbhOrthologs implements Runnable {
 					//if(!name[0].equals(name[1])) {//only analyze if not comparing to self
 						HashMap<String, String[]> map1 = getHits(b);
 						HashMap<String, String[]> map2 = getHits(new File(
-								DIR + "blastResults/" + folder2 + "/" + name[1] + "_v_" + name[0] + ".txt"));
+								DIR + "blastResults/" + folder2 + "/" + name[1] + "/" + name[1] + "_v_" + name[0] + ".txt"));
 						List<String> genes = getGenes(name[0]);
 						BufferedWriter out = new BufferedWriter(new FileWriter(new File(
 								DIR + "rbhOrthologs/" + folder1 + "/rbhResults_" + b.getName())));
@@ -142,7 +142,7 @@ public class rbhOrthologs implements Runnable {
 					map.put(key, new String[] {match, score});
 				} else {//key is already in there
 					String prevScore = map.get(key)[1];
-					if(Integer.parseInt(score) > Integer.parseInt(prevScore)) {//replace with better hit
+					if(Double.parseDouble(score) > Double.parseDouble(prevScore)) {//replace with better hit
 						map.put(key, new String[] {match, score});
 					}
 				}
