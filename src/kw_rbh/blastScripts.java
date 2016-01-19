@@ -40,11 +40,11 @@ public class blastScripts {
 						
 						//script for comparisons to all genomes
 						BufferedWriter script = new BufferedWriter(new FileWriter(new File(
-								DIR + "blastScripts/blast_" + gen1)));
+								DIR + "blastScripts/blast_" + gen1 + "_v_" + f2)));
 						script.write("module load blast\n");
 						
 						//add to runAll/larger script
-						compare.write("qsub -q \"viper_batch\" blast_" + gen1 + "\n");
+						compare.write("qsub -q \"viper_batch\" blast_" + gen1 + "_v_" + f2 + "\n");
 						
 						for(File g2 : genomes2) {
 							if(g2.getName().endsWith(".fasta")) {
