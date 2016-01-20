@@ -117,7 +117,7 @@ public class rbhOrthologs implements Runnable {
 		String[] name = genome.split("_");
 		List<String> genes = new ArrayList<String>();
 		BufferedReader br = new BufferedReader(new FileReader(new File(
-				DIR + name[0] + "/" + genome + ".fasta")));
+				DIR + name[0] + "/" + genome + "_allGenes.fasta")));
 		String line = br.readLine();
 		while(line != null) {
 			if(line.startsWith(">")) {
