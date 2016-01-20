@@ -71,16 +71,17 @@ public class rbhOrthologs implements Runnable {
 		File[] list1 = f1.listFiles();
 		for(File f : list1) {
 			File[] blasts = f.listFiles();
+			new File(DIR + "rbhOrthologs/" + folder1 + "/" + f.getName()).mkdirs();
 			for(File b : blasts) {
 				try {
-					String[] name = b.getName().split("_v_");
+					String[] name = b.getName().replace(".txt", "").split("_v_");
 					//if(!name[0].equals(name[1])) {//only analyze if not comparing to self
 						HashMap<String, String[]> map1 = getHits(b);
 						HashMap<String, String[]> map2 = getHits(new File(
 								DIR + "blastResults/" + folder2 + "/" + name[1] + "/" + name[1] + "_v_" + name[0] + ".txt"));
 						List<String> genes = getGenes(name[0]);
 						BufferedWriter out = new BufferedWriter(new FileWriter(new File(
-								DIR + "rbhOrthologs/" + folder1 + "/rbhResults_" + b.getName())));
+								DIR + "rbhOrthologs/" + folder1 + "/" + f.getName() + "/rbhResults_" + b.getName())));
 						out.write("Gene\tortholog\tBitScore1\tBitScore2\n");
 						for(String g : genes) {
 							if(map1.containsKey(g)) {
@@ -105,6 +106,7 @@ public class rbhOrthologs implements Runnable {
 				} catch (IOException e) {
 					System.err.println("ERROR IN: " + folder1);
 					e.printStackTrace();
+					break;
 				}
 			}
 		}
