@@ -92,13 +92,13 @@ public class rbhOrthologs implements Runnable {
 									if(match2[0].equals(g)) {//gene is reciprocal
 										out.write(g + "\t" + g2 + "\t" + match[1] + "\t" + match2[1] + "\n");
 									} else {
-										out.write(g + "NA\t0\t0\n");
+										out.write(g + "\tNA\t0\t0\n");
 									}
 								} else {
-									out.write(g + "NA\t0\t0\n");
+									out.write(g + "\tNA\t0\t0\n");
 								}
 							} else { //gene is not hit it both genomes
-								out.write(g + "NA\t0\t0\n");
+								out.write(g + "\tNA\t0\t0\n");
 							}
 						}
 						out.close();
