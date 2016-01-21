@@ -109,17 +109,18 @@ public class orthologTables implements Runnable{
 				}
 				out.write("\n");
 				keys.add("genomeID");//add back in for comparisons below
-				//System.out.println(prefix + "\t" + k.size() + "\t" + klist.size());
+				//System.out.println(prefix + "\t" + k.size() + "\t" + klist.size() + "\t" + map.containsKey("genomeID"));
 			} else {//check that keys are the same
-				Set<String> test = k;
+				Set<String> test = new HashSet<String>();
+				test.addAll(k);
 				test.removeAll(keys);
 				if(test.size() != 0) {
-					System.err.println("EXTRA IDs in:" + prefix + "/t" + map.get("genomeID"));
+					System.err.println("EXTRA IDs in:" + prefix + "\t" + map.get("genomeID"));
 				}
-				test = keys;
+				test.addAll(keys);
 				test.removeAll(k);
 				if(test.size() != 0) {
-					System.err.println("EXTRA IDs in:" + prefix + "/t" + map.get("genomeID"));
+					System.err.println("EXTRA IDs in:" + prefix + "\t" + map.get("genomeID"));
 				}
 			}
 			//write hits
