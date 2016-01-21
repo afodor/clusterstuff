@@ -14,30 +14,53 @@ import utils.Spearman;
 
 public class CorrelationToPosition
 {
+	public static final int EXPECTED_SIZE = 339;
+	
+	private static List<Double> reduce(List<Double> inList) throws Exception
+	{
+		if( inList.size() != EXPECTED_SIZE * EXPECTED_SIZE)
+			throw new Exception("Unexpected size " + inList.size());
+		
+		List<Double> newList = new ArrayList<Double>();
+		
+		int index=-1;
+		
+		for( int x=0; x < EXPECTED_SIZE; x++)
+			for(int y=0; y < EXPECTED_SIZE; y++)
+			{
+				index++;
+				
+				if( x < y)
+					newList.add(inList.get(index));
+			}
+		
+		return newList;
+	}
+	
 	public static void main(String[] args) throws Exception
 	{
 		List<Double> refList = getAllPositions(GatherDistanceMatrix.GATHERED_DIR + File.separator + 
 						"allDist.txt");
+		refList = reduce(refList);
 		
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
-			"/nobackup/afodor_research/af_broad/initialConstrainedMap.txt"	)));
+			"/nobackup/afodor_research/af_broad/ConstrainedMapAllContigs.txt"	)));
 		
-		writer.write("startPos\tPearson\tSpearman\n");
+		writer.write("contig\tstartPos\tPearson\tSpearman\n");
 		
-		if( refList.size() != 	339 * 339)
-			throw new Exception("Unexpected size " + refList.size());
 		
 		for(String s : GatherDistanceMatrix.GATHERED_DIR.list())
 			if( s.startsWith("klebsiella_pneumoniae_") && s.endsWith("_dist.txt"))
 			{
 				List<Double> otherList = getAllPositions(GatherDistanceMatrix.GATHERED_DIR + 
 						File.separator + s);
+				otherList = reduce(otherList);
 				
 				if( otherList.size() == refList.size())
 				{
 					String[] splits = s.split("_");
 					
-					writer.write(splits[5] + "\t" + 
+					writer.write( splits[4] + "\t" + splits[5] + "\t" + 
 								Pearson.getPearsonR(refList, otherList) + "\t" + 
 										Spearman.getSpearFromDouble(refList, otherList).getRs() + "\n");
 					
