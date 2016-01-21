@@ -1,5 +1,6 @@
 /**
- * For each Broad genome, generate a fasta file of all genes from the gtf file
+ * For each genome, generate a fasta file of all genes from the gtf file
+ * also generate a fasta file for each gene
  */
 package kw_rbh;
 
