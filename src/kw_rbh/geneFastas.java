@@ -92,6 +92,11 @@ public class geneFastas implements Runnable {
 	//takes the given gtf file, determines the gene sequence from scaff 
 	//and writes the result as a fasta in geneDir, using the given name
 	public static void gtfToGene(File gtf, String name, String geneDir, HashMap<String, String> scaff) throws IOException {
+		//set up for writing individual genes
+		String geneFastas = "/nobackup/afodor_research/kwinglee/cre/rbh/geneFastas" + name + "/";
+		new File(geneFastas).mkdirs();
+		
+		//set up for writing all genes
 		BufferedWriter allGenes = new BufferedWriter(new FileWriter(
 				new File(geneDir + name + "_allGenes.fasta")));
 		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(gtf)));
@@ -114,10 +119,10 @@ public class geneFastas implements Runnable {
 				allGenes.write(">" + name + "_" + id + "\n" + seq + "\n");
 				
 				//write as separate fasta file
-				/*BufferedWriter gene = new BufferedWriter(new FileWriter(
-						new File(geneDir + name + "_" + id +".fasta")));
-				gene.write(">" + id + "\n" + seq + "\n");
-				gene.close();*/
+				BufferedWriter gene = new BufferedWriter(new FileWriter(
+						new File(geneFastas + name + "_" + id +".fasta")));
+				gene.write(">" + name + "_" + id + "\n" + seq + "\n");
+				gene.close();
 			}
 			line = br.readLine();
 		}
