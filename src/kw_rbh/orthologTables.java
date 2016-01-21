@@ -8,7 +8,6 @@ package kw_rbh;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -19,22 +18,41 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class orthologTables {
+public class orthologTables implements Runnable{
 	public static String DIR = "/nobackup/afodor_research/kwinglee/cre/rbh/rbhOrthologs/";
+	public static String[] GROUPS = {"carolina", "resistant", "susceptible"};
+	public static String ResultsFile = DIR + "orthologTables/";
 	
-	public static void main(String[] args) throws IOException {
-		String resultsFile = DIR + "orthologTables/";
-		new File(resultsFile).mkdirs();
-		String[] groups = {"carolina", "resistant", "susceptible"};
-		for(String g : groups) {
-			File[] genomes = new File(DIR + g + "_v_" + g).listFiles();
+	private String group;//group for this thread
+	public orthologTables(String g) {
+		group = g;
+	}
+	
+	public static void main(String[] args) throws InterruptedException {
+		new File(ResultsFile).mkdirs();
+		Thread[] allThreads = new Thread[GROUPS.length];
+		for(int i = 0; i < GROUPS.length; i++) {
+			Runnable r = new orthologTables(GROUPS[i]);
+			allThreads[i] = new Thread(r);
+			allThreads[i].start();
+		}
+		
+		//make sure all threads finish
+		for(int i = 0; i < allThreads.length; i++) {
+			allThreads[i].join();
+		}
+	}
+	
+	public void run() {
+		File[] genomes = new File(DIR + group + "_v_" + group).listFiles();
+		try {
 			for(File gen : genomes) {
 				String gen1 = gen.getName();
 				//put all orthologs into list of maps
 				List<Map<String, String>> orthName = new ArrayList<Map<String, String>>();//list of maps of gene to ortholog name
 				List<Map<String, String>> bitScore = new ArrayList<Map<String, String>>();//list of maps of gene to bit score
-				for(String g2 : groups) {
-					File[] comparisons = new File(DIR + g + "_v_" + g2 + "/" + gen1).listFiles();
+				for(String g2 : GROUPS) {
+					File[] comparisons = new File(DIR + group + "_v_" + g2 + "/" + gen1).listFiles();
 					//HashMap<String, String>[] orthName = new HashMap[338];
 					for(File c : comparisons) {
 						String cName = c.getName().replace(".txt", "").split("_v_")[1];
@@ -57,11 +75,13 @@ public class orthologTables {
 					}
 				}
 				//write results (table with ortholog name)
-				printMapList(resultsFile + "orthologNameTable_" + gen1, orthName);
-				
+				printMapList(ResultsFile + "orthologNameTable_" + gen1, orthName);
+
 				//write table with bit score
-				printMapList(resultsFile + "bitScoreTable_" + gen1, bitScore);	
+				printMapList(ResultsFile + "bitScoreTable_" + gen1, bitScore);	
 			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -86,6 +106,7 @@ public class orthologTables {
 					out.write("\t" + gene);
 				}
 				out.write("\n");
+				System.out.println(prefix + "\t" + k.size() + "\t" + klist.size());
 			} else {//check that keys are the same
 				Set<String> test = k;
 				test.removeAll(keys);
