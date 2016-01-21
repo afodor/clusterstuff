@@ -61,7 +61,6 @@ public class orthologTables implements Runnable{
 						Map<String, String> scores = new HashMap<String, String>();
 						names.put("genomeID", cName);
 						scores.put("genomeID", cName);
-						System.out.println("After adding genomeID:" + names.containsKey("genomeID"));
 						BufferedReader br = new BufferedReader(new FileReader(c));
 						String line = br.readLine();//header
 						line = br.readLine();
@@ -97,12 +96,11 @@ public class orthologTables implements Runnable{
 		List<String> klist = null;
 		for(Map<String, String> map : list) {
 			Set<String> k = map.keySet(); 
-			System.out.println("start of for loop:" + map.containsKey("genomeID"));
 			if(keys == null) {
 				keys = new HashSet<String>();
 				keys.addAll(k);
-				k.remove("genomeID");
-				klist = new ArrayList<String>(k);
+				keys.remove("genomeID");//removing from key set removes from map so remove from copied set (need to remove so doesn't get included in list)
+				klist = new ArrayList<String>(keys);
 				Collections.sort(klist);
 				out.write("genomeID");
 				//write header
@@ -110,7 +108,7 @@ public class orthologTables implements Runnable{
 					out.write("\t" + gene);
 				}
 				out.write("\n");
-				System.out.println("after updating keys:" + map.containsKey("genomeID"));
+				keys.add("genomeID");//add back in for comparisons below
 				//System.out.println(prefix + "\t" + k.size() + "\t" + klist.size());
 			} else {//check that keys are the same
 				Set<String> test = k;
@@ -123,7 +121,6 @@ public class orthologTables implements Runnable{
 				if(test.size() != 0) {
 					System.err.println("EXTRA IDs in:" + prefix + "/t" + map.get("genomeID"));
 				}
-				System.out.println("after else:" + map.containsKey("genomeID"));
 			}
 			//write hits
 			out.write(map.get("genomeID"));
