@@ -93,7 +93,7 @@ public class geneFastas implements Runnable {
 	//and writes the result as a fasta in geneDir, using the given name
 	public static void gtfToGene(File gtf, String name, String geneDir, HashMap<String, String> scaff) throws IOException {
 		//set up for writing individual genes
-		String geneFastas = "/nobackup/afodor_research/kwinglee/cre/rbh/geneFastas" + name + "/";
+		String geneFastas = "/nobackup/afodor_research/kwinglee/cre/rbh/geneFastas/" + name + "/";
 		new File(geneFastas).mkdirs();
 		
 		//set up for writing all genes
