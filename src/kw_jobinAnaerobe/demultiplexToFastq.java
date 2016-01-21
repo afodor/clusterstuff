@@ -187,22 +187,42 @@ public class demultiplexToFastq {
 			
 			if(pToSamp.containsKey(key)) {
 				samp = pToSamp.get(key);
-				/*if(samp.equals("183")) {
-					System.out.println("Full sequence:");
-					System.out.println(readF);
-					System.out.println(readR);
-				}*/
+				
+				//get position of primers
+				int fStart = readF.indexOf(P_TO_SEQ.get(pF));
+				if(fStart < 0) {
+					fStart = readF.indexOf(revComp(P_TO_SEQ.get(pF)));
+				}
+				int rStart = readR.indexOf(P_TO_SEQ.get(pR));
+				if(rStart < 0) {
+					rStart = readR.indexOf(revComp(P_TO_SEQ.get(pR)));
+				}
+
 				//only remove primers if not going into other category
+				System.out.println("ReadF before: " + readF);
 				readF = readF.replace(P_TO_SEQ.get(pF), "");
 				readF = readF.replace(revComp(P_TO_SEQ.get(pF)), "");
+				System.out.println("ReadF after: " + readF);
+				System.out.println("ReadR before: " + readR);
 				readR = readR.replace(P_TO_SEQ.get(pR), "");
 				readR = readR.replace(revComp(P_TO_SEQ.get(pR)), "");
-				/*if(samp.equals("183")) {
-					System.out.println("Primers removed:");
-					System.out.println(readF);
-					System.out.println(readR);
-					System.out.println();
-				}*/
+				System.out.println("ReadR after: " + readR);
+								
+				//also trim quality scores
+				System.out.println("QualF before: " + line4F);
+				if(fStart == 0) {//at start of sequence
+					line4F = line4F.substring(P_TO_SEQ.get(pF).length());	
+				} else {//at end of sequence
+					line4F = line4F.substring(0, fStart);
+				}
+				System.out.println("QualF after: " + line4F);
+				System.out.println("QualR before: " + line4R);
+				if(rStart == 0) {
+					line4R = line4R.substring(P_TO_SEQ.get(pR).length());
+				} else {
+					line4R = line4R.substring(0, rStart);
+				}
+				System.out.println("QualR after: " + line4R);
 			}
 			
 			if(numRead % 1000000 == 0) {
