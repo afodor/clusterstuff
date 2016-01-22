@@ -196,9 +196,9 @@ public class demultiplexToFastq {
 				int fStart = readF.indexOf(P_TO_SEQ.get(pF));
 				if(fStart < 0) {//primer not in sequence
 					fStart = readF.indexOf(revComp(P_TO_SEQ.get(pF)));
-					readF = readF.replace(revComp(P_TO_SEQ.get(pF)), "");
+					readF = readF.replaceFirst(revComp(P_TO_SEQ.get(pF)), "");
 				} else {
-					readF = readF.replace(P_TO_SEQ.get(pF), "");					
+					readF = readF.replaceFirst(P_TO_SEQ.get(pF), "");					
 				}
 				//System.out.println("ReadF after: " + readF);
 				//System.out.println("ReadR before: " + readR);
@@ -206,9 +206,9 @@ public class demultiplexToFastq {
 				int rStart = readR.indexOf(P_TO_SEQ.get(pR));
 				if(rStart < 0) {
 					rStart = readR.indexOf(revComp(P_TO_SEQ.get(pR)));
-					readR = readR.replace(revComp(P_TO_SEQ.get(pR)), "");
+					readR = readR.replaceFirst(revComp(P_TO_SEQ.get(pR)), "");
 				} else {
-					readR = readR.replace(P_TO_SEQ.get(pR), "");					
+					readR = readR.replaceFirst(P_TO_SEQ.get(pR), "");					
 				}
 				//System.out.println("ReadR after: " + readR);
 								
