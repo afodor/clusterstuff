@@ -19,11 +19,14 @@ public class orthologLists {
 	public static String DIR = "/nobackup/afodor_research/kwinglee/cre/rbh/rbhOrthologs/";
 
 	public static void main(String[] args) throws IOException {
+		BufferedWriter log = new BufferedWriter(new FileWriter(new File(DIR + "orthologListLog")));
 		File[] tables = new File(DIR + "orthologTables").listFiles();
 		List<Set<String>> intersect = new ArrayList<Set<String>>();//intersection of everything
 		List<Set<String>> union = new ArrayList<Set<String>>();//once an intersection is found, union is everything in that set so that don't later add sets that were already removed
 		for(File t : tables) {
 			if(t.getName().startsWith("orthologNameTable_")) {
+				log.write(t.getName());
+				log.flush();
 				List<Set<String>> tab = tableToSet(t);
 				//add sets to current lists
 				for(int i = 0; i < tab.size(); i++) {
@@ -50,6 +53,8 @@ public class orthologLists {
 				}
 			}
 		}
+		log.write("writing...");
+		log.flush();
 		//write lists and fastas for orthogroups
 		String fastaDir = DIR + "orthogroupFastas/";
 		new File(fastaDir).mkdirs();
@@ -87,7 +92,7 @@ public class orthologLists {
 			}
 		}
 		out.close();
-		
+		log.close();
 	}
 
 	/*
