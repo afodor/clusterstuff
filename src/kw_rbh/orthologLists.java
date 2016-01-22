@@ -25,7 +25,7 @@ public class orthologLists {
 		List<Set<String>> union = new ArrayList<Set<String>>();//once an intersection is found, union is everything in that set so that don't later add sets that were already removed
 		for(File t : tables) {
 			if(t.getName().startsWith("orthologNameTable_")) {
-				log.write(t.getName());
+				log.write(t.getName() + "\n");
 				log.flush();
 				List<Set<String>> tab = tableToSet(t);
 				//add sets to current lists
@@ -53,7 +53,7 @@ public class orthologLists {
 				}
 			}
 		}
-		log.write("writing...");
+		log.write("writing...\n");
 		log.flush();
 		//write lists and fastas for orthogroups
 		String fastaDir = DIR + "orthogroupFastas/";

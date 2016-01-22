@@ -187,27 +187,29 @@ public class demultiplexToFastq {
 			
 			if(pToSamp.containsKey(key)) {
 				samp = pToSamp.get(key);
-				
-				//get position of primers
-				int fStart = readF.indexOf(P_TO_SEQ.get(pF));
-				if(fStart < 0) {
-					fStart = readF.indexOf(revComp(P_TO_SEQ.get(pF)));
-				}
-				int rStart = readR.indexOf(P_TO_SEQ.get(pR));
-				if(rStart < 0) {
-					rStart = readR.indexOf(revComp(P_TO_SEQ.get(pR)));
-				}
 
 				//only remove primers if not going into other category
+				
+				//get position of primers and remove primers
 				//System.out.println("ReadF before: " + readF);
-				String beforeF = readF;
-				readF = readF.replace(P_TO_SEQ.get(pF), "");
-				readF = readF.replace(revComp(P_TO_SEQ.get(pF)), "");
+				String beforeF = readF;				
+				int fStart = readF.indexOf(P_TO_SEQ.get(pF));
+				if(fStart < 0) {//primer not in sequence
+					fStart = readF.indexOf(revComp(P_TO_SEQ.get(pF)));
+					readF = readF.replace(revComp(P_TO_SEQ.get(pF)), "");
+				} else {
+					readF = readF.replace(P_TO_SEQ.get(pF), "");					
+				}
 				//System.out.println("ReadF after: " + readF);
 				//System.out.println("ReadR before: " + readR);
 				String beforeR = readR;
-				readR = readR.replace(P_TO_SEQ.get(pR), "");
-				readR = readR.replace(revComp(P_TO_SEQ.get(pR)), "");
+				int rStart = readR.indexOf(P_TO_SEQ.get(pR));
+				if(rStart < 0) {
+					rStart = readR.indexOf(revComp(P_TO_SEQ.get(pR)));
+					readR = readR.replace(revComp(P_TO_SEQ.get(pR)), "");
+				} else {
+					readR = readR.replace(P_TO_SEQ.get(pR), "");					
+				}
 				//System.out.println("ReadR after: " + readR);
 								
 				//also trim quality scores
@@ -240,6 +242,7 @@ public class demultiplexToFastq {
 					System.out.println("R read after: " + readR.length() + "\t" + readR);
 					System.out.println("R qual before: " + beforeQR.length() + "\t" + beforeQR);
 					System.out.println("R qual after: " + line4R.length() + "\t" + line4R);
+					System.out.println("R primer: " + P_TO_SEQ.get(pR).length() + "\t" + P_TO_SEQ.get(pR));
 				}
 			}
 			
