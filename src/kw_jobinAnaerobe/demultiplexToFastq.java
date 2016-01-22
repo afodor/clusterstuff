@@ -202,11 +202,11 @@ public class demultiplexToFastq {
 				System.out.println("ReadF before: " + readF);
 				readF = readF.replace(P_TO_SEQ.get(pF), "");
 				readF = readF.replace(revComp(P_TO_SEQ.get(pF)), "");
-				//System.out.println("ReadF after: " + readF);
-				//System.out.println("ReadR before: " + readR);
+				System.out.println("ReadF after: " + readF);
+				System.out.println("ReadR before: " + readR);
 				readR = readR.replace(P_TO_SEQ.get(pR), "");
 				readR = readR.replace(revComp(P_TO_SEQ.get(pR)), "");
-				//System.out.println("ReadR after: " + readR);
+				System.out.println("ReadR after: " + readR);
 								
 				//also trim quality scores
 				//System.out.println("QualF before: " + line4F);
@@ -215,14 +215,20 @@ public class demultiplexToFastq {
 				} else {//at end of sequence
 					line4F = line4F.substring(0, fStart);
 				}
-				//System.out.println("QualF after: " + line4F);
-				//System.out.println("QualR before: " + line4R);
+				System.out.println("QualF after: " + line4F);
+				if(readF.length() != line4F.length()) {
+					System.out.println("unequal length F: " + fStart);
+				}
+				System.out.println("QualR before: " + line4R);
 				if(rStart == 0) {
 					line4R = line4R.substring(P_TO_SEQ.get(pR).length());
 				} else {
 					line4R = line4R.substring(0, rStart);
 				}
-				//System.out.println("QualR after: " + line4R);
+				System.out.println("QualR after: " + line4R);
+				if(readR.length() != line4R.length()) {
+					System.out.println("unequal length R: " + rStart);
+				}
 			}
 			
 			if(numRead % 1000000 == 0) {
