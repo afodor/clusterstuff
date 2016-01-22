@@ -199,35 +199,47 @@ public class demultiplexToFastq {
 				}
 
 				//only remove primers if not going into other category
-				System.out.println("ReadF before: " + readF);
+				//System.out.println("ReadF before: " + readF);
+				String beforeF = readF;
 				readF = readF.replace(P_TO_SEQ.get(pF), "");
 				readF = readF.replace(revComp(P_TO_SEQ.get(pF)), "");
-				System.out.println("ReadF after: " + readF);
-				System.out.println("ReadR before: " + readR);
+				//System.out.println("ReadF after: " + readF);
+				//System.out.println("ReadR before: " + readR);
+				String beforeR = readR;
 				readR = readR.replace(P_TO_SEQ.get(pR), "");
 				readR = readR.replace(revComp(P_TO_SEQ.get(pR)), "");
-				System.out.println("ReadR after: " + readR);
+				//System.out.println("ReadR after: " + readR);
 								
 				//also trim quality scores
 				//System.out.println("QualF before: " + line4F);
+				String beforeQF = line4F;
 				if(fStart == 0) {//at start of sequence
 					line4F = line4F.substring(P_TO_SEQ.get(pF).length());	
 				} else {//at end of sequence
 					line4F = line4F.substring(0, fStart);
 				}
-				System.out.println("QualF after: " + line4F);
+				//System.out.println("QualF after: " + line4F);
 				if(readF.length() != line4F.length()) {
 					System.out.println("unequal length F: " + fStart);
+					System.out.println("F read before: " + beforeF.length() + "\t" + beforeF);
+					System.out.println("F read after: " + readF.length() + "\t" + readF);
+					System.out.println("F qual before: " + beforeQF.length() + "\t" + beforeQF);
+					System.out.println("F qual after: " + line4F.length() + "\t" + line4F);
 				}
-				System.out.println("QualR before: " + line4R);
+				//System.out.println("QualR before: " + line4R);
+				String beforeQR = line4R;
 				if(rStart == 0) {
 					line4R = line4R.substring(P_TO_SEQ.get(pR).length());
 				} else {
 					line4R = line4R.substring(0, rStart);
 				}
-				System.out.println("QualR after: " + line4R);
+				//System.out.println("QualR after: " + line4R);
 				if(readR.length() != line4R.length()) {
 					System.out.println("unequal length R: " + rStart);
+					System.out.println("R read before: " + beforeR.length() + "\t" + beforeR);
+					System.out.println("R read after: " + readR.length() + "\t" + readR);
+					System.out.println("R qual before: " + beforeQR.length() + "\t" + beforeQR);
+					System.out.println("R qual after: " + line4R.length() + "\t" + line4R);
 				}
 			}
 			
