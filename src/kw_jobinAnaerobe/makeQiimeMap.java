@@ -17,8 +17,8 @@ public class makeQiimeMap {
 		out.write("#SampleID\tBarcodeSequence\tLinkerPrimerSequence\tInputFileName\tDescription\n");
 		for(File f : fastas) {
 			String name = f.getName();
-			if(name.endsWith("join.fastq")) {
-				String id = name.replaceAll("join.fastq", "").replaceAll("anaerobe_", "");
+			if(name.endsWith("join.fasta")) {
+				String id = name.replaceAll("join.fasta", "").replaceAll("anaerobe_", "");
 				out.write(id + "\tX\tX\t" + name + "\n");
 			}
 		}
