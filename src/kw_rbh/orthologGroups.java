@@ -20,6 +20,7 @@ import java.util.Set;
 
 public class orthologGroups {
 	public static String DIR = "/nobackup/afodor_research/kwinglee/cre/rbh/rbhOrthologs/";
+	public static int MIN = 5;//minimum numbers of members in set to keep orthogroup
 
 	public static void main(String[] args) throws IOException {
 		BufferedWriter log = new BufferedWriter(new FileWriter(new File("/nobackup/afodor_research/kwinglee/cre/rbh/orthologGroupLog")));//log to track progress
@@ -38,6 +39,8 @@ public class orthologGroups {
 		}
 		
 		//for each table, look at each set: for each member, get intersection of that member with its set in other tables
+		String intDir = DIR + "orthogroupTablesByGenome/";//where to write these intermediate results
+		new File(intDir).mkdirs();
 		List<List<Set<String>>> orthogroupLists = new ArrayList<List<Set<String>>>();//list of list of orthogroups
 		for(String genome : genomeToOrth.keySet()) {
 			log.write("Looking at sets for " + genome + "\n");
@@ -58,16 +61,29 @@ public class orthologGroups {
 						Set<String> set2 = map2.get(gene2);
 						orth.retainAll(set2);
 					}
-					if(!orth.isEmpty()) {
+					if(!orth.isEmpty() && orth.size() > MIN) {
 						orthogroups.add(orth);
 					}
-					log.write("  number orthogroups: " + orth.size() + "\n");
-					log.flush();
 				}
 			}
-			
+			log.write("  number orthogroups: " + orthogroups.size() + "\n");
+			log.flush();
 			orthogroupLists.add(orthogroups);
+			
+			//write intermediate tables
+			BufferedWriter out = new BufferedWriter(new FileWriter(new File(intDir + "orthogroups_" +  genome + ".txt")));
+			for(Set<String> set : orthogroups) {
+				for(String gene : set) {
+					out.write(gene + ";");
+				}
+				out.write("\n");
+			}
+			out.close();			
 		}
+		
+		//try to clear memory
+		genomeToOrth = null;
+		//System.gc();
 		
 		//merge
 		List<Set<String>> orthogroups = new ArrayList<Set<String>>();
@@ -109,7 +125,7 @@ public class orthologGroups {
 		out.write("orthogroupNumber\tnumberOfGenes\tgeneList\n");//header
 		for(int i = 0; i < orthogroups.size(); i++) {
 			Set<String> set = orthogroups.get(i);
-			if(!set.isEmpty()) {
+			if(!set.isEmpty() && set.size() > MIN) {
 				//write list
 				out.write("orthogroup" + i + "\t" + set.size() + "\t");
 				for(String s : set) {
