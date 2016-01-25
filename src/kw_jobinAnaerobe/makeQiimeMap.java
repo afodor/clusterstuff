@@ -13,7 +13,7 @@ public class makeQiimeMap {
 	
 	public static void main(String[] args) throws IOException {
 		File[] fastas = new File(DIR + "join").listFiles();
-		BufferedWriter out = new BufferedWriter(new FileWriter(new File("DIR" + "qiimeMap.txt")));
+		BufferedWriter out = new BufferedWriter(new FileWriter(new File(DIR + "qiimeMap.txt")));
 		out.write("#SampleID\tBarcodeSequence\tLinkerPrimerSequence\tInputFileName\tDescription\n");
 		for(File f : fastas) {
 			String name = f.getName();
