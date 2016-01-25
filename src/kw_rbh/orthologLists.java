@@ -36,7 +36,7 @@ public class orthologLists {
 						Set<String> temp = new HashSet<String>();
 						temp.addAll(union.get(j));
 						temp.retainAll(tab.get(i));//union
-						if(!temp.isEmpty()) {//if union > 0 add to union and update intersection
+						if(!temp.isEmpty()) {//if intersection > 0, add to union and update intersection
 							union.get(j).addAll(tab.get(i));
 							intersect.get(j).retainAll(tab.get(i));
 							
