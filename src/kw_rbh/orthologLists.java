@@ -1,6 +1,7 @@
 /**
  * from the ortholog tables, generate list of orthogroups, basing membership of set intersection
  * also generate fasta file for each orthogroup
+ * very slow to run
  */
 package kw_rbh;
 
