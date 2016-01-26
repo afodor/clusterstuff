@@ -21,7 +21,7 @@ public class GenomePositions {
 	public static void main(String[] args) throws IOException {
 		//get table of gene positions
 		BufferedReader gtf = new BufferedReader(new FileReader(new File(
-				GenomeDir+Genome+".genes.gtf")));
+				GenomeDir + Group + "/" + Genome + ".genes.gtf")));
 		BufferedWriter out = new BufferedWriter(new FileWriter(new File(
 				OutDir + Group + "_" + Genome + "_genePositions.txt")));
 		out.write("geneID\tscaffold\tgeneStart\tgeneStop\n");
@@ -42,7 +42,7 @@ public class GenomePositions {
 		
 		//get scaffold sizes
 		BufferedReader fasta = new BufferedReader(new FileReader(new File(
-				GenomeDir + Genome + ".scaffolds.fasta")));
+				GenomeDir + Group + "/" + Genome + ".scaffolds.fasta")));
 		out = new BufferedWriter(new FileWriter(new File(
 				OutDir + Group + "_" + Genome + "_scaffoldSizes.txt")));
 		out.write("scaffold\tlength\n");
