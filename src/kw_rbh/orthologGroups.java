@@ -56,7 +56,13 @@ public class orthologGroups {
 					orth.addAll(geneSet);				
 					//get intersection of each member
 					for(String gene2 : geneSet) {
-						String genome2 = gene2.replaceFirst("_.*_.*$", "");
+						//String genome2 = gene2.replaceFirst("_[A-Z]*[0-9]*_[0-9]*$", "");//works on carolina, haven't checked other groups
+						String[] sp = gene2.split("_");
+						String genome2 = "";
+						for(int i = 0; i < sp.length-2; i++) {
+							genome2 += sp[i] + "_";
+						}
+						genome2 = genome2.replaceFirst("_$", "");
 						HashMap<String, Set<String>> map2 = genomeToOrth.get(genome2);
 						Set<String> set2 = map2.get(gene2);
 						orth.retainAll(set2);
