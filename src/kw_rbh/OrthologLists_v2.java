@@ -64,7 +64,7 @@ public class OrthologLists_v2 {
 		String fastaDir = DIR + "orthogroupFastas/";
 		new File(fastaDir).mkdirs();
 		BufferedWriter out = new BufferedWriter(new FileWriter(new File(
-				DIR + "orthogroupList.txt")));
+				DIR + "orthogroupList_v2.txt")));
 		out.write("orthogroupNumber\tnumberOfGenes\tgeneList\n");//header
 		for(int i = 0; i < intersect.size(); i++) {
 			Set<String> set = intersect.get(i);
@@ -78,7 +78,7 @@ public class OrthologLists_v2 {
 				
 				//write fastas
 				BufferedWriter fasta = new BufferedWriter(new FileWriter(new File(
-						fastaDir + "orthogroup" + i + ".fasta")));
+						fastaDir + "orthogroup" + i + "_v2.fasta")));
 				for(String s : set) {
 					String genome = s.replaceFirst("_.*_.*$", "");//genome name is everything except the last two strings when separating on _
 					
