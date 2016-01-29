@@ -18,7 +18,7 @@ public class joinReadsScripts {
 		BufferedWriter allScript = new BufferedWriter(new FileWriter(new File(
 				scriptDir + "joinAll.sh")));
 		for(File f : fastqs) {
-			if(f.getName().endsWith("_R1.fastq")) {
+			if(f.getName().endsWith("_R1.fastq") && !f.getName().contains("other")) {
 				String sampleID = f.getName().split("_")[0];
 				String scriptName = "join_" + sampleID;
 				
