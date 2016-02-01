@@ -1,0 +1,118 @@
+##draw graphs of rbh p-value results
+##per Anthony's suggestion, have sign of p-value reflect which group is higher
+##1/29/16
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\rbh")
+
+##p-value comparisons
+pVal = read.table("chs11_rbh_pvalues.txt", sep="\t", header=T, colClasses=c("character", rep("numeric", 6)))
+pVal$car_v_res = log10(pVal$car_v_res)
+pVal$car_v_res[pVal$aveCar > pVal$aveRes] = -1 * pVal$car_v_res[pVal$aveCar > pVal$aveRes]
+pVal$car_v_sus = log10(pVal$car_v_sus)
+pVal$car_v_sus[pVal$aveCar > pVal$aveSus] = -1 * pVal$car_v_sus[pVal$aveCar > pVal$aveSus]
+pVal$res_v_sus = log10(pVal$res_v_sus)
+pVal$res_v_sus[pVal$aveRes > pVal$aveSus] = -1 * pVal$res_v_sus[pVal$aveRes > pVal$aveSus]
+# pVal[pVal$car_v_res < 0 & !is.na(pVal$car_v_res),]
+jpeg("chs11_rbh_pValueComparisons.jpg", height=600, width=1800, res=150)
+par(mfrow=c(1, 3), mar=c(5.1, 5.1, 2, 2))
+plot(x=pVal$car_v_res, y=pVal$car_v_sus, 
+     xlab="Carolina vs. Resistant log10 p-values\n(negative if Carolina is lower)", 
+     ylab="Carolina vs. Suseptible log10 p-value\n(negative if Carolina is lower)", pch=16)
+plot(x=pVal$car_v_res, y=pVal$res_v_sus, 
+     xlab="Carolina vs. Resistant log10 p-values\n(negative if Carolina is lower)", 
+     ylab="Resistant vs. Suseptible log10 p-values\n(negative if resistant is lower)", pch=16)
+plot(x=pVal$car_v_sus, y=pVal$res_v_sus, 
+     xlab="Carolina vs. Suseptible log10 p-values\n(negative if Carolina is lower)", 
+     ylab="Resistant vs. Suseptible log10 p-values\n(negative if resistant is lower)", pch=16)
+dev.off()
+
+
+##p-values against scaffolds
+#read scaffold as character
+scaff = read.table("carolina_klebsiella_pneumoniae_chs_11.0_scaffoldSizes.txt", 
+                   header=T, sep="\t", colClasses=c("character", "numeric"))
+genes = read.table("carolina_klebsiella_pneumoniae_chs_11.0_genePositions.txt", 
+                   header=T, sep="\t", colClasses=c("character", "character", "numeric", "numeric"))
+mrg = merge(pVal, genes, by="geneID")
+minP = min(mrg[,2:4], na.rm = T)
+maxP = max(mrg[,2:4], na.rm=T)
+jpeg("chs11_rbh_scaffolds_pvalues.jpg", height=900, width=1800, res=150)
+par(mfrow=c(2, 4), oma=c(2, .1, .1, .1)) #8 scaffolds
+#for(s in scaff$scaffold) {
+for(i in 1:nrow(scaff)) {
+  tab = mrg[mrg$scaffold==scaff$scaffold[i],]
+  plot(0, type="n", xlim=c(0, scaff$length[i]), ylim=c(minP, maxP),
+       xlab="gene start on scaffold", ylab="log10 p-value",
+       main=paste("Scaffold", scaff$scaffold[i]))
+  points(x=tab$geneStart, y=tab$res_v_sus, pch=20, col="gold")
+  points(x=tab$geneStart, y=tab$car_v_sus, pch=20, col="red")
+  points(x=tab$geneStart, y=tab$car_v_res, pch=20, col="blue")
+}
+par(fig=c(0,1,0,1), oma=c(0,0,0,0), mar=c(0,0,0,0), new=T)
+plot(0, type="n", bty="n", xaxt="n", yaxt="n")
+legend("bottom", pch=20, xpd=T, horiz=T,
+       c("carolina vs. resistant", "carolina vs. susceptible", "resistant vs. susceptible"),
+       col = c("blue", "red", "gold"))
+dev.off()
+
+##average bit scores against scaffolds
+minBit = min(mrg[,5:7], na.rm = T)
+maxBit = max(mrg[,5:7], na.rm=T)
+jpeg("chs11_rbh_scaffolds_bitScores.jpg", height=900, width=1800, res=150)
+par(mfrow=c(2, 4), oma=c(2, .1, .1, .1)) #8 scaffolds
+#for(s in scaff$scaffold) {
+for(i in 1:nrow(scaff)) {
+  tab = mrg[mrg$scaffold==scaff$scaffold[i],]
+  plot(0, type="n", xlim=c(0, scaff$length[i]), ylim=c(minBit, maxBit),
+       xlab="gene start on scaffold", ylab="average bit score",
+       main=paste("Scaffold", scaff$scaffold[i]))
+  points(x=tab$geneStart, y=tab$aveSus, pch=20, col="gold")
+  points(x=tab$geneStart, y=tab$aveRes, pch=20, col="red")
+  points(x=tab$geneStart, y=tab$aveCar, pch=20, col="blue")
+}
+par(fig=c(0,1,0,1), oma=c(0,0,0,0), mar=c(0,0,0,0), new=T)
+plot(0, type="n", bty="n", xaxt="n", yaxt="n")
+legend("bottom", pch=20, xpd=T, horiz=T,
+       c("Carolina", "Resistant", "Susceptible"),
+       col = c("blue", "red", "gold"))
+dev.off()
+
+##overlay Anthony data on p-values for larger scaffolds
+smallScaff = scaff[scaff$length > 15000,]
+kmer = read.table("ConstrainedMapAllContigs_af_kmer.txt", header=T, sep="\t", 
+                  colClasses=c("character", rep("numeric", 3)))
+mrg$car_v_res = -(mrg$car_v_res) #few negatives, so invert to better line up with Anthony data
+mrg$car_v_sus = -(mrg$car_v_sus)
+mrg$res_v_sus = -(mrg$res_v_sus)
+minP = min(mrg[,2:4], na.rm = T)
+maxP = max(mrg[,2:4], na.rm=T)
+minK = min(kmer$Spearman)
+maxK = max(kmer$Spearman)
+jpeg("chs11_rbh_scaffolds_pvalues_v_kmerSpearman.jpg", height=900, width=1800, res=150)
+par(mfrow=c(2, 2), oma=c(2, .1, .1, .1), mar=c(4, 4.5, 4, 4.5)) #8 scaffolds
+for(i in 1:nrow(smallScaff)) {
+  tab = mrg[mrg$scaffold==smallScaff$scaffold[i],]
+  ##p-value plots
+  plot(0, type="n", xlim=c(0, smallScaff$length[i]), ylim=c(minP, maxP),
+       xlab="gene start on scaffold", ylab="log10 p-value",
+       main=paste("Scaffold", scaff$scaffold[i]))
+  points(x=tab$geneStart, y=tab$res_v_sus, pch=20, col="gold")
+  points(x=tab$geneStart, y=tab$car_v_sus, pch=20, col="red")
+  points(x=tab$geneStart, y=tab$car_v_res, pch=20, col="blue")
+  
+  ##kmer spearman
+  tab2 = kmer[kmer$contig==smallScaff$scaffold[i],]
+  par(new = TRUE)
+  plot(x=tab2$startPos, y=tab2$Spearman, pch=20, col="black", 
+       xlim=c(0, smallScaff$length[i]), ylim=c(minK, 1),
+       xaxt="n", yaxt="n", ylab="", xlab="")
+  axis(side=4, at=pretty(c(minK, 1)))
+  mtext("k-mer Spearman Correlation", side=4, line=2, cex=.8)
+  par(new = FALSE)
+}
+par(fig=c(0,1,0,1), oma=c(0,0,0,0), mar=c(0,0,0,0), new=T)
+plot(0, type="n", bty="n", xaxt="n", yaxt="n")
+legend("bottom", pch=20, xpd=T, horiz=T,
+       c("carolina vs. resistant", "carolina vs. susceptible", "resistant vs. susceptible", "k-mer Spearman"),
+       col = c("blue", "red", "gold", "black"))
+dev.off()

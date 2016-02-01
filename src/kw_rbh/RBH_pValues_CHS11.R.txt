@@ -1,0 +1,47 @@
+##generate p-values from Student's t-test for each CHS11 gene
+##1/26/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\rbh")
+
+bitScore = read.table("bitScoreTable_carolina_klebsiella_pneumoniae_chs_11.0.txt", header=T, sep="\t", colClasses=c("character", rep("numeric", 5335)))
+
+car = bitScore[grepl("carolina", bitScore$genomeID),]
+res = bitScore[grepl("resistant", bitScore$genomeID),]
+sus = bitScore[grepl("susceptible", bitScore$genomeID),]
+
+aveCar = colMeans(car[,-1])
+aveRes = colMeans(res[,-1])
+aveSus = colMeans(sus[,-1])
+
+# group = rep(NA, nrow(bitScore))
+# group[grepl("carolina", bitScore$genomeID)] = "carolina"
+# group[grepl("resistant", bitScore$genomeID)] = "resistant"
+# group[grepl("susceptible", bitScore$genomeID)] = "susceptible"
+# 
+# table = data.frame(group, bitScore[,-1], stringsAsFactors=F)
+
+
+##carolina vs. resistant
+#t.test(x=car[,2], y=res[,2], paired=F, alternative="two.sided")$p.value
+# t.test(carolina_klebsiella_pneumoniae_chs_11.0_AE67_00001~group, table[!grepl("susceptible", table$group),])
+car_v_res = rep(NA, ncol(bitScore)-1)
+for(i in seq(2, ncol(bitScore))) {
+  car_v_res[i-1] = t.test(x=car[,i], y=res[,i], paired=F, alternative="two.sided")$p.value
+}
+
+##carolina vs. susceptible
+car_v_sus = rep(NA, ncol(bitScore)-1)
+for(i in seq(2, ncol(bitScore))) {
+  car_v_sus[i-1] = t.test(x=car[,i], y=sus[,i], paired=F, alternative="two.sided")$p.value
+}
+
+##resistant vs. susceptible
+res_v_sus = rep(NA, ncol(bitScore)-1)
+for(i in seq(2, ncol(bitScore))) {
+  res_v_sus[i-1] = t.test(x=res[,i], y=sus[,i], paired=F, alternative="two.sided")$p.value
+}
+
+results = data.frame(geneID = names(bitScore)[-1], car_v_res, car_v_sus, res_v_sus, aveCar, aveRes, aveSus)
+
+write.table(results, "chs11_rbh_pvalues.txt", sep="\t", row.names=F, col.names=T, quote=F)
