@@ -1,0 +1,41 @@
+##take all biofilm qiime de novo data
+##remove chimeras
+##transpose
+##split by experiment
+##2/2/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\qiimeDeNovo")
+
+table = read.table("biofilm_de_novo_otu.txt", sep="\t", skip=1, comment.char="", stringsAsFactors = T, header=T)
+
+##move taxonomy
+tab = cbind(sampleID=table$X.OTU.ID, taxonomy=table$taxonomy, table[,-c(1, 207)])
+colSums(tab[,-(1:2)])
+
+##filter chimeras
+chim = read.table("chimeric_seqs.txt", sep="\t", header=F, colClasses="character")
+rem = tab$sampleID %in% chim$V1
+tab = tab[!rem,]
+
+##transpose
+write.table(t(tab), "biofilm_de_novo_otu_taxaAsCol.txt", row.names=T, col.names=F, quote=F, sep="\t")
+
+##split by experiment
+controls = c(17, 34, 51, 68:70, 87:89, 106, 123:125, 181, 182, 204, 205) #list of controls
+inoc = c(18, 27, 39, 77, 91, 113, 119) #list of inoculum
+table = read.table("biofilm_de_novo_otu_taxaAsCol.txt", header=T, sep="\t", skip=1, stringsAsFactors = F)
+names(table)[1] = "sampleID"
+
+##remove Xs from sampleID
+table$sampleID = as.numeric(sub("X", "", table$sampleID))
+
+##stool (remove controls)
+stool = table[table$sampleID<123 & !(table$sampleID %in% controls) & !(table$sampleID %in% inoc),]
+write.table(stool, "stool_qiimeDeNovo_taxaAsCol.txt", sep="\t", quote=F, row.names=F, col.names=T)
+##DC
+dc = table[table$sampleID>125 & table$sampleID<181,]
+write.table(dc, "DC_qiimeDeNovo_taxaAsCol.txt", sep="\t", quote=F, row.names=F, col.names=T)
+##inoculum
+inoculum = table[table$sampleID %in% inoc,]
+write.table(inoculum, "inoculum_qiimeDeNovo_taxaAsCol.txt", sep="\t", quote=F, row.names=F, col.names=T)

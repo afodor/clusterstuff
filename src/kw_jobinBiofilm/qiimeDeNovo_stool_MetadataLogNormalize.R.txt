@@ -1,0 +1,55 @@
+##For stool samples, qiime de novo
+##add metadata, including # reads per sample
+##remove sample 114
+##all genotypes
+##combine BF+1#1&2 into one group (BF+T)
+##remove BF+T#3
+##week 1 & 12 timepoints only
+##log normalize
+##2/2/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\qiimeDeNovo")
+
+##metadata
+metadata = read.table("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\StoolMetadata.txt", sep="\t", header=T, comment.char="", na.strings=c("NA", "N/A"), 
+                      colClasses=c("numeric", rep("character", 3), "numeric", rep("character", 9)))
+names(metadata)[1] = "sampleID"
+
+##table
+table = read.table("stool_qiimeDeNovo_taxaAsCol.txt", sep="\t", header=T, colClasses=rep("numeric", 10894))
+nc = ncol(table)
+
+##add # reads per sample; reorganize so sampleID is first
+n = rowSums(table[,2:nc]) #total number reads in each sample
+table = cbind(sampleID=table$sampleID, numReads=n, table[,2:nc])
+
+##add metadata
+tab = merge(metadata, table, by="sampleID")
+
+##sample 114 was with controls; only has 22 reads mapped -> remove
+tab = tab[tab$numReads>50,]
+
+##remove BF+T#3
+tab = tab[tab$Group..Associated.with.!="BF+T #3",]
+
+##combine BF+1#1&2 into one group (BF+T); update cage so still BF+T still has unique cages
+tab$Cage.Number = paste(tab$Group..Associated.with., tab$Cage.Number, sep=":")
+tab$Group..Associated.with.[grepl("#", tab$Group..Associated.with.)] = "BF+T"
+
+##week 1 & 12 timepoints only
+tab = tab[tab$Timepoint..weeks.==1 | tab$Timepoint..weeks.==12,]
+
+tab$Genotype[!grepl("IL10", tab$Genotype)] = "ApcMin" #some are Apcmin, make uniform
+
+##log normalize and write table
+lognorm = tab
+n = rowSums(tab[,16:nc]) #number of reads in each sample
+sumX = sum(n) #total number of reads in all samples = sum(table[,4:nc])
+N = nrow(tab) #total number of samples
+for(col in 16:nc) {
+  for(row in 1:N) {
+    lognorm[row, col] = log10(tab[row, col]/n[row] * sumX/N + 1)
+  }
+}
+write.table(lognorm, "stool_qiimeDeNovo_taxaAsCol_logNorm.txt", sep="\t", row.names=F, col.names=T, quote=F)
