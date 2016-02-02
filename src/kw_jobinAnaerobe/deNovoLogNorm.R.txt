@@ -1,0 +1,78 @@
+##remove chimeras andlog normalize QIIME de novo OTU data and add metadata
+##1/29/2016
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\C jejuni anaerobe v aerobe\\qiimeDeNovo")
+
+table = read.table("anaerobe_de_novo_otu.txt", sep="\t", header=T, skip=1, comment.char="", stringsAsFactors=F)
+
+##move taxonomy
+tab = cbind(sampleID=table$X.OTU.ID, taxonomy=table$taxonomy, table[,-c(1, 51)])
+colSums(tab[,-(1:2)])
+
+##filter chimeras
+chim = read.table("chimeric_seqs.txt", sep="\t", header=F, colClasses="character")
+rem = tab$sampleID %in% chim$V1
+check = tab[rem,]
+sums = rowSums(check[, -(1:2)])
+max = max(sums)
+check$sampleID[which(sums == max)] #denovo2738 is only in 5 samples
+tab = tab[!rem,]
+
+##transpose
+write.table(t(tab), "anaerobe_de_novo_otu_taxaAsCol.txt", row.names=T, col.names=F, quote=F, sep="\t")
+
+##re-read
+# table = read.table("anaerobe_de_novo_otu_taxaAsCol.txt", header=T, sep="\t", skip=1, colClasses=c("character", rep("numeric", 5506))) #if don't remove chimeric seqs
+table = read.table("anaerobe_de_novo_otu_taxaAsCol.txt", header=T, sep="\t", skip=1, colClasses=c("character", rep("numeric", 5157)))
+names(table)[1] = "sampleID"
+
+##get metadata
+##metadata
+metadata = read.table("..\\AnaerobeMetadata.txt", sep="\t", header=T, comment.char="", colClasses="character")
+names(metadata)[1] = "sampleID"
+
+##remove controls
+table = table[table$sampleID != "c1" & table$sampleID != "c2" & table$sampleID != "nc101" & table$sampleID != "h2o",]
+
+##add # reads per sample; reorganize so sampleID is first
+n = rowSums(table[,2:ncol(table)]) #total number reads in each sample
+table = cbind(sampleID=table$sampleID, numReads=n, table[,2:ncol(table)])
+
+##remove Xs from sampleID
+table$sampleID = sub("X", "", table$sampleID)
+
+##add metadata
+tab = merge(metadata, table, by="sampleID")
+
+##log normalize and write table
+lognorm = tab
+nc = ncol(lognorm)
+start = 13 #first taxa after metadata
+n = rowSums(tab[,start:nc]) #number of reads in each sample
+sumX = sum(n) #total number of reads in all samples = sum(table[,4:nc])
+N = nrow(tab) #total number of samples
+for(col in start:nc) {
+  for(row in 1:N) {
+    lognorm[row, col] = log10(tab[row, col]/n[row] * sumX/N + 1)
+  }
+}
+write.table(lognorm, "anaerobe_de_novo_otu_taxaAsCol_logNorm.txt", sep="\t", row.names=F, col.names=T, quote=F)
+
+##subset to group 3 and 4, day 26 only
+tab = tab[tab$Group=="3" | tab$Group=="4",]
+tab = tab[tab$Timepoint..day=="26",]
+
+##log normalize and write table
+lognorm = tab
+nc = ncol(lognorm)
+start = 13 #first taxa after metadata
+n = rowSums(tab[,start:nc]) #number of reads in each sample
+sumX = sum(n) #total number of reads in all samples = sum(table[,4:nc])
+N = nrow(tab) #total number of samples
+for(col in start:nc) {
+  for(row in 1:N) {
+    lognorm[row, col] = log10(tab[row, col]/n[row] * sumX/N + 1)
+  }
+}
+write.table(lognorm, "anaerobe_de_novo_otu_taxaAsCol_logNorm_G3G4D26.txt", sep="\t", row.names=F, col.names=T, quote=F)

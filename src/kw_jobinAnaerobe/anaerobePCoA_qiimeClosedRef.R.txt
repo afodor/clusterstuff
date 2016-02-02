@@ -1,0 +1,50 @@
+##PCoA of anaerobe data, qiime closed ref
+##no controls
+##color by group, shape by time
+##all samples, and just group 3 and 4 day 26
+##2/2/16
+
+rm(list=ls())
+
+library(vegan)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\C jejuni anaerobe v aerobe\\qiimeClosedRef")
+
+makePCoA <- function(filename) {
+  table = read.table(filename, sep="\t", header=T, 
+                     colClasses=c(rep("character", 3), rep("numeric", 4), rep("character", 5), rep("numeric", 328)))
+  nc = ncol(table)
+  
+  ##pcoa using vegan capscale
+  par(mar=c(4,4,4,8), xpd=T)
+  pcoa <- capscale(table[,-(1:12)]~1,distance="bray")
+  groups = unique(table$Group) #[1] 1 2 3 4
+  colors = c("blue", "red", "green", "gold")
+  col = rep(NA, nrow(table))
+  for(i in 1:length(groups)) {
+    col[table$Group==groups[i]] = colors[i]
+  }
+  times = unique(table$Timepoint..day) #[1] 14 26
+  shapes = c(16,17)
+  sh = rep(NA, nrow(table))
+  for(i in 1:length(times)) {
+    sh[table$Timepoint..day==times[i]] = shapes[i]
+  }
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], xlab="MDS1", ylab="MDS2", main="QIIME de novo OTU", col=col, pch=sh)
+  
+  ##legend
+  legend("topright", inset=c(-.27,0),
+         legend=c(groups, paste(times, "days")),
+         col=c(colors[1:length(groups)], rep("grey", length(groups))),
+         pch=c(rep(15, length(groups)), shapes))
+}
+
+##all samples
+pdf("anaerobePCoA_qiimeClosedRef.pdf")
+makePCoA("anaerobe_closed_ref_otu_taxaAsCol_logNorm.txt")
+dev.off()
+
+##group 3 and 4 day 26
+pdf("anaerobePCoA_qiimeClosedRef_G3G4D26.pdf")
+makePCoA("anaerobe_closed_ref_otu_taxaAsCol_logNorm_G3G4D26.txt")
+dev.off()
