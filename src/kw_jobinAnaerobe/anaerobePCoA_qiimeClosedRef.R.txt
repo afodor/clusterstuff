@@ -30,7 +30,7 @@ makePCoA <- function(filename) {
   for(i in 1:length(times)) {
     sh[table$Timepoint..day==times[i]] = shapes[i]
   }
-  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], xlab="MDS1", ylab="MDS2", main="QIIME de novo OTU", col=col, pch=sh)
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], xlab="MDS1", ylab="MDS2", main="QIIME closed reference OTU", col=col, pch=sh)
   
   ##legend
   legend("topright", inset=c(-.27,0),
