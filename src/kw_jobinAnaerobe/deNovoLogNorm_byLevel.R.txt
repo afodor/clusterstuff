@@ -1,0 +1,70 @@
+##remove chimeras andlog normalize QIIME de novo OTU data and add metadata
+##1/29/2016
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\C jejuni anaerobe v aerobe\\qiimeDeNovo\\by taxa level")
+
+##get metadata
+##metadata
+metadata = read.table("..\\..\\AnaerobeMetadata.txt", sep="\t", header=T, comment.char="", colClasses="character")
+names(metadata)[1] = "sampleID"
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+for(g in 2:6) {
+  taxa = taxaLevels[g-1]
+  table = read.table(paste("otu_table_chimeraFiltered_L", g, ".txt", sep=""), sep="\t", header=T, skip=1, comment.char="", stringsAsFactors=F)
+  numTaxa = nrow(table)
+  
+  ##transpose
+  write.table(t(table), paste("anaerobe_de_novo_", taxa, "_taxaAsCol.txt", sep=""), row.names=T, col.names=F, quote=F, sep="\t")
+  
+  ##re-read
+  table = read.table(paste("anaerobe_de_novo_", taxa, "_taxaAsCol.txt", sep=""), header=T, sep="\t", colClasses=c("character", rep("numeric", numTaxa)))
+  names(table)[1] = "sampleID"
+  
+  ##remove controls; h20 seems to be missing anyway
+  table = table[table$sampleID != "c1" & table$sampleID != "c2" & table$sampleID != "nc101" & table$sampleID != "h2o",]
+  
+  ##add # reads per sample; reorganize so sampleID is first
+  n = rowSums(table[,2:ncol(table)]) #total number reads in each sample
+  table = cbind(sampleID=table$sampleID, numReads=n, table[,2:ncol(table)])
+  
+  ##remove Xs from sampleID
+  table$sampleID = sub("X", "", table$sampleID)
+  
+  ##add metadata
+  tab = merge(metadata, table, by="sampleID")
+  
+  ##log normalize and write table
+  lognorm = tab
+  nc = ncol(lognorm)
+  start = 13 #first taxa after metadata
+  n = rowSums(tab[,start:nc]) #number of reads in each sample
+  sumX = sum(n) #total number of reads in all samples = sum(table[,4:nc])
+  N = nrow(tab) #total number of samples
+  for(col in start:nc) {
+    for(row in 1:N) {
+      lognorm[row, col] = log10(tab[row, col]/n[row] * sumX/N + 1)
+    }
+  }
+  write.table(lognorm, paste("anaerobe_de_novo_", taxa, "_taxaAsCol_logNorm.txt", sep=""), sep="\t", row.names=F, col.names=T, quote=F)
+  
+  ##subset to group 3 and 4, day 26 only
+  tab = tab[tab$Group=="3" | tab$Group=="4",]
+  tab = tab[tab$Timepoint..day=="26",]
+  
+  ##log normalize and write table
+  lognorm = tab
+  nc = ncol(lognorm)
+  start = 13 #first taxa after metadata
+  n = rowSums(tab[,start:nc]) #number of reads in each sample
+  sumX = sum(n) #total number of reads in all samples = sum(table[,4:nc])
+  N = nrow(tab) #total number of samples
+  for(col in start:nc) {
+    for(row in 1:N) {
+      lognorm[row, col] = log10(tab[row, col]/n[row] * sumX/N + 1)
+    }
+  }
+  write.table(lognorm, paste("anaerobe_de_novo_", taxa, "_taxaAsCol_logNorm_G3G4D26.txt", sep=""), sep="\t", row.names=F, col.names=T, quote=F)
+}
