@@ -1,0 +1,97 @@
+##linear model for gastric aspirate data
+##run on data with samples < 31 ng removed
+##plots on clinical chorioamnionitis and antenatal antibiotics
+##2/4/16
+
+rm(list=ls())
+
+library("pscl")
+library("lmtest")
+library("nlme")
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\GA-stools\\rdpResults\\chorioamnionitis and antenatal antibiotics")
+
+taxaLevels <- c("phylum","class","order","family","genus")
+
+##function that returns colors by group
+##use color scheme in original Excel table
+##1 = blue
+##2 = orange
+##3 = green
+##4 = yellow
+##5 = purple
+getColors <- function(group) {
+  colors = rep(NA, length(group))
+  colors[group==1] = "blue"
+  colors[group==2] = "orange"
+  colors[group==3] = "green"
+  colors[group==4] = "yellow"
+  colors[group==5] = "purple"
+  return(colors)
+}
+
+##get metadata
+meta = read.table("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\GA-stools\\deidentified demographics 2-1-16.txt",
+                  sep="\t", colClasses="character", header=T)
+meta$PID = paste("G", meta$PID, sep="")
+names(meta)[1] = "id"
+
+for(taxa in taxaLevels) {
+  print(taxa)
+  inFileName = paste("..\\gastricAspirate\\ga_taxaAsCol_logNorm_with_metadata_remove31ng_", taxa, ".txt", sep ="")
+  myT = read.table(inFileName,header=TRUE,sep="\t")
+  numCols = ncol(myT)
+  myT = read.table(inFileName,header=TRUE,sep="\t",colClasses=c("character", rep("numeric", numCols-1)))
+  
+  ##merge with metadata
+  myT = merge(meta, myT, by="id")
+  
+  ##remove samples with < 1000 reads
+  myT = myT[myT$numReads > 1000, ]
+  
+  ##set up output
+  names <- vector()
+  pValuesChorio <- vector()
+  pValuesAbx <- vector()
+  index <- 1
+  pdf(paste("GAotuModel_boxplots_remove31ng_", taxa, "_chorio_abx.pdf", sep=""))
+  
+  for(i in 39:ncol(myT)) 
+    if(sum(myT[,i] != 0 ) > nrow(myT) / 4 ) {
+      bug <- myT[,i]
+      chorio <- factor(myT$Chorio)
+      abx <- factor(myT$Antepartum.Antibiotics)
+      
+      pValuesChorio[index] <- anova(lm(bug ~ chorio))$"Pr(>F)"[1]
+      pValuesAbx[index] <- anova(lm(bug ~ abx))$"Pr(>F)"[1]
+      
+      names[index] = names(myT)[i]
+      
+      graphMain =  paste(names(myT)[i], ":\n pChorio=", format(pValuesChorio[index], digits=3),
+                          "; pAntibiotics= ", format(pValuesAbx[index],digits=3),
+                          sep="")
+      
+      ##plots
+      colors = getColors(myT$group)
+      shapes = ifelse(myT$delivery==0, 15, 17)
+      par(mfrow=c(1,2), oma=c(.5,.5,5,.5), mar=c(4.5,4,1,1))
+      boxplot(bug~chorio, xlab="chorioamnionitis", ylab="relative abundance")
+      points(bug~chorio, col=colors, pch=shapes)
+      boxplot(bug~abx, xlab="antenatal antibiotics", ylab="relative abundance")
+      points(bug~abx, col=colors,pch=shapes)
+      ##label
+      par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+      plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+      legend("top", horiz=T, legend=graphMain, cex=1.2, bty="n")
+      
+      index=index+1
+      
+    }
+  
+  df <- data.frame(names, pValuesChorio, pValuesAntibiotics=pValuesAbx)
+  df$pAdjChorio <- p.adjust(df$pValuesChorio, method="BH")
+  df$pAdjAntibiotics <- p.adjust(df$pValuesAntibiotics, method="BH")
+  df <- df[order(df$pValuesAntibiotics),]
+  write.table(df, file=paste("GAotuModel_pValues_remove31ng_", taxa, "_chorio_abx.txt",sep=""), sep="\t",row.names=FALSE, col.names=T, quote=F)
+  dev.off()
+}
