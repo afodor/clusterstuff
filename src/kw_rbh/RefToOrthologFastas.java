@@ -22,7 +22,7 @@ public class RefToOrthologFastas {
 	public static void main(String[] args) throws IOException {
 		////get set of orthologs for each gene
 		BufferedReader br = new BufferedReader(new FileReader(new File(
-				"orthologTables/orthologNameTable_carolina_klebsiella_pneumoniae_chs_11.0.txt")));
+				DIR + "orthologTables/orthologNameTable_carolina_klebsiella_pneumoniae_chs_11.0.txt")));
 		String line = br.readLine();
 
 		//initialize the sets with the genes
