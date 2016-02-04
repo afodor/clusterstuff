@@ -28,7 +28,7 @@ public class CreateRDPQSub
 			
 			BufferedWriter writer = new BufferedWriter(new FileWriter(f));
 			
-			allWriter.write("qsub -q \"viper_batch\" -N \"CountJob" + x + "\" " + f.getAbsolutePath() +  "\n"  );
+			allWriter.write("qsub -q \"viper\" -N \"CountJob" + x + "\" " + f.getAbsolutePath() +  "\n"  );
 			writerMap.put(x, writer);
 		}
 		
