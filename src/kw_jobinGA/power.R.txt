@@ -1,0 +1,42 @@
+##power calculations for Lactobacillus
+##2/4/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\GA-stools\\rdpResults")
+library("pwr")
+
+####stool (check/no check)
+genus = read.table("stool\\stool_taxaAsCol_logNorm_with_metadata_remove31ng_genus.txt",header=TRUE,sep="\t",
+                   colClasses=c("character", "character", "numeric", "numeric", "character", rep("numeric", 222)))
+sum(genus$group=="check") #14
+sum(genus$group=="no check") #13
+lacto = genus[,names(genus)=="Lactobacillus"]
+##since have two groups, use pwr.t.test
+effect = abs(mean(lacto[genus$group=="check"]) - mean(lacto[genus$group=="no check"])) / sd(lacto)
+pwr.t.test(n=13, d=effect) #current design
+sizes = seq(15, 100, by=15)
+pow = rep(NA, length(sizes))
+for(i in 1:length(sizes)) {
+  pow[i] = pwr.t.test(n=sizes[i], d=effect)$power
+}
+write.table(data.frame(numberInEachGroup=sizes, power=pow), "power_stool.txt", sep="\t", col.names=T, row.names=F, quote=F)
+
+
+####gastric aspirate (term vs. pre-term)
+genus = read.table("gastricAspirate\\ga_taxaAsCol_logNorm_with_metadata_remove31ng_genus.txt",header=TRUE,sep="\t",
+                   colClasses=c("character", rep("numeric", 227)))
+##get term vs. pre-term
+ga <- genus$ga.wk*7 + genus$ga.day
+term = factor(ifelse(ga > 37*7, "term", "pre-term"))
+sum(term=="term") #4
+sum(term=="pre-term") #6
+lacto = genus[,names(genus)=="Lactobacillus"]
+##since have two groups, use pwr.t.test
+effect = abs(mean(lacto[term=="term"]) - mean(lacto[term=="pre-term"])) / sd(lacto)
+pwr.t.test(n=5, d=effect) #current design
+sizes = seq(5, 30, by=5)
+pow = rep(NA, length(sizes))
+for(i in 1:length(sizes)) {
+  pow[i] = pwr.t.test(n=sizes[i], d=effect)$power
+}
+write.table(data.frame(numberInEachGroup=sizes, power=pow), "power_ga.txt", sep="\t", col.names=T, row.names=F, quote=F)
