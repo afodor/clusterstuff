@@ -17,12 +17,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class OrthologLists_v2 {
+public class OrthologLists {
 	public static String DIR = "/nobackup/afodor_research/kwinglee/cre/rbh/rbhOrthologs/";
-	public static int MIN = 5;//minimum numbers of members in set to keep orthogroup
+	public static int MIN = 10;//minimum numbers of members in set to keep orthogroup
 
 	public static void main(String[] args) throws IOException {
-		BufferedWriter log = new BufferedWriter(new FileWriter(new File(DIR + "orthologListLog")));
+		BufferedWriter log = new BufferedWriter(new FileWriter(new File("/nobackup/afodor_research/kwinglee/cre/rbh/orthologListLog")));//log to track progress
 		File[] tables = new File(DIR + "orthologTables").listFiles();
 		List<Set<String>> intersect = new ArrayList<Set<String>>();//intersection of everything
 		List<Set<String>> union = new ArrayList<Set<String>>();//once an intersection is found, union is everything in that set so that don't later add sets that were already removed
@@ -61,10 +61,10 @@ public class OrthologLists_v2 {
 		log.write("writing...\n");
 		log.flush();
 		//write lists and fastas for orthogroups
-		String fastaDir = DIR + "orthogroupFastas/";
+		String fastaDir = DIR + "orthologListFastas/";
 		new File(fastaDir).mkdirs();
 		BufferedWriter out = new BufferedWriter(new FileWriter(new File(
-				DIR + "orthogroupList_v2.txt")));
+				DIR + "orthogroupList.txt")));
 		out.write("orthogroupNumber\tnumberOfGenes\tgeneList\n");//header
 		for(int i = 0; i < intersect.size(); i++) {
 			Set<String> set = intersect.get(i);
@@ -78,19 +78,29 @@ public class OrthologLists_v2 {
 				
 				//write fastas
 				BufferedWriter fasta = new BufferedWriter(new FileWriter(new File(
-						fastaDir + "orthogroup" + i + "_v2.fasta")));
+						fastaDir + "orthogroup" + i + ".fasta")));
 				for(String s : set) {
-					String genome = s.replaceFirst("_.*_.*$", "");//genome name is everything except the last two strings when separating on _
-					
-					BufferedReader br = new BufferedReader(new FileReader(new File(
-							"/nobackup/afodor_research/kwinglee/cre/rbh/geneFastas/" + 
-							genome + "/" + s + ".fasta")));
-					String line = br.readLine();
-					while(line != null) {
-						fasta.write(line + "\n");
-						line = br.readLine();
+					//String genome = s.replaceFirst("_[A-Z]*[0-9]*_[0-9]*$", "");//works on carolina, haven't checked other groups
+					String[] sp = s.split("_");
+					String genome = "";
+					for(int j = 0; j < sp.length-2; j++) {
+						genome += sp[j] + "_";
 					}
-					br.close();
+					genome = genome.replaceFirst("_$", "");
+					
+					try {
+						BufferedReader br = new BufferedReader(new FileReader(new File(
+								"/nobackup/afodor_research/kwinglee/cre/rbh/geneFastas/" + 
+								genome + "/" + s + ".fasta")));
+						String line = br.readLine();
+						while(line != null) {
+							fasta.write(line + "\n");
+							line = br.readLine();
+						}
+						br.close();
+					} catch(Exception e) {
+						System.err.println(e.getMessage());
+					}
 				}
 				
 				fasta.close();

@@ -20,7 +20,7 @@ import java.util.Set;
 
 public class orthologGroups {
 	public static String DIR = "/nobackup/afodor_research/kwinglee/cre/rbh/rbhOrthologs/";
-	public static int MIN = 5;//minimum numbers of members in set to keep orthogroup
+	public static int MIN = 10;//minimum numbers of members in set to keep orthogroup
 
 	public static void main(String[] args) throws IOException {
 		BufferedWriter log = new BufferedWriter(new FileWriter(new File("/nobackup/afodor_research/kwinglee/cre/rbh/orthologGroupLog")));//log to track progress
@@ -143,17 +143,27 @@ public class orthologGroups {
 				BufferedWriter fasta = new BufferedWriter(new FileWriter(new File(
 						fastaDir + "orthogroup" + i + ".fasta")));
 				for(String s : set) {
-					String genome = s.replaceFirst("_.*_.*$", "");//genome name is everything except the last two strings when separating on _
-					
-					BufferedReader br = new BufferedReader(new FileReader(new File(
-							"/nobackup/afodor_research/kwinglee/cre/rbh/geneFastas/" + 
-							genome + "/" + s + ".fasta")));
-					String line = br.readLine();
-					while(line != null) {
-						fasta.write(line + "\n");
-						line = br.readLine();
+					//String genome = s.replaceFirst("_[A-Z]*[0-9]*_[0-9]*$", "");//works on carolina, haven't checked other groups
+					String[] sp = s.split("_");
+					String genome = "";
+					for(int j = 0; j < sp.length-2; j++) {
+						genome += sp[j] + "_";
 					}
-					br.close();
+					genome = genome.replaceFirst("_$", "");
+					
+					try {
+						BufferedReader br = new BufferedReader(new FileReader(new File(
+								"/nobackup/afodor_research/kwinglee/cre/rbh/geneFastas/" + 
+								genome + "/" + s + ".fasta")));
+						String line = br.readLine();
+						while(line != null) {
+							fasta.write(line + "\n");
+							line = br.readLine();
+						}
+						br.close();
+					} catch(Exception e) {
+						System.err.println(e.getMessage());
+					}
 				}
 				
 				fasta.close();
