@@ -10,7 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class writeRDPScripts {
-	public static final String rootFolder = "/projects/afodor_research/kwinglee/jobin/blackTea/";
+	public static final String rootFolder = "/nobackup/afodor_research/kwinglee/jobin/blackTea/";
 	public static final String fastaFolder = rootFolder + "fastas/";
 	public static final String rdpFolder = rootFolder + "rdpResults/";
 	public static final String scriptFolder = rootFolder + "scripts/";
