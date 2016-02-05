@@ -45,7 +45,7 @@ public class WriteScriptsForConstrainedKmers
 			if( s.endsWith(".fasta"))
 			{
 				File fastaFile = new File( ORTHOLOG_DIR.getAbsoluteFile() + File.separator + s);
-				aWriter.write("java -cp /users/afodor/gitInstall/clusterstuff/bin "
+				aWriter.write("java -cp /users/kwinglee/git/clusterstuff/bin "
 						+ " kw_creOrthologs.ConstrainKMersToOrtholog "  + 
 						fastaFile.getAbsolutePath() + "\n");
 					
