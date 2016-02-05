@@ -8,7 +8,7 @@ public class WriteScriptsForConstrainedKmers
 {
 	
 	private static final File ORTHOLOG_DIR = 
-				new File( "nobackup/afodor_research/kwinglee/cre/rbh/rbhOrthologs/chs11OrthogroupFastas");
+				new File( "/nobackup/afodor_research/kwinglee/cre/rbh/rbhOrthologs/chs11OrthogroupFastas");
 	
 	private static final File SCRIPT_DIR=
 			new File("/nobackup/afodor_research/af_broad/orthologs/scripts");
