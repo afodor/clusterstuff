@@ -1,0 +1,60 @@
+##compare anaerobe and black tea runs for Josee
+##look at percent of reads classified
+##2/5/16
+
+rm(list=ls())
+
+####black tea
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\black tea\\rdpResults")
+
+##root in rdp table contains all reads
+rdp = read.table("blackTea_rdphierarch_merge.txt", sep="\t", stringsAsFactors = F)
+allReads = data.frame(fileName=as.character(as.vector(rdp[1,-(1:4)])), 
+                      root=as.numeric(as.vector(rdp[2,-(1:4)])), 
+                      stringsAsFactors = F)
+##compare to number of reads at genus level
+gen = read.table("tea_genus_taxaAsCol_logNorm_allSamples.txt", sep="\t", header=T, 
+                 colClasses=c("numeric", "character", "numeric", "numeric", rep("character", 4), rep("numeric", 120)))
+genReads = data.frame(fileName = gen$fileName,
+                      gen = gen$numReads,
+                      stringsAsFactors = F)
+phy = read.table("tea_phylum_taxaAsCol_logNorm_allSamples.txt", sep="\t", header=T, 
+                 colClasses=c("numeric", "character", "numeric", "numeric", rep("character", 4), rep("numeric", 14)))
+phyReads = data.frame(fileName = phy$fileName,
+                      phy = phy$numReads,
+                      stringsAsFactors = F)
+genReads$fileName = sub("X", "", genReads$fileName)
+phyReads$fileName = sub("X", "", phyReads$fileName)
+tea = merge(allReads, genReads, by="fileName")
+tea = merge(tea, phyReads, by="fileName")
+propClass = tea$gen / tea$root
+mean(propClass) #0.5073153
+propClass = tea$phy / tea$root
+mean(propClass) #0.9227498
+
+####anaerobe
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\C jejuni anaerobe v aerobe\\rdpResults")
+##root in rdp table contains all reads
+rdp = read.table("anaerobe_rdphier_merge.txt", sep="\t", stringsAsFactors = F)
+allReads = data.frame(fileName=as.character(as.vector(rdp[1,-(1:4)])), 
+                      root=as.numeric(as.vector(rdp[2,-(1:4)])), 
+                      stringsAsFactors = F)
+##compare to number of reads at genus level
+gen = read.table("stool_genus_taxaAsCol_logNorm.txt", sep="\t", header=T, 
+                 colClasses=c(rep("character", 12), rep("numeric", 120)))
+genReads = data.frame(fileName = gen$fileName,
+                      gen = gen$numReads,
+                      stringsAsFactors = F)
+phy = read.table("stool_phylum_taxaAsCol_logNorm.txt", sep="\t", header=T, 
+                 colClasses=c(rep("character", 12), rep("numeric", 12)))
+phyReads = data.frame(fileName = phy$fileName,
+                      phy = phy$numReads,
+                      stringsAsFactors = F)
+genReads$fileName = sub("X", "", genReads$fileName)
+phyReads$fileName = sub("X", "", phyReads$fileName)
+an = merge(allReads, genReads, by="fileName")
+an = merge(an, phyReads, by="fileName")
+propClass = an$gen / an$root
+mean(propClass) #0.7047344
+propClass = an$phy / an$root
+mean(propClass) #0.9225995
