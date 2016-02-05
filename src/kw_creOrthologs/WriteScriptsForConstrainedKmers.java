@@ -46,7 +46,7 @@ public class WriteScriptsForConstrainedKmers
 			{
 				File fastaFile = new File( ORTHOLOG_DIR.getAbsoluteFile() + File.separator + s);
 				aWriter.write("java -cp /users/afodor/gitInstall/clusterstuff/bin "
-						+ " kw_creOrthologs.ConstrainKMersToOrtholog"  + 
+						+ " kw_creOrthologs.ConstrainKMersToOrtholog "  + 
 						fastaFile.getAbsolutePath() + "\n");
 					
 				aWriter.flush();
