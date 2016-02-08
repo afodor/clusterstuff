@@ -80,9 +80,9 @@ public class ConstrainKMersToOrtholog
 		
 		HashMap<String, HashMap<String,Integer>> bigMap = getBigMap( args[0]);
 		
-		String outFileBase = args[0];
+		String[] outFileBase = args[0].split("/");
 		
-		writeDistanceMatrix(bigMap, outFileBase);
+		writeDistanceMatrix(bigMap, outFileBase[outFileBase.length-1]);
 	}
 	
 	private static void writeDistanceMatrix( HashMap<String, HashMap<String,Integer>> bigMap,
