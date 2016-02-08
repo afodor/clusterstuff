@@ -1,0 +1,46 @@
+##for black tea data
+##all samples including controls
+##add metadata
+##log normalize
+##pcoa
+##2/5/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\black tea\\rdpResults")
+
+##metadata
+metadata = read.table("..\\BlackTeaMetadata.txt", sep="\t", header=T, comment.char="", colClasses="character")
+names(metadata)[1] = "sampleID"
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+for(taxa in taxaLevels) {
+  fname = paste("rdp_", taxa, ".txt", sep="")
+  table = read.table(fname, sep="\t", header=T)
+  fname = paste("tea_", taxa, "_taxaAsCol.txt", sep="")
+  write.table(t(table), fname, sep="\t", quote=F, row.names=T, col.names=F)
+  nc = nrow(table)+1
+  table = read.table(fname, sep="\t", header=T, colClasses=c("character", rep("numeric", nc-1)))
+  
+  ##add # reads per sample; reorganize so sampleID is first
+  n = rowSums(table[,4:nc]) #total number reads in each sample
+  table = cbind(sampleID=as.numeric(table$sampleID), fileName=table$fileName, read=table$read, numReads=n, table[,4:nc])
+  table$sampleID = as.character(table$sampleID)
+  
+  ##add metadata
+  tab = merge(metadata, table, by="sampleID")
+  
+  ##log normalize and write table
+  lognorm = tab
+  nc = ncol(lognorm)
+  start = 11 #first taxa after metadata
+  n = rowSums(tab[,start:nc]) #number of reads in each sample
+  sumX = sum(n) #total number of reads in all samples = sum(table[,4:nc])
+  N = nrow(tab) #total number of samples
+  for(col in start:nc) {
+    for(row in 1:N) {
+      lognorm[row, col] = log10(tab[row, col]/n[row] * sumX/N + 1)
+    }
+  }
+  write.table(lognorm, paste("tea_", taxa, "_taxaAsCol_logNorm_allSamples.txt", sep=""), sep="\t", row.names=F, col.names=T, quote=F)
+}

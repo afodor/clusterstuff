@@ -1,0 +1,44 @@
+##PCoA of black tea data
+##all samples
+##color by treatment, shape by read
+##2/5/16
+
+rm(list=ls())
+
+library(vegan)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\black tea\\rdpResults")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+pdf("blackTeaPCoA_allSamples.pdf")
+for(taxa in taxaLevels) {
+  print(taxa)
+  fname = paste("tea_", taxa, "_taxaAsCol_logNorm_allSamples.txt", sep="")
+  table = read.table(fname, sep="\t", header=T)
+  nc = ncol(table)
+  table = read.table(fname, sep="\t", header=T, 
+                     colClasses=c("numeric", "character", "numeric", "numeric", rep("character", 4), rep("numeric", nc-8)))
+  
+  ##pcoa using vegan capscale
+  par(mar=c(4,4,4,8), xpd=T)
+  pcoa <- capscale(table[,-(1:10)]~1,distance="bray")
+  
+  ##color by tea treatment
+  col = ifelse(table$Black.tea.treated=="yes", "blue", "red") #yes=blue, no=red
+  col[table$Black.tea.treated==""] = "black"
+  
+  ##shape by read
+  sh = ifelse(table$read==1, 18, 16)
+ 
+  ##plot
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], xlab="MDS1", ylab="MDS2", main=taxa, col=col, pch=sh)
+  
+  ##legend
+  legend("topright", inset=c(-.3,0),
+         legend=c("tea treated", "no tea treated", "control", "read 1", "read 2"),
+         col=c("blue", "red", "black", "grey", "grey"),
+         pch=c(rep(15, 3), 18, 16))
+  
+}
+dev.off()
