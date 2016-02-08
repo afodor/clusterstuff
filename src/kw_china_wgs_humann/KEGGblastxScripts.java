@@ -18,7 +18,7 @@ public class KEGGblastxScripts {
 		String scriptDir = BASE_DIR + "humScripts/";//folder for scripts
 		new File(scriptDir).mkdirs();
 		String fastaDir = BASE_DIR + "fastas/";//folder with fasta files
-		String outDir = BASE_DIR + "kegg_tblastx_results/";//folder to write blast results
+		String outDir = BASE_DIR + "kegg_blastx_results/";//folder to write blast results
 		new File(outDir).mkdirs();
 		
 		//script to run all files
@@ -38,8 +38,9 @@ public class KEGGblastxScripts {
 				BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 						scriptDir + scriptName)));
 				script.write("#PBS -l walltime=300:00:00\n");
+				script.write("module load blast\n");
 				script.write("gunzip -c " + f.getAbsolutePath() + " > " + 
-						f.getAbsolutePath().replace(".gz$", "") + "\n");//unzip fasta file
+						f.getAbsolutePath().replace(".gz", "") + "\n");//unzip fasta file
 				script.write("blastx -outfmt 6 -db " + DB + " -query " +
 						f.getAbsolutePath() + " -out " +
 						outDir + "kegg_" + name + ".txt\n");//blast command
