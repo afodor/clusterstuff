@@ -7,8 +7,8 @@ import java.util.HashMap;
 
 public class MakeBlastDB
 {
-	public static File ORTHOLOG_DIR = new File( "/projects/afodor_research/af_broad/bygenes/extract");
-	private static File SCRIPT_DIR = new File( "/projects/afodor_research/af_broad/scripts/makeBlastDBScripts");
+	public static File ORTHOLOG_DIR = new File( "/nobackup/afodor_research/af_broad/bygenes/extract");
+	private static File SCRIPT_DIR = new File( "/nobackup/afodor_research/af_broad/scripts/makeBlastDBScripts");
 	
 	public static final int NUM_CORES = 50;
 	
