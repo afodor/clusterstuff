@@ -32,7 +32,7 @@ public class KEGGblastxScripts {
 				String scriptName = "blast_" + name;
 				
 				//add to runAll
-				runAll.write(scriptName + "\n");
+				runAll.write("qsub -q \"viper_batch\" " + scriptName + "\n");
 				
 				//write individual script
 				BufferedWriter script = new BufferedWriter(new FileWriter(new File(
