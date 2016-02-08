@@ -30,6 +30,7 @@ public class KEGGblastxScripts {
 			if(f.getName().endsWith(".fa.gz")) {
 				String name = f.getName().replace(".fa.gz", "");
 				String scriptName = "blast_" + name;
+				String newFasta = f.getAbsolutePath().replace(".gz", "");
 				
 				//add to runAll
 				runAll.write("qsub -q \"viper_batch\" " + scriptName + "\n");
@@ -40,9 +41,9 @@ public class KEGGblastxScripts {
 				script.write("#PBS -l walltime=300:00:00\n");
 				script.write("module load blast\n");
 				script.write("gunzip -c " + f.getAbsolutePath() + " > " + 
-						f.getAbsolutePath().replace(".gz", "") + "\n");//unzip fasta file
+						newFasta + "\n");//unzip fasta file
 				script.write("blastx -outfmt 6 -db " + DB + " -query " +
-						f.getAbsolutePath() + " -out " +
+						newFasta + " -out " +
 						outDir + "kegg_" + name + ".txt\n");//blast command
 				script.close();
 			}
