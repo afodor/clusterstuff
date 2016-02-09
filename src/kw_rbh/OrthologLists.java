@@ -19,7 +19,7 @@ import java.util.Set;
 
 public class OrthologLists {
 	public static String DIR = "/nobackup/afodor_research/kwinglee/cre/rbh/rbhOrthologs/";
-	public static int MIN = 10;//minimum numbers of members in set to keep orthogroup
+	public static int MIN = 30;//minimum numbers of members in set to keep orthogroup
 
 	public static void main(String[] args) throws IOException {
 		BufferedWriter log = new BufferedWriter(new FileWriter(new File("/nobackup/afodor_research/kwinglee/cre/rbh/orthologListLog")));//log to track progress
@@ -44,9 +44,9 @@ public class OrthologLists {
 								intersect.get(j).retainAll(tab.get(i));
 								
 								//check if previously had union
-								if(matched) {
+								/*if(matched) {
 									System.out.println("overlapping orthogroups: " + t.getName() + "\t" + i + "\t" + j);
-								}
+								}*/
 								matched = true;
 							}
 						}
