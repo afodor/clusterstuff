@@ -45,7 +45,7 @@ public class OrthologLists {
 								
 								//check if previously had union
 								if(matched) {
-									System.err.println("overlapping orthogroups: " + t.getName() + "\t" + i + "\t" + j);
+									System.out.println("overlapping orthogroups: " + t.getName() + "\t" + i + "\t" + j);
 								}
 								matched = true;
 							}
