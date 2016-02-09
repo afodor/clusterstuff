@@ -22,7 +22,7 @@ public class WriteScriptsForConstrainedKmers_orthologGroups
 	{
 		File aFile = new File(
 				SCRIPT_DIR.getAbsolutePath() + File.separator + 
-					"run_" + fileNum + ".sh");
+					"runGroup_" + fileNum + ".sh");
 			
 		BufferedWriter aWriter = new BufferedWriter(new FileWriter(aFile));
 		
