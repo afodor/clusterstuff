@@ -1,0 +1,33 @@
+##for output from orthologGroups.java
+##histogram of group sizes, also look do a cutoff plot
+##2/4/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\rbh")
+
+groups = read.table("orthologGroups.txt", header=T, sep="\t", colClasses=c("character", "numeric", "character"))
+
+cutoffs = 1:339
+numGenes = groups$numberOfGenes
+numHitsPerCutoff = rep(NA, length(cutoffs))
+
+##number genes above cutoff
+for(i in 1:length(cutoffs)) {
+  numHitsPerCutoff[i] = sum(numGenes > cutoffs[i])
+}
+
+##plot
+jpeg("orthologGroups.jpg", height=500, width=1000)
+par(mfrow=c(1,2))
+##histogram
+hist(numGenes, xlab="Number of genes in orthogroup")
+##cutoff plot
+plot(x=cutoffs, y=numHitsPerCutoff, pch=16, main="ortholog groups",
+     xlab="cutoff for number of orthologs", ylab="number orthogroups pass cutoff")
+dev.off()
+
+numHitsPerCutoff[175] #2080
+numHitsPerCutoff[200] #905
+numHitsPerCutoff[150] #2406
+
+write.table(groups[groups$numberOfGenes > 150,], "orthologGroups150.txt", sep="\t", row.names=F, col.names=T, quote=F)

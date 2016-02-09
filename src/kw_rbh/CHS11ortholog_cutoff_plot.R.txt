@@ -1,0 +1,33 @@
+##plot number of genes vs cutoff for number of orthologs
+##used to identify cutoff before making fasta files of orthologs for trees
+##use chs11 as ref
+##2/4/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\rbh")
+
+bitScore = read.table("bitScoreTable_carolina_klebsiella_pneumoniae_chs_11.0.txt", header=T, sep="\t", colClasses=c("character", rep("numeric", 5335)))
+
+cutoffs = 1:339
+numGenes = rep(NA, length(cutoffs))
+numHitsCol = rep(NA, ncol(bitScore)-1)
+
+##number of hits for each gene
+for(i in 2:ncol(bitScore)) {
+  numHitsCol[i-1] = sum(bitScore[,i] > 0)
+}
+
+##number genes above cutoff
+for(i in 1:length(cutoffs)) {
+  numGenes[i] = sum(numHitsCol > cutoffs[i])
+}
+
+##plot
+jpeg("chs11_numGenes_v_cutoff.jpg", height=500, width=1000)
+par(mfrow=c(1,2))
+##histogram
+hist(numHitsCol, xlab="Number of genes in orthogroup")
+##cutoff plot
+plot(x=cutoffs, y=numGenes, pch=16, main="CHS11",
+     xlab="cutoff for number of orthologs", ylab="number genes pass cutoff")
+dev.off()
