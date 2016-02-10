@@ -125,7 +125,7 @@ public class SpearmansAcrossAll
 	private static HashMap<File, List<Float>> getFilesToDo() throws Exception
 	{
 		HashMap<File, List<Float>> map = new HashMap<File, List<Float>>();
-		HashSet<Integer> includeSet = getIncludeSet();
+		HashSet<String> includeSet = getIncludeSet();
 		String[] files = GATHERED_DIR.list();
 		
 		
@@ -136,7 +136,7 @@ public class SpearmansAcrossAll
 				
 				if( getFileLines(f) == EXPECTED_NUM_LINES ) 
 				{
-					if( includeSet.contains(Integer.parseInt(f.getName().split("_")[5])))
+					if(includeSet.contains(f.getName().replace("orthogroups_", "").replace(".fasta_dist.txt", "")))
 						map.put(f, getVals(f));
 				}
 					
@@ -145,12 +145,12 @@ public class SpearmansAcrossAll
 		return map;
 	}
 	
-	private static HashSet<Integer> getIncludeSet() throws Exception
+	private static HashSet<String> getIncludeSet() throws Exception
 	{
-		HashSet<Integer> set = new HashSet<Integer>();
+		HashSet<String> set = new HashSet<String>();
 		
 		BufferedReader reader = new BufferedReader(new FileReader(new File(
-				"/nobackup/afodor_research/af_broad/initialConstrainedMap.txt")));
+				"/nobackup/afodor_research/af_broad/orthologs/CHS11geneCorrelation.txt")));
 		
 		reader.readLine();
 		
@@ -162,7 +162,7 @@ public class SpearmansAcrossAll
 				throw new Exception("No " + s);
 			
 			if( Double.parseDouble(splits[2]) < 0.98)
-				set.add(Integer.parseInt(splits[0]));
+				set.add(splits[0]);
 		}
 		
 		reader.close();
