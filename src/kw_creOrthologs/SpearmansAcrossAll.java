@@ -29,7 +29,7 @@ public class SpearmansAcrossAll
 		System.out.println("Got " + map.size() + " files ");
 		
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
-			"/nobackup/afodor_research/af_broad/orthologs/chs11spearman.txt")));
+			"/nobackup/afodor_research/af_broad/orthologs/chs11spearmanAcrossAll.txt")));
 		
 		List<File> list = new ArrayList<File>(map.keySet());
 		Collections.sort(list);
@@ -174,9 +174,9 @@ public class SpearmansAcrossAll
 	{
 		String[] splits = f.getName().split("_");
 		
-		if( splits.length != 8)
+		if( splits.length != 9)
 			throw new Exception( f.getName() + " " + splits.length );
 		
-		return splits[4] + "_" + splits[5] + "_" + splits[6];
+		return f.getName().replace("orthogroups_", "").replace(".fasta_dist.txt", "");
 	}
 }
