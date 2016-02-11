@@ -1,0 +1,53 @@
+##convert kmer distance matrix from phylip format to matrix and table of distances for CHS only
+##2/9/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\rbh\\kmer")
+
+phylip = read.table("kmerAllDist.txt", skip=1, sep=" ", colClasses=c("character", rep("numeric", 339)))
+key = read.table("kmerAllKey.txt", sep=" ", colClasses="character")
+names(key)[2] = "genome"
+
+##distance matrix
+# dist = merge(key, phylip, by="V1")
+# dist = dist[,-1]
+sum(key$V1==phylip$V1)#339
+dist = phylip
+dist$V1 = key$genome
+names(dist) = c("ID", dist$V1)
+write.table(dist, "kmerAllDistMatrix.txt", row.names = F, col.names = T, quote=F, sep="\t")
+
+##table of upper triangle (CHS only)
+tab = data.frame(xiD=character(), yID=character(), kmerDistance=numeric())
+for(r in 1:nrow(dist)) {
+  if(grepl("chs", dist$ID[r])) {
+    sp = strsplit(dist$ID[r], "_")[[1]]
+    xID = as.integer(sp[length(sp)])
+    for(c in (r+1):ncol(dist)) {
+      if(grepl("chs", names(dist)[c])) {
+        sp = strsplit(names(dist)[c], "_")[[1]]
+        yID = as.integer(sp[length(sp)])
+        tab = rbind(tab, data.frame(xID=xID, yID=yID, kmerDistance=dist[r,c]))
+      }
+    }
+  }
+}
+
+##get in same format as other CHS distance tables
+##swap if xID > yID
+x = tab$xID
+y = tab$yID
+x[tab$xID > tab$yID] = y[tab$xID > tab$yID]
+y[tab$xID > tab$yID] = tab$xID[tab$xID > tab$yID]
+tab$xID = x
+tab$yID = y
+##sort
+table = tab[order(tab$xID, tab$yID),]
+##remove xID==yID
+table = table[table$xID!=table$yID,]
+##remove duplicated values
+xy = paste(table$xID, table$yID, sep=".")
+dup = duplicated(xy)
+sum(dup)
+##write
+write.table(table, "kmerCHSDistance.txt", sep="\t", col.names = T, row.names = F, quote=F)

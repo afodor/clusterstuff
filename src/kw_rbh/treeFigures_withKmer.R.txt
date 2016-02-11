@@ -1,0 +1,555 @@
+##draw transmission and epidemiology trees, patient figure, make table of subtree membership
+##with full genome kmer cosine distance
+
+rm(list=ls())
+# setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\paper1_analysisMethods\\figures")
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\rbh\\kmer")
+
+library(ape)
+library(adegenet)
+library(igraph)
+library(RBGL)
+library(Rgraphviz)
+
+MAXDIST=11 #maximum SNP distance to consider as possibly part of same outbreak in broad
+
+##get data
+all.data = read.table("AllDistances.txt", sep="\t", header=T, colClasses=c(rep("numeric", 4), "character", "character", rep("numeric", 17)))
+meta = read.table("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\paper1_analysisMethods\\figures\\UNCCMetaData_Final_8-5-15.txt", sep="\t", header=T, colClasses = c("numeric", "numeric", rep("character", 7)))
+strains = unique(c(all.data$xID, all.data$yID))
+strains = strains[order(strains)] #here are only looking at those strains we have comparisons for all samples
+
+##determine the max distance to include for the other groups, based on the linear regression to broad
+##alt = column from data corresponding to a distance metric
+convertDist <- function(alt) {
+  bdist = all.data$broadCoreGenomeDistance
+  mod = lm(alt~bdist) #y~x -> so can give maxdist and return a value
+  dist = mod$coefficients[2] * MAXDIST + mod$coefficients[1]
+  return(as.numeric(dist))
+}
+##order of analysis: "Broad Core Genome"", "Co-Phylog", 
+##"Align to CP006923 SNP", "Align to NC009648 SNP", "Plasmid90", "kmer
+max.dist = c(convertDist(all.data$broadCoreGenomeDistance), convertDist(all.data$cophylogDistance),
+             convertDist(all.data$cpSNPDistance), convertDist(all.data$ncSNPDistance), 
+             convertDist(all.data$plasmid90Distance), convertDist(all.data$kmerDistance)) #converted distances for each metric in same order they are analyzed
+
+##convert to distance matrices, given the data column distance
+convertToDist <- function(file) {
+  table = read.table(file, header=T, sep="\t", colClasses="numeric")
+  colnames(table) = c("xGen", "yGen", "distance")
+  dist = matrix(nrow=length(strains), ncol=length(strains))
+  for(i in 1:length(strains)) {
+    for(j in 1:length(strains)) {
+      s1 = strains[i]
+      s2 = strains[j]
+      val = table$distance[(table$xGen==s1 & table$yGen==s2) | (table$yGen==s1 & table$xGen==s2)]
+      if(length(val) == 0 & s1==s2) {
+        val = 0
+      } else if(length(val) == 0) {
+        print(i)
+        print(j)
+        print("")
+        val = NA
+      }
+      dist[i,j] = val
+    }
+  }
+  return(dist)
+}
+
+##need to use original files because not all comparisons made it into AllDistances, but this weeds out missing strains
+broad = convertToDist("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\BroadTrees\\distancesUpperTriangle.txt")
+plasmid90 = convertToDist("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\PlasmidDistance_90.0.txt")
+snpCP = convertToDist("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\PilonSNPDistanceNoIndel_CP006923.txt")
+snpNC = convertToDist("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\PilonSNPDistanceNoIndel_NC_009648.txt")
+cophylog = convertToDist("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\CoPhylogSNPDistances.txt")
+kmer = convertToDist("kmerCHSDistance.txt")
+
+##culture dates need to be rearranged to same order as strains (also removing strains not in analysis)
+cult = rep(NA, length(strains))
+for(i in 1:length(strains)) {
+  for(j in 1:length(meta$SpecNumber)) {
+    if(as.numeric(strains[i]) == meta$SpecNumber[j]) {
+      cult[i] = meta$DeID_StudyCultureDate[j]
+    }
+  }
+}
+cultureDates = as.POSIXct("2008-01-01") + cult*24*60*60
+
+##get encounter overlap
+enc = read.table("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\paper1_analysisMethods\\figures\\encounterDaysOverlap.txt", header=T, sep="\t", colClasses="numeric")
+
+# ####set up epidemiology trees (tree showing connections between isolates if overlap, pointing from earlier to later culture)
+# ##function that returns a graph for the epidemiology tree using the given overlap between the given x and y IDs
+# epiTree<-function(xID, yID, overlap) {
+#   g = new("graphNEL", nodes=as.character(strains), edgemode="directed")
+#   for(i in 1:length(overlap)) {
+#     x = xID[i]
+#     y = yID[i]
+#     if(x %in% strains && y %in% strains) { #only include nodes in other figures
+#       if(meta$DeID_StudyCultureDate[meta$SpecNumber==x] <= meta$DeID_StudyCultureDate[meta$SpecNumber==y] && #x cultured before y
+#          overlap[i] > 0) {  #overlapped in hospital
+#         g = addEdge(as.character(x), as.character(y), g, overlap[i])
+#       } else if(meta$DeID_StudyCultureDate[meta$SpecNumber==x] > meta$DeID_StudyCultureDate[meta$SpecNumber==y] && #x cultured before y
+#                 overlap[i] > 0) {
+#         g = addEdge(as.character(y), as.character(x), g, overlap[i])
+#       }
+#     }
+#   }
+#   return(igraph.from.graphNEL(g))
+# }
+# 
+# ##between culture dates
+# bt.ig = epiTree(enc$xID, enc$yID, enc$daysOverlapBetweenCultures)
+# bt.layout = layout.fruchterman.reingold(bt.ig) #set so same layout for all figures
+# ##before last culture date
+# bf.ig = epiTree(enc$xID, enc$yID, enc$daysOverlapBeforeLastCulture)
+# bf.layout = layout.fruchterman.reingold(bf.ig)
+# ##same hospital between
+# same = read.table("encounterDaysOverlap_sameHospitalAsCultureOnly.txt", sep="\t", header=T, colClasses="numeric")
+# same.bt.ig = epiTree(same$xID, same$yID, same$daysOverlapBetweenCultures)
+# same.bt.layout = layout.fruchterman.reingold(same.bt.ig)
+# ##same hospital before
+# same.bf.ig = epiTree(same$xID, same$yID, same$daysOverlapBeforeLastCulture)
+# same.bf.layout = layout.fruchterman.reingold(same.bf.ig)
+
+# ##function that returns the edge colors for the given epidemiology tree (tree)
+# ##edges are blue if the genetic dist (from dist) is less than the max distance for that group (a) and gray otherwise
+# getEpiEdgeCol <- function(tree, dist, a) {
+#   idx = 1:length(strains) #epi tree already has correct names, need to convert to index
+#   edges = as_ids(E(tree))
+#   ecol = rep("gray", length(edges))
+#   for(i in 1:length(edges)) {
+#     sp = strsplit(edges[i], "|", fixed=T)[[1]]
+#     x = idx[strains==as.numeric(sp[1])]
+#     y = idx[strains==as.numeric(sp[2])]
+#     if(dist[x,y] < max.dist[a]) {
+#       ecol[i] = "dodgerblue3"
+#     }
+#   }
+#   return(ecol)
+# }
+
+# #####patient hopsital figure
+# ##merge times together so can space things out better
+# within = 5 #number of days to merge
+# hospital = read.table("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\paper1_analysisMethods\\figures\\encountersMergedWithin2.txt", header=T, sep="\t", colClasses=c(rep("numeric", 3), "character"))
+# mergeEnc = data.frame(hospital[1,])
+# e=1
+# for(i in 2:nrow(hospital)) {
+#   if(hospital$patientID[i]==mergeEnc$patientID[e] && hospital$facility[i]==mergeEnc$facility[e] && #same patient and hospital
+#      hospital$encounterDateStart[i] < mergeEnc$encounterEndDate[e] + within) { #start date is within 5 (the value of within) days of end of last encounter
+#     mergeEnc$encounterEndDate[e] = hospital$encounterEndDate[i] #update end date
+#   } else { #new encounter
+#     mergeEnc = rbind(mergeEnc, hospital[i,])
+#     e = e+1
+#   }
+# }
+# names(mergeEnc) = names(hospital)
+# 
+# ##hospital symbols
+# all.fac = sort(unique(hospital$facility))
+# fac.symb = c("1", "&", "!", "$", "2", "3", "4", "5", "6", "7", "9", "O", "R")
+# names(fac.symb) = all.fac
+# facilitySymbol <- function(fac) {
+#   return(fac.symb[all.fac==fac])
+# }
+# 
+# idx = 1:length(strains) #index for strains
+# 
+# ##draw base of where patients have been
+# drawBase<-function(name) {
+#   for(r in 1:nrow(mergeEnc)) {
+#     id = mergeEnc[r,1] #sample id
+#     if(id %in% strains) {
+#       y = idx[strains==id]
+#       symb = facilitySymbol(mergeEnc$facility[r])
+#       time = seq(from=mergeEnc$encounterDateStart[r], to=mergeEnc$encounterEndDate[r], by=20)
+#       points(x=time, y=rep(y, length(time)), cex=1.5, type="p", pch=symb, col="gray")
+#     }
+#   }
+# }
+# 
+# ##function that draws the figure of when patients are in the hospital
+# ##input is the colors (col) for strains and the name of the analysis for the figure
+# drawEncounterFig <- function(col, name) {
+#   ##x values
+#   cDates = rep(-1, length(strains)) #culture dates (x values)
+#   for(i in 1:length(strains)) {
+#     cDates[i] = meta$DeID_StudyCultureDate[meta$SpecNumber==strains[i]]
+#   }
+#   
+#   ##y values
+#   y = seq(1, length(strains))
+#   
+#   ##symbols
+#   symb = rep(0, length(strains))
+#   for(i in 1:length(strains)) {
+#     symb[i] = facilitySymbol(meta$Abstracted_StudyFacility[meta$SpecNumber==strains[i]])
+#   }
+#   
+#   ##draw plot outline
+#   par(mar=c(4.5,5.7,4.1,0.5))
+#   plot(1, type="n", yaxt="n", xlim=range(mergeEnc$encounterDateStart, mergeEnc$encounterEndDate), ylim=c(1, 71), 
+#        xlab="Study Date", ylab="", main=paste("Patient Hospital Dates, With Culture Dates Colored Like", name, "Analysis"),
+#        cex.lab=2.5, cex.axis=2, cex.main=2)
+#   axis(2, at=1:length(strains), labels=strains, cex.axis=2, las=2) #add x-axis labels (strain names)
+#   mtext("Isolate", cex=2.5, line=3.5, side=2) #y axis label
+#   ##draw lines
+#   for(i in 1:length(y)) {
+#     abline(h=y[i], col=col[i], lty=3)
+#   }
+#   ##draw times in hospital
+#   drawBase()
+#   ##draw cultures
+#   points(x=cDates, y=y, cex=2.5, pch=symb, col=col)
+# }
+# 
+# ##legend
+# tiff("patientFig_Legend.tiff", height=1300, width=600, res=300)
+# par(mar=c(.1, .1, .1, .1))
+# plot(1, type="n", yaxt="n", xaxt="n", xlim=c(0,50), ylim=c(0,100), xlab="", ylab="", main="", bty="n")
+# legend("topleft", c("Hospital 1", "Hospital 2", "Hospital 3", "Hospital 4", "Hospital 5",  "Hospital 6", "Hospital 7", "Hospital 9", "Hospital 10", "Hospital 11", "Hospital 12", "Outpatient", "Rehab"),
+#        pch=c("1", "2", "3", "4", "5", "6", "7", "9", "&", "!", "$", "O", "R"), col="darkgrey", bty='n', cex=1.5)
+# dev.off()
+
+
+####needed functions for drawing seqtrack graphs
+##function that given graphNEL returns the xy coordinates
+getCoord<-function(graph) {
+  ag = agopen(graph, name=names[a])
+  nod = AgNode(ag) #most likely equivalent to attributes(plot)$AgNode
+  n1 = nod[[1]]
+  cent = getNodeXY(n1) #xy coordinates of the center
+  xy = data.frame(x=cent$x, y=cent$y)
+  for(i in 2:length(nod)) {
+    cent = getNodeXY(nod[[i]])
+    xy = rbind(xy, c(cent$x, cent$y))
+  }
+  return(xy)
+}
+
+##returns edge colors  for the given graph
+##black if no evidence, orange if overlap between culture dates, pink if not between dates but before last culture date 
+getEdgeCol <- function(graph) {
+  edges = as_ids(E(graph))
+  edge.col = rep("black", length(edges))
+  for(i in 1:length(edges)) {
+    sp = strsplit(edges[i], "|", fixed=T)[[1]]
+    x = as.numeric(sp[1])
+    y = as.numeric(sp[2])
+    p = which((enc$xID==x & enc$yID==y) | (enc$xID==y & enc$yID==x)) ##position in encounter data
+    if(enc$daysOverlapBetweenCultures[p] > 0) {
+      edge.col[i] = "orange"
+    } else if(enc$daysOverlapBeforeLastCulture[p] > 0) {
+      edge.col[i] = "pink"
+    }
+  }
+  return(edge.col)
+}
+
+##returns the node colors for the given list of groups
+cpos=4 #position in colors of number of new groups
+colors = c("blueviolet",  "palegreen3", "cyan", "red", "red4", "blue", "magenta", "burlywood4",  "goldenrod")
+getNodeCol <- function(groups) {
+  g = sort(unique(groups))
+  ##make sure group with 19 is same in all, and 48 and 51 if they are not part of that group
+  g19 = groups[strains==19]
+  g48 = g51 = 0 #group containing 48 or 51 respectively
+  g = c(g[g==g19], g[g!=g19])
+  if(!is.na(groups[strains==48]) && groups[strains==48] != groups[strains==19]) { #48
+    g48 = groups[strains==48]
+    if(length(g) > 2) {
+      g = g[g!=g48]
+      g = c(g[1], g48, g[2:length(g)])
+    } 
+  } else { #add a place holder so colors still work
+    if(length(g) > 1) {
+      g = c(g[1], -100, g[2:length(g)])
+    } else {
+      g = c(g, -100)
+    }
+  }
+  if(!is.na(groups[strains==51]) && groups[strains==51] != groups[strains==19]) { #51
+    g51 = groups[strains==51]
+    if(length(g) > 3) {
+      g = g[g!=g51]
+      g = c(g[1:2], g51, g[3:length(g)])
+    } 
+  } else { #add a place holder so colors still work
+    if(length(g) > 2) {
+      g = c(g[1:2], -100, g[3:length(g)])
+    } else {
+      g = c(g, -100)
+    }
+  }
+  col = rep("black", length(groups))
+  j = 1
+  for(i in 1:length(g)) {
+    if(!is.na(g[i]) && (g[i]==19 || g[i]==g48 || g[i]==g51 || g[i]==-100)) {
+      col[groups==g[i]] = colors[j]
+      j = j + 1
+    } else if(!is.na(g[i])) {
+      col[groups==g[i]] = colors[cpos] #don't repeat colors for different groups
+      cpos <<- cpos + 1 #access as global variable
+    }
+    if(i > length(colors)) {
+      print(paste("Add more colors: ", i-length(colors)))
+    }
+  }
+  return(col)
+}
+
+##get list of distance matrices to run
+distmats = list(broad, cophylog, snpCP, snpNC, plasmid90, kmer)
+names = c("Assembly Core Genome", "Co-phylog", "Aligned to CP006923", "Aligned to NC009648", "Plasmid Presence/Absence", "Kmer Cosine")
+fnames = c("Assembly Core Genome", "Co-phylog", "Aligned to CP006923", "Aligned to NC009648", "Plasmid 90", "Kmer") #file names
+fig.labels = c("A", "B", "C", "D", "E", "F") #figure labels
+all.edges = data.frame(xID=character(), yID=character(), numInFullTree=numeric(), numInSubTree=numeric()) #data from of the number of times the edge from x to y appears in a seqtrack tree (full and with edges removed)
+
+#####
+##seqtrack
+clusters = data.frame(strains=strains) #subtree clustering results
+a=1 #analysis number
+for(d in distmats) {
+  ##get seqtrack figure
+  print(paste("SeqTrack", names[a]))
+  st = seqTrack(d, x.names=strains, x.dates=cultureDates, best="min")
+  graph = plot(st)
+  all.graph = as_graphnel(graph)
+  # print(paste("Mean edge weights:", mean(st$weight[-15])))
+  
+  ##remove the edges with distance over max.dist
+  rem = st$weight > max.dist[a]
+  rem[is.na(rem)] = TRUE
+  if(a == 6) { #need to reformat kmer edge weights
+    st$weight = round(st$weight, digits=4)
+  } 
+  sub.st = st
+  sub.st$ances[rem] = NA
+  sub.ig = plot(sub.st)
+  sub.graph = as_graphnel(sub.ig)
+  # print(paste("Mean edge weights after remove:", mean(E(sub.ig)$weight)))
+  
+  ##get the groups
+  deg = degree(sub.graph)
+  nodes = c(1:length(strains))
+  roots = as.character(nodes[deg$inDegree == 0 & deg$outDegree > 0])
+  subtrees = acc(sub.graph, roots)
+  groups = rep(NA, length(strains))
+  for(i in 1:length(subtrees)) {
+    g = as.numeric(c(names(subtrees[i]), names(subtrees[[i]])))
+    groups[nodes %in% g] = strains[as.numeric(names(subtrees[i]))]
+  }
+  clusters = cbind(clusters, groups)
+  
+  ##update list of all edges shared between groups
+  edges = as_ids(E(graph))
+  sub.edges = as_ids(E(sub.ig))
+  for(e in edges) {
+    sp = strsplit(e, "|", fixed=T)[[1]]
+    df.pos = all.edges$xID==sp[1] & all.edges$yID==sp[2]
+    if(nrow(all.edges) == 0 || sum(df.pos) == 0) { #edge not in data frame
+      if(e %in% sub.edges) {
+        all.edges = rbind(all.edges, data.frame(xID=sp[1], yID=sp[2], numInFullTree=1, numInSubTree=1))
+      } else {
+        all.edges = rbind(all.edges, data.frame(xID=sp[1], yID=sp[2], numInFullTree=1, numInSubTree=0))
+      }
+    } else {
+      all.edges$numInFullTree[df.pos] = all.edges$numInFullTree[df.pos] + 1
+      if(e %in% sub.edges) {
+        all.edges$numInSubTree[df.pos] = all.edges$numInSubTree[df.pos] + 1
+      }
+    }
+  }
+  
+  ##get node colors
+  col = getNodeCol(groups)
+  
+  #also need font color to be white for the black nodes
+  font.col = rep("black", length(col))
+  font.col[col=="black"] = "white"
+  
+  ##get edge colors; black if no evidence, orange if overlap between culture dates, pink if not between dates but before last culture date 
+  edge.col = getEdgeCol(sub.ig)
+#   print(paste("Orange edges", sum(edge.col=="orange")))
+#   print(paste("Pink edges", sum(edge.col=="pink")))
+#   print(paste("Black edges", sum(edge.col=="black")))
+  
+  ##get graphNEL coordinates
+  xy = getCoord(sub.graph)
+  mat = cbind(xy$x, xy$y)
+#   ytime = log(as.numeric((cultureDates-min(cultureDates))/60/60/24))*-1 #time diff from first culture in secs converted to days and made negative so oldest is at top and log to better space
+#   ytime[15] = -6.4
+#   mat = cbind(xy$x, ytime)
+  
+  ##draw seqtrack tree with edges removed
+  tiff(paste("TxTree_SeqTrack_", fnames[a], ".tiff", sep=""), height=10000, width=10000, res=300)
+  par(mar=c(.01, .1, 2.5, .1), cex.main=4)
+  main = paste(names[a], ", Removed edges greater than ", round(max.dist[a], digits=1), " mutations", sep="")
+  if(a == 6) { #kmer needs different rounding
+    main = paste(names[a], ", Removed edges greater than ", round(max.dist[a], digits=4), " mutations", sep="")
+  }
+  plot(sub.ig, layout=mat, vertex.label=row.names(st), vertex.color=col, vertex.label.color=font.col, vertex.label.cex=4, vertex.size=6,
+       edge.label.cex=3, edge.color=edge.col, edge.width=4, edge.label.color="dodgerblue3", edge.arrow.size=1.5,
+       main=main)
+#   par(mar=c(.1, .5, 6, .1))
+#   mtext(fig.labels[a], side=3, line=0, adj=0, cex=8) 
+  par(new=T, mar=c(0,0,0,0), xpd=T)
+  plot(1, type="n", axes=0, xlab="", ylab="")
+  legend("topleft", fig.labels[a], cex=8, bty="n", inset=c(-.07, -.03)) #inset=c(-.08, -.035) for 8000
+  dev.off()
+  
+#   ##draw epidemiology tree for between culture dates
+#   epi.edge.col = getEpiEdgeCol(bt.ig, d, a)
+#   tiff(paste("EpiTreeBetweenCulture_SeqTrack_", fnames[a], ".tiff", sep=""), height=8000, width=8000, res=300)
+#   par(mar=c(.1, .1, 2, .1), cex.main=3)
+#   plot(bt.ig, layout=bt.layout, vertex.color=col, vertex.label.color=font.col, vertex.label.cex=4, vertex.size=6,
+#        edge.width=4, edge.color=epi.edge.col, edge.arrow.size=1.5, main=paste("Connections Between Culture Dates, Colored Like", names[a], "Analysis"))
+#   par(new=T, mar=c(0,0,0,0), xpd=T)
+#   plot(1, type="n", axes=0, xlab="", ylab="")
+#   legend("topleft", fig.labels[a], cex=8, bty="n", inset=c(-.08, -.04))
+#   dev.off()
+#   
+#   ##draw epidemiology tree for before last culture date
+#   epi.edge.col = getEpiEdgeCol(bf.ig, d, a)
+#   tiff(paste("EpiTreeBeforeLastCulture_SeqTrack_", fnames[a], ".tiff", sep=""), height=8000, width=8000, res=300)
+#   par(mar=c(.1, .1, 2, .1), cex.main=3)
+#   plot(bf.ig, layout=bf.layout, vertex.color=col, vertex.label.color=font.col, vertex.label.cex=4, vertex.size=6,
+#        edge.width=4, edge.color=epi.edge.col, edge.arrow.size=1.5, main=paste("Connections Before Later Culture Date, Colored Like", names[a], "Analysis"))
+#   par(new=T, mar=c(0,0,0,0), xpd=T)
+#   plot(1, type="n", axes=0, xlab="", ylab="")
+#   legend("topleft", fig.labels[a], cex=8, bty="n", inset=c(-.08, -.04))
+#   dev.off()
+  
+  ##make figures for combining with patient data
+#   if(a == 1) { #just do broad
+#     ##rotate tree for patient figure
+#     curr.y = sort(unique(xy$y))
+#     yval = seq(from=0, length=length(curr.y), by=-10)
+#     newy = rep(-1, length(xy$y))
+#     for(i in 1:length(curr.y)) {
+#       newy[xy$y==curr.y[i]] = yval[i]
+#     }
+#     xval = seq(from=10, length=71, by=200)
+#     mat = cbind(newy, xval) 
+#     
+#     tiff(paste("TxTreeRotate_SeqTrack_", fnames[a], ".tiff", sep=""), height=8000, width=8000, res=300)
+#     par(mar=c(.1, .001, .1, 1))
+#     plot(sub.ig, layout=mat, vertex.label=row.names(st), vertex.color=col, vertex.label.color=font.col, vertex.label.cex=2, vertex.size=3,
+#          edge.label.cex=2, edge.color=edge.col, edge.label.color="dodgerblue3",  edge.arrow.size=1.5, edge.width=4)
+#     #dev.off()
+#     
+#     ##draw lines to connect to patient figure - draw on top of existing graph
+#     uniquex = sort(unique(mat[,1]))
+#     par(bg=NA, mar=c(1.1, .2, 1.1, 0), new=T)
+#     xlim = range(mat[,1]) #need x to be longer on right
+#     plot(1, type="n", axes=0, xlim=c(xlim[1], 1), ylim=range(mat[,2]), xlab="", ylab="")
+#     for(i in 1:nrow(mat)) {
+#       lines(x=c(mat[i,1], 1), y=c(mat[i,2], mat[i,2]), lty=3, col=col[i])
+#     }
+#     dev.off()
+#     
+#     ##draw lines to connect to patient figure - for separate figures for each
+#     ##have to draw separate plots for each x value so easier to match up
+#     #     uniquex = sort(unique(mat[,1]))
+#     #     for(j in 1:length(uniquex)) {
+#     #       png(paste("patientFigTreeConnectors", j, "_SeqTrack_Broad.png", sep=""), height=8000, width=8000, res=300, bg="transparent")
+#     #       par(bg=NA, mar=c(.1, .1, .1, .1), new=T)
+#     #       plot(1, type="n", axes=0, xlim=range(mat[,1]+10), ylim=range(mat[,2]), xlab="", ylab="", add=T)
+#     #       for(i in 1:nrow(mat)) {
+#     #         if(mat[i,1] == uniquex[j]) {
+#     #           lines(x=c(mat[i,1], max(mat[,1])+10), y=c(mat[i,2], mat[i,2]), lty=3, col=col[i])
+#     #         }
+#     #       }
+#     #       dev.off()
+#     #     }
+#     
+#     ##draw epi tree for same hospital
+#     epi.edge.col = getEpiEdgeCol(same.bt.ig, d, a)
+#     tiff(paste("EpiTreeSameHospitalBetweenCulture_SeqTrack_", fnames[a], ".tiff", sep=""), height=8000, width=8000, res=300)
+#     par(mar=c(.1, .1, 2, .1), cex.main=2)
+#     plot(same.bt.ig, layout=same.bt.layout, vertex.color=col, vertex.label.color=font.col, vertex.label.cex=4, vertex.size=6,
+#          edge.width=4, edge.color=epi.edge.col, edge.arrow.size=1.5, main=paste("Connections Between Culture Dates In Same Hospital as Isolate Was Cultured From, Colored Like", names[a], "Analysis"))
+#     dev.off()
+#     
+#     ##draw epidemiology tree for before last culture date
+#     epi.edge.col = getEpiEdgeCol(same.bf.ig, d, a)
+#     tiff(paste("EpiTreeSameHospitalBeforeLastCulture_SeqTrack_", fnames[a], ".tiff", sep=""), height=8000, width=8000, res=300)
+#     par(mar=c(.1, .1, 2, .1), cex.main=2)
+#     plot(same.bf.ig, layout=same.bf.layout, vertex.color=col, vertex.label.color=font.col, vertex.label.cex=4, vertex.size=6,
+#          edge.width=4, edge.color=epi.edge.col, edge.arrow.size=1.5, main=paste("Connections Before Later Culture Date In Same Hospital As Isolate Was Cultured from, Colored Like", names[a], "Analysis"))
+#     dev.off()
+#     
+#     ##draw patient encounter figure
+#     tiff(paste("patientFig_SeqTrack_", fnames[a], ".tiff", sep=""), height=8000, width=6000, res=300)
+#     drawEncounterFig(col, names[a])
+#     dev.off()
+#   }
+#   
+  ##draw full tree
+  xy = getCoord(all.graph)
+  mat = cbind(xy$x, xy$y)
+  # mat = cbind(xy$x, ytime)
+  edge.col = getEdgeCol(graph)
+#   print(paste("All orange edges", sum(edge.col=="orange")))
+#   print(paste("All pink edges", sum(edge.col=="pink")))
+#   print(paste("All black edges", sum(edge.col=="black")))
+  tiff(paste("TxTreeAllEdges_SeqTrack_", fnames[a], ".tiff", sep=""), height=10000, width=10000, res=300)
+  par(mar=c(.001, .1, 2.75, .1), cex.main=4.5)
+  plot(graph, layout=mat, vertex.label=row.names(st), vertex.color=col, vertex.label.color=font.col, vertex.label.cex=4, vertex.size=6,
+       edge.label.cex=2, edge.color=edge.col, edge.width=4, edge.label.color="dodgerblue3", edge.arrow.size=1.5, main=names[a])
+  par(new=T, mar=c(0,0,0,0), xpd=T)
+  plot(1, type="n", axes=0, xlab="", ylab="")
+  legend("topleft", fig.labels[a], cex=8, bty="n", inset=c(-.08, -.035))
+  dev.off()
+  
+  # print("")
+  a = a + 1
+}
+
+##write clusters
+names(clusters) = c("strain", "broad", "cophylog", "cp006923snp", "nc009648snp", "plasmid90")
+write.table(clusters, "subtreeClusters.txt", sep="\t", row.names=F, col.names=T, quote=F)
+
+all.edges$xID = as.numeric(as.character(all.edges$xID))
+all.edges$yID = as.numeric(as.character(all.edges$yID))
+
+#####draw trees of edges in all analyses
+##function that takes the column countCol in all.edges to weight tree, 
+##includes edges that were present in greater than numAnalyses number of anayses, 
+##and draws a tree to the file name
+makeTree <- function(countCol, fileName, numAnalyses) {
+  g = new("graphNEL", nodes=as.character(strains), edgemode="directed")
+  sub.edges = all.edges[all.edges[,countCol] > numAnalyses,]
+  g = addEdge(from=as.character(strains[sub.edges$xID]), to=as.character(strains[sub.edges$yID]), 
+              g, weights=sub.edges[,countCol])
+  
+  ##convert to igraph
+  ig = igraph.from.graphNEL(g)
+  
+  ##edge colors
+  edge.col = getEdgeCol(ig)
+  
+  ##get graphNEL coordinates
+  xy = getCoord(g)
+  mat = cbind(xy$x, xy$y)
+  
+  ##draw tree
+  tiff(paste(fileName, ".tiff", sep=""), height=10000, width=10000, res=300)
+  par(mar=c(.01, .1, 2.5, .1), cex.main=4)
+  plot(ig, layout=mat, vertex.label.cex=2, vertex.size=4,
+       edge.label=E(ig)$weight, edge.label.cex=3, edge.color=edge.col, edge.width=4, edge.label.color="dodgerblue3", edge.arrow.size=1.5,
+       main=paste("Edges Present in more than", numAnalyses, "Analyses"))
+  par(new=T, mar=c(0,0,0,0), xpd=T)
+  plot(1, type="n", axes=0, xlab="", ylab="")
+  legend("topleft", "F", cex=8, bty="n", inset=c(-.08, -.035))
+  dev.off()
+  
+}
+
+for(i in 0:5) {
+  print(i)
+  makeTree(4, paste("TxTree_SeqTrack_In", i, "Analyses", sep=""), i)
+  makeTree(3, paste("TxTreeAllEdges_SeqTrack_In", i, "Analyses", sep=""), i)
+}
