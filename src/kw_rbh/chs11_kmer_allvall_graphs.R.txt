@@ -1,0 +1,61 @@
+##make plots for all vs. all matrix of Spearman correlations from CHS11 gene kmers
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\rbh")
+
+matrix = read.table("chs11spearmanAcrossAll.txt", sep="\t", header=F, row.names=1, 
+                    colClasses=c("character", rep("numeric", 580)))
+
+###PCOA
+matrix = 1-matrix
+
+pcoa = cmdscale(matrix, k=20, eig = TRUE)
+
+jpeg("chs11_kmer_allvall_pcoa.jpg", res=150, height=900, width=900)
+plot(x=pcoa$points[,1], y=pcoa$points[,2], xlab="MDS1", ylab="MDS2", 
+     main="genes with Spearman < .98 vs. full genome", pch=16)
+dev.off()
+
+###MDS1 vs. genome position
+scaff = read.table("carolina_klebsiella_pneumoniae_chs_11.0_scaffoldSizes.txt", 
+                   header=T, sep="\t", colClasses=c("character", "numeric"))
+genes = read.table("carolina_klebsiella_pneumoniae_chs_11.0_genePositions.txt", 
+                   header=T, sep="\t", colClasses=c("character", "character", "numeric", "numeric"))
+lim = range(pcoa$points[,1])
+mrg = merge(genes, data.frame(geneID = row.names(pcoa$points), MDS1=pcoa$points[,1]), by="geneID")
+jpeg("chs11_kmer_allvall_scaffolds_mds1.jpg", height=900, width=1800, res=150)
+par(mfrow=c(2, 4), oma=c(2, .1, .1, .1)) #8 scaffolds
+for(i in 1:nrow(scaff)) {
+  tab = mrg[mrg$scaffold==scaff$scaffold[i],]
+  plot(x=tab$geneStart, y=tab$MDS1, 
+       xlim=c(0, scaff$length[i]), ylim=lim,
+       xlab="gene start on scaffold", ylab="MDS1",
+       main=paste("Scaffold", scaff$scaffold[i]),
+       pch=16, col="black")
+}
+dev.off()
+
+###MDS1 vs. p-value
+pVal = read.table("chs11_rbh_pvalues.txt", sep="\t", header=T, colClasses=c("character", rep("numeric", 6)))
+pVal$car_v_res = log10(pVal$car_v_res)
+pVal$car_v_res[pVal$aveCar > pVal$aveRes] = -1 * pVal$car_v_res[pVal$aveCar > pVal$aveRes]
+pVal$car_v_sus = log10(pVal$car_v_sus)
+pVal$car_v_sus[pVal$aveCar > pVal$aveSus] = -1 * pVal$car_v_sus[pVal$aveCar > pVal$aveSus]
+pVal$res_v_sus = log10(pVal$res_v_sus)
+pVal$res_v_sus[pVal$aveRes > pVal$aveSus] = -1 * pVal$res_v_sus[pVal$aveRes > pVal$aveSus]
+mrg = merge(mrg, pVal)
+jpeg("chs11_kmer_allvall_mds_v_p.jpg", res=150, height=700, width=2100)
+par(mfrow=c(1,3), mar=c(4, 5.1, 2, 2))
+##carolina vs resistant
+plot(x=mrg$MDS1, y=mrg$car_v_res, xlab="MDS1", 
+     ylab="Carolina vs. Resistant log10 p-values\n(negative if Carolina bit score is lower)", 
+     pch=16)
+##carolina vs susceptible
+plot(x=mrg$MDS1, y=mrg$car_v_sus, xlab="MDS1", 
+     ylab="Carolina vs. Suseptible log10 p-value\n(negative if Carolina bit score is lower)", 
+     pch=16)
+##resistant vs susceptible
+plot(x=mrg$MDS1, y=mrg$res_v_sus, xlab="MDS1", 
+     ylab="Resistant vs. Suseptible log10 p-values\n(negative if resistant bit score is lower)", 
+     pch=16)
+dev.off()

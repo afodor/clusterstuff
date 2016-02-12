@@ -1,0 +1,29 @@
+##make plots for all vs. all matrix of Spearman correlations from orthologGroup results
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\rbh")
+
+matrix = read.table("orthologGroupSpearmanAcrossAll.txt", sep="\t", header=F, row.names=1, 
+                    colClasses=c("character", rep("numeric", 964)))
+
+###PCOA
+matrix = 1-matrix
+
+pcoa = cmdscale(matrix, k=20, eig = TRUE)
+
+jpeg("orthologGroup_kmer_allvall_pcoa.jpg", res=150, height=900, width=900)
+plot(x=pcoa$points[,1], y=pcoa$points[,2], xlab="MDS1", ylab="MDS2", 
+     main="orthogroups with Spearman < .98 vs. full genome", pch=16)
+dev.off()
+
+###MDS1 vs. orthogroup number
+x = as.numeric(sub("orthogroup", "", row.names(matrix)))
+lim = range(pcoa$points[,1:2])
+jpeg("orthologGroup_kmer_allvall_number.jpg", height=900, width=900, res=150)
+plot(x=x, y=pcoa$points[,1], 
+     xlim=c(0, max(x)), ylim=lim,
+     xlab="orthogroup number", ylab="MDS",
+     pch=16, col="blue")
+points(x=x, y=pcoa$points[,2], pch=16, col="red")
+legend("bottomright", legend=c("MDS1", "MDS2"), pch=16, col=c("blue", "red"))
+dev.off()
