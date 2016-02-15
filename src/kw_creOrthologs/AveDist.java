@@ -44,13 +44,17 @@ public class AveDist {
 		//get key
 		String[] genomes = new String[numGenom];
 		BufferedReader k = new BufferedReader(new FileReader(key));
-		String line = k.readLine(); //header
+		String line;
+		if(!key.getName().equals("allKey.txt")) {
+			line = k.readLine(); //header
+		}
 		line = k.readLine();
 		int count = 0;
 		int numCar = 0;
 		while(line != null) {
 			String[] sp = line.split(" ");
-			if(sp.length == 3) {
+			if(sp.length == 3 || 
+					(key.getName().equals("allKey.txt") && sp.length==2)) {
 				String name = sp[1];
 				genomes[count] = name;
 				count++;
