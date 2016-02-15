@@ -52,7 +52,7 @@ public class AveDist {
 		int count = 0;
 		int numCar = 0;
 		while(line != null) {
-			String[] sp = line.split(" ");
+			String[] sp = line.split("\\s");
 			if(sp.length == 3 || 
 					(key.getName().equals("allKey.txt") && sp.length==2)) {
 				String name = sp[1];
