@@ -153,7 +153,7 @@ public class AveDist {
 		String name = dist.getName();
 		System.out.println(name + "\t" + allSum + "\t" + carSum);
 		out.write(name.replace(".fasta_dist.txt", "") + "\t" 
-				+ (allSum/countAll) + "\t" + (carSum/countCar) +
+				+ (allSum/countAll) + "\t" + (carSum/countCar) + "\t"
 				+ (resSum/countRes) + "\t" + (susSum/countSus) + "\n");
 		out.flush();
 	}
