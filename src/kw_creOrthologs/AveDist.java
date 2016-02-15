@@ -131,6 +131,12 @@ public class AveDist {
 				countAll++;
 				String cl1 = GenToClass.get(genomes[r]);
 				String cl2 = GenToClass.get(genomes[c]);
+				if(cl1 == null) {
+					System.err.println(genomes[r]);
+				}
+				if(cl2 == null) {
+					System.err.println(genomes[c]);
+				}
 				if(cl1.equals("carolina") && cl2.equals("carolina")) {
 				//if(genomes[r].contains("chs") && genomes[c].contains("chs")) {
 					carSum += Double.parseDouble(table[r][c]);
