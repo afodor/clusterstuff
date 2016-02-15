@@ -113,6 +113,10 @@ public class AveDist {
 				}
 			}
 		}
-		out.write((allSum/numGenom) + "\t" + (carSum/numCar) + "\n");
+		String name = dist.getName();
+		System.out.println(name + "\t" + allSum + "\t" + carSum);
+		out.write(name.replace(".fasta_dist.txt", "") + "\t" 
+				+ (allSum/numGenom) + "\t" + (carSum/numCar) + "\n");
+		out.flush();
 	}
 }
