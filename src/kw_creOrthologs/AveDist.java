@@ -105,18 +105,22 @@ public class AveDist {
 		//get sums
 		double allSum = 0;
 		double carSum = 0;
+		int countAll = 0;
+		int countCar = 0;
 		for(int r = 0; r < numGenom; r++) {//row
 			for(int c = 0; c < r; c++) {//column
 				allSum += Double.parseDouble(table[r][c]);
+				countAll++;
 				if(genomes[r].contains("chs") && genomes[c].contains("chs")) {
 					carSum += Double.parseDouble(table[r][c]);
+					countCar++;
 				}
 			}
 		}
 		String name = dist.getName();
 		System.out.println(name + "\t" + allSum + "\t" + carSum);
 		out.write(name.replace(".fasta_dist.txt", "") + "\t" 
-				+ (allSum/numGenom) + "\t" + (carSum/numCar) + "\n");
+				+ (allSum/countAll) + "\t" + (carSum/countCar) + "\n");
 		out.flush();
 	}
 }
