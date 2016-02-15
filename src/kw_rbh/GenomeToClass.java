@@ -20,8 +20,8 @@ public class GenomeToClass {
 		for(String c : classes) {
 			String[] files = new File(GEN_DIR + c).list();
 			for(String f : files) {
-				if(f.endsWith("genes.gtf")) {
-					out.write(f.replace(".genes.gtf", "") +  "\t" + c  + "\n");
+				if(f.endsWith("scaffolds.fasta")) {
+					out.write(f.replace(".scaffolds.fasta", "") +  "\t" + c  + "\n");
 				}
 			}
 		}
