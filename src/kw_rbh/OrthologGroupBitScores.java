@@ -101,22 +101,22 @@ public class OrthologGroupBitScores {
 								String[] genomeNames = table.split("_v_");//table name is genome1_v_genome2.txt
 								int gen1 = getGenomeNumber(genomeNames[0].replace("rbhResults_", ""));
 								int gen2 = getGenomeNumber(genomeNames[1].replace(".txt", ""));
-								if(bitScore[gen1][i] != 0 || bitScore[gen1][i] != bit1) {
+								if(bitScore[gen1][i] != 0 && bitScore[gen1][i] != bit1) {
 									br.close();
 									throw new Exception("Inconsistent bit score " + bitScore[gen1][i] +
 											" " + bit1 + " " + gene1 + " " + orthogroups[i]);
 								}
-								if(bitScore[gen2][i] != 0 || bitScore[gen2][i] != bit1) {
+								if(bitScore[gen2][i] != 0 && bitScore[gen2][i] != bit1) {
 									br.close();
 									throw new Exception("Inconsistent bit score " + bitScore[gen2][i] +
 											" " + bit2 + " " + gene2 + " " + orthogroups[i]);
 								}
-								if(gene[gen1][i] != null || gene[gen1][i] != gene1) {
+								if(gene[gen1][i] != null && gene[gen1][i] != gene1) {
 									br.close();
 									throw new Exception("Inconsistent bit score " + bitScore[gen1][i] +
 											" " + bit1 + " " + gene1 + " " + orthogroups[i]);
 								}
-								if(gene[gen2][i] != null || gene[gen2][i] != gene2) {
+								if(gene[gen2][i] != null && gene[gen2][i] != gene2) {
 									br.close();
 									throw new Exception("Inconsistent bit score " + bitScore[gen2][i] +
 											" " + bit2 + " " + gene2 + " " + orthogroups[i]);
