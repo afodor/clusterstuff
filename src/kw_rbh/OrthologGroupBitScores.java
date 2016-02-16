@@ -23,7 +23,7 @@ public class OrthologGroupBitScores {
 	public static void main(String[] args) throws Exception {
 		//log file
 		BufferedWriter log = new BufferedWriter(new FileWriter(new File(
-				DIR + "orthologroupBitScoreLog.txt")));
+				DIR + "orthologGroupBitScoreLog.txt")));
 		log.write("get list of genomes\n");
 		log.flush();
 		
@@ -63,7 +63,7 @@ public class OrthologGroupBitScores {
 		
 		//for each genome, get bit scores and gene name for each orthogroup
 		String[] orthogroups = groupMap.keySet().toArray(new String[groupMap.keySet().size()]);
-		int[][] bitScore = new int[NUM_GENOME][orthogroups.length];//for each genome in genome (first index), the bit score for that orthogroup (second index)
+		double[][] bitScore = new double[NUM_GENOME][orthogroups.length];//for each genome in genome (first index), the bit score for that orthogroup (second index)
 		String[][] gene = new String[NUM_GENOME][orthogroups.length];//for each genome in genome (first index), the gene name for that orthogroup (second index)
 		String[] folders = {"carolina_v_carolina", "carolina_v_resistant",
 				"carolina_v_susceptible", "resistant_v_carolina", "resistant_v_resistant",
@@ -88,8 +88,8 @@ public class OrthologGroupBitScores {
 						String[] sp = line.split("\t");
 						String gene1 = sp[0];
 						String gene2 = sp[1];
-						int bit1 = Integer.parseInt(sp[2]);
-						int bit2 = Integer.parseInt(sp[3]);
+						double bit1 = Double.parseDouble(sp[2]);
+						double bit2 = Double.parseDouble(sp[3]);
 						if(bit1 != bit2) {
 							br.close();
 							throw new Exception("Unequal bit scores: " + line);
@@ -155,7 +155,7 @@ public class OrthologGroupBitScores {
 		for(int i = 0; i < NUM_GENOME; i++) {
 			bitOut.write(GENOMES[i]);
 			geneOut.write(GENOMES[i]);
-			int[] bit = bitScore[i];
+			double[] bit = bitScore[i];
 			String[] geneName = gene[i];
 			for(int j = 0; j < bit.length; j++) {
 				bitOut.write("\t" + bit[j]);
