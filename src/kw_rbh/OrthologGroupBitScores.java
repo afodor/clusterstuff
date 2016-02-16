@@ -88,7 +88,7 @@ public class OrthologGroupBitScores {
 					log.write("table " + table + "\n");
 					log.flush();
 					br = new BufferedReader(new FileReader(new File(
-							path + "/" + table)));
+							genPath + "/" + table)));
 					line = br.readLine();//header
 					line = br.readLine();
 					while(line != null) {
