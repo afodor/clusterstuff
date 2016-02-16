@@ -42,6 +42,7 @@ public class OrthologGroupBitScores {
 		}
 		br.close();
 		if(pos != NUM_GENOME) {
+			log.close();
 			throw new Exception("Incorrect number genomes " + pos + " " + NUM_GENOME);
 		}
 		
@@ -95,6 +96,7 @@ public class OrthologGroupBitScores {
 						double bit2 = Double.parseDouble(sp[3]);
 						if(bit1 != bit2) {
 							br.close();
+							log.close();
 							throw new Exception("Unequal bit scores: " + line);
 						}
 						
@@ -114,15 +116,17 @@ public class OrthologGroupBitScores {
 									throw new Exception("Inconsistent bit score " + bitScore[gen2][i] +
 											" " + bit2 + " " + gene2 + " " + orthogroups[i]);
 								}*/
-								if(gene[gen1][i] != null && gene[gen1][i] != gene1) {
+								if(gene[gen1][i] != null && gene[gen1][i].equals(gene1)) {
+									log.close();
 									br.close();
-									throw new Exception("Inconsistent bit score " + bitScore[gen1][i] +
-											" " + bit1 + " " + gene1 + " " + orthogroups[i]);
+									throw new Exception("Inconsistent gene name " + gene[gen1][i] +
+											" " + gene1 + " " + orthogroups[i]);
 								}
-								if(gene[gen2][i] != null && gene[gen2][i] != gene2) {
+								if(gene[gen2][i] != null && gene[gen2][i].equals(gene2)) {
+									log.close();
 									br.close();
-									throw new Exception("Inconsistent bit score " + bitScore[gen2][i] +
-											" " + bit2 + " " + gene2 + " " + orthogroups[i]);
+									throw new Exception("Inconsistent gene name " + gene[gen2][i] +
+											" " + gene2 + " " + orthogroups[i]);
 								}
 								bitScore[gen1][i] += bit1;
 								bitScore[gen2][i] += bit1;
