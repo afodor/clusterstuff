@@ -35,7 +35,7 @@ public class OrthologGroupBitScores {
 		int pos = 0;
 		while(line != null) {
 			String[] sp = line.split("\t");
-			GENOMES[pos] = sp[0];
+			GENOMES[pos] = sp[1] + "_" + sp[0];
 			pos++;
 			line = br.readLine();
 		}
