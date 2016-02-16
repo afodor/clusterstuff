@@ -116,13 +116,13 @@ public class OrthologGroupBitScores {
 									throw new Exception("Inconsistent bit score " + bitScore[gen2][i] +
 											" " + bit2 + " " + gene2 + " " + orthogroups[i]);
 								}*/
-								if(gene[gen1][i] != null && gene[gen1][i].equals(gene1)) {
+								if(gene[gen1][i] != null && !gene[gen1][i].equals(gene1)) {
 									log.close();
 									br.close();
 									throw new Exception("Inconsistent gene name " + gene[gen1][i] +
 											" " + gene1 + " " + orthogroups[i]);
 								}
-								if(gene[gen2][i] != null && gene[gen2][i].equals(gene2)) {
+								if(gene[gen2][i] != null && !gene[gen2][i].equals(gene2)) {
 									log.close();
 									br.close();
 									throw new Exception("Inconsistent gene name " + gene[gen2][i] +
