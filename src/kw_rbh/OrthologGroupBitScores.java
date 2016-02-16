@@ -79,9 +79,10 @@ public class OrthologGroupBitScores {
 			String path = RBHDIR + f;
 			String[] genList = new File(path).list();
 			for(String g : genList) {//each genome folder in folder
-				path += "/" + g;
-				String[] tableList = new File(path).list();
-				log.write("Starting genome " + path + " " + tableList.length + "\n");
+				String genPath = path + "/" + g;
+				//System.out.println(path);
+				String[] tableList = new File(genPath).list();
+				log.write("Starting genome " + genPath + " " + tableList.length + "\n");
 				log.flush();
 				for(String table : tableList) {//each table
 					log.write("table " + table + "\n");
