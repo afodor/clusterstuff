@@ -99,7 +99,7 @@ public class OrthologGroupBitScores {
 							HashSet<String> set = groupMap.get(orthogroups[i]);
 							if(set.contains(gene1) && set.contains(gene2)) {
 								String[] genomeNames = table.split("_v_");//table name is genome1_v_genome2.txt
-								int gen1 = getGenomeNumber(genomeNames[0]);
+								int gen1 = getGenomeNumber(genomeNames[0].replace("rbhResults_", ""));
 								int gen2 = getGenomeNumber(genomeNames[1].replace(".txt", ""));
 								if(bitScore[gen1][i] != 0 || bitScore[gen1][i] != bit1) {
 									br.close();
