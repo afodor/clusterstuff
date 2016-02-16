@@ -108,12 +108,12 @@ public class OrthologGroupBitScores {
 									br.close();
 									throw new Exception("Inconsistent bit score " + bitScore[gen1][i] +
 											" " + bit1 + " " + gene1 + " " + orthogroups[i]);
-								}*/
+								}
 								if(bitScore[gen2][i] != 0 && bitScore[gen2][i] != bit1) {
 									br.close();
 									throw new Exception("Inconsistent bit score " + bitScore[gen2][i] +
 											" " + bit2 + " " + gene2 + " " + orthogroups[i]);
-								}
+								}*/
 								if(gene[gen1][i] != null && gene[gen1][i] != gene1) {
 									br.close();
 									throw new Exception("Inconsistent bit score " + bitScore[gen1][i] +
