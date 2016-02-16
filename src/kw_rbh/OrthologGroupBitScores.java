@@ -81,6 +81,8 @@ public class OrthologGroupBitScores {
 			for(String g : genList) {//each genome folder in folder
 				path += "/" + g;
 				String[] tableList = new File(path).list();
+				log.write("Starting genome " + path + " " + tableList.length + "\n");
+				log.flush();
 				for(String table : tableList) {//each table
 					log.write("table " + table + "\n");
 					log.flush();
