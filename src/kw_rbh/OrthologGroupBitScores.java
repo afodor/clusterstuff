@@ -1,6 +1,7 @@
 /*
  * Get the bit score (and gene name) tables for the ortholog groups
  * (use the list of groups with 150 or more genomes)
+ * Bit score is the average bit score for all pairs
  */
 
 package kw_rbh;
@@ -63,7 +64,9 @@ public class OrthologGroupBitScores {
 		
 		//for each genome, get bit scores and gene name for each orthogroup
 		String[] orthogroups = groupMap.keySet().toArray(new String[groupMap.keySet().size()]);
-		double[][] bitScore = new double[NUM_GENOME][orthogroups.length];//for each genome in genome (first index), the bit score for that orthogroup (second index)
+		double[][] bitScore = new double[NUM_GENOME][orthogroups.length];//for each genome in genome (first index), the sum of the bit score for that orthogroup (second index)
+		//bitScore varies for each genome comparison -> take average
+		int[][] numScores = new int[NUM_GENOME][orthogroups.length];//number of times have added to this value in bitScore
 		String[][] gene = new String[NUM_GENOME][orthogroups.length];//for each genome in genome (first index), the gene name for that orthogroup (second index)
 		String[] folders = {"carolina_v_carolina", "carolina_v_resistant",
 				"carolina_v_susceptible", "resistant_v_carolina", "resistant_v_resistant",
@@ -101,11 +104,11 @@ public class OrthologGroupBitScores {
 								String[] genomeNames = table.split("_v_");//table name is genome1_v_genome2.txt
 								int gen1 = getGenomeNumber(genomeNames[0].replace("rbhResults_", ""));
 								int gen2 = getGenomeNumber(genomeNames[1].replace(".txt", ""));
-								if(bitScore[gen1][i] != 0 && bitScore[gen1][i] != bit1) {
+								/*if(bitScore[gen1][i] != 0 && bitScore[gen1][i] != bit1) {
 									br.close();
 									throw new Exception("Inconsistent bit score " + bitScore[gen1][i] +
 											" " + bit1 + " " + gene1 + " " + orthogroups[i]);
-								}
+								}*/
 								if(bitScore[gen2][i] != 0 && bitScore[gen2][i] != bit1) {
 									br.close();
 									throw new Exception("Inconsistent bit score " + bitScore[gen2][i] +
@@ -121,8 +124,10 @@ public class OrthologGroupBitScores {
 									throw new Exception("Inconsistent bit score " + bitScore[gen2][i] +
 											" " + bit2 + " " + gene2 + " " + orthogroups[i]);
 								}
-								bitScore[gen1][i] = bit1;
-								bitScore[gen2][i] = bit1;
+								bitScore[gen1][i] += bit1;
+								bitScore[gen2][i] += bit1;
+								numScores[gen1][i]++;
+								numScores[gen2][i]++;
 								gene[gen1][i] = gene1;
 								gene[gen2][i] = gene2;
 							}
@@ -156,9 +161,10 @@ public class OrthologGroupBitScores {
 			bitOut.write(GENOMES[i]);
 			geneOut.write(GENOMES[i]);
 			double[] bit = bitScore[i];
+			int[] count = numScores[i];
 			String[] geneName = gene[i];
 			for(int j = 0; j < bit.length; j++) {
-				bitOut.write("\t" + bit[j]);
+				bitOut.write("\t" + (bit[j]/count[j]));
 				if(geneName[j] == null) {
 					geneOut.write("\tNA");
 				} else {
