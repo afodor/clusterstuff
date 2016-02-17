@@ -1,6 +1,8 @@
 /*
  * Calculate the average distance between all genomes, or within carolina,
  * for each gathered kmer 
+ * 
+ * Calculate for all genomes and Kleb only
  */
 package kw_creOrthologs;
 
@@ -11,6 +13,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class AveDist {
 	public static String DIR = "/nobackup/afodor_research/af_broad/orthologs/gatheredKmerDistanceMatrices";
@@ -30,33 +33,46 @@ public class AveDist {
 		convert.close();
 		
 		//set up output
-		BufferedWriter out = new BufferedWriter(new FileWriter(new File(
+		BufferedWriter outAll = new BufferedWriter(new FileWriter(new File(
 				"/nobackup/afodor_research/af_broad/orthologs/aveDist.txt")));
-		out.write("orthogroup\taveAll\taveCarolina\taveResistant\taveSusceptible\n");
+		outAll.write("orthogroup\taveAll\taveCarolina\taveResistant\taveSusceptible\n");
+		BufferedWriter outKleb = new BufferedWriter(new FileWriter(new File(
+				"/nobackup/afodor_research/af_broad/orthologs/aveKlebDist.txt")));
+		outKleb.write("orthogroup\taveAllKleb\taveCarolinaKleb\taveResistantKleb\taveSusceptibleKleb\n");
 		
 		//include table of all kmers
 		getAve(new File("/nobackup/afodor_research/af_broad/gatheredKmerMatrices/allDist.txt"), 
 				new File("/nobackup/afodor_research/af_broad/gatheredKmerMatrices/allKey.txt"),
-				out);
+				outAll, false);
+		getAve(new File("/nobackup/afodor_research/af_broad/gatheredKmerMatrices/allDist.txt"), 
+				new File("/nobackup/afodor_research/af_broad/gatheredKmerMatrices/allKey.txt"),
+				outKleb, true);
 		
 		File[] tables = new File(DIR).listFiles();
 		for(File t : tables) {
 			if(t.getName().endsWith("dist.txt")) {
 				String name = t.getAbsolutePath();
-				getAve(t, new File(name.replace("dist.txt", "Key.txt")), out);
+				getAve(t, new File(name.replace("dist.txt", "Key.txt")), outAll, false);
+				getAve(t, new File(name.replace("dist.txt", "Key.txt")), outKleb, true);
 			}
 		}
 		
-		out.close();	
+		outAll.close();	
+		outKleb.close();
 	}
 	
 	//for given distance file dist and its corresponding key, calculate the 
 	//averages and write the results
-	private static void getAve(File dist, File key, BufferedWriter out) throws Exception {
+	//if kleb is true, only look at kleb genomes
+	private static void getAve(File dist, File key, BufferedWriter out, boolean kleb) throws Exception {
 		int numGenom = 339;
+		if(kleb) {
+			numGenom = 206;
+		}
 		
 		//get key
 		String[] genomes = new String[numGenom];
+		HashSet<Integer> klebs = new HashSet<Integer>();//set of indices of which genomes are kleb
 		BufferedReader k = new BufferedReader(new FileReader(key));
 		String line;
 		if(!key.getName().equals("allKey.txt")) {
@@ -64,17 +80,22 @@ public class AveDist {
 		}
 		line = k.readLine();
 		int count = 0;
-		int numCar = 0;
+		//int numCar = 0;
 		while(line != null) {
 			String[] sp = line.split("\\s");
 			if(sp.length == 3 || 
 					(key.getName().equals("allKey.txt") && sp.length==2)) {
 				String name = sp[1];
-				genomes[count] = name;
-				count++;
-				if(name.contains("chs")) {
-					numCar++;
+				if(!kleb || name.contains("kleb")) {
+					if(name.contains("kleb")) {
+						klebs.add(count);
+					}
+					genomes[count] = name;
+					count++;
 				}
+				/*if(name.contains("chs")) {
+					numCar++;
+				}*/
 			} else {
 				k.close();
 				throw new Exception("Incorrect split length: " + key.getName() + 
@@ -86,9 +107,9 @@ public class AveDist {
 		if(count != numGenom) {
 			throw new Exception("Incorrect number of genomes in: " + key.getName());
 		}
-		if(numCar != 76) {
+		/*if(numCar != 76) {
 			throw new Exception("Missing Carolina: " + key.getName());
-		}
+		}*/
 		
 		//get table
 		BufferedReader d = new BufferedReader(new FileReader(dist));
@@ -127,26 +148,28 @@ public class AveDist {
 		int countSus = 0;
 		for(int r = 0; r < numGenom; r++) {//row
 			for(int c = 0; c < r; c++) {//column
-				allSum += Double.parseDouble(table[r][c]);
-				countAll++;
-				String cl1 = GenToClass.get(genomes[r]);
-				String cl2 = GenToClass.get(genomes[c]);
-				if(cl1 == null) {
-					System.err.println(genomes[r]);
-				}
-				if(cl2 == null) {
-					System.err.println(genomes[c]);
-				}
-				if(cl1.equals("carolina") && cl2.equals("carolina")) {
-				//if(genomes[r].contains("chs") && genomes[c].contains("chs")) {
-					carSum += Double.parseDouble(table[r][c]);
-					countCar++;
-				} else if(cl1.equals("resistant") && cl2.equals("resistant")) {
-					resSum += Double.parseDouble(table[r][c]);
-					countRes++;
-				} else if(cl1.equals("susceptible") && cl2.equals("susceptible")) {
-					susSum += Double.parseDouble(table[r][c]);
-					countSus++;
+				if(!kleb || (klebs.contains(r) && klebs.contains(c))) {
+					allSum += Double.parseDouble(table[r][c]);
+					countAll++;
+					String cl1 = GenToClass.get(genomes[r]);
+					String cl2 = GenToClass.get(genomes[c]);
+					if(cl1 == null) {
+						System.err.println(genomes[r]);
+					}
+					if(cl2 == null) {
+						System.err.println(genomes[c]);
+					}
+					if(cl1.equals("carolina") && cl2.equals("carolina")) {
+					//if(genomes[r].contains("chs") && genomes[c].contains("chs")) {
+						carSum += Double.parseDouble(table[r][c]);
+						countCar++;
+					} else if(cl1.equals("resistant") && cl2.equals("resistant")) {
+						resSum += Double.parseDouble(table[r][c]);
+						countRes++;
+					} else if(cl1.equals("susceptible") && cl2.equals("susceptible")) {
+						susSum += Double.parseDouble(table[r][c]);
+						countSus++;
+					}
 				}
 			}
 		}
