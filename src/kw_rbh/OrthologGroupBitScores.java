@@ -98,9 +98,12 @@ public class OrthologGroupBitScores {
 						double bit1 = Double.parseDouble(sp[2]);
 						double bit2 = Double.parseDouble(sp[3]);
 						if(bit1 != bit2) {
-							br.close();
+							/*br.close();
 							log.close();
-							throw new Exception("Unequal bit scores: " + line);
+							throw new Exception("Unequal bit scores: " + line);*/
+							System.out.println("Unequal bit scores: " + line);
+							bit1 = (bit1 + bit2)/2;
+							bit2 = (bit1 + bit2)/2;
 						}
 						
 						for(int i = 0; i < orthogroups.length; i++) { //for each line, see if those genes are in a particular orthogroup
