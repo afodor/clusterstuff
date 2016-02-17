@@ -114,10 +114,6 @@ public class AveDist {
 		//get table
 		BufferedReader d = new BufferedReader(new FileReader(dist));
 		line = d.readLine();
-		if(Integer.parseInt(line) != numGenom) {
-			d.close();
-			throw new Exception("Missing genomes in distance: " + dist.getName());
-		}
 		line = d.readLine();
 		String[][] table = new String[numGenom][];
 		count = 0;
