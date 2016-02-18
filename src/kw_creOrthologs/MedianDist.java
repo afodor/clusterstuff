@@ -37,10 +37,10 @@ public class MedianDist {
 		
 		//set up output
 		BufferedWriter outAll = new BufferedWriter(new FileWriter(new File(
-				"/nobackup/afodor_research/af_broad/orthologs/meanDist.txt")));
+				"/nobackup/afodor_research/af_broad/orthologs/medianDist.txt")));
 		outAll.write("orthogroup\tmeanAll\tmeanCarolina\tmeanResistant\tmeanSusceptible\n");
 		BufferedWriter outKleb = new BufferedWriter(new FileWriter(new File(
-				"/nobackup/afodor_research/af_broad/orthologs/meanKlebDist.txt")));
+				"/nobackup/afodor_research/af_broad/orthologs/medianKlebDist.txt")));
 		outKleb.write("orthogroup\tmeanAllKleb\tmeanCarolinaKleb\tmeanResistantKleb\tmeanSusceptibleKleb\n");
 		
 		//include table of all kmers
@@ -68,14 +68,10 @@ public class MedianDist {
 	//means and write the results
 	//if kleb is true, only look at kleb genomes
 	private static void getMedian(File dist, File key, BufferedWriter out, boolean kleb) throws Exception {
-		int numGenom = 339;
 		int numAllGenom = 339;
-		if(kleb) {
-			numGenom = 206;
-		}
 		
 		//get key
-		String[] genomes = new String[numGenom];
+		String[] genomes = new String[numAllGenom];
 		HashSet<Integer> klebs = new HashSet<Integer>();//set of indices of which genomes are kleb
 		BufferedReader k = new BufferedReader(new FileReader(key));
 		String line;
@@ -84,7 +80,6 @@ public class MedianDist {
 		}
 		line = k.readLine();
 		int count = 0;
-		//int numCar = 0;
 		while(line != null) {
 			String[] sp = line.split("\\s");
 			if(sp.length == 3 || 
@@ -94,12 +89,9 @@ public class MedianDist {
 					if(name.contains("kleb")) {
 						klebs.add(count);
 					}
-					genomes[count] = name;
-					count++;
 				}
-				/*if(name.contains("chs")) {
-					numCar++;
-				}*/
+				genomes[count] = name;
+				count++;
 			} else {
 				k.close();
 				throw new Exception("Incorrect split length: " + key.getName() + 
@@ -108,7 +100,7 @@ public class MedianDist {
 			line = k.readLine();
 		}
 		k.close();
-		if(count != numGenom) {
+		if(count != numAllGenom) {
 			throw new Exception("Incorrect number of genomes in: " + key.getName());
 		}
 		/*if(numCar != 76) {
@@ -146,25 +138,27 @@ public class MedianDist {
 		List<Double>  carSum = new ArrayList<Double>();
 		List<Double>  resSum = new ArrayList<Double>();
 		List<Double>  susSum = new ArrayList<Double>();
-		for(int r = 0; r < numGenom; r++) {//row
-			for(int c = 0; c < r; c++) {//column
-				if(!kleb || (klebs.contains(r) && klebs.contains(c))) {
-					allSum.add(Double.parseDouble(table[r][c]));
-					String cl1 = GenToClass.get(genomes[r]);
-					String cl2 = GenToClass.get(genomes[c]);
-					if(cl1 == null) {
-						System.err.println(genomes[r]);
-					}
-					if(cl2 == null) {
-						System.err.println(genomes[c]);
-					}
-					if(cl1.equals("carolina") && cl2.equals("carolina")) {
-					//if(genomes[r].contains("chs") && genomes[c].contains("chs")) {
-						carSum.add(Double.parseDouble(table[r][c]));
-					} else if(cl1.equals("resistant") && cl2.equals("resistant")) {
-						resSum.add(Double.parseDouble(table[r][c]));
-					} else if(cl1.equals("susceptible") && cl2.equals("susceptible")) {
-						susSum.add(Double.parseDouble(table[r][c]));
+		for(int r = 1; r < numAllGenom; r++) {//row
+			if(!kleb || klebs.contains(r)) {
+				for(int c = 0; c < r; c++) {//column
+					if(!kleb || klebs.contains(c)) {
+						allSum.add(Double.parseDouble(table[r][c]));
+						String cl1 = GenToClass.get(genomes[r]);
+						String cl2 = GenToClass.get(genomes[c]);
+						if(cl1 == null) {
+							System.err.println(genomes[r]);
+						}
+						if(cl2 == null) {
+							System.err.println(genomes[c]);
+						}
+						if(cl1.equals("carolina") && cl2.equals("carolina")) {
+						//if(genomes[r].contains("chs") && genomes[c].contains("chs")) {
+							carSum.add(Double.parseDouble(table[r][c]));
+						} else if(cl1.equals("resistant") && cl2.equals("resistant")) {
+							resSum.add(Double.parseDouble(table[r][c]));
+						} else if(cl1.equals("susceptible") && cl2.equals("susceptible")) {
+							susSum.add(Double.parseDouble(table[r][c]));
+						}
 					}
 				}
 			}
