@@ -119,7 +119,7 @@ public class AveDist {
 		count = 0;
 		while(line != null) {
 			String[] sp = line.split(" ");
-			if(sp.length != numGenom + 1) {
+			if(!kleb && sp.length != numGenom + 1) {
 				d.close();
 				throw new Exception("Incorrect length in distance: " + dist.getName() +
 						" " + sp.length + " " + sp[0]);
