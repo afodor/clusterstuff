@@ -130,7 +130,7 @@ public class AveDist {
 			line = d.readLine();
 		}
 		d.close();
-		if(count != numGenom) {
+		if(count != numAllGenom) {
 			throw new Exception("Incorrect dist: " + dist.getName());
 		}
 		
