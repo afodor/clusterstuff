@@ -108,7 +108,7 @@ public class MedianDist {
 			line = k.readLine();
 		}
 		k.close();
-		if(count != numAllGenom) {
+		if(count != numGenom) {
 			throw new Exception("Incorrect number of genomes in: " + key.getName());
 		}
 		/*if(numCar != 76) {
@@ -137,7 +137,7 @@ public class MedianDist {
 			line = d.readLine();
 		}
 		d.close();
-		if(count != numGenom) {
+		if(count != numAllGenom) {
 			throw new Exception("Incorrect dist: " + dist.getName());
 		}
 		
