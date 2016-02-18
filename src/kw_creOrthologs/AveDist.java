@@ -66,6 +66,7 @@ public class AveDist {
 	//if kleb is true, only look at kleb genomes
 	private static void getAve(File dist, File key, BufferedWriter out, boolean kleb) throws Exception {
 		int numGenom = 339;
+		int numAllGenom = 339;
 		if(kleb) {
 			numGenom = 206;
 		}
@@ -115,11 +116,11 @@ public class AveDist {
 		BufferedReader d = new BufferedReader(new FileReader(dist));
 		line = d.readLine();
 		line = d.readLine();
-		String[][] table = new String[numGenom][];
+		String[][] table = new String[numAllGenom][];
 		count = 0;
 		while(line != null) {
 			String[] sp = line.split(" ");
-			if(!kleb && sp.length != numGenom + 1) {
+			if(sp.length != numAllGenom + 1) {
 				d.close();
 				throw new Exception("Incorrect length in distance: " + dist.getName() +
 						" " + sp.length + " " + sp[0]);
