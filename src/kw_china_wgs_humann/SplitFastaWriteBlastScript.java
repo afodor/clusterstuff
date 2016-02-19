@@ -38,8 +38,8 @@ public class SplitFastaWriteBlastScript {
 						SPLIT_DIR + newFile + ".fa")));
 				
 				while(head != null) {
-					readCount++;
 					if(readCount == NUM_READS) {//set up new file
+						readCount = 0;
 						//write blast script
 						BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 								SCRIPT_DIR + "sBlast_" + newFile)));
@@ -51,11 +51,11 @@ public class SplitFastaWriteBlastScript {
 						script.close();
 						//add to run all
 						runAll.write("qsub -q \"Cobra_batch\" " + "sBlast_" + newFile + "\n");
-						
-						fasta.close();
+
 						//set up new fasta file
+						fasta.close();
 						fileCount++;
-						newFile = "split_" + name + "_" + fileCount;
+						newFile = "split_" + name.replace("_1", "") + "_" + fileCount;
 						fasta = new BufferedWriter(new FileWriter(new File(
 								SPLIT_DIR + newFile + "_" + fileCount + ".fa")));
 					}
@@ -63,6 +63,7 @@ public class SplitFastaWriteBlastScript {
 					String seq = br.readLine();
 					fasta.write(head + "\n" + seq + "\n");
 					head = br.readLine();
+					readCount++;
 				}
 				fasta.close();
 				br.close();
