@@ -54,6 +54,7 @@ public class SplitFastaWriteBlastScript {
 						script.close();
 						//add to run all
 						if(numJobs == NUM_JOBS) {
+							runAll.close();
 							runAll = new BufferedWriter(new FileWriter(new File(
 									SCRIPT_DIR + "runAllSplit" + numAll + ".sh")));
 							numJobs = 0;
@@ -90,10 +91,10 @@ public class SplitFastaWriteBlastScript {
 				//add to run all
 				runAll.write("qsub -q \"Cobra_batch\" sBlast_" + newFile + "\n");
 				
-				System.out.println("Number scripts: " + numAll);
 			}
 		}
 		runAll.close();
+		System.out.println("Number scripts: " + numAll);
 	}
 
 }
