@@ -12,6 +12,7 @@ import java.io.IOException;
 
 public class SplitFastaWriteBlastScript {
 	private static final int NUM_READS = 100000;//max number of reads per file
+	private static final int NUM_JOBS = 1000;//max number of jobs per runAll
 	private static final String ROOT_DIR = "/nobackup/afodor_research/kwinglee/china/wgs/";
 	private static final String FASTA_DIR = ROOT_DIR + "fastas/";
 	private static final String SCRIPT_DIR = ROOT_DIR + "humScripts/";
@@ -21,11 +22,13 @@ public class SplitFastaWriteBlastScript {
 	
 	public static void main(String[] args) throws IOException {
 		String[] fastas = new File(FASTA_DIR).list();
+		int numJobs = 0;
+		int numAll = 0;
 		BufferedWriter runAll = new BufferedWriter(new FileWriter(new File(
-				SCRIPT_DIR + "runAllSplit.sh")));
+				SCRIPT_DIR + "runAllSplit" + numAll + ".sh")));
 		for(String fa : fastas) {
 			if(fa.endsWith(".fa")) {
-				String name = fa.replace("_1.fa", "");
+				String fastaName = fa.replace("_1.fa", "");
 				
 				int readCount = 0;
 				int fileCount = 0;
@@ -33,7 +36,7 @@ public class SplitFastaWriteBlastScript {
 						FASTA_DIR + fa)));
 				String head = br.readLine();
 				//set up new fasta file
-				String newFile = "split_" + name + "_" + fileCount;
+				String newFile = "split_" + fastaName + "_" + fileCount;
 				BufferedWriter fasta = new BufferedWriter(new FileWriter(new File(
 						SPLIT_DIR + newFile + ".fa")));
 				
@@ -50,14 +53,21 @@ public class SplitFastaWriteBlastScript {
 								BLAST_DIR + "kegg_" + newFile + ".txt\n");//blast command
 						script.close();
 						//add to run all
+						if(numJobs == NUM_JOBS) {
+							runAll = new BufferedWriter(new FileWriter(new File(
+									SCRIPT_DIR + "runAllSplit" + numAll + ".sh")));
+							numJobs = 0;
+							numAll++;
+						}
+						numJobs++;
 						runAll.write("qsub -q \"Cobra_batch\" " + "sBlast_" + newFile + "\n");
 
 						//set up new fasta file
 						fasta.close();
 						fileCount++;
-						newFile = "split_" + name.replace("_1", "") + "_" + fileCount;
+						newFile = "split_" + fastaName + "_" + fileCount;
 						fasta = new BufferedWriter(new FileWriter(new File(
-								SPLIT_DIR + newFile + "_" + fileCount + ".fa")));
+								SPLIT_DIR + newFile + ".fa")));
 					}
 					//write new fasta files
 					String seq = br.readLine();
@@ -80,6 +90,7 @@ public class SplitFastaWriteBlastScript {
 				//add to run all
 				runAll.write("qsub -q \"Cobra_batch\" sBlast_" + newFile + "\n");
 				
+				System.out.println("Number scripts: " + numAll);
 			}
 		}
 		runAll.close();
