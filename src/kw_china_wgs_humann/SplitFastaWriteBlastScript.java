@@ -25,7 +25,7 @@ public class SplitFastaWriteBlastScript {
 				SCRIPT_DIR + "runAllSplit.sh")));
 		for(String fa : fastas) {
 			if(fa.endsWith(".fa")) {
-				String name = fa.replace(".fa", "");
+				String name = fa.replace("_1.fa", "");
 				
 				int readCount = 0;
 				int fileCount = 0;
@@ -42,7 +42,7 @@ public class SplitFastaWriteBlastScript {
 					if(readCount == NUM_READS) {//set up new file
 						//write blast script
 						BufferedWriter script = new BufferedWriter(new FileWriter(new File(
-								SCRIPT_DIR + "runSplitBlast_" + newFile)));
+								SCRIPT_DIR + "sBlast_" + newFile)));
 						script.write("#PBS -l walltime=300:00:00\n");
 						script.write("module load blast\n");
 						script.write("blastx -outfmt 6 -db " + DB + " -query " +
@@ -50,18 +50,18 @@ public class SplitFastaWriteBlastScript {
 								BLAST_DIR + "kegg_" + newFile + ".txt\n");//blast command
 						script.close();
 						//add to run all
-						runAll.write("qsub -q \"Cobra_batch\" " + "runSplitBlast_" + newFile + "\n");
+						runAll.write("qsub -q \"Cobra_batch\" " + "sBlast_" + newFile + "\n");
 						
 						fasta.close();
 						//set up new fasta file
 						fileCount++;
 						newFile = "split_" + name + "_" + fileCount;
 						fasta = new BufferedWriter(new FileWriter(new File(
-								SPLIT_DIR + name + "_" + fileCount + ".fa")));
+								SPLIT_DIR + newFile + "_" + fileCount + ".fa")));
 					}
 					//write new fasta files
 					String seq = br.readLine();
-					fasta.write(head + "\t" + seq);
+					fasta.write(head + "\n" + seq + "\n");
 					head = br.readLine();
 				}
 				fasta.close();
@@ -69,7 +69,7 @@ public class SplitFastaWriteBlastScript {
 				
 				//write blast script
 				BufferedWriter script = new BufferedWriter(new FileWriter(new File(
-						SCRIPT_DIR + "runSplitBlast_" + newFile)));
+						SCRIPT_DIR + "sBlast_" + newFile)));
 				script.write("#PBS -l walltime=300:00:00\n");
 				script.write("module load blast\n");
 				script.write("blastx -outfmt 6 -db " + DB + " -query " +
@@ -77,7 +77,7 @@ public class SplitFastaWriteBlastScript {
 						BLAST_DIR + "kegg_" + newFile + ".txt\n");//blast command
 				script.close();
 				//add to run all
-				runAll.write("qsub -q \"Cobra_batch\" runSplitBlast_" + newFile + "\n");
+				runAll.write("qsub -q \"Cobra_batch\" sBlast_" + newFile + "\n");
 				
 			}
 		}
