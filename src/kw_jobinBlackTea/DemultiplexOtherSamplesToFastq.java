@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.zip.GZIPInputStream;
 
-public class DemultiplexOtherSamples {
+public class DemultiplexOtherSamplesToFastq {
 	//directory containing the needed files; also where will write results
 	public static final String DIR = "/nobackup/afodor_research/kwinglee/jobin/blackTea/";
 	private static HashMap<String, String> P_TO_SEQ;//hash of primer to primer sequence
