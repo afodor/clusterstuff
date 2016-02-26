@@ -115,8 +115,8 @@ public class DemultiplexOtherSamplesToFastq {
 			String[] sp = line.split("\t");
 			String samp = sp[0]; //sample name
 			pToSamp.put(sp[sp.length-2]+sp[sp.length-1], samp);
-			BufferedWriter[] files = {new BufferedWriter(new FileWriter(new File(DIR + File.separator + "ThibautFastas" + File.separator + samp + "_R1.fasta"))),
-					new BufferedWriter(new FileWriter(new File(DIR + File.separator + "ThibautFastas" + File.separator + samp + "_R2.fasta")))};
+			BufferedWriter[] files = {new BufferedWriter(new FileWriter(new File(DIR + File.separator + "ThibautFastqs" + File.separator + samp + "_R1.fastq"))),
+					new BufferedWriter(new FileWriter(new File(DIR + File.separator + "ThibautFastqs" + File.separator + samp + "_R2.fastq")))};
 			sToFile.put(samp, files);
 			line = br.readLine();
 		}
@@ -128,8 +128,8 @@ public class DemultiplexOtherSamplesToFastq {
 		}*/
 		
 		//add extra "other" file for unmatched reads
-		BufferedWriter[] files = {new BufferedWriter(new FileWriter(new File(DIR + File.separator + "ThibautFastas" + File.separator + "other_R1.fasta"))),
-				new BufferedWriter(new FileWriter(new File(DIR + File.separator + "ThibautFastas" + File.separator + "other_R2.fasta")))};
+		BufferedWriter[] files = {new BufferedWriter(new FileWriter(new File(DIR + File.separator + "ThibautFastqs" + File.separator + "other_R1.fastq"))),
+				new BufferedWriter(new FileWriter(new File(DIR + File.separator + "ThibautFastqs" + File.separator + "other_R2.fastq")))};
 		sToFile.put("other", files);
 		
 		//read fastq file
