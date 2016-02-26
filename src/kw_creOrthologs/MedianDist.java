@@ -1,5 +1,5 @@
 /*
- * Calculate the mean distance between all genomes, or within carolina,
+ * Calculate the median distance between all genomes, or within carolina,
  * for each gathered kmer 
  * 
  * Calculate for all genomes and Kleb only
@@ -38,10 +38,10 @@ public class MedianDist {
 		//set up output
 		BufferedWriter outAll = new BufferedWriter(new FileWriter(new File(
 				"/nobackup/afodor_research/af_broad/orthologs/medianDist.txt")));
-		outAll.write("orthogroup\tmeanAll\tmeanCarolina\tmeanResistant\tmeanSusceptible\n");
+		outAll.write("orthogroup\tmedianAll\tmedianCarolina\tmedianResistant\tmedianSusceptible\n");
 		BufferedWriter outKleb = new BufferedWriter(new FileWriter(new File(
 				"/nobackup/afodor_research/af_broad/orthologs/medianKlebDist.txt")));
-		outKleb.write("orthogroup\tmeanAllKleb\tmeanCarolinaKleb\tmeanResistantKleb\tmeanSusceptibleKleb\n");
+		outKleb.write("orthogroup\tmedianAllKleb\tmedianCarolinaKleb\tmedianResistantKleb\tmedianSusceptibleKleb\n");
 		
 		//include table of all kmers
 		getMedian(new File("/nobackup/afodor_research/af_broad/gatheredKmerMatrices/allDist.txt"), 

@@ -1,5 +1,6 @@
 /*
  * Convert fastq.gz files to fasta for RDP
+ * Also remove 16S primers (barcode and adaptor has been removed)
  */
 package kw_jobinDolphin;
 
@@ -15,8 +16,10 @@ import java.util.zip.GZIPInputStream;
 public class FastqToFasta {
 	public static final String FQ_DIR = "/nobackup/afodor_research/kwinglee/jobin/dolphin/fastqs/";
 	public static final String FA_DIR = "/nobackup/afodor_research/kwinglee/jobin/dolphin/fastas/";
+	/*public static final String F16S = "CCTACGGGNGGCWGCAG";//forward 16s primer
+	public static final String R16S = "GACTACHVGGGTATCTAATCC";//reverse 16s primer*/
 	
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 		String[] samples = new File(FQ_DIR).list();
 		
 		for(String s : samples) {
@@ -38,6 +41,24 @@ public class FastqToFasta {
 					fq.readLine();//+
 					fq.readLine();//quality score
 					String header = line1.replaceFirst("@", ">");
+					//remove primer
+					if(r.contains("R1")) {//forward
+						String trim = line2.replaceFirst("CCTACGGG[ACTG]GGC[AT]GCAG", "");
+						if(trim.length() == line2.length()) {
+							fq.close();
+							fa.close();
+							throw new Exception("Forward not trimmed " + r + "\n" + line2);
+						}
+						line2 = trim;
+					} else { //reverse
+						String trim = line2.replaceFirst("GGATTAGATACCC[CGT][AGT]GTAGTC", "");
+						if(trim.length() == line2.length()) {
+							fq.close();
+							fa.close();
+							throw new Exception("Reverse not trimmed " + r + "\n" + line2);
+						}
+						line2 = trim;
+					}
 					fa.write(header + "\n" + line2 + "\n");					
 					line1 = fq.readLine();
 				}
