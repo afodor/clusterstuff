@@ -45,21 +45,18 @@ public class FastqToFasta {
 					if(r.contains("R1")) {//forward
 						String trim = line2.replaceFirst("CCTACGGG[ACTG]GGC[AT]GCAG", "");
 						if(trim.length() == line2.length()) {
-							fq.close();
-							fa.close();
-							throw new Exception("Forward not trimmed " + r + "\n" + line2);
+							System.out.println("Forward not trimmed " + r + "\n" + line2);
+						} else {
+							fa.write(header + "\n" + trim + "\n");		
 						}
-						line2 = trim;
 					} else { //reverse
 						String trim = line2.replaceFirst("GGATTAGATACCC[CGT][AGT]GTAGTC", "");
 						if(trim.length() == line2.length()) {
-							fq.close();
-							fa.close();
-							throw new Exception("Reverse not trimmed " + r + "\n" + line2);
+							System.out.println("Reverse not trimmed " + r + "\n" + line2);
+						} else {
+							fa.write(header + "\n" + trim + "\n");		
 						}
-						line2 = trim;
-					}
-					fa.write(header + "\n" + line2 + "\n");					
+					}			
 					line1 = fq.readLine();
 				}
 				fa.close();
