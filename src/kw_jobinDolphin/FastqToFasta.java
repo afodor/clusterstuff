@@ -21,6 +21,8 @@ public class FastqToFasta {
 	
 	public static void main(String[] args) throws Exception {
 		String[] samples = new File(FQ_DIR).list();
+		BufferedWriter fwd = new BufferedWriter(new FileWriter(new File("/nobackup/afodor_research/kwinglee/jobin/dolphin/untrimmed_forward.txt")));
+		BufferedWriter rev = new BufferedWriter(new FileWriter(new File("/nobackup/afodor_research/kwinglee/jobin/dolphin/untrimmed_reverse.txt")));
 		
 		for(String s : samples) {
 			String path = FQ_DIR + s + "/Data/Intensities/BaseCalls/";
@@ -43,16 +45,16 @@ public class FastqToFasta {
 					String header = line1.replaceFirst("@", ">");
 					//remove primer
 					if(r.contains("R1")) {//forward
-						String trim = line2.replaceFirst("CCTACGGG[ACTG]GGC[AT]GCAG", "");
+						String trim = line2.replaceFirst("[NC]CTACGGG[ACTG]GGC[AT]GCAG", "");
 						if(trim.length() == line2.length()) {
-							//System.out.println("Forward not trimmed " + r + "\n" + line2);
+							fwd.write("Forward not trimmed " + r + "\n" + line2 + "\n");
 						} else {
 							fa.write(header + "\n" + trim + "\n");		
 						}
 					} else { //reverse
-						String trim = line2.replaceFirst("GACTAC[ACT][ACG]GGGTATCTAATCC", "");
+						String trim = line2.replaceFirst("[NG]ACTAC[ACT][ACG]GGGTATCTAATCC", "");
 						if(trim.length() == line2.length()) {
-							System.out.println("Reverse not trimmed " + r + "\n" + line2);
+							rev.write("Reverse not trimmed " + r + "\n" + line2 + "\n");
 						} else {
 							fa.write(header + "\n" + trim + "\n");		
 						}
@@ -63,6 +65,8 @@ public class FastqToFasta {
 				fq.close();
 			}
 		}
+		fwd.close();
+		rev.close();
 	}
 
 }
