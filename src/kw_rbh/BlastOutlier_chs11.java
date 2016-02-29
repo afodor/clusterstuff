@@ -30,7 +30,7 @@ public class BlastOutlier_chs11 {
 
 		//set up blast -> use the sequence of the first gene in the list
 		BufferedWriter runAll = new BufferedWriter(new FileWriter(new File(
-				BLAST_DIR + "runAll_orthogroup.sh")));
+				BLAST_DIR + "runAll_chs11.sh")));
 		for(String gene : outliers) {
 			String[] g = gene.split("_");
 			String name = g[g.length-2] + "_" + g[g.length-1];
