@@ -35,11 +35,11 @@ public class BlastOutlier_chs11 {
 			String[] g = gene.split("_");
 			String name = g[g.length-2] + "_" + g[g.length-1];
 			BufferedWriter script = new BufferedWriter(new FileWriter(new File(
-					BLAST_DIR + "nrBLAST_" + gene)));
+					BLAST_DIR + "nrBLAST_" + name)));
 			script.write("module load blast\n");
 			script.write("blastn -query " + DIR + "geneFastas/carolina_klebsiella_pneumoniae_chs_11.0/" + gene + ".fasta"
 					+ " -db " + DB + " -outfmt 7 -out " +
-					BLAST_DIR + "/nrBLAST_" + name + ".txt\n");
+					BLAST_DIR + "/nrBLAST_" + gene + ".txt\n");
 			script.close();
 
 			runAll.write("qsub -q \"viper_batch\" nrBLAST_" + name + "\n");
