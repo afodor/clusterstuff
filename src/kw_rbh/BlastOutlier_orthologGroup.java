@@ -52,7 +52,7 @@ public class BlastOutlier_orthologGroup {
 				script.write("module load blast\n");
 				script.write("blastn -query " + DIR + "geneFastas/" + genome + "/" + gene + ".fasta"
 						+ " -db " + DB + " -outfmt 7 -out " +
-						BLAST_DIR + "/nrBLAST_" + orth + ".txt\n");
+						BLAST_DIR + "nrBLASTresults_" + orth + ".txt\n");
 				script.close();
 				
 				runAll.write("qsub -q \"viper_batch\" nrBLAST_" + orth + "\n");

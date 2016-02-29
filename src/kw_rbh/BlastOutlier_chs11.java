@@ -39,7 +39,7 @@ public class BlastOutlier_chs11 {
 			script.write("module load blast\n");
 			script.write("blastn -query " + DIR + "geneFastas/carolina_klebsiella_pneumoniae_chs_11.0/" + gene + ".fasta"
 					+ " -db " + DB + " -outfmt 7 -out " +
-					BLAST_DIR + "/nrBLAST_" + gene + ".txt\n");
+					BLAST_DIR + "nrBLASTresults_" + gene + ".txt\n");
 			script.close();
 
 			runAll.write("qsub -q \"viper_batch\" nrBLAST_" + name + "\n");
