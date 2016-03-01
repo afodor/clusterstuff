@@ -32,7 +32,7 @@ public class BlastOutlier_chs11 {
 		/*BufferedWriter runAll = new BufferedWriter(new FileWriter(new File(
 				BLAST_DIR + "runAll_chs11.sh")));*/
 		BufferedWriter script = new BufferedWriter(new FileWriter(new File(
-				BLAST_DIR + "ntBLAST_chs11.sh")));
+				BLAST_DIR + "ntBLAST_chs11")));
 		script.write("module load blast\n");
 		for(String gene : outliers) {
 			String[] g = gene.split("_");
@@ -44,6 +44,19 @@ public class BlastOutlier_chs11 {
 					+ " -db " + DB + " -outfmt 7 -out " +
 					BLAST_DIR + "ntBLASTresults_" + gene + ".txt\n");
 			//script.close();
+			
+			//get the fasta file
+			BufferedWriter fasta = new BufferedWriter(new FileWriter(new File(
+					BLAST_DIR + gene + ".fasta")));
+			BufferedReader fa = new BufferedReader(new FileReader(new File(
+					DIR + "geneFastas/carolina_klebsiella_pneumoniae_chs_11.0/" + gene + ".fasta")));
+			String s = fa.readLine();
+			while(s != null) {
+				fasta.write(s + "\n");
+				s = fa.readLine();
+			}
+			fasta.close();
+			fa.close();
 
 			//runAll.write("qsub -q \"viper_batch\" nrBLAST_" + name + "\n");
 		}

@@ -34,7 +34,7 @@ public class BlastOutlier_orthologGroup {
 		/*BufferedWriter runAll = new BufferedWriter(new FileWriter(new File(
 				BLAST_DIR + "runAll_orthogroup.sh")));*/
 		BufferedWriter script = new BufferedWriter(new FileWriter(new File(
-				BLAST_DIR + "ntBLAST_orthogroup.sh")));
+				BLAST_DIR + "ntBLAST_orthogroup")));
 		script.write("module load blast\n");
 		line = orthogroups.readLine();//header
 		line = orthogroups.readLine();
@@ -60,6 +60,18 @@ public class BlastOutlier_orthologGroup {
 				
 				runAll.write("qsub -q \"viper_batch\" nrBLAST_" + orth + "\n");*/
 				
+				//get the fasta file
+				BufferedWriter fasta = new BufferedWriter(new FileWriter(new File(
+						BLAST_DIR + orth + ".fasta")));
+				BufferedReader fa = new BufferedReader(new FileReader(new File(
+						DIR + "geneFastas/" + genome + "/" + gene + ".fasta")));
+				String s = fa.readLine();
+				while(s != null) {
+					fasta.write(s + "\n");
+					s = fa.readLine();
+				}
+				fasta.close();
+				fa.close();
 			}
 			line = orthogroups.readLine();
 		}
