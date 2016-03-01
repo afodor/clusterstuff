@@ -14,7 +14,8 @@ import java.util.HashSet;
 public class BlastOutlier_orthologGroup {
 	public static final String DIR = "/nobackup/afodor_research/kwinglee/cre/rbh/";
 	public static final String BLAST_DIR = DIR + "blastOutliers/";
-	public static final String DB = "/nobackup/afodor_research/kwinglee/ncbi-non-redundant-db-nt/nt";
+	public static final String DB_NT = "/nobackup/afodor_research/kwinglee/ncbi-non-redundant-db-nt/nt";
+	public static final String DB_NR = "/nobackup/afodor_research/kwinglee/ncbi-non-redundant-db-nr/nr";
 
 	public static void main(String[] args) throws IOException {
 		//get list of outliers
@@ -36,6 +37,9 @@ public class BlastOutlier_orthologGroup {
 		BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 				BLAST_DIR + "ntBLAST_orthogroup")));
 		script.write("module load blast\n");
+		BufferedWriter scriptx = new BufferedWriter(new FileWriter(new File(
+				BLAST_DIR + "nrBLAST_orthogroup")));
+		scriptx.write("module load blast\n");
 		line = orthogroups.readLine();//header
 		line = orthogroups.readLine();
 		while(line != null) {
@@ -54,8 +58,11 @@ public class BlastOutlier_orthologGroup {
 						BLAST_DIR + "nrBLAST_" + orth)));
 				script.write("module load blast\n");*/
 				script.write("blastn -query " + DIR + "geneFastas/" + genome + "/" + gene + ".fasta"
-						+ " -db " + DB + " -outfmt 7 -out " +
+						+ " -db " + DB_NT + " -outfmt 7 -out " +
 						BLAST_DIR + "ntBLASTresults_" + orth + ".txt\n");
+				scriptx.write("blastx -query " + DIR + "geneFastas/" + genome + "/" + gene + ".fasta"
+						+ " -db " + DB_NR + " -outfmt 7 -out " +
+						BLAST_DIR + "nrBLASTresults_" + orth + ".txt\n");
 				/*script.close();
 				
 				runAll.write("qsub -q \"viper_batch\" nrBLAST_" + orth + "\n");*/
@@ -78,5 +85,6 @@ public class BlastOutlier_orthologGroup {
 		orthogroups.close();
 		//runAll.close();
 		script.close();
+		scriptx.close();
 	}
 }
