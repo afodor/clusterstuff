@@ -1,0 +1,120 @@
+##get distance matrices for orthologGroups RBH table (>150 genomes), and draw pcoa
+##2/23/16
+rm(list=ls())
+# setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\rbh")
+setwd("C:\\Users\\Winglee\\Documents\\Fodor\\CRE\\rbh")
+
+bitScore = read.table("bitScoreTable_orthologGroups150.txt", 
+                      header=T, sep="\t", na.strings=c("NaN", "NA"),
+                      colClasses=c("character", rep("numeric", 2406)))
+
+for(r in 1:nrow(bitScore)) {
+  for(c in 2: ncol(bitScore)) {
+    if(is.na(bitScore[r,c])) {
+      bitScore[r,c] = 0
+    }
+  }
+}
+
+##spearman
+mat = bitScore[,-1]
+##row 207 (susceptible_acinetobacter_baumanii_bidmc_57.0) is all 0s, which causes errors; remove
+mat = mat[-207,]
+bitScore = bitScore[-207,]
+spear = matrix(nrow=nrow(mat), ncol=nrow(mat))
+for(i in seq(1, nrow(mat))) {
+  # for(j in seq(i, nrow(mat))) { #triangle
+  for(j in seq(1, nrow(mat))) { #full matrix
+    spear[i,j] = 1-cor(as.numeric(mat[i,]), as.numeric(mat[j,]), method="spearman")
+  }
+}
+toWrite = spear
+colnames(toWrite) = bitScore$genomeID
+rownames(toWrite) = bitScore$genomeID
+write.table(toWrite, "rbh_orthologGroup_spearmanDistance.txt", sep="\t", row.names = T, col.names = T, quote=F)
+
+# #fill in triangle
+# spearFill = spear
+# for(i in seq(1, nrow(spear))) {
+#   for(j in seq(1, nrow(spear))) {
+#     if(is.na(spear[i,j])) {
+#       spearFill[i,j] = spear[j,i]
+#     } else {
+#       spearFill[i,j] = spear[i,j]
+#     }
+#   }
+# }
+
+pcoa = cmdscale(spear, k=20, eig = TRUE)
+
+#color by group
+colors = rep(NA, nrow(bitScore))
+colors[grepl("carolina", bitScore$genomeID)] = "blue"
+colors[grepl("resistant", bitScore$genomeID)] = "red"
+colors[grepl("susceptible", bitScore$genomeID)] = "gold"
+#shape by genera
+shapes = rep(15, nrow(bitScore)) #other
+shapes[grepl("^.*_kleb", bitScore$genomeID)] = 16 #klebsiella
+shapes[grepl("^.*_ente", bitScore$genomeID)] = 17 #enterobacter
+shapes[grepl("^.*_esch", bitScore$genomeID)] = 18 #escherichia
+jpeg("orthologGroup_rbh_pcoa_spearman_full.jpg", res=200, height=800, width=1000)
+par(mar=c(4.1, 4.1, 4.1, 8), xpd=T)
+plot(x=pcoa$points[,1], y=pcoa$points[,2], xlab="MDS1", ylab="MDS2", 
+     main="RBH bit scores, Spearman distance", col=colors, pch=shapes)
+legend("topright", inset=c(-.5, 0),
+       c("Carolina", "Resistant", "Susceptible", "Klebsiella", "Enterobacter", "Escherichia", "other"),
+       col = c("blue", "red", "gold", rep("gray", 4)),
+       pch=c(rep(1, 3), 16, 17, 18, 15))
+dev.off()
+
+
+# write.table(pcoa$points, file= "rbh_chs11_pcoa_spearman.txt", sep = "\t" )
+
+##Qi et al cosine http://www.ncbi.nlm.nih.gov/pubmed/14743310 p.3
+##correlation between A and B = C(A,B) = sum(A*B) / sqrt(sumA^2 * sumB^2)
+##distance = (1-C(A,B)/2)
+cos = matrix(nrow=nrow(mat), ncol=nrow(mat))
+for(i in seq(1, nrow(mat))) {
+  # for(j in seq(i, nrow(mat))) {#triangle
+  for(j in seq(1, nrow(mat))) {#full matrix
+    A = as.numeric(mat[i,])
+    B = as.numeric(mat[j,])
+    sum.ab = 0
+    sum.aa = 0
+    sum.bb = 0
+    for(col in seq(1, ncol(mat))) {
+      sum.ab = sum.ab + A[col] * B[col]
+      sum.aa = sum.aa + A[col] * A[col]
+      sum.bb = sum.bb + B[col] * B[col]
+    }
+    C = sum.ab / sqrt(sum.aa * sum.bb)
+    cos[i,j] = (1 - C) / 2
+  }
+}
+toWrite = cos
+colnames(toWrite) = bitScore$genomeID
+rownames(toWrite) = bitScore$genomeID
+write.table(toWrite, "rbh_orthologGroup_qiCosineDistance.txt", sep="\t", row.names = T, col.names = T, quote=F)
+
+# #fill in triangle
+# cosFill = cos
+# for(i in seq(1, nrow(cos))) {
+#   for(j in seq(1, nrow(cos))) {
+#     if(is.na(cos[i,j])) {
+#       cosFill[i,j] = cos[j,i]
+#     } else {
+#       cosFill[i,j] = cos[i,j]
+#     }
+#   }
+# }
+
+pcoa = cmdscale(cos, k=20, eig = TRUE)
+jpeg("orthologGroup_rbh_pcoa_qiCosine_full.jpg", res=200, height=800, width=1000)
+par(mar=c(4.1, 4.1, 4.1, 8), xpd=T)
+plot(x=pcoa$points[,1], y=pcoa$points[,2], xlab="MDS1", ylab="MDS2", 
+     main="RBH bit scores, Qi et al. cosine distance", col=colors, pch=shapes)
+legend("topright", inset=c(-.5, 0),
+       c("Carolina", "Resistant", "Susceptible", "Klebsiella", "Enterobacter", "Escherichia", "other"),
+       col = c("blue", "red", "gold", rep("gray", 4)),
+       pch=c(rep(1, 3), 16, 17, 18, 15))
+dev.off()

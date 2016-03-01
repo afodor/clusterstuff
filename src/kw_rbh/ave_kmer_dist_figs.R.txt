@@ -1,0 +1,254 @@
+##draw graphs of average distance from kmer distances
+##2/15/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\rbh")
+
+dist = read.table("aveKmerDist.txt", header=T, sep="\t", colClasses=c("character", rep("numeric",4)))
+
+####CHS11 genes
+tab = dist[grepl("carolina", dist$orthogroup),]
+names(tab)[1] = "geneID"
+tab$geneID = sub("orthogroups_", "", tab$geneID)
+scaff = read.table("carolina_klebsiella_pneumoniae_chs_11.0_scaffoldSizes.txt", 
+                   header=T, sep="\t", colClasses=c("character", "numeric"))
+genes = read.table("carolina_klebsiella_pneumoniae_chs_11.0_genePositions.txt", 
+                   header=T, sep="\t", colClasses=c("character", "character", "numeric", "numeric"))
+mrg = merge(tab, genes, by="geneID")
+minD = min(mrg[,2:5])
+maxD = max(mrg[,2:5])
+##carolina
+jpeg("chs11_ave_kmer_dist_scaffold_carolina.jpg", height=900, width=1800, res=150)
+par(mfrow=c(2, 4), oma=c(2, .1, .1, .1)) #8 scaffolds
+for(i in 1:nrow(scaff)) {
+  tab = mrg[mrg$scaffold==scaff$scaffold[i],]
+  plot(0, type="n", xlim=c(0, scaff$length[i]), ylim=c(minD, maxD),
+       xlab="gene start on scaffold", ylab="average distance",
+       main=paste("Scaffold", scaff$scaffold[i]))
+  points(x=tab$geneStart, y=tab$aveAll, pch=20, col="black")
+  points(x=tab$geneStart, y=tab$aveCarolina, pch=20, col="blue")
+  abline(h=dist$aveAll[dist$orthogroup=="allDist.txt"], col="black")
+  abline(h=dist$aveCarolina[dist$orthogroup=="allDist.txt"], col="blue")
+}
+par(fig=c(0,1,0,1), oma=c(0,0,0,0), mar=c(0,0,0,0), new=T)
+plot(0, type="n", bty="n", xaxt="n", yaxt="n")
+legend("bottom", pch=20, xpd=T, horiz=T,
+       c("ave of all genomes", "ave of Carolina genomes"),
+       col = c("black", "blue"))
+dev.off()
+
+##resistant
+jpeg("chs11_ave_kmer_dist_scaffold_resistant.jpg", height=900, width=1800, res=150)
+par(mfrow=c(2, 4), oma=c(2, .1, .1, .1)) #8 scaffolds
+for(i in 1:nrow(scaff)) {
+  tab = mrg[mrg$scaffold==scaff$scaffold[i],]
+  plot(0, type="n", xlim=c(0, scaff$length[i]), ylim=c(minD, maxD),
+       xlab="gene start on scaffold", ylab="average distance",
+       main=paste("Scaffold", scaff$scaffold[i]))
+  points(x=tab$geneStart, y=tab$aveAll, pch=20, col="black")
+  points(x=tab$geneStart, y=tab$aveResistant, pch=20, col="red")
+  abline(h=dist$aveAll[dist$orthogroup=="allDist.txt"], col="black")
+  abline(h=dist$aveResistant[dist$orthogroup=="allDist.txt"], col="red")
+}
+par(fig=c(0,1,0,1), oma=c(0,0,0,0), mar=c(0,0,0,0), new=T)
+plot(0, type="n", bty="n", xaxt="n", yaxt="n")
+legend("bottom", pch=20, xpd=T, horiz=T,
+       c("ave of all genomes", "ave of resistant genomes"),
+       col = c("black", "red"))
+dev.off()
+
+jpeg("chs11_ave_kmer_dist_scaffold_susceptible.jpg", height=900, width=1800, res=150)
+par(mfrow=c(2, 4), oma=c(2, .1, .1, .1)) #8 scaffolds
+for(i in 1:nrow(scaff)) {
+  tab = mrg[mrg$scaffold==scaff$scaffold[i],]
+  plot(0, type="n", xlim=c(0, scaff$length[i]), ylim=c(minD, maxD),
+       xlab="gene start on scaffold", ylab="average distance",
+       main=paste("Scaffold", scaff$scaffold[i]))
+  points(x=tab$geneStart, y=tab$aveAll, pch=20, col="black")
+  points(x=tab$geneStart, y=tab$aveSusceptible, pch=20, col="green")
+  abline(h=dist$aveAll[dist$orthogroup=="allDist.txt"], col="black")
+  abline(h=dist$aveSusceptible[dist$orthogroup=="allDist.txt"], col="green")
+}
+par(fig=c(0,1,0,1), oma=c(0,0,0,0), mar=c(0,0,0,0), new=T)
+plot(0, type="n", bty="n", xaxt="n", yaxt="n")
+legend("bottom", pch=20, xpd=T, horiz=T,
+       c("ave of all genomes", "ave of susceptible genomes"),
+       col = c("black", "green"))
+dev.off()
+
+####ortholog groups
+tab = dist[!grepl("carolina", dist$orthogroup),]
+tab = tab[-1,] #remove all dist
+x = as.numeric(sub("orthogroup", "", tab$orthogroup))
+lim = range(tab[,2:5])
+##carolina
+jpeg("orthologGroup_ave_kmer_dist_carolina.jpg", height=800, width=800, res=150)
+par(oma=c(2, .1, .1, .1), mar=c(4, 4, .5, .5)) 
+plot(x=x, y=tab$aveAll, 
+     xlim=c(0, max(x)), ylim=lim,
+     xlab="orthogroup number", ylab="average distance",
+     pch=16, col="black")
+points(x=x, y=tab$aveCarolina, pch=16, col="blue")
+abline(h=dist$aveAll[dist$orthogroup=="allDist.txt"], col="black")
+abline(h=dist$aveCarolina[dist$orthogroup=="allDist.txt"], col="blue")
+par(fig=c(0,1,0,1), oma=c(0,0,0,0), mar=c(0,0,0,0), new=T)
+plot(0, type="n", bty="n", xaxt="n", yaxt="n")
+legend("bottom", legend=c("ave of all genomes", "ave of Carolina genomes"), 
+       pch=16, col=c("black", "blue"), horiz=T, xpd=T)
+dev.off()
+##resistant
+jpeg("orthologGroup_ave_kmer_dist_resistant.jpg", height=800, width=800, res=150)
+par(oma=c(2, .1, .1, .1), mar=c(4, 4, .5, .5)) 
+plot(x=x, y=tab$aveAll, 
+     xlim=c(0, max(x)), ylim=lim,
+     xlab="orthogroup number", ylab="average distance",
+     pch=16, col="black")
+points(x=x, y=tab$aveResistant, pch=16, col="red")
+abline(h=dist$aveAll[dist$orthogroup=="allDist.txt"], col="black")
+abline(h=dist$aveResistant[dist$orthogroup=="allDist.txt"], col="red")
+par(fig=c(0,1,0,1), oma=c(0,0,0,0), mar=c(0,0,0,0), new=T)
+plot(0, type="n", bty="n", xaxt="n", yaxt="n")
+legend("bottom", legend=c("ave of all genomes", "ave of resistant genomes"), 
+       pch=16, col=c("black", "red"), horiz=T, xpd=T)
+dev.off()
+##carolina
+jpeg("orthologGroup_ave_kmer_dist_susceptible.jpg", height=800, width=800, res=150)
+par(oma=c(2, .1, .1, .1), mar=c(4, 4, .5, .5)) 
+plot(x=x, y=tab$aveAll, 
+     xlim=c(0, max(x)), ylim=lim,
+     xlab="orthogroup number", ylab="average distance",
+     pch=16, col="black")
+points(x=x, y=tab$aveSusceptible, pch=16, col="green")
+abline(h=dist$aveAll[dist$orthogroup=="allDist.txt"], col="black")
+abline(h=dist$aveSusceptible[dist$orthogroup=="allDist.txt"], col="green")
+par(fig=c(0,1,0,1), oma=c(0,0,0,0), mar=c(0,0,0,0), new=T)
+plot(0, type="n", bty="n", xaxt="n", yaxt="n")
+legend("bottom", legend=c("ave of all genomes", "ave of susceptible genomes"), 
+       pch=16, col=c("black", "green"), horiz=T, xpd=T)
+dev.off()
+
+###########
+###kleb only ave
+
+dist = read.table("aveKmerKlebDist.txt", header=T, sep="\t", colClasses=c("character", rep("numeric",4)))
+
+####CHS11 genes
+tab = dist[grepl("carolina", dist$orthogroup),]
+names(tab)[1] = "geneID"
+tab$geneID = sub("orthogroups_", "", tab$geneID)
+scaff = read.table("carolina_klebsiella_pneumoniae_chs_11.0_scaffoldSizes.txt", 
+                   header=T, sep="\t", colClasses=c("character", "numeric"))
+genes = read.table("carolina_klebsiella_pneumoniae_chs_11.0_genePositions.txt", 
+                   header=T, sep="\t", colClasses=c("character", "character", "numeric", "numeric"))
+mrg = merge(tab, genes, by="geneID")
+minD = min(mrg[,2:5])
+maxD = max(mrg[,2:5])
+##carolina
+jpeg("chs11_ave_kleb_kmer_dist_scaffold_carolina.jpg", height=900, width=1800, res=150)
+par(mfrow=c(2, 4), oma=c(2, .1, .1, .1)) #8 scaffolds
+for(i in 1:nrow(scaff)) {
+  tab = mrg[mrg$scaffold==scaff$scaffold[i],]
+  plot(0, type="n", xlim=c(0, scaff$length[i]), ylim=c(minD, maxD),
+       xlab="gene start on scaffold", ylab="average Kleb distance",
+       main=paste("Scaffold", scaff$scaffold[i]))
+  points(x=tab$geneStart, y=tab$aveAllKleb, pch=20, col="black")
+  points(x=tab$geneStart, y=tab$aveCarolinaKleb, pch=20, col="blue")
+  abline(h=dist$aveAll[dist$orthogroup=="allDist.txt"], col="black")
+  abline(h=dist$aveCarolina[dist$orthogroup=="allDist.txt"], col="blue")
+}
+par(fig=c(0,1,0,1), oma=c(0,0,0,0), mar=c(0,0,0,0), new=T)
+plot(0, type="n", bty="n", xaxt="n", yaxt="n")
+legend("bottom", pch=20, xpd=T, horiz=T,
+       c("ave of all Kleb genomes", "ave of Carolina Kleb genomes"),
+       col = c("black", "blue"))
+dev.off()
+
+##resistant
+jpeg("chs11_ave_kleb_kmer_dist_scaffold_resistant.jpg", height=900, width=1800, res=150)
+par(mfrow=c(2, 4), oma=c(2, .1, .1, .1)) #8 scaffolds
+for(i in 1:nrow(scaff)) {
+  tab = mrg[mrg$scaffold==scaff$scaffold[i],]
+  plot(0, type="n", xlim=c(0, scaff$length[i]), ylim=c(minD, maxD),
+       xlab="gene start on scaffold", ylab="average Kleb distance",
+       main=paste("Scaffold", scaff$scaffold[i]))
+  points(x=tab$geneStart, y=tab$aveAllKleb, pch=20, col="black")
+  points(x=tab$geneStart, y=tab$aveResistantKleb, pch=20, col="red")
+  abline(h=dist$aveAll[dist$orthogroup=="allDist.txt"], col="black")
+  abline(h=dist$aveResistant[dist$orthogroup=="allDist.txt"], col="red")
+}
+par(fig=c(0,1,0,1), oma=c(0,0,0,0), mar=c(0,0,0,0), new=T)
+plot(0, type="n", bty="n", xaxt="n", yaxt="n")
+legend("bottom", pch=20, xpd=T, horiz=T,
+       c("ave of all Kleb genomes", "ave of resistant Kleb genomes"),
+       col = c("black", "red"))
+dev.off()
+
+jpeg("chs11_ave_kleb_kmer_dist_scaffold_susceptible.jpg", height=900, width=1800, res=150)
+par(mfrow=c(2, 4), oma=c(2, .1, .1, .1)) #8 scaffolds
+for(i in 1:nrow(scaff)) {
+  tab = mrg[mrg$scaffold==scaff$scaffold[i],]
+  plot(0, type="n", xlim=c(0, scaff$length[i]), ylim=c(minD, maxD),
+       xlab="gene start on scaffold", ylab="average Kleb distance",
+       main=paste("Scaffold", scaff$scaffold[i]))
+  points(x=tab$geneStart, y=tab$aveAllKleb, pch=20, col="black")
+  points(x=tab$geneStart, y=tab$aveSusceptibleKleb, pch=20, col="green")
+  abline(h=dist$aveAll[dist$orthogroup=="allDist.txt"], col="black")
+  abline(h=dist$aveSusceptible[dist$orthogroup=="allDist.txt"], col="green")
+}
+par(fig=c(0,1,0,1), oma=c(0,0,0,0), mar=c(0,0,0,0), new=T)
+plot(0, type="n", bty="n", xaxt="n", yaxt="n")
+legend("bottom", pch=20, xpd=T, horiz=T,
+       c("ave of all Kleb genomes", "ave of susceptible Kleb genomes"),
+       col = c("black", "green"))
+dev.off()
+
+####ortholog groups
+tab = dist[!grepl("carolina", dist$orthogroup),]
+tab = tab[-1,] #remove all dist
+x = as.numeric(sub("orthogroup", "", tab$orthogroup))
+lim = range(tab[,2:5])
+##carolina
+jpeg("orthologGroup_ave_kleb_kmer_dist_carolina.jpg", height=800, width=800, res=150)
+par(oma=c(2, .1, .1, .1), mar=c(4, 4, .5, .5)) 
+plot(x=x, y=tab$aveAllKleb, 
+     xlim=c(0, max(x)), ylim=lim,
+     xlab="orthogroup number", ylab="average Kleb distance",
+     pch=16, col="black")
+points(x=x, y=tab$aveCarolinaKleb, pch=16, col="blue")
+abline(h=dist$aveAll[dist$orthogroup=="allDist.txt"], col="black")
+abline(h=dist$aveCarolina[dist$orthogroup=="allDist.txt"], col="blue")
+par(fig=c(0,1,0,1), oma=c(0,0,0,0), mar=c(0,0,0,0), new=T)
+plot(0, type="n", bty="n", xaxt="n", yaxt="n")
+legend("bottom", legend=c("ave of all Kleb genomes", "ave of Carolina Kleb genomes"), 
+       pch=16, col=c("black", "blue"), horiz=T, xpd=T)
+dev.off()
+##resistant
+jpeg("orthologGroup_ave_kleb_kmer_dist_resistant.jpg", height=800, width=800, res=150)
+par(oma=c(2, .1, .1, .1), mar=c(4, 4, .5, .5)) 
+plot(x=x, y=tab$aveAllKleb, 
+     xlim=c(0, max(x)), ylim=lim,
+     xlab="orthogroup number", ylab="average Kleb distance",
+     pch=16, col="black")
+points(x=x, y=tab$aveResistantKleb, pch=16, col="red")
+abline(h=dist$aveAll[dist$orthogroup=="allDist.txt"], col="black")
+abline(h=dist$aveResistant[dist$orthogroup=="allDist.txt"], col="red")
+par(fig=c(0,1,0,1), oma=c(0,0,0,0), mar=c(0,0,0,0), new=T)
+plot(0, type="n", bty="n", xaxt="n", yaxt="n")
+legend("bottom", legend=c("ave of all Kleb genomes", "ave of resistant Kleb genomes"), 
+       pch=16, col=c("black", "red"), horiz=T, xpd=T)
+dev.off()
+##carolina
+jpeg("orthologGroup_ave_kleb_kmer_dist_susceptible.jpg", height=800, width=800, res=150)
+par(oma=c(2, .1, .1, .1), mar=c(4, 4, .5, .5)) 
+plot(x=x, y=tab$aveAllKleb, 
+     xlim=c(0, max(x)), ylim=lim,
+     xlab="orthogroup number", ylab="average distance",
+     pch=16, col="black")
+points(x=x, y=tab$aveSusceptibleKleb, pch=16, col="green")
+abline(h=dist$aveAll[dist$orthogroup=="allDist.txt"], col="black")
+abline(h=dist$aveSusceptible[dist$orthogroup=="allDist.txt"], col="green")
+par(fig=c(0,1,0,1), oma=c(0,0,0,0), mar=c(0,0,0,0), new=T)
+plot(0, type="n", bty="n", xaxt="n", yaxt="n")
+legend("bottom", legend=c("ave of all Kleb genomes", "ave of susceptible Kleb genomes"), 
+       pch=16, col=c("black", "green"), horiz=T, xpd=T)
+dev.off()

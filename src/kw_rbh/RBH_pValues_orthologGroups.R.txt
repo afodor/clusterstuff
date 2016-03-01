@@ -1,0 +1,48 @@
+##generate p-values from Student's t-test for each orthogroup (from orthologGroups)
+##2/19/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\rbh")
+
+bitScore = read.table("bitScoreTable_orthologGroups150.txt", 
+                      header=T, sep="\t", na.strings=c("NaN", "NA"),
+                      colClasses=c("character", rep("numeric", 2406)))
+
+for(r in 1:nrow(bitScore)) {
+  for(c in 2: ncol(bitScore)) {
+    if(is.na(bitScore[r,c])) {
+      bitScore[r,c] = 0
+    }
+  }
+}
+
+car = bitScore[grepl("carolina", bitScore$genomeID),]
+res = bitScore[grepl("resistant", bitScore$genomeID),]
+sus = bitScore[grepl("susceptible", bitScore$genomeID),]
+
+aveCar = colMeans(car[,-1])
+aveRes = colMeans(res[,-1])
+aveSus = colMeans(sus[,-1])
+
+##carolina vs. resistant
+car_v_res = rep(NA, ncol(bitScore)-1)
+for(i in seq(2, ncol(bitScore))) {
+  car_v_res[i-1] = t.test(x=car[,i], y=res[,i], paired=F, alternative="two.sided")$p.value
+}
+
+##carolina vs. susceptible
+car_v_sus = rep(NA, ncol(bitScore)-1)
+for(i in seq(2, ncol(bitScore))) {
+  car_v_sus[i-1] = t.test(x=car[,i], y=sus[,i], paired=F, alternative="two.sided")$p.value
+}
+
+##resistant vs. susceptible
+res_v_sus = rep(NA, ncol(bitScore)-1)
+for(i in seq(2, ncol(bitScore))) {
+  res_v_sus[i-1] = t.test(x=res[,i], y=sus[,i], paired=F, alternative="two.sided")$p.value
+}
+
+results = data.frame(orthogroup = names(bitScore)[-1], car_v_res, car_v_sus, res_v_sus, aveCar, aveRes, aveSus)
+
+write.table(results, "orthologGroups_rbh_pvalues.txt", sep="\t", row.names=F, col.names=T, quote=F)
+                        

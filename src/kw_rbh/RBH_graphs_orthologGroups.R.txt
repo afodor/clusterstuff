@@ -1,0 +1,26 @@
+##draw graphs of rbh p-value results
+##have sign of p-value reflect which group is higher
+##12/19/16
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\rbh")
+
+##p-value comparisons
+pVal = read.table("orthologGroups_rbh_pvalues.txt", sep="\t", header=T, colClasses=c("character", rep("numeric", 6)))
+pVal$car_v_res = log10(pVal$car_v_res)
+pVal$car_v_res[pVal$aveCar > pVal$aveRes] = -1 * pVal$car_v_res[pVal$aveCar > pVal$aveRes]
+pVal$car_v_sus = log10(pVal$car_v_sus)
+pVal$car_v_sus[pVal$aveCar > pVal$aveSus] = -1 * pVal$car_v_sus[pVal$aveCar > pVal$aveSus]
+pVal$res_v_sus = log10(pVal$res_v_sus)
+pVal$res_v_sus[pVal$aveRes > pVal$aveSus] = -1 * pVal$res_v_sus[pVal$aveRes > pVal$aveSus]
+jpeg("orthologGroups_rbh_pValueComparisons.jpg", height=600, width=1800, res=150)
+par(mfrow=c(1, 3), mar=c(5.1, 5.1, 2, 2))
+plot(x=pVal$car_v_res, y=pVal$car_v_sus, 
+     xlab="Carolina vs. Resistant log10 p-values\n(negative if Carolina is lower)", 
+     ylab="Carolina vs. Suseptible log10 p-value\n(negative if Carolina is lower)", pch=16)
+plot(x=pVal$car_v_res, y=pVal$res_v_sus, 
+     xlab="Carolina vs. Resistant log10 p-values\n(negative if Carolina is lower)", 
+     ylab="Resistant vs. Suseptible log10 p-values\n(negative if resistant is lower)", pch=16)
+plot(x=pVal$car_v_sus, y=pVal$res_v_sus, 
+     xlab="Carolina vs. Suseptible log10 p-values\n(negative if Carolina is lower)", 
+     ylab="Resistant vs. Suseptible log10 p-values\n(negative if resistant is lower)", pch=16)
+dev.off()
