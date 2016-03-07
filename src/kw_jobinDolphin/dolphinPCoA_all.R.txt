@@ -1,0 +1,59 @@
+##PCoA of dolphin data
+##all samples
+##color by body site, shape by read
+##3/4/16
+
+rm(list=ls())
+
+library(vegan)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\dolphin\\rdpResults")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+pdf("dolphinPCoA_allSamples.pdf")
+for(taxa in taxaLevels) {
+  print(taxa)
+  fname = paste("dolphin_", taxa, "_taxaAsCol_logNorm_allSamples.txt", sep="")
+  table = read.table(fname, sep="\t", header=T, comment.char="")
+  nc = ncol(table)
+  table = read.table(fname, sep="\t", header=T, comment.char="", 
+                     colClasses=c(rep("character", 14), rep("numeric", nc-14)))
+  
+  ##pcoa using vegan capscale
+  par(mar=c(4,4,4,8), xpd=T)
+  pcoa <- capscale(table[,-(1:15)]~1,distance="bray")
+  
+  ##get percent variance
+  eig = eigenvals(pcoa)
+  if(any(eig<0)) {#need to check there are no negatives
+    warning(paste("NEGATIVE EIGENVALUES-percent variance is incorrect for ", taxa, sep=""))
+  }
+  var = eig/sum(eig)*100
+  
+  ##color by body site
+  table$BODY.SITE.SAMPLED = sub("W[1-9]", "W", table$BODY.SITE.SAMPLED)
+  site = sort(unique(table$BODY.SITE.SAMPLED)) #[1] "A" "B" "C" "D" "E" "F" "W"
+  colors = c("red", "blue", "green", "gold", "black", "turquoise", "purple")
+  col = rep(NA, nrow(table))
+  for(i in 1:length(site)) {
+    col[table$BODY.SITE.SAMPLED == site[i]] = colors[i]
+  }
+  
+  ##shape by read
+  sh = ifelse(table$read=="R1", 18, 16)
+ 
+  ##plot
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], 
+       xlab=paste("MDS1 (", format(var[[1]], digits=0), "%)", sep=""), 
+       ylab=paste("MDS2 (", format(var[[2]], digits=0), "%)", sep=""),
+       main=taxa, col=col, pch=sh)
+  
+  ##legend
+  legend("topright", inset=c(-.3,0),
+         legend=c(site, "read 1", "read 2"),
+         col=c(colors, "grey", "grey"),
+         pch=c(rep(15, length(site)), 18, 16))
+  
+}
+dev.off()
