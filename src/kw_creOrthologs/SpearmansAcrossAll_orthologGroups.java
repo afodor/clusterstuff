@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.StringTokenizer;
-import creOrthologs.kmers.*;
 
 import utils.Spearman;
 
