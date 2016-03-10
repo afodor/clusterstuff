@@ -110,7 +110,7 @@ public class MakeKmers
 		}
 	}
 	
-	private static HashMap<String, Integer> breakIntoKmers(File inFile) throws Exception
+	static HashMap<String, Integer> breakIntoKmers(File inFile) throws Exception
 	{
 		HashMap<String, Integer> map = new HashMap<String,Integer>();
 		
