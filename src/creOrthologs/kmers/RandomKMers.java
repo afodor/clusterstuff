@@ -1,10 +1,13 @@
 package creOrthologs.kmers;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.StringTokenizer;
 
 public class RandomKMers
 {
@@ -29,18 +32,25 @@ public class RandomKMers
 	private static List<String> getKmerList(String inKmerFilePath) throws Exception
 	{
 		List<String> list = new ArrayList<String>();
-		
-		HashMap<String, Integer> map = MakeKmers.breakIntoKmers(new File(inKmerFilePath));
-		
-		for(String s : map.keySet())
+
+		BufferedReader reader = new BufferedReader(new FileReader(new File(
+				inKmerFilePath)));
+
+		for(String s = reader.readLine(); s != null; s = reader.readLine())
 		{
-			int aNum = map.get(s);
+			StringTokenizer sToken = new StringTokenizer(s);
 			
-			for( int x=0; x < aNum; x++)
-			{
-				list.add(s);
-			}
+			String seq = sToken.nextToken();
+			int aNum = Integer.parseInt(sToken.nextToken());
+			
+			if( sToken.hasMoreTokens())
+				throw new Exception("No");
+			
+			for(int x=0; x < aNum; x++)
+				list.add(seq);
 		}
+		
+		reader.close();
 		
 		return list;
 	}
