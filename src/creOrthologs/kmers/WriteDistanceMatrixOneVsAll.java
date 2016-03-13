@@ -45,7 +45,7 @@ public class WriteDistanceMatrixOneVsAll
 		writer.flush();  writer.close();
 	}
 	
-	private static long getSumSquare(HashMap<String, Integer> counts)
+	static long getSumSquare(HashMap<String, Integer> counts)
 	{
 		long sum =0;
 		
@@ -55,7 +55,7 @@ public class WriteDistanceMatrixOneVsAll
 		return sum;
 	}
 	
-	private static double getDistance(HashMap<String, Integer> aMap, HashMap<String, Integer> bMap,
+	static double getDistance(HashMap<String, Integer> aMap, HashMap<String, Integer> bMap,
 						long sumASquared) throws Exception
 	{
 		long sumBSquared = getSumSquare(bMap);
@@ -83,12 +83,9 @@ public class WriteDistanceMatrixOneVsAll
 		return 1- topSum / Math.sqrt(sumASquared * sumBSquared);
 	}
 	
-	private static HashMap<String, Integer> getCounts(String genomeName) throws Exception
+	static HashMap<String, Integer> getCounts(File inFile) throws Exception
 	{
 		HashMap<String, Integer> map = new HashMap<String, Integer>();
-		
-		File inFile = new File(MakeKmers.KMER_DIR.getAbsolutePath() + File.separator + 
-						genomeName);
 		
 		if( ! inFile.exists())
 			throw new Exception("Could not find " + inFile.getAbsolutePath() );
@@ -111,5 +108,13 @@ public class WriteDistanceMatrixOneVsAll
 		reader.close();
 				
 		return map;
+	}
+	
+	static HashMap<String, Integer> getCounts(String genomeName) throws Exception
+	{
+		File inFile = new File(MakeKmers.KMER_DIR.getAbsolutePath() + File.separator + 
+						genomeName);
+		
+		return getCounts(inFile);
 	}
 }
