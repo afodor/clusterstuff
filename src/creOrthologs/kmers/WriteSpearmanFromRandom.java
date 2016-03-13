@@ -63,7 +63,7 @@ public class WriteSpearmanFromRandom
 		{
 			String xName = list[x];
 			
-			if( xName.endsWith("dist"))
+			if( xName.endsWith("dist.txt"))
 			{
 				List<Float> aVals = getValsOrNull(new File(
 						KMER_DIST_DIRECTORY.getAbsolutePath() + File.separator + xName));
@@ -74,7 +74,7 @@ public class WriteSpearmanFromRandom
 					{
 						String yName = list[y];
 						
-						if( yName.endsWith("dist"))
+						if( yName.endsWith("dist.txt"))
 						{
 							List<Float> bVals = getValsOrNull(new File(
 									KMER_DIST_DIRECTORY.getAbsolutePath() + File.separator + yName));
