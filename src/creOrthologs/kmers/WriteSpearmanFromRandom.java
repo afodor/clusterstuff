@@ -41,7 +41,7 @@ public class WriteSpearmanFromRandom
 		
 		reader.close();
 		
-		if( numRead != EXPECTED_NUM_LINES)
+		if( numRead != EXPECTED_NUM_LINES-1)
 		{
 			System.out.println(numRead + " skipping " + f.getAbsolutePath());
 			return null;
