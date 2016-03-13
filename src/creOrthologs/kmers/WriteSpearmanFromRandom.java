@@ -86,8 +86,10 @@ public class WriteSpearmanFromRandom
 				
 				while(sToken.hasMoreTokens())
 				{
+					float aVal = Float.parseFloat(sToken.nextToken());
+					
 					if( tokenNumber > numRead && ( include == null ||  include.contains(tokenNumber)) )
-						vals.add(Float.parseFloat(sToken.nextToken()));
+						vals.add(aVal);
 					
 					tokenNumber++;
 				}
