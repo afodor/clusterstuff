@@ -162,8 +162,8 @@ public class WriteSpearmanFromRandom
 								
 								writer.write(xName + "\t");
 								writer.write(yName + "\t");
-								writer.write(Spearman.getSpear(aVals, bVals) + "\t");
-								writer.write(Spearman.getSpear(aValsPneuOnly,bValsPneuOnly) + "\n");
+								writer.write(Spearman.getSpear(aVals, bVals).getRs() + "\t");
+								writer.write(Spearman.getSpear(aValsPneuOnly,bValsPneuOnly).getRs() + "\n");
 								writer.flush();
 							}
 						}
