@@ -1,0 +1,83 @@
+##linear model for DC tumor number, as two groups - developed or did not develop tumors
+##linear models with interactions
+##3/14/16
+
+rm(list=ls())
+
+library("pscl")
+library("lmtest")
+library("nlme")
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis3\\3.4.3_tumor_binary\\DC")
+
+taxaLevels <- c("phylum","class","order","family","genus")
+
+for(taxa in taxaLevels ) {
+  print(taxa)
+  # fname = paste("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis2_combineT\\DC\\dc_combineT_", taxa, "_taxaAsCol_logNorm.txt", sep="")
+  fname = paste("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis3\\3.3_gavage\\DC\\analysis3.3_dc_", taxa, "_taxaAsCol_logNorm.txt", sep="")
+  table = read.table(fname, sep="\t", header=T, comment.char="")
+  numCols = ncol(table)
+  cc = c(rep(c("numeric", "character"),4), "numeric", "numeric", "character", "numeric", rep("character", 3), rep("numeric", numCols-15))
+  table = read.table(fname, sep="\t", header=T, comment.char="", na.strings="N/A", colClasses=cc)
+  
+  ##make tumor as factor: no tumor/had tumor
+  table = table[!is.na(table$Colon.Tumor..),] #remove NA
+  table$Colon.Tumor.. = ifelse(table$Colon.Tumor..==0, "no tumor", "tumor present")
+  
+  ##output vectors
+  names = vector()
+  intnNames = vector()
+  pValues = data.frame()
+  pTumorNoIntn = vector()
+  index = 1
+  
+  pdf(paste("analysis3.4.3_dc_otuModel_intn_boxplots_", taxa, ".pdf", sep=""))
+  
+  for( i in 18:numCols) {
+    if(sum(table[,i] != 0 ) > nrow(table) / 4) { 
+      
+      names[index] <- names(table)[i]
+      bug <- table[,i]
+      tumor = factor(table$Colon.Tumor..)
+      group = factor(table$Group..Associated.with.)
+      genotype = factor(table$Genotype)
+      
+      ##tumor only model
+      pTumorNoIntn = anova(lm(bug~tumor))$"Pr(>F)"[1]
+      
+      ##interaction model
+      model = anova(lm(bug~tumor*group*genotype))
+      intnNames = row.names(model)
+      pValues = rbind(pValues, model$`Pr(>F)`)
+      names(pValues) = intnNames
+     
+      ##color by group
+      groups = sort(unique(table$Group..Associated.with.)) #[1] "BF-bx" "BF+bx" "BF+NF" "BF+T #2" 
+      col = c("blue", "red", "gold", "green")
+      colors = rep(NA, nrow(table))
+      for(j in 1:length(groups)) {
+        colors[table$Group..Associated.with.==groups[j]] = col[j]
+      }
+      
+      ##shape by time; have open shape for ApcMin and closed for KO
+      shapes=ifelse(grepl("IL10", table$Genotype), 16, 1)
+      
+      boxplot(bug~tumor, main=names[index], xlab="", ylab="relative abundance")
+      points(bug~tumor, col=colors, pch=shapes)
+      index=index+1
+      
+    }
+  }
+  
+  dFrame <- cbind(names, pTumorNoIntn, pValues[,-ncol(pValues)])
+  colNames = c(names(dFrame), rep("X", ncol(dFrame)-1))
+  ncoldf = ncol(dFrame)
+  for(c in 2:ncoldf) {
+    dFrame = cbind(dFrame, p.adjust(dFrame[,c], method="BH"))
+    colNames[c+ncoldf-1] = paste("pAdj", colNames[c], sep=".")
+  }
+  names(dFrame) = colNames
+  write.table(dFrame, file=paste("analysis3.4.3_dc_otuModel_intn_pValues_", taxa, ".txt",sep=""), sep="\t",row.names=FALSE)
+  dev.off()
+}

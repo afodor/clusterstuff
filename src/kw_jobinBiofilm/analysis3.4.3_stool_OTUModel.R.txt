@@ -1,0 +1,161 @@
+##linear model for stool tumor number, as two groups - developed or did not develop tumors
+## each group/genotype separately
+##3/14/16
+
+rm(list=ls())
+
+library("pscl")
+library("lmtest")
+library("nlme")
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis3\\3.4.3_tumor_binary\\stool")
+
+taxaLevels <- c("phylum","class","order","family","genus")
+
+for(taxa in taxaLevels ) {
+  print(taxa)
+  fname = paste("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis3\\3.3_gavage\\stool\\analysis3.3_stool_", taxa, "_taxaAsCol_logNorm.txt", sep="")
+  table = read.table(fname, sep="\t", header=T, comment.char="")
+  numCols = ncol(table)
+  cc = c("numeric", rep("character", 3), rep(c("numeric", "character"), 3), "character", "numeric", rep("character", 3), rep("numeric", numCols-15))
+  table = read.table(fname, sep="\t", header=T, comment.char="", na.strings="N/A", colClasses=cc)
+  
+  ##make tumor as factor: no tumor/had tumor
+  table = table[!is.na(table$Colon.Tumor..),] #remove NA
+  table$Colon.Tumor.. = ifelse(table$Colon.Tumor..==0, "no tumor", "tumor present")
+  
+  ##output vectors
+  names = vector()
+  pTumorApcMinBFminusBX = vector()
+  pTumorApcMinBFplusT2 = vector()
+  pTumorKOBFplusBX = vector()
+  pTumorKOBFplusNF = vector()
+  pTumorKOBFminusBX = vector()
+  pTumorKOBFplusT2 = vector()
+  index = 1
+  
+  pdf(paste("analysis3.4.3_stool_otuModel_boxplots_", taxa, ".pdf", sep=""), height=10)
+  
+  for( i in 18:numCols) {
+    if(sum(table[,i] != 0 ) > nrow(table) / 4) { 
+      
+      names[index] <- names(table)[i]
+      bug <- table[,i]
+      tumor = factor(table$Colon.Tumor..)
+      
+      ApcMinBFminusBX = table$Genotype == "ApcMin" & table$Group..Associated.with. == "BF-bx"
+      ApcMinBFplusT2 = table$Genotype == "ApcMin" & table$Group..Associated.with. == "BF+T #2"
+      
+      KOBFplusBX = table$Genotype == "ApcMin IL10 KO" & table$Group..Associated.with. == "BF+bx"
+      KOBFplusNF = table$Genotype == "ApcMin IL10 KO" & table$Group..Associated.with. == "BF+NF"
+      KOBFminusBX = table$Genotype == "ApcMin IL10 KO" & table$Group..Associated.with. == "BF-bx"
+      KOBFplusT2 = table$Genotype == "ApcMin IL10 KO" & table$Group..Associated.with. == "BF+T #2"
+     
+      if(length(unique(tumor[ApcMinBFminusBX])) > 1) { #not all groups will have both factors
+        pTumorApcMinBFminusBX[index] = anova(lm(bug[ApcMinBFminusBX]~tumor[ApcMinBFminusBX]))$"Pr(>F)"[1]
+      } else {
+        pTumorApcMinBFminusBX[index] = NA
+      }
+      if(length(unique(tumor[ApcMinBFplusT2])) > 1) { 
+        pTumorApcMinBFplusT2[index] = anova(lm(bug[ApcMinBFplusT2]~tumor[ApcMinBFplusT2]))$"Pr(>F)"[1]
+      } else {
+        pTumorApcMinBFplusT2[index] = NA
+      }
+      
+      if(length(unique(tumor[KOBFplusBX])) > 1) { 
+        pTumorKOBFplusBX[index] = anova(lm(bug[KOBFplusBX]~tumor[KOBFplusBX]))$"Pr(>F)"[1]
+      } else {
+        pTumorKOBFplusBX[index] = NA
+      }
+      if(length(unique(tumor[KOBFplusNF])) > 1) { 
+        pTumorKOBFplusNF[index] = anova(lm(bug[KOBFplusNF]~tumor[KOBFplusNF]))$"Pr(>F)"[1]
+      }  else {
+        pTumorKOBFplusNF[index] = NA
+      }
+      if(length(unique(tumor[KOBFminusBX])) > 1) { 
+        pTumorKOBFminusBX[index] = anova(lm(bug[KOBFminusBX]~tumor[KOBFminusBX]))$"Pr(>F)"[1]
+      } else {
+        pTumorKOBFminusBX[index] = NA
+      }
+      if(length(unique(tumor[KOBFplusT2])) > 1) { 
+        pTumorKOBFplusT2[index] = anova(lm(bug[KOBFplusT2]~tumor[KOBFplusT2]))$"Pr(>F)"[1]
+      } else {
+        pTumorKOBFplusT2[index] = NA
+      }
+      
+      ##plots
+      graphMain =  names[index]
+     
+      ##color by group
+      groups = sort(unique(table$Group..Associated.with.)) #[1] "BF-bx" "BF+bx" "BF+NF" "BF+T #2" 
+      col = c("blue", "red", "gold", "green")
+      colors = rep(NA, nrow(table))
+      for(j in 1:length(groups)) {
+        colors[table$Group..Associated.with.==groups[j]] = col[j]
+      }
+      
+      ##shape by time, empty or filled by genotype
+      timeGen = c("ApcMin wk 1", "ApcMin wk 12", "IL10 KO wk 1", "IL10 KO wk 12")
+      sh = c(0, 1, 15, 16)
+      shapes = rep(NA, nrow(table))
+      shapes[table$Genotype=="ApcMin" & table$Timepoint..weeks.==1] = sh[1]
+      shapes[table$Genotype=="ApcMin" & table$Timepoint..weeks.==12] = sh[2]
+      shapes[table$Genotype=="ApcMin IL10 KO" & table$Timepoint..weeks.==1] = sh[3]
+      shapes[table$Genotype=="ApcMin IL10 KO" & table$Timepoint..weeks.==12] = sh[4]
+      
+      par(mfrow=c(3,2), oma=c(.5,.5,5,.5), mar=c(4,4,2,1), cex.main=1.5)
+      ###ApcMin
+      boxplot(bug[ApcMinBFminusBX]~tumor[ApcMinBFminusBX], 
+           main=paste("ApcMin BF-bx; p=", format(pTumorApcMinBFminusBX[index], digits=3)), 
+           xlab="", ylab="relative abundance")
+      points(bug[ApcMinBFminusBX]~tumor[ApcMinBFminusBX], 
+             col=colors[ApcMinBFminusBX], pch=shapes[ApcMinBFminusBX])
+      boxplot(bug[ApcMinBFplusT2]~tumor[ApcMinBFplusT2], 
+           main=paste("ApcMin BF+T #2; p=", format(pTumorApcMinBFplusT2[index], digits=3)), 
+           xlab="", ylab="relative abundance")
+      points(bug[ApcMinBFplusT2]~tumor[ApcMinBFplusT2], 
+             col=colors[ApcMinBFplusT2], pch=shapes[ApcMinBFplusT2])
+      ###IL10 KO
+      boxplot(bug[KOBFplusBX]~tumor[KOBFplusBX],  
+           main=paste("ApcMin IL10 KO BF+bx; p=", format(pTumorKOBFplusBX[index], digits=3)), 
+           xlab="", ylab="relative abundance")
+      points(bug[KOBFplusBX]~tumor[KOBFplusBX], 
+             col=colors[KOBFplusBX], pch=shapes[KOBFplusBX])
+      boxplot(bug[KOBFplusNF]~tumor[KOBFplusNF], 
+           main=paste("ApcMin IL10 KO BF+NF; p=", format(pTumorKOBFplusNF[index], digits=3)), 
+           xlab="", ylab="relative abundance")
+      points(bug[KOBFplusNF]~tumor[KOBFplusNF], 
+             col=colors[KOBFplusNF], pch=shapes[KOBFplusNF])
+      boxplot(bug[KOBFminusBX]~tumor[KOBFminusBX], 
+           main=paste("ApcMin IL10 KO BF-bx; p=", format(pTumorKOBFminusBX[index], digits=3)), 
+           xlab="", ylab="relative abundance")
+      points(bug[KOBFminusBX]~tumor[KOBFminusBX], 
+             col=colors[KOBFminusBX], pch=shapes[KOBFminusBX])
+      boxplot(bug[KOBFplusT2]~tumor[KOBFplusT2], 
+           main=paste("ApcMin IL10 KO BF+T #2; p=", format(pTumorKOBFplusT2[index], digits=3)), 
+           xlab="", ylab="relative abundance")
+      points(bug[KOBFplusT2]~tumor[KOBFplusT2], 
+             col=colors[KOBFplusT2], pch=shapes[KOBFplusT2])
+      
+      ##add title
+      par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+      plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+      legend("top", horiz=T, legend=graphMain, cex=2, bty="n")
+      
+      index=index+1
+      
+    }
+  }
+  
+  dFrame <- data.frame(names, pTumorApcMinBFminusBX, 
+                       pTumorApcMinBFplusT2, pTumorKOBFplusBX, pTumorKOBFplusNF, pTumorKOBFminusBX,
+                       pTumorKOBFplusT2)
+  dFrame$pAdjTumorApcMinBFminusBX = p.adjust(dFrame$pTumorApcMinBFminusBX, method = "BH")
+  dFrame$pAdjTumorApcMinBFplusT2 = p.adjust(dFrame$pTumorApcMinBFplusT2, method = "BH")
+  dFrame$pAdjTumorKOBFplusBX = p.adjust(dFrame$pTumorKOBFplusBX, method = "BH")
+  dFrame$pAdjTumorKOBFplusNF = p.adjust(dFrame$pTumorKOBFplusNF, method = "BH")
+  dFrame$pAdjTumorKOBFminusBX = p.adjust(dFrame$pTumorKOBFminusBX, method = "BH")
+  dFrame$pAdjTumorKOBFplusT2 = p.adjust(dFrame$pTumorKOBFplusT2, method = "BH")
+  write.table(dFrame, file=paste("analysis3.4.3_stool_otuModel_pValues_", taxa, ".txt",sep=""), sep="\t",row.names=FALSE)
+  dev.off()
+}
