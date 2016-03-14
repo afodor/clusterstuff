@@ -103,6 +103,8 @@ public class SpearmansAcrossAll
 		
 		BufferedReader reader = new BufferedReader(new FileReader(f));
 		
+		reader.readLine();
+		
 		for(String s=  reader.readLine(); s != null; s= reader.readLine())
 		{
 			StringTokenizer sToken = new StringTokenizer(s);

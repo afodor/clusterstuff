@@ -82,44 +82,54 @@ public class ConstrainKMersToRegion
 		writeDistanceMatrix(bigMap, outFileBase);
 	}
 	
-	private static void writeDistanceMatrix( HashMap<String, HashMap<String,Integer>> bigMap,
+	static void writeDistanceMatrix(HashMap<String, HashMap<String,Integer>> bigMap, File matrixPath,
+					File keyPath) throws Exception
+	{
+		BufferedWriter writer = new BufferedWriter(new FileWriter( matrixPath));
+			
+			BufferedWriter keyWriter = new BufferedWriter(new FileWriter(keyPath));
+			keyWriter.write("shortName\tlongName\tnumberOfKmers\n");
+			
+			List<String> list = new ArrayList<String>(bigMap.keySet());
+			Collections.sort(list);
+		
+			writer.write(list.size() + "\n");
+			
+			for( int x=0; x < list.size(); x++)
+			{
+				String s1 = list.get(x);
+				String name = "BUG_" + x;
+				
+				while( name.length() < 10)
+					name = name + "_";
+				
+				writer.write(name);
+				keyWriter.write(name + " " + list.get(x) + "\t" + getSum(bigMap, list.get(x)) + "\n");
+				
+				for( int y=0; y < list.size(); y++)
+				{
+					writer.write(" " + getDistance(bigMap, s1, list.get(y)));
+					//System.out.println(list.get(x) + " "+ list.get(y) + " " + val);
+				}
+				
+				writer.write("\n");
+			}
+			
+			writer.flush();  writer.close();
+			keyWriter.flush();  keyWriter.close();
+	}
+	
+	static void writeDistanceMatrix( HashMap<String, HashMap<String,Integer>> bigMap,
 			String outFileBase)
 		throws Exception
 	{
-		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
-			GatherDistanceMatrix.GATHERED_DIR.getAbsolutePath() + File.separator + outFileBase + "_dist.txt"	)));
+		File distFile = new File(
+				GatherDistanceMatrix.GATHERED_DIR.getAbsolutePath() + File.separator + outFileBase + "_dist.txt");
 		
-		BufferedWriter keyWriter = new BufferedWriter(new FileWriter(new File(
-				GatherDistanceMatrix.GATHERED_DIR.getAbsolutePath() + File.separator + outFileBase + "_Key.txt"	)));
-		keyWriter.write("shortName\tlongName\tnumberOfKmers\n");
+		File keyFile = new File(
+				GatherDistanceMatrix.GATHERED_DIR.getAbsolutePath() + File.separator + outFileBase + "_Key.txt"	);
 		
-		List<String> list = new ArrayList<String>(bigMap.keySet());
-		Collections.sort(list);
-	
-		writer.write(list.size() + "\n");
-		
-		for( int x=0; x < list.size(); x++)
-		{
-			String s1 = list.get(x);
-			String name = "BUG_" + x;
-			
-			while( name.length() < 10)
-				name = name + "_";
-			
-			writer.write(name);
-			keyWriter.write(name + " " + list.get(x) + "\t" + getSum(bigMap, list.get(x)) + "\n");
-			
-			for( int y=0; y < list.size(); y++)
-			{
-				writer.write(" " + getDistance(bigMap, s1, list.get(y)));
-				//System.out.println(list.get(x) + " "+ list.get(y) + " " + val);
-			}
-			
-			writer.write("\n");
-		}
-		
-		writer.flush();  writer.close();
-		keyWriter.flush();  keyWriter.close();
+		writeDistanceMatrix(bigMap, distFile, keyFile);
 	}
 	
 	// outer key is the genome may; inner key is the k-mer
