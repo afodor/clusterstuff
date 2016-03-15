@@ -1,9 +1,10 @@
 ##draw transmission and epidemiology trees, patient figure, make table of subtree membership
 ##with full genome kmer cosine distance
+##ST258 only
 
 rm(list=ls())
 # setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\paper1_analysisMethods\\figures")
-setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\rbh\\kmer")
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\ST258 only")
 
 library(ape)
 library(adegenet)
@@ -13,9 +14,14 @@ library(Rgraphviz)
 
 MAXDIST=11 #maximum SNP distance to consider as possibly part of same outbreak in broad
 
+###get st258 Carolina only list
+st258 = read.table("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\CarolinaST258Genomes.txt", colClasses="character")
+kleb = as.numeric(sub("klebsiella_pneumoniae_chs_", "", st258$V1))
+
 ##get data
-all.data = read.table("AllDistances.txt", sep="\t", header=T, colClasses=c(rep("numeric", 4), "character", "character", rep("numeric", 17)))
+all.data = read.table("AllDistances_st258only.txt", sep="\t", header=T, colClasses=c(rep("numeric", 4), "character", "character", rep("numeric", 17)))
 meta = read.table("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\paper1_analysisMethods\\figures\\UNCCMetaData_Final_8-5-15.txt", sep="\t", header=T, colClasses = c("numeric", "numeric", rep("character", 7)))
+meta = meta[meta$SpecNumber %in% kleb,]
 strains = unique(c(all.data$xID, all.data$yID))
 strains = strains[order(strains)] #here are only looking at those strains we have comparisons for all samples
 
@@ -37,6 +43,7 @@ max.dist = c(convertDist(all.data$broadCoreGenomeDistance), convertDist(all.data
 convertToDist <- function(file) {
   table = read.table(file, header=T, sep="\t", colClasses="numeric")
   colnames(table) = c("xGen", "yGen", "distance")
+  table = table[table$xGen %in% kleb & table$yGen %in% kleb,]
   dist = matrix(nrow=length(strains), ncol=length(strains))
   for(i in 1:length(strains)) {
     for(j in 1:length(strains)) {
@@ -63,7 +70,7 @@ plasmid90 = convertToDist("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor
 snpCP = convertToDist("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\PilonSNPDistanceNoIndel_CP006923.txt")
 snpNC = convertToDist("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\PilonSNPDistanceNoIndel_NC_009648.txt")
 cophylog = convertToDist("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\CoPhylogSNPDistances.txt")
-kmer = convertToDist("kmerCHSDistance.txt")
+kmer = convertToDist("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\rbh\\kmer\\kmerCHSDistance.txt")
 
 ##culture dates need to be rearranged to same order as strains (also removing strains not in analysis)
 cult = rep(NA, length(strains))
@@ -78,6 +85,7 @@ cultureDates = as.POSIXct("2008-01-01") + cult*24*60*60
 
 ##get encounter overlap
 enc = read.table("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\paper1_analysisMethods\\figures\\encounterDaysOverlap.txt", header=T, sep="\t", colClasses="numeric")
+enc = enc[enc$xID %in% kleb & enc$yID %in% kleb,]
 
 # ####set up epidemiology trees (tree showing connections between isolates if overlap, pointing from earlier to later culture)
 # ##function that returns a graph for the epidemiology tree using the given overlap between the given x and y IDs
@@ -262,38 +270,38 @@ getNodeCol <- function(groups) {
   g = sort(unique(groups))
   ##make sure group with 19 is same in all, and 48 and 51 if they are not part of that group
   g19 = groups[strains==19]
-  g48 = g51 = 0 #group containing 48 or 51 respectively
-  g = c(g[g==g19], g[g!=g19])
-  if(!is.na(groups[strains==48]) && groups[strains==48] != groups[strains==19]) { #48
-    g48 = groups[strains==48]
-    if(length(g) > 2) {
-      g = g[g!=g48]
-      g = c(g[1], g48, g[2:length(g)])
-    } 
-  } else { #add a place holder so colors still work
-    if(length(g) > 1) {
-      g = c(g[1], -100, g[2:length(g)])
-    } else {
-      g = c(g, -100)
-    }
-  }
-  if(!is.na(groups[strains==51]) && groups[strains==51] != groups[strains==19]) { #51
-    g51 = groups[strains==51]
-    if(length(g) > 3) {
-      g = g[g!=g51]
-      g = c(g[1:2], g51, g[3:length(g)])
-    } 
-  } else { #add a place holder so colors still work
-    if(length(g) > 2) {
-      g = c(g[1:2], -100, g[3:length(g)])
-    } else {
-      g = c(g, -100)
-    }
-  }
+#   g48 = g51 = 0 #group containing 48 or 51 respectively
+#   g = c(g[g==g19], g[g!=g19])
+#   if(!is.na(groups[strains==48]) && groups[strains==48] != groups[strains==19]) { #48
+#     g48 = groups[strains==48]
+#     if(length(g) > 2) {
+#       g = g[g!=g48]
+#       g = c(g[1], g48, g[2:length(g)])
+#     } 
+#   } else { #add a place holder so colors still work
+#     if(length(g) > 1) {
+#       g = c(g[1], -100, g[2:length(g)])
+#     } else {
+#       g = c(g, -100)
+#     }
+#   }
+#   if(!is.na(groups[strains==51]) && groups[strains==51] != groups[strains==19]) { #51
+#     g51 = groups[strains==51]
+#     if(length(g) > 3) {
+#       g = g[g!=g51]
+#       g = c(g[1:2], g51, g[3:length(g)])
+#     } 
+#   } else { #add a place holder so colors still work
+#     if(length(g) > 2) {
+#       g = c(g[1:2], -100, g[3:length(g)])
+#     } else {
+#       g = c(g, -100)
+#     }
+#   }
   col = rep("black", length(groups))
   j = 1
   for(i in 1:length(g)) {
-    if(!is.na(g[i]) && (g[i]==19 || g[i]==g48 || g[i]==g51 || g[i]==-100)) {
+    if(!is.na(g[i]) && (g[i]==19 || g[i]==-100)) {
       col[groups==g[i]] = colors[j]
       j = j + 1
     } else if(!is.na(g[i])) {
@@ -391,7 +399,8 @@ for(d in distmats) {
 #   mat = cbind(xy$x, ytime)
   
   ##draw seqtrack tree with edges removed
-  tiff(paste("TxTree_SeqTrack_", fnames[a], ".tiff", sep=""), height=10000, width=10000, res=300)
+  # tiff(paste("TxTree_SeqTrack_", fnames[a], ".tiff", sep=""), height=10000, width=10000, res=300)
+  jpeg(paste("TxTree_SeqTrack_", fnames[a], ".jpg", sep=""), height=10000, width=10000, res=300)
   par(mar=c(.01, .1, 2.5, .1), cex.main=4)
   main = paste(names[a], ", Removed edges greater than ", round(max.dist[a], digits=1), " mutations", sep="")
   if(a == 6) { #kmer needs different rounding
@@ -502,13 +511,14 @@ for(d in distmats) {
 #   print(paste("All orange edges", sum(edge.col=="orange")))
 #   print(paste("All pink edges", sum(edge.col=="pink")))
 #   print(paste("All black edges", sum(edge.col=="black")))
-  tiff(paste("TxTreeAllEdges_SeqTrack_", fnames[a], ".tiff", sep=""), height=10000, width=10000, res=300)
+  # tiff(paste("TxTreeAllEdges_SeqTrack_", fnames[a], ".tiff", sep=""), height=10000, width=10000, res=300)
+  jpeg(paste("TxTreeAllEdges_SeqTrack_", fnames[a], ".jpg", sep=""), height=10000, width=10000, res=300)
   par(mar=c(.001, .1, 2.75, .1), cex.main=4.5)
   plot(graph, layout=mat, vertex.label=row.names(st), vertex.color=col, vertex.label.color=font.col, vertex.label.cex=4, vertex.size=6,
        edge.label.cex=2, edge.color=edge.col, edge.width=4, edge.label.color="dodgerblue3", edge.arrow.size=1.5, main=names[a])
   par(new=T, mar=c(0,0,0,0), xpd=T)
   plot(1, type="n", axes=0, xlab="", ylab="")
-  legend("topleft", fig.labels[a], cex=8, bty="n", inset=c(-.08, -.035))
+  legend("topleft", fig.labels[a], cex=8, bty="n", inset=c(-.07, -.03))
   dev.off()
   
   # print("")
@@ -543,14 +553,15 @@ makeTree <- function(countCol, fileName, numAnalyses) {
   mat = cbind(xy$x, xy$y)
   
   ##draw tree
-  tiff(paste(fileName, ".tiff", sep=""), height=10000, width=10000, res=300)
+  # tiff(paste(fileName, ".tiff", sep=""), height=10000, width=10000, res=300)
+  jpeg(paste(fileName, ".jpg", sep=""), height=10000, width=10000, res=300)
   par(mar=c(.01, .1, 2.5, .1), cex.main=4)
   plot(ig, layout=mat, vertex.label.cex=2, vertex.size=4,
        edge.label=E(ig)$weight, edge.label.cex=3, edge.color=edge.col, edge.width=4, edge.label.color="dodgerblue3", edge.arrow.size=1.5,
        main=paste("Edges Present in more than", numAnalyses, "Analyses"))
   par(new=T, mar=c(0,0,0,0), xpd=T)
   plot(1, type="n", axes=0, xlab="", ylab="")
-  legend("topleft", "F", cex=8, bty="n", inset=c(-.08, -.035))
+  # legend("topleft", "F", cex=8, bty="n", inset=c(-.07, -.03))
   dev.off()
   
 }

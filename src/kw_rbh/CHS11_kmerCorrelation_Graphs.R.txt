@@ -4,7 +4,7 @@
 rm(list=ls())
 setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\rbh")
 
-##p-values against scaffolds
+##correlations against scaffolds, include Anthony's genome by genome correlations
 #read scaffold as character
 corr = read.table("CHS11geneCorrelation.txt", 
                   header=T, sep="\t", colClasses=c("character", "numeric", "numeric"))
@@ -13,6 +13,8 @@ scaff = read.table("carolina_klebsiella_pneumoniae_chs_11.0_scaffoldSizes.txt",
                    header=T, sep="\t", colClasses=c("character", "numeric"))
 genes = read.table("carolina_klebsiella_pneumoniae_chs_11.0_genePositions.txt", 
                    header=T, sep="\t", colClasses=c("character", "character", "numeric", "numeric"))
+kmer = read.table("ConstrainedMapAllContigs_af_kmer.txt", header=T, sep="\t", 
+                  colClasses=c("character", rep("numeric", 3)))
 mrg = merge(corr, genes, by="geneID")
 minC = min(mrg[,2:3], na.rm = T)
 maxC = max(mrg[,2:3], na.rm=T)
@@ -20,15 +22,24 @@ jpeg("chs11_kmerCorrelation_scaffolds.jpg", height=900, width=1800, res=150)
 par(mfrow=c(2, 4), oma=c(2, .1, .1, .1)) #8 scaffolds
 for(i in 1:nrow(scaff)) {
   tab = mrg[mrg$scaffold==scaff$scaffold[i],]
+  tab2 = kmer[kmer$contig==scaff$scaffold[i],]
   plot(0, type="n", xlim=c(0, scaff$length[i]), ylim=c(minC, 1),
        xlab="gene start on scaffold", ylab="Correlation",
        main=paste("Scaffold", scaff$scaffold[i]))
+  points(x=tab2$startPos, y=tab2$Spearman, pch=20, col="gold")
   points(x=tab$geneStart, y=tab$Pearson, pch=20, col="blue")
   points(x=tab$geneStart, y=tab$Spearman, pch=20, col="red")
 }
 par(fig=c(0,1,0,1), oma=c(0,0,0,0), mar=c(0,0,0,0), new=T)
 plot(0, type="n", bty="n", xaxt="n", yaxt="n")
 legend("bottom", pch=20, xpd=T, horiz=T,
-       c("Pearson", "Spearman"),
-       col = c("blue", "red"))
+       c("Pearson", "Spearman", "Spearman every 5000bp"),
+       col = c("blue", "red", "gold"))
+dev.off()
+
+##histogram
+jpeg("chs11_kmerCorrelation_histogram.jpg", height=500, width=1500, res=150)
+par(mfrow=c(1,2))
+hist(corr$Pearson, xlab="Pearson", main="Ortholog Pearson")
+hist(corr$Spearman, xlab="Spearman", main="Ortholog Spearman")
 dev.off()
