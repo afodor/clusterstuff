@@ -18,7 +18,7 @@ public class WriteScriptsForRandomKmers
 				KMER_RUN_DIR.getAbsolutePath() + File.separator + "runAll.sh")));
 		
 		int index = 1;
-		for(int x= 5000; x <= 30000; x =x + 100)
+		for(int x= 0; x <= 250; x++)
 		{
 			File aFile = new File(KMER_RUN_DIR.getAbsolutePath() + File.separator + 
 											"run" + index + ".sh");
@@ -27,9 +27,11 @@ public class WriteScriptsForRandomKmers
 				
 			aWriter.write("java -mx20000m  -cp " + 
 			"/users/afodor/gitInstall/clusterstuff/bin creOrthologs.kmers.RandomKMers " + 
-				x + " " + QUERY_FILE.getAbsolutePath() + 
-				" /nobackup/afodor_research/af_broad/randomKMerMatrices/chs11_" + x +"_dist.txt " + 
-				"/nobackup/afodor_research/af_broad/randomKMerMatrices/chs11_" + x + "_key.txt \n");
+				15000 + " " + QUERY_FILE.getAbsolutePath() + 
+				" /nobackup/afodor_research/af_broad/randomKMerMatrices/chs11_" + 15000 + "_" + x +
+							"_dist.txt " + 
+				"/nobackup/afodor_research/af_broad/randomKMerMatrices/chs11_" + 15000 + "_" + x
+							+ "_key.txt \n");
 				
 			writer.write("qsub -q \"viper_batch\" " + aFile.getAbsolutePath() + "\n");
 				
