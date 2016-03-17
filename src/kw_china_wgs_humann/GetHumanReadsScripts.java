@@ -21,7 +21,7 @@ public class GetHumanReadsScripts {
 		
 		//script to run all files
 		BufferedWriter runAll = new BufferedWriter(new FileWriter(new File(
-				scriptDir + "runAll.sh")));
+				scriptDir + "runFilter.sh")));
 		
 		File[] fastas = new File(fastaDir).listFiles();
 		for(File f : fastas) {
@@ -37,9 +37,9 @@ public class GetHumanReadsScripts {
 						scriptDir + scriptName)));
 				script.write("module load samtools\n");
 				script.write("samtools view -F 4 " + outDir + name + ".sam > " 
-						+ outDir + name + ".human.mapped.sam"); //get mapped reads; use -f 4 for unmapped
+						+ outDir + name + ".human.mapped.sam\n"); //get mapped reads; use -f 4 for unmapped
 				script.write("samtools flagstat " + outDir + name + ".sam > "
-						+ outDir + name + ".stats.txt");//get stats
+						+ outDir + name + ".stats.txt\n");//get stats
 				script.close();
 			}
 		}
