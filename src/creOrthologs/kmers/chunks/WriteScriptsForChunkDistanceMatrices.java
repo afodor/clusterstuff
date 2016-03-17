@@ -5,9 +5,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.util.List;
-
-import parsers.FastaSequence;
 
 public class WriteScriptsForChunkDistanceMatrices
 {
@@ -36,6 +33,28 @@ public class WriteScriptsForChunkDistanceMatrices
 		{
 			String[] splits = s.split("\t");
 			
+			if( lastSplits != null )
+			{
+				File shFile = new File(
+						CHUNK_KMER_SCRIPT_DIR.getAbsolutePath() + File.separator + "run_" + index + ".txt"	);
+				
+				BufferedWriter aWriter = new BufferedWriter(new FileWriter(shFile));
+				
+				allWriter.write("qsub -q \"viper\" " +  shFile.getAbsolutePath());
+				
+				aWriter.write("java -cp /users/afodor/gitInstall/clusterstuff/bin "
+						+ "creOrthologs.kmers.ConstrainKMersToRegion "  + 
+						genomePath + " " + contig + " " +  (Integer.parseInt(lastSplits[1]) + 6000) + " " 
+						+ (Integer.parseInt(splits[0]) -1000) + "\n");
+				
+				allWriter.flush(); 
+				
+				aWriter.flush();  aWriter.close();
+				
+				index++;
+			
+			}
+			
 			if( splits.length != 4)
 				throw new Exception("No");
 			
@@ -55,11 +74,11 @@ public class WriteScriptsForChunkDistanceMatrices
 			aWriter.flush();  aWriter.close();
 			
 			index++;
-			
-	
+			lastSplits = splits;
 		}
 		
-						
+		
 		allWriter.flush();  allWriter.close();
+		reader.close();
 	}
 }
