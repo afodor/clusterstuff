@@ -37,7 +37,7 @@ public class BWAhumanScripts {
 						scriptDir + scriptName)));
 				script.write("#PBS -l walltime=500:00:00\n");
 				script.write("module load bwa\n");
-				script.write("bwa mem " + REF + f.getAbsolutePath());//command to align file
+				script.write("bwa mem " + REF + " " + f.getAbsolutePath() + "\n");//command to align file
 				script.close();
 			}
 		}
