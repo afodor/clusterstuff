@@ -25,7 +25,7 @@ public class WriteScriptsForChunkDistanceMatrices
 		
 		BufferedWriter aWriter = new BufferedWriter(new FileWriter(shFile));
 		
-		allWriter.write("qsub -q \"viper\" " +  shFile.getAbsolutePath());
+		allWriter.write("qsub -q \"viper\" " +  shFile.getAbsolutePath() + "\n");
 		
 		aWriter.write("java -cp /users/afodor/gitInstall/clusterstuff/bin "
 				+ "creOrthologs.kmers.ConstrainKMersToRegion "  + 
