@@ -23,7 +23,7 @@ public class WriteScriptsForChunkDistanceMatrices
 			"runAll.sh")));
 		
 		BufferedReader reader = new BufferedReader(new FileReader(new File(
-				"/nobackup/afodor_research/af_broad/chunks")));
+				"/nobackup/afodor_research/af_broad/chunks/pneuOnlyChunks_0.85_0.9.txt")));
 		
 		reader.readLine();
 		
