@@ -1,0 +1,34 @@
+##for MDS1 and MDS2, do pairwise t-test for each body site
+##3/15/16
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\dolphin\\rdpResults")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+for(taxa in taxaLevels) {
+  print(taxa)
+  fname = paste("pcoaCorrected_", taxa, ".txt", sep="")
+  table = read.table(fname, sep="\t", header=T, comment.char="")
+  nc = ncol(table)
+  table = read.table(fname, sep="\t", header=T, comment.char="", 
+                     colClasses=c(rep("character", 14), rep("numeric", nc-14)))
+  
+  ##fix water variables
+  table$BODY.SITE.SAMPLED = sub("W[1-9]", "W", table$BODY.SITE.SAMPLED)
+  table$ANIMAL.ID = sub(" Sample #[1-9]", "", table$ANIMAL.ID)
+  table$SEX[grepl("Water", table$ANIMAL.ID)] = "water"
+  table$AGE.CLASS[grepl("Water", table$ANIMAL.ID)] = "water"
+  table$HEALTH.STATUS[grepl("Water", table$ANIMAL.ID)] = "water"
+  table$LACTATING.STATUS[grepl("Water", table$ANIMAL.ID)] = "water"
+  
+  site = factor(table$BODY.SITE.SAMPLED)
+  
+  ##pairwise t test
+  mds1 = pairwise.t.test(table[,names(table)=="MDS1"], site, p.adjust.method="BH", alternative="two.sided")
+  mds2 = pairwise.t.test(table[,names(table)=="MDS2"], site, p.adjust.method="BH", alternative="two.sided")
+
+  write.table(mds1[["p.value"]], paste("pairwise-t-test_mds1_", taxa, ".txt", sep=""), sep="\t", quote=F, row.names=T, col.names=NA)
+  write.table(mds2[["p.value"]], paste("pairwise-t-test_mds2_", taxa, ".txt", sep=""), sep="\t", quote=F, row.names=T, col.names=NA)
+}

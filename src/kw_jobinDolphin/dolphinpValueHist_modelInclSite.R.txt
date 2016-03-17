@@ -1,0 +1,40 @@
+##histograms of p-values, from models including body site
+##3/16/16
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\dolphin\\rdpResults")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+##with water
+pdf("dolphin_pValueHistograms_modelInclSite.pdf", height=10, width=20)
+for(taxa in taxaLevels) {
+  table = read.table(paste("dolphin_otuModel_pValues_", taxa, "_modelInclSite.txt", sep=""), sep="\t", header=T,
+                     colClasses=c("character", rep("numeric", 12)))
+  par(mfrow=c(2,4))
+  hist(table$pID, xlab="p value", main=paste(taxa, "pID"))
+  hist(table$pBodySite, xlab="p value", main=paste(taxa, "pBodySite"))
+  hist(table$pSex, xlab="p value", main=paste(taxa, "pSex"))
+  hist(table$pAge, xlab="p value", main=paste(taxa, "pAge"))
+  hist(table$pHealth, xlab="p value", main=paste(taxa, "pHealth"))
+  hist(table$pLactating, xlab="p value", main=paste(taxa, "pLactating"))
+  hist(table$pMotherCalf, xlab="p value", main=paste(taxa, "pMotherCalf"))
+}
+dev.off()
+
+##with water
+pdf("dolphin_pValueHistograms_modelInclSite_noWater.pdf", height=10, width=20)
+for(taxa in taxaLevels) {
+  table = read.table(paste("dolphin_otuModel_pValues_", taxa, "_modelInclSite_noWater.txt", sep=""), sep="\t", header=T,
+                     colClasses=c("character", rep("numeric", 12)))
+  par(mfrow=c(2,4))
+  hist(table$pID, xlab="p value", main=paste(taxa, "pID no water"))
+  hist(table$pBodySite, xlab="p value", main=paste(taxa, "pBodySite no water"))
+  hist(table$pSex, xlab="p value", main=paste(taxa, "pSex no water"))
+  hist(table$pAge, xlab="p value", main=paste(taxa, "pAge no water"))
+  hist(table$pHealth, xlab="p value", main=paste(taxa, "pHealth no water"))
+  hist(table$pLactating, xlab="p value", main=paste(taxa, "pLactating no water"))
+  hist(table$pMotherCalf, xlab="p value", main=paste(taxa, "pMotherCalf no water"))
+}
+dev.off()

@@ -1,0 +1,23 @@
+##histograms of p-values, from models including body site
+##3/16/16
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\dolphin\\rdpResults")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+##no water
+pdf("dolphin_pValueHistograms_noWater_separateSites.pdf", width=18, height=18)
+for(taxa in taxaLevels) {
+  table = read.table(paste("dolphin_otuModel_pValues_", taxa, "_noWater_separateSites.txt", sep=""), sep="\t", header=T,
+                     colClasses=c("character", rep("numeric", 72)))
+  par(mfrow=c(6,5))
+  for(c in 3:37) {
+    name = names(table)[c]
+    if(!grepl("ID", name)) {
+      hist(table[,c], xlab="p value", main = paste(taxa, name))
+    }
+  }
+}
+dev.off()

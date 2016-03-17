@@ -45,14 +45,22 @@ for(taxa in taxaLevels) {
       cage <- factor(table$Cage.) #cage and mouse are unique values (no repeats for different mice)
       hist <- table$histological.score
       
-      myFrame <- data.frame(bug, group, cage, hist)
+      df <- data.frame(bug, group, cage, hist)
       
       pHistOnly[index] = anova(lm(bug~hist))$"Pr(>F)"[1]
       
-      model = anova(lm(bug~hist+group+cage))
-      pHistology[index] = model$"Pr(>F)"[1]
-      pGroup[index] = model$"Pr(>F)"[2]
-      pCage[index] = model$"Pr(>F)"[3]
+#       model = anova(lm(bug~hist+group+cage))
+#       pHistology[index] = model$"Pr(>F)"[1]
+#       pGroup[index] = model$"Pr(>F)"[2]
+#       pCage[index] = model$"Pr(>F)"[3]
+      
+      reducedModel = gls(bug~hist+group, method="REML", data=df)
+      fullModelLME = lme(bug~hist+group, method="REML", random=~1|cage, data=df)
+      
+      pHistology[index] = anova(fullModelLME)$"p-value"[2]
+      pGroup[index] = anova(fullModelLME)$"p-value"[3]
+      pCage[index] <- anova(fullModelLME, reducedModel)$"p-value"[2]
+
       
       ##plots
       graphMain =  paste( names[index], 

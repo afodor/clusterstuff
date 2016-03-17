@@ -1,6 +1,7 @@
 ##OTU model for dolphin data
-##each variable separately
-##3/7/16
+##model each variable vs. body site
+##include a new mother/calf variable
+##3/16/16
 
 rm(list=ls())
 
@@ -14,11 +15,27 @@ taxaLevels = c("phylum", "class", "order", "family", "genus")
 
 for(taxa in taxaLevels) {
   print(taxa)
-  fname = paste("pcoaCorrected_", taxa, ".txt", sep="")
+  fname = paste("dolphin_", taxa, "_taxaAsCol_logNorm.txt", sep="")
   table = read.table(fname, sep="\t", header=T, comment.char="")
   nc = ncol(table)
   table = read.table(fname, sep="\t", header=T, comment.char="", 
                      colClasses=c(rep("character", 14), rep("numeric", nc-14)))
+  
+  ##fix water variables
+  table$BODY.SITE.SAMPLED = sub("W[1-9]", "W", table$BODY.SITE.SAMPLED)
+  table$ANIMAL.ID = sub(" Sample #[1-9]", "", table$ANIMAL.ID)
+  table$SEX[grepl("Water", table$ANIMAL.ID)] = "water"
+  table$AGE.CLASS[grepl("Water", table$ANIMAL.ID)] = "water"
+  table$HEALTH.STATUS[grepl("Water", table$ANIMAL.ID)] = "water"
+  table$LACTATING.STATUS[grepl("Water", table$ANIMAL.ID)] = "water"
+  
+  ##make new variable with mother/calf info
+  mothCalf = rep("other", nrow(table))
+  mothCalf[table$ANIMAL.ID == "Water"] = "water"
+  mothCalf[table$ANIMAL.ID == "TT15015" | table$ANIMAL.ID == "TT15027"] = "TT15015/TT15027"
+  mothCalf[table$ANIMAL.ID == "TT15016" | table$ANIMAL.ID == "TT15025"] = "TT15016/TT15025"
+  mothCalf[table$ANIMAL.ID == "TT15020" | table$ANIMAL.ID == "TT15021"] = "TT15020/TT15021"
+  mothCalf[table$ANIMAL.ID == "TT15022" | table$ANIMAL.ID == "TT15029"] = "TT15022/TT15029"
   
   ##output vectors
   names = vector()
@@ -28,8 +45,9 @@ for(taxa in taxaLevels) {
   pAge = vector()
   pHealth = vector()
   pLactating = vector()
+  pMotherCalf = vector()
   index = 1
-  pdf(paste("dolphin_pcoaModel_boxplots_", taxa, "_noWater.pdf", sep=""), width=15, height=10)
+  pdf(paste("dolphin_otuModel_boxplots_", taxa, "_modelInclSite.pdf", sep=""), width=15, height=10)
   
   for( i in 16:nc) {
     if(sum(table[,i] != 0 ) > nrow(table) / 4 ) {
@@ -42,14 +60,16 @@ for(taxa in taxaLevels) {
       age = factor(table$AGE.CLASS)
       health = factor(table$HEALTH.STATUS)
       lac = factor(table$LACTATING.STATUS)
+      mc = factor(mothCalf)
       
       ##individual models
-      pID[index] = anova(lm(bug~id))$"Pr(>F)"[1]
       pBodySite[index] = anova(lm(bug~site))$"Pr(>F)"[1]
-      pSex[index] = anova(lm(bug~sex))$"Pr(>F)"[1]
-      pAge[index] = anova(lm(bug~age))$"Pr(>F)"[1]
-      pHealth[index] = anova(lm(bug~health))$"Pr(>F)"[1]
-      pLactating[index] = anova(lm(bug~lac))$"Pr(>F)"[1]
+      pID[index] = anova(lm(bug~id+site))$"Pr(>F)"[1]
+      pSex[index] = anova(lm(bug~sex+site))$"Pr(>F)"[1]
+      pAge[index] = anova(lm(bug~age+site))$"Pr(>F)"[1]
+      pHealth[index] = anova(lm(bug~health+site))$"Pr(>F)"[1]
+      pLactating[index] = anova(lm(bug~lac+site))$"Pr(>F)"[1]
+      pMotherCalf[index] = anova(lm(bug~mc+site))$"Pr(>F)"[1]
       
       ##plots
       graphMain = paste(names[index], 
@@ -59,12 +79,13 @@ for(taxa in taxaLevels) {
                           ";\n pAge=", format(pAge[index], digits=3), 
                           "; pHealth=", format(pHealth[index], digits=3), 
                           "; pLactating=", format(pLactating[index], digits=3),
+                          ";\n pMotherCalf=", format(pMotherCalf[index], digits=3),
                           sep="")
       
       
       ##color by body site
-      s = sort(unique(table$BODY.SITE.SAMPLED)) #[1] "A" "B" "C" "D" "E" "F"
-      colors = c("red", "blue", "green", "gold", "purple", "turquoise")
+      s = sort(unique(table$BODY.SITE.SAMPLED)) #[1] "A" "B" "C" "D" "E" "F" "W"
+      colors = c("red", "blue", "green", "gold", "purple", "turquoise", "black")
       col = rep(NA, nrow(table))
       for(i in 1:length(s)) {
         col[table$BODY.SITE.SAMPLED == s[i]] = colors[i]
@@ -75,36 +96,40 @@ for(taxa in taxaLevels) {
              "TT15016", "TT15025",
              "TT15021", "TT15020", 
              "TT15022", "TT15029",
-             "TT15017", "TT15018", "TT15019", "TT15023", "TT15024", "TT15026")
+             "TT15017", "TT15018", "TT15019", "TT15023", "TT15024", "TT15026", "Water")
       shapes = c(0, 15,
                  1, 16,
                  2, 17,
                  5, 18,
-                 3, 4, 6:9)
+                 3, 4, 6:10)
       sh = rep(NA, nrow(table))
       for(i in 1:length(aid)) {
         sh[table$ANIMAL.ID==aid[i]] = shapes[i]
       }
       
-      par(mfrow=c(2,3), oma=c(.5,.5,5,.5), mar=c(4.8,4,1,1))
+      par(mfrow=c(2,4), oma=c(.5,.5,7,.5), mar=c(4.8,4,1,1))
       ##id
-      boxplot(bug~id, xlab="", ylab="MDS", main="animal id", las=2)
+      boxplot(bug~id, xlab="", ylab="relative abundance", main="animal id", las=2)
       points(bug~id, col=col, pch=sh)
-      ##sidte
-      boxplot(bug~site, xlab="", ylab="MDS", main="body site")
+      ##site
+      boxplot(bug~site, xlab="", ylab="relative abundance", main="body site")
       points(bug~site, col=col, pch=sh)
       ##sex
-      boxplot(bug~sex, xlab="", ylab="MDS",  main="sex")
+      boxplot(bug~sex, xlab="", ylab="relative abundance",  main="sex")
       points(bug~sex, col=col, pch=sh)
       ##age
-      boxplot(bug~age, xlab="", ylab="MDS", main="age class")
+      boxplot(bug~age, xlab="", ylab="relative abundance", main="age class")
       points(bug~age, col=col, pch=sh)
       ##health
-      boxplot(bug~health, xlab="", ylab="MDS", main="health status")
+      boxplot(bug~health, xlab="", ylab="relative abundance", main="health status")
       points(bug~health, col=col, pch=sh)
       ##lactating
-      boxplot(bug~lac, xlab="", ylab="MDS", main="lactating status")
+      boxplot(bug~lac, xlab="", ylab="relative abundance", main="lactating status")
       points(bug~lac, col=col, pch=sh)
+      ##mother calf
+      boxplot(bug~mc, xlab="", ylab="relative abundance", main="mother calf pairs", 
+              las=2, cex.axis=.7, par(mar=c(6,4,1,1)))
+      points(bug~mc, col=col, pch=sh)
       
       ##add title
       par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
@@ -117,12 +142,14 @@ for(taxa in taxaLevels) {
   }
   dev.off()
   
-  dFrame <- data.frame(names, pID, pBodySite, pSex, pAge, pHealth, pLactating)
+  dFrame <- data.frame(names, pID, pBodySite, pSex, pAge, pHealth, pLactating, pMotherCalf)
   dFrame$pAdjID <- p.adjust(dFrame$pID, method = "BH")
   dFrame$pAdjBodySite <- p.adjust(dFrame$pBodySite, method = "BH")
   dFrame$pAdjSex <- p.adjust(dFrame$pSex, method = "BH")
   dFrame$pAdjAge <- p.adjust(dFrame$pAge, method = "BH")
   dFrame$pAdjHealth <- p.adjust(dFrame$pHealth, method = "BH")
   dFrame$pAdjLactating <- p.adjust(dFrame$pLactating, method = "BH")
-  write.table(dFrame, file=paste("dolphin_pcoaModel_pValues_", taxa, "_noWater.txt",sep=""), sep="\t",row.names=FALSE, quote=F)
+  dFrame$pAdjMotherCalf <- p.adjust(dFrame$pMotherCalf, method = "BH")
+  dFrame <- dFrame[order(dFrame$pBodySite),]
+  write.table(dFrame, file=paste("dolphin_otuModel_pValues_", taxa, "_modelInclSite.txt",sep=""), sep="\t",row.names=FALSE, quote=F)
 }

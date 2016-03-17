@@ -96,22 +96,22 @@ for(taxa in taxaLevels) {
       
       par(mfrow=c(2,3), oma=c(.5,.5,5,.5), mar=c(4.8,4,1,1))
       ##id
-      boxplot(bug~id, xlab="", ylab="relative abundance", main="animal id", las=2)
+      boxplot(bug~id, xlab="", ylab="MDS", main="animal id", las=2)
       points(bug~id, col=col, pch=sh)
       ##sidte
-      boxplot(bug~site, xlab="", ylab="relative abundance", main="body site")
+      boxplot(bug~site, xlab="", ylab="MDS", main="body site")
       points(bug~site, col=col, pch=sh)
       ##sex
-      boxplot(bug~sex, xlab="", ylab="relative abundance",  main="sex")
+      boxplot(bug~sex, xlab="", ylab="MDS",  main="sex")
       points(bug~sex, col=col, pch=sh)
       ##age
-      boxplot(bug~age, xlab="", ylab="relative abundance", main="age class")
+      boxplot(bug~age, xlab="", ylab="MDS", main="age class")
       points(bug~age, col=col, pch=sh)
       ##health
-      boxplot(bug~health, xlab="", ylab="relative abundance", main="health status")
+      boxplot(bug~health, xlab="", ylab="MDS", main="health status")
       points(bug~health, col=col, pch=sh)
       ##lactating
-      boxplot(bug~lac, xlab="", ylab="relative abundance", main="lactating status")
+      boxplot(bug~lac, xlab="", ylab="MDS", main="lactating status")
       points(bug~lac, col=col, pch=sh)
       
       ##add title
