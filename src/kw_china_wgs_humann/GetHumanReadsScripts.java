@@ -37,7 +37,7 @@ public class GetHumanReadsScripts {
 						scriptDir + scriptName)));
 				script.write("module load samtools\n");
 				script.write("samtools view -F 4 " + outDir + name + ".sam > " 
-						+ outDir + name + ".human.mapped.sam\n"); //get mapped reads; use -f 4 for unmapped
+						+ outDir + name + ".hg38.mapped.sam\n"); //get mapped reads; use -f 4 for unmapped
 				script.write("samtools flagstat " + outDir + name + ".sam > "
 						+ outDir + name + ".stats.txt\n");//get stats
 				script.close();
