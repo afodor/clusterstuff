@@ -36,10 +36,13 @@ public class GetHumanReadsScripts {
 				BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 						scriptDir + scriptName)));
 				script.write("module load samtools\n");
-				script.write("samtools view -F 4 " + outDir + name + ".sam > " 
+				script.write("samtools view -S -F 4 " + outDir + name + ".sam > " 
 						+ outDir + name + ".hg38.mapped.sam\n"); //get mapped reads; use -f 4 for unmapped
-				script.write("samtools flagstat " + outDir + name + ".sam > "
-						+ outDir + name + ".stats.txt\n");//get stats
+				/*script.write("samtools flagstat " + outDir + name + ".sam > "
+						+ outDir + name + ".stats.txt\n");//get stats*///server version requries bam file
+				//get count of number of reads
+				script.write("wc " + outDir + name + ".hg38.mapped.sam\n");
+				script.write("cat " + outDir + name + ".hg38.mapped.sam | grep \"^@\" | wc\n");
 				script.close();
 			}
 		}
