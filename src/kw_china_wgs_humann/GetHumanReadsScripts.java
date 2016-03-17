@@ -27,7 +27,7 @@ public class GetHumanReadsScripts {
 		for(File f : fastas) {
 			if(f.getName().endsWith(".fa")) {
 				String name = f.getName().replace(".fa", "");
-				String scriptName = "align_" + name;
+				String scriptName = "filter_" + name;
 				
 				//add to runAll
 				runAll.write("qsub -q \"viper_batch\" " + scriptName + "\n");
