@@ -38,6 +38,7 @@ public class ChunkSpearman
 		{
 			System.out.println("Could not find " + file.getAbsolutePath());
 			h.file = null;
+			return;
 		}
 		
 		BufferedReader reader =new BufferedReader(new FileReader(file));
@@ -119,12 +120,14 @@ public class ChunkSpearman
 			
 			Holder h= new Holder();
 			h.startPos = Integer.parseInt(splits[0]);
-			h.endPos = Integer.parseInt(splits[1]+5000);
+			h.endPos = Integer.parseInt(splits[1])+5000;
 			h.isBaseline = false;
 			addFileOrNull(h);
 			
 			if( h.file != null)
 				list.add(h);
+			
+			lastSplits = splits;
 		}
 		
 		
