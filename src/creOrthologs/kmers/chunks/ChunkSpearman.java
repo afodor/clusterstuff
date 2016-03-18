@@ -33,6 +33,7 @@ public class ChunkSpearman
 		{
 			System.out.println("Could not find " + file.getAbsolutePath());
 			h.file = null;
+			return;
 		}
 		
 		BufferedReader reader =new BufferedReader(new FileReader(file));
