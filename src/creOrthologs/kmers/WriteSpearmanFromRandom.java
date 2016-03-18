@@ -19,7 +19,7 @@ public class WriteSpearmanFromRandom
 	
 	public static final int EXPECTED_NUM_LINES = 340;
 	
-	private static List<String> getGenomeNames() throws Exception
+	public static List<String> getGenomeNames() throws Exception
 	{
 		String[] list = KMER_DIST_DIRECTORY.list();
 		
@@ -65,7 +65,7 @@ public class WriteSpearmanFromRandom
 		return list;
 	}
 	
-	private static List<Float> getValsOrNull(File f, HashSet<Integer> include) throws Exception
+	public static List<Float> getValsOrNull(File f, HashSet<Integer> include) throws Exception
 	{
 		List<Float> vals = new ArrayList<Float>();
 		
@@ -109,7 +109,7 @@ public class WriteSpearmanFromRandom
 		return vals;
 	}
 	
-	private static HashSet<Integer> getIncludeIndexes( List<String> genomeNames )
+	public static HashSet<Integer> getIncludeIndexes( List<String> genomeNames )
 	{
 		HashSet<Integer> set = new HashSet<Integer>();
 		

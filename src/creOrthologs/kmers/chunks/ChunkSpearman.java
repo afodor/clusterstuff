@@ -1,13 +1,18 @@
 package creOrthologs.kmers.chunks;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import utils.Spearman;
 import creOrthologs.kmers.GatherDistanceMatrix;
+import creOrthologs.kmers.WriteSpearmanFromRandom;
 
 public class ChunkSpearman
 {
@@ -130,62 +135,47 @@ public class ChunkSpearman
 	{
 		List<Holder> list = getComparisonMatrices();
 		System.out.println("Got " + list.size());
-	}
-	
-	/*
-	public static void main(String[] args) throws Exception
-	{
-		List<String> genomeNames = getGenomeNames();
-		HashSet<Integer> indexes = getIncludeIndexes(genomeNames);
+		List<String> genomeNames =  WriteSpearmanFromRandom.getGenomeNames();
+		
+		HashSet<Integer> includeIndex = WriteSpearmanFromRandom.getIncludeIndexes(genomeNames);
 		
 		BufferedWriter writer = new BufferedWriter(
-				new FileWriter("/nobackup/afodor_research/af_broad/randomSpearman.txt"));
+				new FileWriter("/nobackup/afodor_research/af_broad/chunkedSpearman.txt"));
 		
-		writer.write("aFile\tbFile\tdistanceAll\tdistancePneuOnly\n");
+		writer.write("aFile\tbFile\taStart\taEnd\tbStart\tbEnd\t" + 
+							"aIsBaseline\tbIsBaseline\tdistancePneuOnly\n");
 		
-		String[] list = KMER_DIST_DIRECTORY.list();
-		
-		for(int x=0; x < list.length-1; x++)
+		for(int x=0; x < list.size()-1; x++)
 		{
-			String xName = list[x];
+			Holder aHolder = list.get(x);
 			
-			if( xName.endsWith("dist.txt"))
-			{
-				List<Float> aVals = getValsOrNull(new File(
-						KMER_DIST_DIRECTORY.getAbsolutePath() + File.separator + xName),null);
+			List<Float> aVals = WriteSpearmanFromRandom.getValsOrNull(aHolder.file,includeIndex);
 				
-				if( aVals != null)
+			if( aVals != null)
+			{		
+				for( int y=x+1; y < list.size(); y++)
 				{
-					List<Float> aValsPneuOnly =
-							getValsOrNull(new File(
-									KMER_DIST_DIRECTORY.getAbsolutePath() + File.separator + xName),indexes);
+					Holder bHolder = list.get(x);
 					
-					for( int y=x+1; y < list.length; y++)
-					{
-						String yName = list[y];
-						
-						if( yName.endsWith("dist.txt"))
-						{
-							List<Float> bVals = getValsOrNull(new File(
-									KMER_DIST_DIRECTORY.getAbsolutePath() + File.separator + yName),null);
+					List<Float> bVals = 
+							WriteSpearmanFromRandom.getValsOrNull(bHolder.file, includeIndex);
 									
-							if(bVals != null)
-							{
-								List<Float> bValsPneuOnly = 
-										getValsOrNull(new File(
-												KMER_DIST_DIRECTORY.getAbsolutePath() + File.separator + yName),indexes);
-								
-								writer.write(xName + "\t");
-								writer.write(yName + "\t");
-								writer.write(Spearman.getSpear(aVals, bVals).getRs() + "\t");
-								writer.write(Spearman.getSpear(aValsPneuOnly,bValsPneuOnly).getRs() + "\n");
-								writer.flush();
-							}
+					if(bVals != null)
+					{
+						writer.write(aHolder.file.getAbsolutePath()+ "\t");
+						writer.write(bHolder.file.getAbsolutePath()+ "\t");
+						writer.write(aHolder.startPos + "\t");
+						writer.write(aHolder.endPos + "\t");
+						writer.write(aHolder.isBaseline + "\t");
+						writer.write(aHolder.isBaseline + "\t");
+
+						writer.write(Spearman.getSpear(aVals, bVals).getRs() + "\n");
+						writer.flush();
 						}
 					}
-				}
 			}
 		}
+		
 		writer.flush(); writer.close();
-	}	*/
+	}
 }
