@@ -146,7 +146,8 @@ public class ChunkSpearman
 				new FileWriter("/nobackup/afodor_research/af_broad/chunkedSpearman.txt"));
 		
 		writer.write("aFile\tbFile\taStart\taEnd\tbStart\tbEnd\t" + 
-							"aIsBaseline\tbIsBaseline\tdistancePneuOnly\n");
+							"aIsBaseline\tbIsBaseline\tbothBaseline\tneitherBaseline\tcrossed\t" + 
+				"distancePneuOnly\n");
 		
 		for(int x=0; x < list.size()-1; x++)
 		{
@@ -172,7 +173,12 @@ public class ChunkSpearman
 						writer.write(bHolder.startPos + "\t");
 						writer.write(bHolder.endPos + "\t");
 						writer.write(aHolder.isBaseline + "\t");
-						writer.write(aHolder.isBaseline + "\t");
+						writer.write(bHolder.isBaseline + "\t");
+						writer.write( (aHolder.isBaseline && bHolder.isBaseline )+ "\t" );
+						boolean neither = aHolder.isBaseline == false && bHolder.isBaseline == false;
+						writer.write(  neither + "\t" );
+						
+						writer.write( (aHolder.isBaseline != bHolder.isBaseline) + "\t" );
 
 						writer.write(Spearman.getSpear(aVals, bVals).getRs() + "\n");
 						writer.flush();
