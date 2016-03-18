@@ -158,7 +158,7 @@ public class ChunkSpearman
 			{		
 				for( int y=x+1; y < list.size(); y++)
 				{
-					Holder bHolder = list.get(x);
+					Holder bHolder = list.get(y);
 					
 					List<Float> bVals = 
 							WriteSpearmanFromRandom.getValsOrNull(bHolder.file, includeIndex);
@@ -169,6 +169,8 @@ public class ChunkSpearman
 						writer.write(bHolder.file.getAbsolutePath()+ "\t");
 						writer.write(aHolder.startPos + "\t");
 						writer.write(aHolder.endPos + "\t");
+						writer.write(bHolder.startPos + "\t");
+						writer.write(bHolder.endPos + "\t");
 						writer.write(aHolder.isBaseline + "\t");
 						writer.write(aHolder.isBaseline + "\t");
 
