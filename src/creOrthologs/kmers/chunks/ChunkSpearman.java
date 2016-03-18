@@ -115,7 +115,7 @@ public class ChunkSpearman
 			
 			Holder h= new Holder();
 			h.startPos = Integer.parseInt(splits[0]);
-			h.endPos = Integer.parseInt(splits[1]+5000);
+			h.endPos = Integer.parseInt(splits[1])+5000;
 			h.isBaseline = false;
 			addFileOrNull(h);
 			
