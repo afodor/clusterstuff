@@ -121,6 +121,8 @@ public class ChunkSpearman
 			
 			if( h.file != null)
 				list.add(h);
+			
+			lastSplits = splits;
 		}
 		
 		
