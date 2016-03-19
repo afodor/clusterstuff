@@ -24,7 +24,7 @@ public class ChunkSpearman
 		File file;
 	}
 	
-	private static void addFileOrNull(Holder h) throws Exception
+	static void addFileOrNull(Holder h) throws Exception
 	{
 		String genomePath = WriteScriptsForChunkDistanceMatrices.GENOME_PATH;
 		String outFileBase =  genomePath.substring(genomePath.lastIndexOf("/")+1)
@@ -84,7 +84,7 @@ public class ChunkSpearman
 
 	}
 	
-	private static List<Holder> getComparisonMatrices() throws Exception
+	static List<Holder> getComparisonMatrices() throws Exception
 	{
 		List<Holder> list = new ArrayList<Holder>();
 		
@@ -166,8 +166,8 @@ public class ChunkSpearman
 									
 					if(bVals != null)
 					{
-						writer.write(aHolder.file.getAbsolutePath()+ "\t");
-						writer.write(bHolder.file.getAbsolutePath()+ "\t");
+						writer.write(aHolder.file.getName()+ "\t");
+						writer.write(bHolder.file.getName()+ "\t");
 						writer.write(aHolder.startPos + "\t");
 						writer.write(aHolder.endPos + "\t");
 						writer.write(bHolder.startPos + "\t");
