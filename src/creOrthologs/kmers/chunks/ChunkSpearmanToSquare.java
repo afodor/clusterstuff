@@ -14,9 +14,9 @@ import utils.Spearman;
 import creOrthologs.kmers.GatherDistanceMatrix;
 import creOrthologs.kmers.WriteSpearmanFromRandom;
 
-public class ChunkSpearman
+public class ChunkSpearmanToSquare
 {
-	public static class Holder
+	private static class Holder
 	{
 		int startPos;
 		int endPos;
