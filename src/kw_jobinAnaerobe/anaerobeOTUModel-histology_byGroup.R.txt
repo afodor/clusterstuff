@@ -31,6 +31,8 @@ for(taxa in taxaLevels) {
   names = vector()
   pHist3 = vector()
   pHist4 = vector()
+  cor3 = vector()
+  cor4 = vector()
   pCage = vector()
   index = 1
   pdf(paste("anaerobeStool_otuModel_boxplots_", taxa, "_histology_byGroup.pdf", sep=""), 
@@ -52,12 +54,17 @@ for(taxa in taxaLevels) {
       
       pHist3[index] = anova(lm(bug[g3]~hist[g3]))$"Pr(>F)"[1]
       pHist4[index] = anova(lm(bug[g4]~hist[g4]))$"Pr(>F)"[1]
-
+      
+      ##Spearman correlation
+      cor3[index] = cor(x=hist[g3], y=bug[g3], method="spearman")
+      cor4[index] = cor(x=hist[g4], y=bug[g4], method="spearman")
       
       ##plots
-      graphMain =  paste( names[index], 
+      graphMain =  paste(names[index], 
                           ":\n pHistologyGroup3=", format(pHist3[index], digits=3),
-                          "; pHistologyGroup4=", format(pHist4[index], digits=3),sep="")
+                          "; pHistologyGroup4=", format(pHist4[index], digits=3),
+                         "\n CorrelationGroup3=", format(cor3[index], digits=3),
+                         "; CorrelationGroup4=", format(cor4[index], digits=3), sep="")
       
       
       ##color by group
@@ -82,7 +89,8 @@ for(taxa in taxaLevels) {
     }
   }
   
-  dFrame <- data.frame(names, pHistologyGroup3 = pHist3, pHistologyGroup4 = pHist4)
+  dFrame <- data.frame(names, pHistologyGroup3 = pHist3, pHistologyGroup4 = pHist4,
+                       SpearmanCorrelationGroup3 = cor3, SpearmanCorrelationGroup4 = cor4)
   dFrame$pAdjHistologyGroup3 <- p.adjust(dFrame$pHistologyGroup3, method = "BH")
   dFrame$pAdjHistologyGroup4 <- p.adjust(dFrame$pHistologyGroup4, method = "BH")
   dFrame <- dFrame[order(dFrame$pHistologyGroup4),]
