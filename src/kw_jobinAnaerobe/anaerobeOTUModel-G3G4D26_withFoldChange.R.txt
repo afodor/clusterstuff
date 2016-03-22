@@ -1,0 +1,83 @@
+##OTU model for anaerobe data
+##ttest for group
+##Group 3 and 4, day 26 only
+##also calculate fold change
+##12/14/15
+
+rm(list=ls())
+
+library("pscl")
+library("lmtest")
+library("nlme")
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\C jejuni anaerobe v aerobe\\rdpResults")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+for(taxa in taxaLevels) {
+  print(taxa)
+  fname = paste("stool_", taxa, "_taxaAsCol_logNorm_G3G4D26.txt", sep="")
+  table = read.table(fname, sep="\t", header=T)
+  nc = ncol(table)
+  cc = c(rep("character", 3), rep("numeric", 4), rep("character", 6), rep("numeric", nc-13))
+  table = read.table(fname, sep="\t", header=T, colClasses=cc)
+  
+  ##output vectors
+  names = vector()
+  meanTaxa = vector()
+  meanGroup3 = vector()
+  meanGroup4 = vector()
+  pGroup = vector()
+  index = 1
+  pdf(paste("anaerobeStool_otuModel_boxplots_", taxa, "_G3G4D26_withFoldChange.pdf", sep=""))
+  
+  for( i in 15:nc) {
+    if(sum(table[,i] != 0 ) > nrow(table) / 4 ) {
+      
+      names[index] <- names(table)[i]
+      bug <- table[,i]
+      meanTaxa[index] <- mean(bug)
+      meanGroup3[index] <- mean(bug[table$Group==3])
+      meanGroup4[index] <- mean(bug[table$Group==4])
+      group <- factor(table$Group)
+      cage <- factor(table$Cage.) #cage and mouse are unique values (no repeats for different mice)
+      
+      df <- data.frame(bug, group)
+      
+      pGroup[index] = t.test(bug~group)$p.value
+      
+      ##plots
+      graphMain =  paste( names[index], 
+                          ":\n pGroup=", format(pGroup[index], digits=3), sep="")
+      
+      
+      ##color by group
+      col = ifelse(table$Group==3, "blue", "red")
+      sh = 16
+      
+      par(mfrow=c(1,2), oma=c(.5,.5,5,.5), mar=c(4.8,4,1,1))
+      ##group
+      boxplot(bug~group, xlab="", ylab="relative abundance", main="group")
+      points(bug~group, col=col, pch=sh)
+      ##cage
+      boxplot(bug~factor(cage), xlab="", ylab="relative abundance",  main="cage")
+      points(bug~factor(cage), col=col, pch=sh)
+      
+      ##add title
+      par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+      plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+      legend("top", horiz=T, legend=graphMain, cex=1.2, bty="n")
+      
+      index=index+1
+      
+    }
+  }
+  
+  dFrame <- data.frame(names, meanTaxa, meanGroup3, meanGroup4, pGroup)
+  dFrame$logFoldChange4To3 = dFrame$meanGroup4 - dFrame$meanGroup3
+  dFrame$FoldChange4To3 = 10^dFrame$logFoldChange4To3
+  dFrame$pAdjGroup <- p.adjust(dFrame$pGroup, method = "BH")
+  dFrame <- dFrame[order(dFrame$pGroup),]
+  write.table(dFrame, file=paste("anaerobeStool_otuModel_pValues_", taxa, "_G3G4D26_withFoldChange.txt",sep=""), sep="\t",row.names=FALSE, quote=F)
+  dev.off()
+}

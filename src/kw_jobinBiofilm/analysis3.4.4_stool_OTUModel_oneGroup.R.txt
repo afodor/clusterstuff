@@ -1,0 +1,91 @@
+##stool tumor, as two groups - developed or did not develop tumors
+##no BF-
+##treat all BF+ as one group
+##3/22/16
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis3\\3.4.4_tumor_binary_noBFminus\\stool")
+
+taxaLevels <- c("phylum","class","order","family","genus")
+
+for(taxa in taxaLevels ) {
+  print(taxa)
+  fname = paste("analysis3.4.4_stool_", taxa, "_taxaAsCol_logNorm.txt", sep="")
+  table = read.table(fname, sep="\t", header=T, comment.char="")
+  numCols = ncol(table)
+  cc = c("numeric", rep("character", 3), rep(c("numeric", "character"), 3), "character", "numeric", rep("character", 3), rep("numeric", numCols-15))
+  table = read.table(fname, sep="\t", header=T, comment.char="", na.strings="N/A", colClasses=cc)
+  
+  ##make tumor as factor: no tumor/had tumor
+  table = table[!is.na(table$Colon.Tumor..),] #remove NA
+  table$Colon.Tumor.. = ifelse(table$Colon.Tumor..==0, "no tumor", "tumor present")
+  
+  ##output vectors
+  names = vector()
+  pTumor = vector()
+  pGenotype = vector()
+  pIntn = vector()
+  index = 1
+  
+  pdf(paste("analysis3.4.4_stool_otuModel_boxplots_", taxa, "_oneGroup.pdf", sep=""))
+  
+  for( i in 18:numCols) {
+    if(sum(table[,i] != 0 ) > nrow(table) / 4) { 
+      
+      names[index] <- names(table)[i]
+      bug <- table[,i]
+      tumor = factor(table$Colon.Tumor..)
+      genotype = factor(table$Genotype)
+      
+      model = anova(lm(bug~tumor+genotype))
+      
+      pTumor[index] = model$`Pr(>F)`[1]
+      pGenotype[index] = model$`Pr(>F)`[2]
+      
+      
+      model = lm(bug~tumor+genotype)
+      modelIntn = lm(bug~tumor*genotype)
+      pIntn[index] = anova(modelIntn, model)$`Pr(>F)`[2]
+      
+      ##plots
+      graphMain =  names[index]
+     
+      ##color by group
+      groups = sort(unique(table$Group..Associated.with.)) #[1] "BF+bx"   "BF+NF"   "BF+T #1" "BF+T #2"
+      col = c("red", "green", "gold", "purple")
+      colors = rep(NA, nrow(table))
+      for(j in 1:length(groups)) {
+        colors[table$Group..Associated.with.==groups[j]] = col[j]
+      }
+      
+      ##shape by time; have open shape for ApcMin and closed for KO
+      shapes=ifelse(grepl("IL10", table$Genotype), 16, 1)
+      
+      par(mar=c(4,4,2,6))
+      boxplot(bug~tumor, 
+           main= paste(names[index], "\npTumor=", format(pTumor[index], digits=3), 
+                       "; pGenotype=", format(pGenotype[index], digits=3), sep=""), 
+           xlab="", ylab="relative abundance")
+      points(bug~tumor, 
+             col=colors, pch=shapes)
+      
+      ##legend
+      legend("topright", inset=c(-.2,0), xpd=T,
+             legend = c(groups, "ApcMin", "KO"),
+             col = c(col, "gray", "gray"),
+             pch = c(rep(18, length(groups)), 1, 16))
+      
+      index=index+1
+      
+    }
+  }
+  
+  dFrame <- data.frame(names, pTumor, pGenotype, pIntn)
+  dFrame$pAdjTumor = p.adjust(dFrame$pTumor, method = "BH")
+  dFrame$pAdjGenotype = p.adjust(dFrame$pGenotype, method = "BH")
+  dFrame$pAdjIntn = p.adjust(dFrame$pIntn, method = "BH")
+  dFrame=dFrame[order(dFrame$pTumor),]
+  write.table(dFrame, file=paste("analysis3.4.4_stool_otuModel_pValues_", taxa, "_oneGroup.txt",sep=""), sep="\t",row.names=FALSE, quote=F)
+  dev.off()
+}
