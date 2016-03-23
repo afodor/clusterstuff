@@ -244,8 +244,10 @@ graph<-function(x, y, xlab, ylab, leg) {
   abline(a=0, b=1, col="green", lwd=2.5)#identity line
   mod1 = lm(y~x)
   abline(mod1, col="blue", lwd=2.5)#linear model
-  lab=paste("R^2=", round(summary(mod1)$r.squared,2), sep="")
-  legend("bottomright", lab, text.col="blue", cex=3, bty="n")
+  labR2=paste("R^2=", round(summary(mod1)$r.squared,2), sep="")
+  spear = cor(x=x, y=y, method="spearman")
+  labSpear=paste("Spearman=", round(spear, 2), sep="")
+  legend("bottomright", c(labR2, labSpear), text.col="blue", cex=3, bty="n")
   if(leg) {
     legend("topleft", c("Linear Regression Line", "Identity Line"),
            lty=1, col=c("blue", "green"), bty='n', cex=2.5, lwd=2.5)
