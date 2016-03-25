@@ -26,10 +26,8 @@ for(taxa in taxaLevels ) {
   ##output vectors
   names = vector()
   meanTaxa = vector()
-  meanBFminusBX = vector()
-  meanBFplusBX = vector()
-  meanBFplusNF = vector()
-  meanBFplusT = vector()
+  meanBFminus = vector()
+  meanBFplus = vector()
   pGroup = vector()
   pGenotype = vector()
   pTumor = vector()
@@ -44,10 +42,8 @@ for(taxa in taxaLevels ) {
       names[index] <- names(table)[i]
       bug <- table[,i]
       meanTaxa[index] <- mean(bug)
-      meanBFminusBX[index] <- mean(bug[table$Group..Associated.with.=="BF-bx"])
-      meanBFplusBX[index] <- mean(bug[table$Group..Associated.with.=="BF+bx"])
-      meanBFplusNF[index] <- mean(bug[table$Group..Associated.with.=="BF+NF"])
-      meanBFplusT[index] <- mean(bug[table$Group..Associated.with.=="BF+T"])
+      meanBFminus[index] <- mean(bug[table$Group..Associated.with.=="BF-"])
+      meanBFplus[index] <- mean(bug[table$Group..Associated.with.=="BF+"])
       group <- factor(table$Group..Associated.with.)
       cage <- factor(paste(table$Genotype, table$Cage.Number, sep=":"))
       # mouse <- paste(cage, table$Mouse.., sep=":") #the two duplicated mice in BF+T in separate cages, from #1 and #2
@@ -115,12 +111,12 @@ for(taxa in taxaLevels ) {
     }
   }
   
-  dFrame <- data.frame(names, meanTaxa, meanBFminusBX, meanBFplusBX, meanBFplusNF, meanBFplusT, pGroup, pGenotype, pTumor, pCage)
+  dFrame <- data.frame(names, meanTaxa, meanBFminus, meanBFplus, pGroup, pGenotype, pTumor, pCage)
   dFrame$pAdjGroup <- p.adjust(dFrame$pGroup, method = "BH")
   dFrame$pAdjCage <- p.adjust(dFrame$pCage, method="BH")
   dFrame$pAdjGenotype <- p.adjust(dFrame$pGenotype, method="BH")
   dFrame$pAdjTumor <- p.adjust(dFrame$pTumor, method="BH")
   dFrame <- dFrame[order(dFrame$pGroup),]
-  write.table(dFrame, file=paste("BFminus_v_BFplus_dc_otuModel_pValues_", taxa, ".txt",sep=""), sep="\t",row.names=FALSE)
+  write.table(dFrame, file=paste("BFminus_v_BFplus_dc_otuModel_pValues_", taxa, ".txt",sep=""), sep="\t",row.names=FALSE, quote=F)
   dev.off()
 }

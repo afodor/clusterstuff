@@ -26,10 +26,8 @@ for(taxa in taxaLevels ) {
   ##output vectors
   names = vector()
   meanTaxa = vector()
-  meanBFminusBX = vector()
-  meanBFplusBX = vector()
-  meanBFplusNF = vector()
-  meanBFplusT = vector()
+  meanBFminus = vector()
+  meanBFplus = vector()
   pGenotype = vector()
   pTumor = vector()
   pTime = vector()
@@ -45,10 +43,8 @@ for(taxa in taxaLevels ) {
       names[index] <- names(table)[i]
       bug <- table[,i]
       meanTaxa[index] <- mean(bug)
-      meanBFminusBX[index] <- mean(bug[table$Group..Associated.with.=="BF-bx"])
-      meanBFplusBX[index] <- mean(bug[table$Group..Associated.with.=="BF+bx"])
-      meanBFplusNF[index] <- mean(bug[table$Group..Associated.with.=="BF+NF"])
-      meanBFplusT[index] <- mean(bug[table$Group..Associated.with.=="BF+T"])
+      meanBFminus[index] <- mean(bug[table$Group..Associated.with.=="BF-"])
+      meanBFplus[index] <- mean(bug[table$Group..Associated.with.=="BF+"])
       time <- factor(table$Timepoint..weeks.)
       group <- factor(table$Group..Associated.with.)
       cage <- factor(paste(table$Genotype, table$Cage.Number, sep=":"))
@@ -129,7 +125,7 @@ for(taxa in taxaLevels ) {
     }
   }
   
-  dFrame <- data.frame(names, meanTaxa, meanBFminusBX, meanBFplusBX, meanBFplusNF, meanBFplusT, pGroup, pTime, pGenotype, pTumor, pCage, pMouse)
+  dFrame <- data.frame(names, meanTaxa, meanBFminus, meanBFplus, pGroup, pTime, pGenotype, pTumor, pCage, pMouse)
   dFrame$pAdjGroup <- p.adjust(dFrame$pGroup, method = "BH")
   dFrame$pAdjTime <- p.adjust(dFrame$pTime, method = "BH")
   dFrame$pAdjGenotype <- p.adjust(dFrame$pGenotype, method = "BH")
@@ -137,6 +133,6 @@ for(taxa in taxaLevels ) {
   dFrame$pAdjCage <- p.adjust(dFrame$pCage, method="BH")
   dFrame$pAdjMouse <- p.adjust(dFrame$pMouse, method="BH")
   dFrame <- dFrame[order(dFrame$pGroup),]
-  write.table(dFrame, file=paste("BFminus_v_BFplus_stool_otuModel_pValues_", taxa, ".txt",sep=""), sep="\t",row.names=FALSE)
+  write.table(dFrame, file=paste("BFminus_v_BFplus_stool_otuModel_pValues_", taxa, ".txt",sep=""), sep="\t",row.names=FALSE, quote=F)
   dev.off()
 }
