@@ -1,0 +1,105 @@
+##stacked bar chart at phylum level of dolphin data
+##3/29/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\dolphin\\rdpResults")
+
+library(reshape2)
+library(ggplot2)
+library(RColorBrewer)
+library(cowplot)
+
+phylum = read.table("dolphin_phylum_taxaAsCol.txt", sep="\t", header=T, comment.char="", 
+                            colClasses=c(rep("character", 3), rep("numeric", 35)))
+
+##R1 only
+phylum = phylum[phylum$read=="R1",]
+
+##convert to rel abun
+rel.abun = phylum[,-c(1:3)] / rowSums(phylum[,-c(1:3)])
+# rowSums(rel.abun)
+
+##filter top 20 and sort by top 20
+means = colMeans(rel.abun)
+ra = rel.abun[,order(means, decreasing=T)]
+top20 = ra[,1:20]
+cut = ra[,colMeans(ra) > 0.0001]
+nc = ncol(cut)
+other = rowSums(ra[,(nc+1):ncol(ra)])
+cut = cbind(cut, other)
+rowSums(cut)
+
+##add metadata (fix water)
+relAbun = cbind(sampleID=phylum[,2], cut)
+metadata = read.table("..\\dolphinMetadata_withSampleID.txt", sep="\t", fill=T, header=T, comment.char="", colClasses="character")
+metadata$BODY.SITE.SAMPLED[grepl("W", metadata$BODY.SITE.SAMPLED)] = "W"
+metadata$ANIMAL.ID[grepl("W", metadata$BODY.SITE.SAMPLED)] = sub("Water Sample", "", metadata$ANIMAL.ID[grepl("W", metadata$BODY.SITE.SAMPLED)])
+relMeta = merge(metadata, relAbun, by="sampleID")
+
+c25 <- c("dodgerblue2","#E31A1C", # red
+        "green4",
+        "#6A3D9A", # purple
+        "#FF7F00", # orange
+        "black","gold1",
+        "skyblue2","#FB9A99", # lt pink
+        "palegreen2",
+        "#CAB2D6", # lt purple
+        "#FDBF6F", # lt orange
+        "gray70", "khaki2",
+        "maroon","orchid1","deeppink1","blue1","steelblue4",
+        "darkturquoise","green1","yellow4","yellow3",
+        "darkorange4","brown") #from http://stackoverflow.com/questions/9563711/r-color-palettes-for-many-data-classes
+
+##function to draw bar plot for given table and body site
+##draw legend if incLegend is true
+drawPlot <- function(table, site, incLegend) {
+  abun = table[table$BODY.SITE.SAMPLED==site,]
+  abun = abun[,-c(1,3:12)]
+  names(abun)[1] = "animalID"
+  # relMelt = melt(relAbun, id.vars="sampleID")
+  relMelt = melt(abun, id.vars="animalID")
+  colorCount = ncol(abun)-1
+  # colors = rainbow(colorCount)
+#   colors = terrain.colors(colorCount)
+#   colors = topo.colors(colorCount)
+  colors = c25[1:colorCount]
+  plot = ggplot(relMelt, aes(x=animalID, y=value, fill=variable)) + 
+    geom_bar(stat="identity") + 
+    # scale_fill_brewer(palette="PiYG") +
+    # scale_fill_hue(h=c(0, 360), c=50, l=70) +
+    scale_fill_manual(values=colors) +
+    ylim(0,1) +
+    ggtitle(site) +
+    labs(x="", y = "relative abundance") +
+    theme(axis.text.x = element_text(angle=90, hjust=1, size=18),
+          plot.title = element_text(size=30),
+          axis.text.y = element_text(size=20),
+          axis.title = element_text(size=20))
+  if(!incLegend) {
+    plot = plot + guides(fill=F)
+  } else {
+    plot = plot +
+      theme(legend.title=element_text(size=22), legend.text=element_text(size=22), legend.key.height=unit(30, "points"), legend.key.width=unit(20, "points"))
+  }
+  return(plot)
+}
+
+
+a = drawPlot(relMeta, "A", F)
+b = drawPlot(relMeta, "B", F)
+c = drawPlot(relMeta, "C", F)
+d = drawPlot(relMeta, "D", F)
+e = drawPlot(relMeta, "E", F)
+f = drawPlot(relMeta, "F", F)
+w = drawPlot(relMeta, "W", T)
+
+jpeg("dolphinBarPlot_phylum.jpeg", width=2000, height=2000)
+ggdraw() +
+  draw_plot(a, x=0, y=.5, width=.25, height=.5) +
+  draw_plot(b, x=.25, y=.5, width=.25, height=.5) +
+  draw_plot(c, x=.5, y=.5, width=.25, height=.5) +
+  draw_plot(d, x=.75, y=.5, width=.25, height=.5) +
+  draw_plot(e, x=0, y=0, width=.25, height=.5) +
+  draw_plot(f, x=.25, y=0, width=.25, height=.5) +
+  draw_plot(w, x=.5, y=.025, width=.4, height=.475)
+dev.off()
