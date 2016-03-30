@@ -1,0 +1,112 @@
+##Perform ANOSIM to get R from dolphin data
+##3/30/16
+
+rm(list=ls())
+
+library(vegan)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\dolphin\\rdpResults")
+
+##function that returns statistic and significance from anosim for two groups
+getAnosimResults <- function(group1, group2) {
+  an = anosim(table[table$BODY.SITE.SAMPLED==group1 | table$BODY.SITE.SAMPLED==group2,-(1:15)], 
+              table$BODY.SITE.SAMPLED[table$BODY.SITE.SAMPLED==group1 | table$BODY.SITE.SAMPLED==group2])
+  return(c(an$statistic, an$signif))
+}
+
+taxaLevels <- c("phylum","class","order","family","genus")
+
+res = vector()
+for(taxa in taxaLevels ) {
+  print(taxa)
+  fname = paste("dolphin_", taxa, "_taxaAsCol_logNorm.txt", sep="")
+  table = read.table(fname, sep="\t", header=T, comment.char="")
+  nc = ncol(table)
+  table = read.table(fname, sep="\t", header=T, comment.char="", 
+                     colClasses=c(rep("character", 14), rep("numeric", nc-14)))
+  
+  ##fix water
+  table$BODY.SITE.SAMPLED[grepl("W", table$BODY.SITE.SAMPLED)] = "W"
+  
+  ##results vector or r and p for each comparison
+  an.res = vector()
+  
+  ##comparisons to a
+  an.res = c(an.res, taxa, getAnosimResults("A", "B"))
+  an.res = c(an.res, getAnosimResults("A", "C"))
+  an.res = c(an.res, getAnosimResults("A", "D"))
+  an.res = c(an.res, getAnosimResults("A", "E"))
+  an.res = c(an.res, getAnosimResults("A", "F"))
+  an.res = c(an.res, getAnosimResults("A", "W"))
+  ##comparisons to b
+  an.res = c(an.res, getAnosimResults("B", "C"))
+  an.res = c(an.res, getAnosimResults("B", "D"))
+  an.res = c(an.res, getAnosimResults("B", "E"))
+  an.res = c(an.res, getAnosimResults("B", "F"))
+  an.res = c(an.res, getAnosimResults("B", "W"))
+  ##comparisons to c
+  an.res = c(an.res, getAnosimResults("C", "D"))
+  an.res = c(an.res, getAnosimResults("C", "E"))
+  an.res = c(an.res, getAnosimResults("C", "F"))
+  an.res = c(an.res, getAnosimResults("C", "W"))
+  ##comparisons to d
+  an.res = c(an.res, getAnosimResults("D", "E"))
+  an.res = c(an.res, getAnosimResults("D", "F"))
+  an.res = c(an.res, getAnosimResults("D", "W"))
+  ##comparisons to e
+  an.res = c(an.res, getAnosimResults("E", "F"))
+  an.res = c(an.res, getAnosimResults("E", "W"))
+  ##comparisons to f
+  an.res = c(an.res, getAnosimResults("F", "W"))
+  
+  
+  res = rbind(res, an.res)
+}
+results = as.data.frame(res, stringsAsFactors=F)
+##fix names
+names(results) = c("level", 
+               "ab.r", "ab.p", "ac.r", "ac.p", "ad.r", "ad.p",
+               "ae.r", "ae.p", "af.r", "af.p", "aw.r", "aw.p",
+               "bc.r", "bc.p", "bd.r", "bd.p", "be.r", "be.p",
+               "bf.r", "bf.p", "bw.r", "bw.p", "cd.r", "cd.p",
+               "ce.r", "ce.p", "cf.r", "cf.p", "cw.r", "cw.p",
+               "de.r", "de.p", "df.r", "df.p", "dw.r", "dw.p",
+               "ef.r", "ef.p", "ew.r", "ew.p", "fw.r", "fw.p")
+
+##p value correction
+p = c(res[,3], res[,5], res[,7], res[,9],res[,11],
+               res[,13], res[,15], res[,17], res[,19], res[,21],
+               res[,23], res[,25], res[,27], res[,29], res[,31],
+               res[,33], res[,35], res[,37], res[,39], res[,41],
+               res[,43])
+p = as.numeric(p)
+pAdj = p.adjust(p, method="BH")
+#a
+results$pAdjAB = pAdj[1:5]
+results$pAdjAC = pAdj[6:10]
+results$pAdjAD = pAdj[11:15]
+results$pAdjAE = pAdj[16:20]
+results$pAdjAF = pAdj[21:25]
+results$pAdjAW = pAdj[26:30]
+#b
+results$pAdjBC = pAdj[31:35]
+results$pAdjBD = pAdj[36:40]
+results$pAdjBE = pAdj[41:45]
+results$pAdjBF = pAdj[46:50]
+results$pAdjBW = pAdj[51:55]
+#c
+results$pAdjCD = pAdj[56:60]
+results$pAdjCE = pAdj[61:65]
+results$pAdjCF = pAdj[66:70]
+results$pAdjCW = pAdj[71:75]
+#d
+results$pAdjDE = pAdj[76:80]
+results$pAdjDF = pAdj[81:85]
+results$pAdjDW = pAdj[86:90]
+#e
+results$pAdjEF = pAdj[91:95]
+results$pAdjEW = pAdj[96:100]
+#f
+results$pAdjFW = pAdj[101:105]
+
+write.table(results, "dolphinAnosim.txt", sep="\t", quote=F, row.names=F, col.names=T)
