@@ -47,7 +47,7 @@ public class WriteSpearmanFromRandom
 		return returnVals;
 	}
 	
-	private static List<String> getNames(File file) throws Exception
+	public static List<String> getNames(File file) throws Exception
 	{
 		List<String> list = new ArrayList<String>();
 		BufferedReader reader = new BufferedReader(new FileReader(file));
