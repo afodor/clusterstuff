@@ -28,7 +28,7 @@ public class SpearmansAcrossAll
 		System.out.println("Got " + map.size() + " files ");
 		
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
-			"/nobackup/afodor_research/af_broad/orthologs/chs11spearmanAcrossAll.txt")));
+			"/nobackup/afodor_research/af_broad/chs11spearmanAcrossAll.txt")));
 		
 		List<File> list = new ArrayList<File>(map.keySet());
 		Collections.sort(list);
