@@ -89,9 +89,9 @@ public class MergeAndFilterBlastResults {
 	//for each of the 100 blast results, check that each blast result exists
 	//if it does, return "TRUE", else return the missing file
 	public static String checkAllOutputExists(String genome) {
-		String path = "kegg_split_blastx_results/kegg_split_" + genome + "_";
+		String path = BASE_DIR + "kegg_split_blastx_results/kegg_split_" + genome + "_";
 		for(int i = 0; i < NUM_SPLITS; i++) {
-			File f = new File(path + i);
+			File f = new File(path + i + ".txt");
 			if(!f.exists()) {
 				return(f.getName());
 			}
