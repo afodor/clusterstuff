@@ -1,0 +1,125 @@
+##heatmap for BF+ vs BF-
+##3/31/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis3\\BFminus vs BFplus")
+
+library("ggplot2")
+library(reshape2)
+
+####DC
+##get sig otus
+dc = read.table("DC\\BFminus_v_BFplus_dc_otuModel_pValues_genus.txt", header=T, sep="\t",
+                colClasses=c("character", rep("numeric",11)))
+sig = dc$names[dc$pAdjGroup < 0.05] #list of significant otus
+##set up averages/groups
+table = read.table("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis3\\3.24_genotype_and_tumor_number\\DC\\analysis3.24_dc_genus_taxaAsCol_logNorm.txt",
+                   sep="\t", header=T, comment.char="", na.strings="N/A", 
+                   colClasses=c(rep(c("numeric", "character"),5), "character", "numeric", rep("character", 3), rep("numeric", 315)))
+table$Group..Associated.with.[grepl("BF+", table$Group..Associated.with., fixed=T)] = "BF+"
+table$Group..Associated.with.[grepl("BF-", table$Group..Associated.with., fixed=T)] = "BF-"
+group = paste(table$Group..Associated.with., "\n", table$Genotype, "\nweek ", 
+              table$Timepoint..weeks., "\nDC", sep="")
+start = 18
+nc = ncol(table)
+sort(unique(group))
+dc = data.frame(names=names(table)[start:nc],
+                colMeans(table[group=="BF-\nApcMin IL10 KO\nweek 12\nDC",start:nc]),
+                colMeans(table[group=="BF-\nApcMin\nweek 12\nDC",start:nc]),
+                colMeans(table[group=="BF+\nApcMin IL10 KO\nweek 12\nDC",start:nc]),
+                colMeans(table[group=="BF+\nApcMin\nweek 12\nDC",start:nc]))
+# names(dc) = c("names", paste("mean\n", sort(unique(group)), sep=""))
+names(dc) = c("names", sort(unique(group)))
+
+####stool
+##get sig otus
+stool = read.table("stool\\BFminus_v_BFplus_stool_otuModel_pValues_genus.txt", header=T, sep="\t",
+                   colClasses=c("character", rep("numeric",15)))
+sig = unique(c(sig, stool$names[stool$pAdjGroup < 0.05]))
+##set up averages/groups
+table = read.table("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis3\\3.24_genotype_and_tumor_number\\stool\\analysis3.24_stool_genus_taxaAsCol_logNorm.txt",
+                   sep="\t", header=T, comment.char="", na.strings="N/A", 
+                   colClasses=c("numeric", rep("character", 3), rep(c("numeric", "character"), 3), "character", "numeric", rep("character", 3), rep("numeric", 315)))
+table$Group..Associated.with.[grepl("BF+", table$Group..Associated.with., fixed=T)] = "BF+"
+table$Group..Associated.with.[grepl("BF-", table$Group..Associated.with., fixed=T)] = "BF-"
+group = paste(table$Group..Associated.with., "\n", table$Genotype, "\nweek ", 
+              table$Timepoint..weeks., "\nstool", sep="")
+start = 18
+nc = ncol(table)
+sort(unique(group))
+# names = names(table)[start:nc]
+# meanBFminusKOw1 = colMeans(table[group=="BF-bx\nApcMin IL10 KO\nweek 1",start:nc])
+# meanBFplusKOw1 = colMeans(table[group=="BF+T\nApcMin IL10 KO\nweek 1",start:nc])
+# meanBFplusKOw12 = colMeans(table[group=="BF+T\nApcMin IL10 KO\nweek 12",start:nc])
+stool = data.frame(names=names(table)[start:nc],
+                   colMeans(table[group=="BF-\nApcMin IL10 KO\nweek 1\nstool",start:nc]),
+                   colMeans(table[group=="BF-\nApcMin IL10 KO\nweek 12\nstool",start:nc]),
+                   colMeans(table[group=="BF-\nApcMin\nweek 1\nstool",start:nc]),
+                   colMeans(table[group=="BF-\nApcMin\nweek 12\nstool",start:nc]),
+                   colMeans(table[group=="BF+\nApcMin IL10 KO\nweek 1\nstool",start:nc]),
+                   colMeans(table[group=="BF+\nApcMin IL10 KO\nweek 12\nstool",start:nc]),
+                   colMeans(table[group=="BF+\nApcMin\nweek 1\nstool",start:nc]),
+                   colMeans(table[group=="BF+\nApcMin\nweek 12\nstool",start:nc]))
+# names(stool) = c("names", paste("mean\n", sort(unique(group)), sep=""))
+names(stool) = c("names", sort(unique(group)))
+
+
+
+####inoculum
+###set up inoculum
+##get inoculum
+table = read.table("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\rdp_genus_taxaAsCol.txt",
+                   sep="\t", header=T, colClasses=c("character", rep("numeric", 315)))
+inocIDs = c(18, 27, 39, 77, 91, 113, 119) #list of inoculum
+inocMeta = read.table("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\StoolMetadata.txt", sep="\t", header=T, comment.char="")
+names(inocMeta)[1] = "sampleID"
+inocMeta = inocMeta[inocMeta$Sample.Type=="inoculum",] #this removes 113, which is remaining inoculum
+inoc = table[table$sampleID %in% inocIDs & table$read==1,-1]
+inoc = merge(inocMeta, inoc)
+##log normalize
+lognorm = inoc
+nc = ncol(inoc)
+n = rowSums(inoc[,16:nc]) #number of reads in each sample
+sumX = sum(n) #total number of reads in all samples = sum(table[,4:nc])
+N = nrow(inoc) #total number of samples
+for(col in 16:nc) {
+  for(row in 1:N) {
+    lognorm[row, col] = log10(inoc[row, col]/n[row] * sumX/N + 1)
+  }
+}
+write.table(lognorm, "inoculum_genus_taxaAsCol_logNorm.txt", sep="\t", row.names=F, col.names=T, quote=F)
+##get means for BF+ and BF- for each genus
+lognorm$Group..Associated.with. = as.character(lognorm$Group..Associated.with.)
+meanBFminus = colMeans(lognorm[grepl("BF-", lognorm$Group..Associated.with., fixed=T),16:nc])
+meanBFplus = colMeans(lognorm[grepl("BF+", lognorm$Group..Associated.with., fixed=T),16:nc])
+names = names(lognorm)[16:nc]
+inoc = data.frame(names, meanBFminus, meanBFplus)
+names(inoc) = c("names", "BF-\ninoculum", "BF+\ninoculum")
+
+##merge tables
+mrg = merge(inoc, dc, by="names")
+mrg = merge(mrg, stool, by="names")
+mrg = mrg[mrg$names %in% sig,]
+
+####draw heatmap
+df.m <- melt(mrg, id.vars="names") #columns to rows differentiated by measurement and value
+ylab = mrg$names
+max(df.m$value)#3.873297
+plot <- ggplot(df.m, aes(x=variable, y=names)) + 
+  geom_tile(aes(fill=value)) + 
+  scale_fill_gradient(low="white", high="darkgreen", limits=c(0, 3.9), na.value="lightgray", name="mean log\nnormalized\nabundance") + 
+  scale_x_discrete(name="") + #, labels=c("rural\nT1", "rural\nT2", "urban \nT1 ", "urban\nT2")) +
+  scale_y_discrete(name="", limits=rev(mrg$names), labels=rev(ylab)) +
+  theme(axis.text.y=element_text(hjust=0, size=15, colour="black"), 
+        axis.text.x=element_text(colour=c("blue", "black", "blue", "blue", "black", "black", rep("blue", 4), rep("black", 4))), # size=22),
+        # panel.background = element_rect(fill = 'grey', colour = 'white'),
+        panel.grid.major = element_blank(),
+        axis.line = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.title=element_text(size=15), 
+        legend.text=element_text(size=15), 
+        legend.key.height=unit(30, "points"), 
+        legend.key.width=unit(20, "points"))
+tiff("BFminus_v_BFplus_heatmap_genus.tiff", res=300, height=2000, width=5500)
+print(plot)
+dev.off()
