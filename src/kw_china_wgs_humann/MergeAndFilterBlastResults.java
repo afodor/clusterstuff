@@ -141,7 +141,6 @@ public class MergeAndFilterBlastResults {
 				line = br.readLine();
 			}
 			br.close();
-			merge.close();
 			
 			//check if file was done
 			int numReads = 0;
@@ -155,6 +154,7 @@ public class MergeAndFilterBlastResults {
 					if(line.equals(lastRead) && numReads/100000 < .9995) {
 						//last read is less than 99.95% through the file -> within 50 reads of end
 						br.close();
+						merge.close();
 						System.out.println(genome + "_" + i + "not complete: " + numReads + "reads");
 						return(false);
 					} else {
@@ -165,6 +165,7 @@ public class MergeAndFilterBlastResults {
 			}
 			br.close();
 		}
+		merge.close();
 		return(true);
 	}
 }
