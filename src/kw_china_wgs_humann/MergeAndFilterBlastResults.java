@@ -54,15 +54,20 @@ public class MergeAndFilterBlastResults {
 				OUT_DIR + "genomes_newly_finished.txt")));
 		BufferedWriter writeNotDone = new BufferedWriter(new FileWriter(new File(
 				OUT_DIR + "genomes_not_done.txt")));
+		BufferedWriter log = new BufferedWriter(new FileWriter(new File(
+				BASE_DIR + "runMerge.log")));//log file
 		
 		//for each genome, if hasn't been done before, start merging and filtering
 		//see if done
 		for(String gen : genomes) {
+			log.write(gen);
 			if(!done.contains(gen)) {//skip if was previously finished
 				//check all output files exist
 				String exists = checkAllOutputExists(gen);
 				if(!exists.equals("TRUE")) {
 					writeNotDone.write(gen + "\t" + exists + "\tmissing\n");
+					log.write("\tNot done\n");
+					log.flush();
 				} else {
 					//for each file, check if done by whether the last read in the blast 
 					//		table is close to the last in the fasta
@@ -72,18 +77,25 @@ public class MergeAndFilterBlastResults {
 					if(complete) {
 						writeDone.write(gen + "\n");
 						writeNewDone.write(gen + "\n");
+						log.write("\tDone\n");
+						log.flush();
 					} else {
 						writeNotDone.write(gen + "\tnot complete\n");
+						log.write("\tNot done\n");
+						log.flush();
 					}
 				}
 			} else {
 				writeDone.write(gen + "\n");
+				log.write("\tPreviously done\n");
+				log.flush();
 			}
 		}
 		
 		writeDone.close();
 		writeNewDone.close();
 		writeNotDone.close();
+		log.close();
 	}
 	
 	//for each of the 100 blast results, check that each blast result exists
