@@ -103,7 +103,7 @@ public class MergeAndFilterBlastResults {
 	public static Set<String> getHumanReads(String genome) throws IOException {
 		Set<String> reads = new HashSet<String>();
 		BufferedReader map = new BufferedReader(new FileReader(new File(
-				BASE_DIR + genome + "_1.hg38.mapped.sam")));
+				BASE_DIR + "alignToHG38/" + genome + "_1.hg38.mapped.sam")));
 		String line = map.readLine();
 		while(line != null) {
 			String[] sp = line.split("\t");
