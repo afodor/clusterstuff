@@ -18,7 +18,7 @@ public class MergeAndFilterBlastResults {
 	public static String BASE_DIR = "/nobackup/afodor_research/kwinglee/china/wgs/";
 	public static int NUM_GENOMES = 40;//number of genomes
 	public static int NUM_SPLITS = 100;//number of files genome split into
-	public static String OUT_DIR = BASE_DIR + "kegg_split_blastx_merge_filter/";//directory to write results to
+	public static String OUT_DIR = BASE_DIR + "kegg_split_blastx_results_merge_filter/";//directory to write results to
 	
 	public static void main(String[] args) throws Exception {
 		//get list of genomes
@@ -159,23 +159,30 @@ public class MergeAndFilterBlastResults {
 			br = new BufferedReader(new FileReader(new File(
 					BASE_DIR + "splitFastas/split_" + genome + "_" + i + ".fa")));
 			line = br.readLine();
+			boolean seen = false;//if last read has been seen
 			while(line != null) {
 				if(line.startsWith(">")) {
 					numReads++;
 					line = line.replace(">", "");
-					if(line.equals(lastRead) && numReads/100000 < .9995) {
-						//last read is less than 99.95% through the file -> within 50 reads of end
-						br.close();
-						merge.close();
-						System.out.println(genome + "_" + i + "not complete: " + numReads + "reads");
-						return(false);
-					} else {
-						break;
+					if(line.equals(lastRead)) {
+						seen = true;
+						if(numReads/100000 < .9995) {
+							//last read is less than 99.95% through the file -> within 50 reads of end
+							br.close();
+							merge.close();
+							System.out.println(genome + "_" + i + "not complete: " + numReads + "reads");
+							return(false);
+						} else {
+							break;
+						}
 					}
 				}
 				line = br.readLine();
 			}
 			br.close();
+			if(!seen) {
+				System.err.println(genome + "_" + i + " last read not seen: " + lastRead);
+			}
 		}
 		merge.close();
 		return(true);
