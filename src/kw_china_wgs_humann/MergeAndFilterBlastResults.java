@@ -166,11 +166,11 @@ public class MergeAndFilterBlastResults {
 					line = line.replace(">", "");
 					if(line.equals(lastRead)) {
 						seen = true;
-						if(numReads/100000 < .9995) {
-							//last read is less than 99.95% through the file -> within 50 reads of end
+						if(numReads/100000.0 < .9998) {
+							//last read is less than 99.98% through the file -> within 20 reads of end
 							br.close();
 							merge.close();
-							System.out.println(genome + "_" + i + "not complete: " + numReads + "reads");
+							System.out.println(genome + "_" + i + "not complete: " + numReads + " reads");
 							return(false);
 						} else {
 							break;
