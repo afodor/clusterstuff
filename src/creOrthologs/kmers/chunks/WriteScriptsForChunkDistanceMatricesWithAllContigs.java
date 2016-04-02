@@ -98,7 +98,7 @@ public class WriteScriptsForChunkDistanceMatricesWithAllContigs
 				map.put(contig, list);
 			}
 			
-			Holder h = new Holder(Integer.parseInt(splits[0]), Integer.parseInt(splits[1]));
+			Holder h = new Holder(Integer.parseInt(splits[1]), Integer.parseInt(splits[2]));
 			list.add(h);
 		}
 		
