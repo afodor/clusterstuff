@@ -27,9 +27,13 @@ public class ChunkSpearmanToSquareAllContigs
 		for(String s= reader.readLine(); s != null; s= reader.readLine())
 		{
 			String[] splits = s.split("\t");
-			list.add( new File(
+			
+			File f= new File(
 					GatherDistanceMatrix.GATHERED_DIR.getAbsolutePath() 
-					+ File.separator + splits[0]+ "_dist.txt"));
+					+ File.separator + splits[0]+ "_dist.txt");
+			
+			if( WriteSpearmanFromRandom.getValsOrNull(f, null) != null)
+				list.add(f );
 		}
 			
 		return list;
