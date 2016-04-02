@@ -160,7 +160,6 @@ public class WriteScriptsForChunkDistanceMatricesWithAllContigs
 					writeOneIfNotThere(allWriter, contig, 0, list.get(0).start -1000, index,
 							logWriter, "initialBaseline");
 					index++;
-					listIndex++;
 				}
 					
 				while(listIndex < list.size() -1)
