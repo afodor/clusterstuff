@@ -150,7 +150,7 @@ public class WriteScriptsForChunkDistanceMatricesWithAllContigs
 					index++;
 					listIndex++;
 					
-					if( list.get(listIndex-1).end +2 < contigLength )
+					if( list.get(listIndex-1).end +5000 < contigLength )
 					{
 						int endPos = contigLength;
 						
