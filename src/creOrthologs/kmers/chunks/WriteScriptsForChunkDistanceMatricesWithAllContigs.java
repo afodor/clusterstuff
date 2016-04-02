@@ -22,11 +22,16 @@ public class WriteScriptsForChunkDistanceMatricesWithAllContigs
 	public static final String GENOME_PATH= 
 			"/nobackup/afodor_research/af_broad/carolina/klebsiella_pneumoniae_chs_11.0.scaffolds.fasta";
 	
+
+	public static final String LOG_PATH= 
+			"/nobackup/afodor_research/af_broad/chunkLog.txt";
+	
+	
 	public static final String CHUNCK_FILE_PATH = 
 			"/nobackup/afodor_research/af_broad/pneuOnlyChunksWithContigs_0.85_0.9.txt";
 	
 	private static void writeOneIfNotThere(BufferedWriter allWriter, String contig,
-				int startPos, int endPos, int index) 
+				int startPos, int endPos, int index, BufferedWriter logWriter, String type) 
 		throws Exception
 	{
 		File shFile = new File(
@@ -54,11 +59,20 @@ public class WriteScriptsForChunkDistanceMatricesWithAllContigs
 			
 			aWriter.flush();  aWriter.close();
 			System.out.println(contig+ " " +  startPos+ " " + endPos);
+			
+			logWriter.write(outFileBase + "\t" + contig + "\t" + 
+					startPos + "\t" + endPos + "\t" + (endPos - startPos) + "\t" + 
+						"false" + "\t" + type);
 		}
 		else
 		{
 			System.out.println("found " + outFile.getAbsolutePath() + " skipping ");
+			logWriter.write(outFileBase + "\t" + contig + "\t" + 
+					startPos + "\t" + endPos + "\t" + (endPos - startPos) + "\t" + 
+						"true" + "\t" + type);
 		}
+		
+		logWriter.flush();
 	}
 	
 	private static class Holder
@@ -111,6 +125,11 @@ public class WriteScriptsForChunkDistanceMatricesWithAllContigs
 	public static void main(String[] args) throws Exception
 	{
 		
+		BufferedWriter logWriter = new BufferedWriter(new FileWriter(new File(
+				LOG_PATH)));
+		
+		logWriter.write("basePath\tcontig\tstart\tstop\tsize\tfound\ttype\n");
+		
 		BufferedWriter allWriter  = new BufferedWriter(new FileWriter(new File(
 			CHUNK_KMER_SCRIPT_DIR.getAbsolutePath() + File.separator + 
 			"runAll.sh")));
@@ -127,7 +146,8 @@ public class WriteScriptsForChunkDistanceMatricesWithAllContigs
 			if( list.size() == 1)
 			{
 				Holder h = list.get(0);
-				writeOneIfNotThere(allWriter, contig, h.start, h.end, index);
+				writeOneIfNotThere(allWriter, contig, h.start, h.end, index,
+							logWriter, "singleton");
 				index++;
 			}
 			else
@@ -137,7 +157,8 @@ public class WriteScriptsForChunkDistanceMatricesWithAllContigs
 				
 				if( list.get(0).start >0)
 				{
-					writeOneIfNotThere(allWriter, contig, 0, list.get(0).start -1000, index);
+					writeOneIfNotThere(allWriter, contig, 0, list.get(0).start -1000, index,
+							logWriter, "initialBaseline");
 					index++;
 					listIndex++;
 				}
@@ -146,20 +167,25 @@ public class WriteScriptsForChunkDistanceMatricesWithAllContigs
 				{
 					
 					writeOneIfNotThere(allWriter, contig, 
-							list.get(listIndex).start, list.get(listIndex).end, index);
+							list.get(listIndex).start, list.get(listIndex).end, index,
+							logWriter, "peak");
 					
 					index++;
 					listIndex++;
 					
 					if( list.get(listIndex-1).end +5000 < contigLength )
 					{
+						String type = "endBaseline";
 						int endPos = contigLength;
 						
 						if( listIndex < list.size() -1 )
+						{
 							endPos = list.get(listIndex).start -1000;
-						
+							type = "baseline";
+						}
+							
 						writeOneIfNotThere(allWriter, contig, list.get(listIndex-1).end+1000, 
-										endPos, index);
+										endPos, index, logWriter,type);
 						
 						index++;
 
@@ -169,5 +195,8 @@ public class WriteScriptsForChunkDistanceMatricesWithAllContigs
 				}
 			}	
 		}
+		
+		logWriter.flush();  logWriter.close();
+		allWriter.flush();  allWriter.close();
 	}
 }
