@@ -132,6 +132,7 @@ public class WriteScriptsForChunkDistanceMatricesWithAllContigs
 			else
 			{
 				int listIndex =0;
+				int contigLength = fastaMap.get(contig).getSequence().length() -1;
 				
 				if( list.get(0).start >0)
 				{
@@ -142,24 +143,30 @@ public class WriteScriptsForChunkDistanceMatricesWithAllContigs
 					
 				while(listIndex < list.size() -1)
 				{
+					
 					writeOneIfNotThere(allWriter, contig, 
 							list.get(listIndex).start, list.get(listIndex).end, index);
 					
 					index++;
 					listIndex++;
 					
-					int endPos = fastaMap.get(contig).getSequence().length() -1;
+					if( list.get(listIndex-1).end +2 < contigLength )
+					{
+						int endPos = contigLength;
+						
+						if( listIndex < list.size() -1 )
+							endPos = list.get(listIndex).start -1000;
+						
+						writeOneIfNotThere(allWriter, contig, list.get(listIndex-1).end+1000, 
+										endPos, listIndex);
+						
+						index++;
+
+						
+					}
 					
-					if( listIndex < list.size() -1 )
-						endPos = list.get(listIndex).start -1000;
-					
-					writeOneIfNotThere(allWriter, contig, list.get(listIndex-1).end+1000, 
-									endPos, listIndex);
-					
-					index++;
 				}
-			}
-			
-		}		
+			}	
+		}
 	}
 }
