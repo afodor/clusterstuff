@@ -53,6 +53,7 @@ public class WriteScriptsForChunkDistanceMatricesWithAllContigs
 			allWriter.flush(); 
 			
 			aWriter.flush();  aWriter.close();
+			System.out.println(contig+ " " +  startPos+ " " + endPos);
 		}
 		else
 		{
