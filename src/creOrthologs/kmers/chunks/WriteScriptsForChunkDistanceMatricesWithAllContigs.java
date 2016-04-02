@@ -62,14 +62,14 @@ public class WriteScriptsForChunkDistanceMatricesWithAllContigs
 			
 			logWriter.write(outFileBase + "\t" + contig + "\t" + 
 					startPos + "\t" + endPos + "\t" + (endPos - startPos) + "\t" + 
-						"false" + "\t" + type);
+						"false" + "\t" + type + "\n");
 		}
 		else
 		{
 			System.out.println("found " + outFile.getAbsolutePath() + " skipping ");
 			logWriter.write(outFileBase + "\t" + contig + "\t" + 
 					startPos + "\t" + endPos + "\t" + (endPos - startPos) + "\t" + 
-						"true" + "\t" + type);
+						"true" + "\t" + type + "\n");
 		}
 		
 		logWriter.flush();
