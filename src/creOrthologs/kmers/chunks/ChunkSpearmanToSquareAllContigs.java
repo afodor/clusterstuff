@@ -60,8 +60,8 @@ public class ChunkSpearmanToSquareAllContigs
 							WriteSpearmanFromRandom.getValsOrNull(list.get(y), indexes);
 									
 				writer.write("\t" + Spearman.getSpear(aVals, bVals).getRs());
-				writer.write("\n"); writer.flush();
 			}
+			writer.write("\n"); writer.flush();
 		}
 		
 		writer.flush(); writer.close();
