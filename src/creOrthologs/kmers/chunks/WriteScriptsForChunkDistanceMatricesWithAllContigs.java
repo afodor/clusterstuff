@@ -159,7 +159,7 @@ public class WriteScriptsForChunkDistanceMatricesWithAllContigs
 							endPos = list.get(listIndex).start -1000;
 						
 						writeOneIfNotThere(allWriter, contig, list.get(listIndex-1).end+1000, 
-										endPos, listIndex);
+										endPos, index);
 						
 						index++;
 
