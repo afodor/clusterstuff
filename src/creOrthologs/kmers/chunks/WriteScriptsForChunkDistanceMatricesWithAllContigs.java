@@ -182,13 +182,16 @@ public class WriteScriptsForChunkDistanceMatricesWithAllContigs
 							endPos = list.get(listIndex).start -1000;
 							type = "baseline";
 						}
-							
-						writeOneIfNotThere(allWriter, contig, list.get(listIndex-1).end+1000, 
-										endPos, index, logWriter,type);
 						
-						index++;
+						if( endPos - list.get(listIndex-1).end+1000 >= 5000)
+						{
 
-						
+							writeOneIfNotThere(allWriter, contig, list.get(listIndex-1).end+1000, 
+											endPos, index, logWriter,type);
+							
+							index++;
+
+						}							
 					}
 					
 				}
