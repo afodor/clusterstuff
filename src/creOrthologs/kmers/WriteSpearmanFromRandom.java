@@ -67,6 +67,9 @@ public class WriteSpearmanFromRandom
 	
 	public static List<Float> getValsOrNull(File f, HashSet<Integer> include) throws Exception
 	{
+		if( ! f.exists())
+			return null;
+		
 		List<Float> vals = new ArrayList<Float>();
 		
 		BufferedReader reader = new BufferedReader(new FileReader(f));
