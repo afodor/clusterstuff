@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -138,10 +139,13 @@ public class WriteScriptsForChunkDistanceMatricesWithAllContigs
 		
 		HashMap<String, FastaSequence> fastaMap = FastaSequence.getFirstTokenSequenceMap(GENOME_PATH);
 		
+		HashSet<String> includedContigs = new HashSet<String>();
+		
 		int index = 1;
 		for(String contig : contigMap.keySet())
 		{
 			List<Holder> list = contigMap.get(contig);
+			includedContigs.add(contig);
 			
 			if( list.size() == 1)
 			{
@@ -197,6 +201,15 @@ public class WriteScriptsForChunkDistanceMatricesWithAllContigs
 				}
 			}	
 		}
+		
+		for(String s : fastaMap.keySet())
+			if( ! includedContigs.contains(s))
+			{
+				writeOneIfNotThere(allWriter, s, 0, 
+						fastaMap.get(s).getSequence().length()-1, index, logWriter,"singleton");
+				
+				index++;
+			}
 		
 		logWriter.flush();  logWriter.close();
 		allWriter.flush();  allWriter.close();
