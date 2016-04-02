@@ -53,19 +53,13 @@ public class ChunkSpearmanToSquareAllContigs
 		{
 			List<Float> aVals = WriteSpearmanFromRandom.getValsOrNull(list.get(x), indexes);
 				
-			if( aVals != null)
-			{	
-				writer.write(list.get(x).getName());
-				for( int y=0; y < list.size(); y++)
-				{
-					List<Float> bVals = 
+			writer.write(list.get(x).getName());
+			for( int y=0; y < list.size(); y++)
+			{
+				List<Float> bVals = 
 							WriteSpearmanFromRandom.getValsOrNull(list.get(y), indexes);
 									
-					if(bVals != null)
-					{
-						writer.write("\t" + Spearman.getSpear(aVals, bVals).getRs());
-					}
-				}
+				writer.write("\t" + Spearman.getSpear(aVals, bVals).getRs());
 				writer.write("\n"); writer.flush();
 			}
 		}
