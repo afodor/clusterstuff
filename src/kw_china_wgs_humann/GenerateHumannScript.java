@@ -24,7 +24,7 @@ public class GenerateHumannScript {
 				KEGG_DIR + "genomes_newly_finished.txt")));
 		String gen = genList.readLine();
 		while(gen != null) {
-			script.write("ln -s kegg_merge_filter_huamn_" + gen + ".txt " +
+			script.write("ln -s kegg_merge_filter_human_" + gen + ".txt " +
 					HUM_DIR + "input/.\n");
 			gen = genList.readLine();
 		}
