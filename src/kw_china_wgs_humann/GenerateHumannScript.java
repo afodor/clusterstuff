@@ -17,7 +17,7 @@ public class GenerateHumannScript {
 	
 	public static void main(String[] args) throws IOException {
 		BufferedWriter script = new BufferedWriter(new FileWriter(new File(
-				"/nobackup/afodor_research/kwinglee/china/wgs/humScript.sh")));
+				"/nobackup/afodor_research/kwinglee/china/wgs/runHumScript")));
 		//for each newly finished genome, create symbolic link
 		script.write("cd " + KEGG_DIR + "\n");
 		BufferedReader genList = new BufferedReader(new FileReader(new File(
