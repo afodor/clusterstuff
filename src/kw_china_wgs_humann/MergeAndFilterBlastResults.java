@@ -170,7 +170,7 @@ public class MergeAndFilterBlastResults {
 							//last read is less than 99.98% through the file -> within 20 reads of end
 							br.close();
 							merge.close();
-							System.out.println(genome + "_" + i + "not complete: " + numReads + " reads");
+							System.out.println(genome + "_" + i + " not complete: " + numReads + " reads");
 							return(false);
 						} else {
 							break;
