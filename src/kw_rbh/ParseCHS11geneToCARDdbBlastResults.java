@@ -113,7 +113,7 @@ public class ParseCHS11geneToCARDdbBlastResults {
 		while(line != null) {
 			if(!line.startsWith("#")) {
 				String[] sp = line.split("\t");
-				if(sp.length != 11) {
+				if(sp.length != 12) {
 					br.close();
 					throw new Exception("results wrong length: " + sp.length + "\n" + line);
 				}
