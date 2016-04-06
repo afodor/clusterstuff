@@ -1,5 +1,7 @@
 /*
  * parse results of blasting card database to chs11 genes
+ * only include hits that are greater than 50% of the length of both the CHS11 and 
+ * CARD gene
  */
 package kw_rbh;
 
@@ -15,16 +17,16 @@ import java.util.Iterator;
 import java.util.Set;
 
 
-public class CHS11toCARDdb {
+public class ParseCHS11genetoCARDdbBlastResults {
 	private static String DIR = "/nobackup/afodor_research/kwinglee/cre/rbh/chs11_v_card/";
 	private static String ARO_KEY = "/users/kwinglee/card/aro.csv";
 	private static String CHS11_GENE = "/nobackup/afodor_research/kwinglee/cre/rbh/carolina_klebsiella_pneumoniae_chs_11.0_genePositions.txt";
 	private static HashMap<String, String[]> ARO;//ARO to [name, description]
-	private static HashMap<String, int[]> CHS11;//gene name to [length, scaffold, start, stop]
+	private static HashMap<String, String[]> CHS11;//gene name to [length, scaffold, start, stop]
 	
 	public static void main(String[] args) throws Exception {
 		//get map of gene to gene length for CHS11
-		CHS11 = new HashMap<String, int[]>();
+		CHS11 = new HashMap<String, String[]>();
 		//map will be gene name -> [length, scaffold, start, stop]
 		BufferedReader chs11gene = new BufferedReader(new FileReader(new File(
 				CHS11_GENE)));
@@ -32,10 +34,11 @@ public class CHS11toCARDdb {
 		line = chs11gene.readLine();
 		while(line != null) {
 			String[] sp = line.split("\t");
-			int scaff = Integer.parseInt(sp[1]);
+			String scaff = sp[1];
 			int start = Integer.parseInt(sp[2]);
 			int stop = Integer.parseInt(sp[3]);
-			CHS11.put(sp[0], new int[]{stop-start, scaff, start, stop});
+			CHS11.put(sp[0], new String[]{Integer.toString(stop-start), 
+					scaff, Integer.toString(start), Integer.toString(stop)});
 			line = chs11gene.readLine();
 		}
 		chs11gene.close();
@@ -117,7 +120,7 @@ public class CHS11toCARDdb {
 					throw new Exception("results ARO number wrong: " + name + "\n" + line);
 				}
 				int alLen = Integer.parseInt(sp[2]);//alignment length
-				if(alLen > CHS11.get(chs)[0] / 2 &&
+				if(alLen > Integer.parseInt(CHS11.get(chs)[0]) / 2 &&
 						alLen > dbLen.get(aro)) {//alignment length is more than 50% of gene lengths
 					String value = aro + ";" + shortName + ";" + bit;
 					if(hits.containsKey(chs)) {
@@ -137,7 +140,8 @@ public class CHS11toCARDdb {
 		BufferedWriter out = new BufferedWriter(new FileWriter(new File(
 				DIR + table.replace(".txt", "_summary.txt"))));
 		//header
-		out.write("CHS11 gene\tbest CARD hit ARO\tARO name\tARO description\t"
+		out.write("CHS11 gene\tscaffold\tgene start\tgene stop\t"
+				+ "best CARD hit ARO\tARO name\tARO description\t"
 				+ "best hit bit score\tother hits (ARO;ARO name;bit score)\n");
 		String[] genes = (String[]) CHS11.keySet().toArray();
 		Arrays.sort(genes);
@@ -146,16 +150,7 @@ public class CHS11toCARDdb {
 				Set<String> set = hits.get(key);
 				Iterator<String> it = set.iterator();
 				if(set.size() == 1) {
-					String h = it.next();
-					String[] sp = h.split(";");
-					String a = sp[0];
-					String[] aro = ARO.get(a);
-					if(!sp[1].equals(aro[0])) {//see if name is same from fasta and csv file
-						System.out.println("Different names for " + a + ": " + 
-								sp[1] + "\t" + aro[0]);
-					}
-					out.write(key + "\t" + a + "\t" + aro[0] + "\t" + aro[1] + 
-							"\t" + sp[2] + "\tNA\n");
+					out.write(parseOutput(key, it.next()) + "NA\n");
 				} else {
 					//identify best hit
 					String best = "";
@@ -169,15 +164,7 @@ public class CHS11toCARDdb {
 						}
 					}
 					//write best hit
-					String[] sp = best.split(";");
-					String a = sp[0];
-					String[] aro = ARO.get(a);
-					if(!sp[1].equals(aro[0])) {//see if name is same from fasta and csv file
-						System.out.println("Different names for " + a + ": " + 
-								sp[1] + "\t" + aro[0]);
-					}
-					out.write(key + "\t" + a + "\t" + aro[0] + "\t" + aro[1] + 
-							"\t" + sp[2] + "\t");
+					out.write(parseOutput(key, best));
 					//write other hits
 					it = set.iterator();
 					while(it.hasNext()) {
@@ -191,6 +178,23 @@ public class CHS11toCARDdb {
 			}
 		}
 		out.close();
+	}
+	
+	/*
+	 * for the given CHS gene key and its best CARD match hit,
+	 * return the output for all columns except the other hits
+	 */
+	public static String parseOutput(String key, String hit) {
+		String[] chs = CHS11.get(key);
+		String[] sp = hit.split(";");
+		String a = sp[0];
+		String[] aro = ARO.get(a);
+		if(!sp[1].equals(aro[0])) {//see if name is same from fasta and csv file
+			System.out.println("Different names for " + a + ": " + 
+					sp[1] + "\t" + aro[0]);
+		}
+		return(key + "\t" + chs[1] + "\t" + chs[2] + "\t" + chs[3] + "\t" + 
+				a + "\t" + aro[0] + "\t" + aro[1] + "\t" + sp[2] + "\t");
 	}
 
 }
