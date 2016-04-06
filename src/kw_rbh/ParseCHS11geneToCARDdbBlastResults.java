@@ -122,7 +122,7 @@ public class ParseCHS11geneToCARDdbBlastResults {
 				String[] sp2 = sp[1].split("\\|");
 				String aro = sp2[3];//aro
 				String shortName = sp2[4];
-				String bit = sp[11];
+				String bit = sp[11].replaceAll("\\s+","");//remove extra white space ex for carolina_klebsiella_pneumoniae_chs_11.0_AE67_00312      ARO:3001190
 				if(!aro.startsWith("ARO")) {
 					br.close();
 					throw new Exception("results ARO number wrong: " + name + "\n" + line);
