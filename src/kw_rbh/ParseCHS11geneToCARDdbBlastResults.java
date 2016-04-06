@@ -56,9 +56,15 @@ public class ParseCHS11geneToCARDdbBlastResults {
 				String[] sp = line.split(",");
 				if(sp.length == 3) {
 					ARO.put(sp[0], new String[]{sp[1], sp[2]});		
-				} else {//some lines don't seem to have a name
+				} else {
 					line = line.replace(sp[0] + ",", "");
-					ARO.put(sp[0], new String[]{"", line});
+					String[] sp2 = line.split("\"");
+					if(sp2.length == 2) {//extra commas in description
+						line = line.replace(sp2[0] + ",", "");
+						ARO.put(sp[0], new String[]{sp2[0], line});
+					} else {//some lines don't seem to have a name
+						ARO.put(sp[0], new String[]{"", line});	
+					}
 				}
 			}
 			line = arocsv.readLine();
