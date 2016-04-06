@@ -150,7 +150,7 @@ public class ParseCHS11geneToCARDdbBlastResults {
 		out.write("CHS11 gene\tscaffold\tgene start\tgene stop\t"
 				+ "best CARD hit ARO\tARO name\tARO description\t"
 				+ "best hit bit score\tother hits (ARO;ARO name;bit score)\n");
-		String[] genes = (String[]) CHS11.keySet().toArray();
+		String[] genes = CHS11.keySet().toArray(new String[CHS11.keySet().size()]);
 		Arrays.sort(genes);
 		for(String key : genes) {
 			if(hits.containsKey(key)) {
