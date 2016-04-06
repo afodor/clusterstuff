@@ -18,7 +18,7 @@ public class GenerateHumannScript {
 	public static void main(String[] args) throws IOException {
 		BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 				"/nobackup/afodor_research/kwinglee/china/wgs/runHumScript")));
-		//needs high memory and long time
+		//needs high memory (128Gb) and long time
 		script.write("#PBS -l walltime=500:00:00\n");
 		script.write("#PBS -l nodes=1:ppn=16\n");
 		script.write("#PBS -W x=NODESET:ONEOF:FEATURE:ib_qdr2\n");
@@ -28,7 +28,7 @@ public class GenerateHumannScript {
 				KEGG_DIR + "genomes_newly_finished.txt")));
 		String gen = genList.readLine();
 		while(gen != null) {
-			script.write("cp kegg_merge_filter_human_" + gen + ".txt " +
+			script.write("ln -s kegg_merge_filter_human_" + gen + ".txt " +
 					HUM_DIR + "input/.\n");
 			gen = genList.readLine();
 		}
