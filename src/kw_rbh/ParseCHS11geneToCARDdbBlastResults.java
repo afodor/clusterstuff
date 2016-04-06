@@ -53,7 +53,12 @@ public class ParseCHS11geneToCARDdbBlastResults {
 		while(line != null) {
 			if(line.startsWith("ARO")) {//there are empty rows and rows start with Gene orientation that throw errors
 				String[] sp = line.split(",");
-				ARO.put(sp[0], new String[]{sp[1], sp[2]});				
+				if(sp.length == 3) {
+					ARO.put(sp[0], new String[]{sp[1], sp[2]});		
+				} else {//some lines don't seem to have a name
+					line = line.replace(sp[0] + ",", "");
+					ARO.put(sp[0], new String[]{"", line});
+				}
 			}
 			line = arocsv.readLine();
 		}
