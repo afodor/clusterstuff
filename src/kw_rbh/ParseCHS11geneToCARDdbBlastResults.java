@@ -81,7 +81,7 @@ public class ParseCHS11geneToCARDdbBlastResults {
 		//get database gene length
 		HashMap<String, Integer> dbLen = new HashMap<String, Integer>();//map of aro number to length
 		BufferedReader dbbr = new BufferedReader(new FileReader(new File(
-				"/users/kwinglee/card/database")));
+				"/users/kwinglee/card/" + database)));
 		String line = dbbr.readLine();
 		int len = 0;
 		String name = null;
