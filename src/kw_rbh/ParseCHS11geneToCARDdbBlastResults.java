@@ -23,6 +23,7 @@ public class ParseCHS11geneToCARDdbBlastResults {
 	private static String CHS11_GENE = "/nobackup/afodor_research/kwinglee/cre/rbh/carolina_klebsiella_pneumoniae_chs_11.0_genePositions.txt";
 	private static HashMap<String, String[]> ARO;//ARO to [name, description]
 	private static HashMap<String, String[]> CHS11;//gene name to [length, scaffold, start, stop]
+	private static Double LENDIFF = 0.5;//percent of gene that must align
 	
 	public static void main(String[] args) throws Exception {
 		//get map of gene to gene length for CHS11
@@ -127,8 +128,12 @@ public class ParseCHS11geneToCARDdbBlastResults {
 					throw new Exception("results ARO number wrong: " + name + "\n" + line);
 				}
 				double alLen = Double.parseDouble(sp[2]);//alignment length
-				if(alLen > Integer.parseInt(CHS11.get(chs)[0]) / 2.0 &&
-						alLen > dbLen.get(aro)) {//alignment length is more than 50% of gene lengths
+				/*System.out.println(chs + "\t" + alLen + "\t" + CHS11.get(chs)[0] +
+						"\t" + Integer.parseInt(CHS11.get(chs)[0]) + "\t"
+						+ (alLen > Integer.parseInt(CHS11.get(chs)[0]) / 2.0));
+				System.out.println(aro + "\t" + dbLen.get(aro) + "\n");*/
+				if(alLen / Integer.parseInt(CHS11.get(chs)[0]) >  LENDIFF &&
+						alLen / dbLen.get(aro) > LENDIFF) {//alignment length is more than 50% of gene lengths
 					String value = aro + ";" + shortName + ";" + bit;
 					if(hits.containsKey(chs)) {
 						hits.get(chs).add(value);
@@ -153,10 +158,8 @@ public class ParseCHS11geneToCARDdbBlastResults {
 				+ "best hit bit score\tother hits (ARO;ARO name;bit score)\n");
 		String[] genes = CHS11.keySet().toArray(new String[CHS11.keySet().size()]);
 		Arrays.sort(genes);
-		System.out.println("Genes:");
 		for(String key : genes) {
 			if(hits.containsKey(key)) {
-				System.out.println(key + " is hit");
 				Set<String> set = hits.get(key);
 				Iterator<String> it = set.iterator();
 				if(set.size() == 1) {
@@ -185,9 +188,7 @@ public class ParseCHS11geneToCARDdbBlastResults {
 					}
 					out.write("\n");
 				}
-			} else {
-				System.out.println(key + " not found");
-			}
+			} 
 		}
 		out.close();
 	}
