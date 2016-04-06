@@ -60,8 +60,8 @@ public class ParseCHS11geneToCARDdbBlastResults {
 					line = line.replace(sp[0] + ",", "");
 					String[] sp2 = line.split("\"");
 					if(sp2.length == 2) {//extra commas in description
-						line = line.replace(sp2[0] + ",", "");
-						ARO.put(sp[0], new String[]{sp2[0], line});
+						line = line.replace(sp2[0], "");
+						ARO.put(sp[0], new String[]{sp2[0].replace(",", ""), line});
 					} else {//some lines don't seem to have a name
 						ARO.put(sp[0], new String[]{"", line});	
 					}
