@@ -23,12 +23,12 @@ public class GenerateHumannScript {
 		script.write("#PBS -l nodes=1:ppn=16\n");
 		script.write("#PBS -W x=NODESET:ONEOF:FEATURE:ib_qdr2\n");
 		//for each newly finished genome, create symbolic link
-		script.write("cd " + KEGG_DIR + "\n");
+		//script.write("cd " + KEGG_DIR + "\n");
 		BufferedReader genList = new BufferedReader(new FileReader(new File(
 				KEGG_DIR + "genomes_newly_finished.txt")));
 		String gen = genList.readLine();
 		while(gen != null) {
-			script.write("ln -s kegg_merge_filter_human_" + gen + ".txt " +
+			script.write("ln -s " + KEGG_DIR + "kegg_merge_filter_human_" + gen + ".txt " +
 					HUM_DIR + "input/.\n");
 			gen = genList.readLine();
 		}
