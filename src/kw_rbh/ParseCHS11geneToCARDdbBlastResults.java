@@ -142,6 +142,7 @@ public class ParseCHS11geneToCARDdbBlastResults {
 			line = br.readLine();
 		}
 		br.close();
+		System.out.println("CHS11 genes with hits: " + hits.size());
 
 		//write
 		BufferedWriter out = new BufferedWriter(new FileWriter(new File(
@@ -152,8 +153,10 @@ public class ParseCHS11geneToCARDdbBlastResults {
 				+ "best hit bit score\tother hits (ARO;ARO name;bit score)\n");
 		String[] genes = CHS11.keySet().toArray(new String[CHS11.keySet().size()]);
 		Arrays.sort(genes);
+		System.out.println("Genes:");
 		for(String key : genes) {
 			if(hits.containsKey(key)) {
+				System.out.println(key + " is hit");
 				Set<String> set = hits.get(key);
 				Iterator<String> it = set.iterator();
 				if(set.size() == 1) {
@@ -182,6 +185,8 @@ public class ParseCHS11geneToCARDdbBlastResults {
 					}
 					out.write("\n");
 				}
+			} else {
+				System.out.println(key + " not found");
 			}
 		}
 		out.close();
