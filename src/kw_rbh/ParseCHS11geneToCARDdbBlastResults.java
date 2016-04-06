@@ -126,8 +126,8 @@ public class ParseCHS11geneToCARDdbBlastResults {
 					br.close();
 					throw new Exception("results ARO number wrong: " + name + "\n" + line);
 				}
-				int alLen = Integer.parseInt(sp[2]);//alignment length
-				if(alLen > Integer.parseInt(CHS11.get(chs)[0]) / 2 &&
+				double alLen = Double.parseDouble(sp[2]);//alignment length
+				if(alLen > Integer.parseInt(CHS11.get(chs)[0]) / 2.0 &&
 						alLen > dbLen.get(aro)) {//alignment length is more than 50% of gene lengths
 					String value = aro + ";" + shortName + ";" + bit;
 					if(hits.containsKey(chs)) {
