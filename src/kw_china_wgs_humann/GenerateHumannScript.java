@@ -18,6 +18,10 @@ public class GenerateHumannScript {
 	public static void main(String[] args) throws IOException {
 		BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 				"/nobackup/afodor_research/kwinglee/china/wgs/runHumScript")));
+		//needs high memory and long time
+		script.write("#PBS -l walltime=500:00:00\n");
+		script.write("#PBS -l nodes=1:ppn=16\n");
+		script.write("#PBS -W x=NODESET:ONEOF:FEATURE:ib_qdr2\n");
 		//for each newly finished genome, create symbolic link
 		script.write("cd " + KEGG_DIR + "\n");
 		BufferedReader genList = new BufferedReader(new FileReader(new File(
@@ -33,7 +37,7 @@ public class GenerateHumannScript {
 		//run scons
 		script.write("cd " + HUM_DIR + "\n");
 		script.write("module load python/2.7.2\n");
-		script.write("scons\n");
+		script.write("scons\n");//scons -j 2 for multithreading
 		script.close();
 	}
 	
