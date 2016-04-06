@@ -17,7 +17,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 
-public class ParseCHS11genetoCARDdbBlastResults {
+public class ParseCHS11geneToCARDdbBlastResults {
 	private static String DIR = "/nobackup/afodor_research/kwinglee/cre/rbh/chs11_v_card/";
 	private static String ARO_KEY = "/users/kwinglee/card/aro.csv";
 	private static String CHS11_GENE = "/nobackup/afodor_research/kwinglee/cre/rbh/carolina_klebsiella_pneumoniae_chs_11.0_genePositions.txt";
@@ -51,8 +51,10 @@ public class ParseCHS11genetoCARDdbBlastResults {
 		line = arocsv.readLine();//header
 		line = arocsv.readLine();
 		while(line != null) {
-			String[] sp = line.split(",");
-			ARO.put(sp[0], new String[]{sp[1], sp[2]});
+			if(line.startsWith("ARO")) {//there are empty rows and rows start with Gene orientation that throw errors
+				String[] sp = line.split(",");
+				ARO.put(sp[0], new String[]{sp[1], sp[2]});				
+			}
 			line = arocsv.readLine();
 		}
 		arocsv.close();
