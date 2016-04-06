@@ -127,11 +127,11 @@ public class ParseCHS11geneToCARDdbBlastResults {
 					br.close();
 					throw new Exception("results ARO number wrong: " + name + "\n" + line);
 				}
-				double alLen = Double.parseDouble(sp[2]);//alignment length
+				double alLen = Double.parseDouble(sp[3]);//alignment length
 				/*System.out.println(chs + "\t" + alLen + "\t" + CHS11.get(chs)[0] +
-						"\t" + Integer.parseInt(CHS11.get(chs)[0]) + "\t"
-						+ (alLen > Integer.parseInt(CHS11.get(chs)[0]) / 2.0));
-				System.out.println(aro + "\t" + dbLen.get(aro) + "\n");*/
+                        "\t" + Integer.parseInt(CHS11.get(chs)[0]) + "\t" + (alLen / Integer.parseInt(CHS11.get(chs)[0])) + "\t"
+                        + (alLen / Integer.parseInt(CHS11.get(chs)[0]) >  LENDIFF));
+				System.out.println(aro + "\t" + dbLen.get(aro) + "\t" + (alLen / dbLen.get(aro) > LENDIFF) + "\t" + (alLen / dbLen.get(aro) > LENDIFF) + "\n");*/
 				if(alLen / Integer.parseInt(CHS11.get(chs)[0]) >  LENDIFF &&
 						alLen / dbLen.get(aro) > LENDIFF) {//alignment length is more than 50% of gene lengths
 					String value = aro + ";" + shortName + ";" + bit;
@@ -147,7 +147,7 @@ public class ParseCHS11geneToCARDdbBlastResults {
 			line = br.readLine();
 		}
 		br.close();
-		System.out.println("CHS11 genes with hits: " + hits.size());
+		System.out.println("CHS11 genes with hits: " + hits.size() + " for " + table);
 
 		//write
 		BufferedWriter out = new BufferedWriter(new FileWriter(new File(
