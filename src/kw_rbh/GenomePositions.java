@@ -61,6 +61,7 @@ public class GenomePositions {
 			}
 			line = fasta.readLine();
 		}
+		out.write(scaff + "\t" + len + "\n");
 		fasta.close();
 		out.close();
 	}
