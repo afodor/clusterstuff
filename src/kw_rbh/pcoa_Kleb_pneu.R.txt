@@ -1,0 +1,191 @@
+##make PCoAs from distance matrices already generated
+##or from bit score
+##4/12/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\Klebsiella pneumo only")
+
+##spearman
+spearFill = read.table("chs11_klebpneu_spearmanDistance.txt", sep="\t", header=T, row.names=1, colClasses=c("character", rep("numeric", 202)))
+
+pcoa = cmdscale(spearFill, k=20, eig = TRUE)
+eig = pcoa$eig
+var = eig/sum(eig)*100
+
+#color by group
+genomeID = row.names(pcoa$points) #names(spear)
+colors = rep(NA, length(genomeID))
+colors[grepl("carolina", genomeID)] = "blue"
+colors[grepl("resistant", genomeID)] = "red"
+colors[grepl("susceptible", genomeID)] = "gold"
+#shape by genera
+shapes = rep(15, length(genomeID)) #other
+shapes[grepl("^.*_kleb", genomeID)] = 16 #klebsiella
+shapes[grepl("^.*_ente", genomeID)] = 17 #enterobacter
+shapes[grepl("^.*_esch", genomeID)] = 18 #escherichia
+jpeg("chs11_klebpneu_rbh_pcoa_spearman.jpg", res=200, height=1000, width=1200)
+par(mar=c(4.1, 4.1, 4.1, 8), xpd=T)
+plot(x=pcoa$points[,1], y=pcoa$points[,2], 
+     xlab=paste("MDS1 (", format(var[1], digits=2), "%)", sep=""), 
+     ylab=paste("MDS2 (", format(var[2], digits=2), "%)", sep=""),
+     main="RBH CHS11 bit scores, Spearman distance", col=colors, pch=shapes, cex=.8)
+legend("topright", inset=c(-.36, 0),
+       c("Carolina", "Resistant", "Susceptible", "Klebsiella", "Enterobacter", "Escherichia", "other"),
+       col = c("blue", "red", "gold", rep("gray", 4)),
+       pch=c(rep(1, 3), 16, 17, 18, 15))
+dev.off()
+
+
+##Qi et al cosine
+cosFill = read.table("chs11_klebpneu_qiCosineDistance.txt", sep="\t", header=T, row.names=1, colClasses=c("character", rep("numeric", 202)))
+
+pcoa = cmdscale(cosFill, k=20, eig = TRUE)
+eig = pcoa$eig
+var = eig/sum(eig)*100
+jpeg("chs11_klebpneu_rbh_pcoa_qiCosine.jpg", res=200, height=1000, width=1200)
+par(mar=c(4.1, 4.1, 4.1, 8), xpd=T)
+plot(x=pcoa$points[,1], y=pcoa$points[,2],
+     xlab=paste("MDS1 (", format(var[1], digits=2), "%)", sep=""), 
+     ylab=paste("MDS2 (", format(var[2], digits=2), "%)", sep=""),
+     main="RBH CHS11 bit scores, Qi et al. cosine distance", col=colors, pch=shapes, cex=.7)
+legend("topright", inset=c(-.36, 0),
+       c("Carolina", "Resistant", "Susceptible", "Klebsiella", "Enterobacter", "Escherichia", "other"),
+       col = c("blue", "red", "gold", rep("gray", 4)),
+       pch=c(rep(1, 3), 16, 17, 18, 15))
+dev.off()
+
+###bit score
+library(vegan)
+bitScore = read.table("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\rbh\\bitScoreTable_carolina_klebsiella_pneumoniae_chs_11.0.txt", header=T, sep="\t", colClasses=c("character", rep("numeric", 5335)))
+bitScore = bitScore[grepl("pneu", bitScore$genomeID),]
+
+####by genome
+pcoa <- capscale(bitScore[,-1]~1,distance="euclidean")
+##get percent variance
+eig = eigenvals(pcoa)
+if(any(eig<0)) {#need to check there are no negatives
+  warning("NEGATIVE EIGENVALUES-percent variance is incorrect")
+}
+var = eig/sum(eig)*100
+genomeID = bitScore$genomeID
+colors = rep(NA, length(genomeID))
+colors[grepl("carolina", genomeID)] = "blue"
+colors[grepl("resistant", genomeID)] = "red"
+colors[grepl("susceptible", genomeID)] = "gold"
+jpeg("chs11_klebpneu_rbh_pcoa_bitScore_byGenome.jpg", res=200, height=1000, width=1200)
+par(mar=c(4.1, 4.1, 4.1, 8), xpd=T)
+plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], 
+     xlab=paste("MDS1 (", format(var[[1]], digits=0), "%)", sep=""), 
+     ylab=paste("MDS2 (", format(var[[2]], digits=0), "%)", sep=""),
+     main="Bit score; Euclidean distance", 
+     col=colors, pch=16)
+legend("topright", inset=c(-.36, 0),
+       c("Carolina", "Resistant", "Susceptible"),
+       col = c("blue", "red", "gold"),
+       pch=16)
+dev.off()
+
+####tranpose (by gene)
+bits = t(bitScore)
+bits = as.data.frame(bits[-1,])
+names(bits) = bitScore$genomeID
+
+#get chunk info to color by peak or not
+chunks = read.table("chunks_pcoaAllContigsPlusMetadata.txt", sep="\t", header=T,
+                    colClasses=c("character", "numeric", "numeric", "character", "character", rep("numeric",10)))
+chunks$contig = sub("contig_", "", chunks$contig)
+genes = read.table("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\rbh\\carolina_klebsiella_pneumoniae_chs_11.0_genePositions.txt", 
+                   header=T, sep="\t", colClasses=c("character", "character", "numeric", "numeric"))
+peakGenes = rep("baseline", nrow(genes))
+for(i in seq(1, nrow(chunks))) {
+  if(chunks$type[i] == "peak") {
+    scaff = chunks$contig[i]
+    start = chunks$start[i]+1 #AF's is 0based, mine is 1
+    stop = chunks$stop[i]+1
+    if(any(peakGenes[genes$scaffold==scaff & genes$geneStart >= start & genes$geneStop <= stop]=="peak")) {
+      print(which(peakGenes[genes$scaffold==scaff & genes$geneStart >= start & genes$geneStop <= stop]=="peak"))
+    }
+    peakGenes[genes$scaffold==scaff & genes$geneStart >= start & genes$geneStop <= stop] = "peak"
+    print(paste(i, sum(genes$scaffold==scaff & genes$geneStart >= start & genes$geneStop <= stop)))
+  }
+}
+sum(peakGenes=="peak") #743; 744 genes in table (gene#1 comes up twice)
+df = data.frame(geneID = genes$geneID, peak = peakGenes, stringsAsFactors = F)
+bits2 = data.frame(geneID = row.names(bits), bits, stringsAsFactors = F)
+mrg = merge(df, bits2, by="geneID")
+colors = ifelse(mrg$peak=="peak", "green", "black")
+for(c in seq(3, ncol(mrg))) {
+  mrg[,c] = as.numeric(as.character(mrg[,c]))
+}
+
+pcoaGene <- capscale(mrg[,-c(1:2)]~1,distance="euclidean")
+##get percent variance
+eig = eigenvals(pcoaGene)
+if(any(eig<0)) {#need to check there are no negatives
+  warning("NEGATIVE EIGENVALUES-percent variance is incorrect")
+}
+var = eig/sum(eig)*100
+jpeg("chs11_klebpneu_rbh_pcoa_bitScore_byGene.jpg", res=200, height=1000, width=1200)
+par(mar=c(4.1, 4.1, 4.1, 8), xpd=T)
+plot(x=pcoaGene$CA$u[,1], y=pcoaGene$CA$u[,2], 
+     xlab=paste("MDS1 (", format(var[[1]], digits=0), "%)", sep=""), 
+     ylab=paste("MDS2 (", format(var[[2]], digits=0), "%)", sep=""),
+     main="Bit score by gene; Euclidean distance", 
+     col=colors, pch=16)
+legend("topright", inset=c(-.36, 0),
+       c("peak", "baseline"),
+       col = c("green", "black"),
+       pch=16)
+dev.off()
+
+####by gene logged
+log = log10(mrg[,-c(1:2)] + 1)
+pcoaGeneLog <- capscale(log~1,distance="euclidean")
+##get percent variance
+eig = eigenvals(pcoaGeneLog)
+if(any(eig<0)) {#need to check there are no negatives
+  warning("NEGATIVE EIGENVALUES-percent variance is incorrect")
+}
+var = eig/sum(eig)*100
+jpeg("chs11_klebpneu_rbh_pcoa_bitScore_byGene_log.jpg", res=200, height=1000, width=1200)
+par(mar=c(4.1, 4.1, 4.1, 8), xpd=T)
+plot(x=pcoaGeneLog$CA$u[,1], y=pcoaGeneLog$CA$u[,2], 
+     xlab=paste("MDS1 (", format(var[[1]], digits=0), "%)", sep=""), 
+     ylab=paste("MDS2 (", format(var[[2]], digits=0), "%)", sep=""),
+     main="Log bit score by gene; Euclidean distance", 
+     col=colors, pch=16)
+legend("topright", inset=c(-.36, 0),
+       c("peak", "baseline"),
+       col = c("green", "black"),
+       pch=16)
+dev.off()
+
+####p-value
+pVal = read.table("chs11_klebpneu_rbh_pvalues.txt", sep="\t", header=T, colClasses=c("character", rep("numeric", 6)))
+pVal$car_v_res = log10(pVal$car_v_res)
+pVal$car_v_res[pVal$aveCar > pVal$aveRes] = -1 * pVal$car_v_res[pVal$aveCar > pVal$aveRes]
+pVal$car_v_sus = log10(pVal$car_v_sus)
+pVal$car_v_sus[pVal$aveCar > pVal$aveSus] = -1 * pVal$car_v_sus[pVal$aveCar > pVal$aveSus]
+pVal$res_v_sus = log10(pVal$res_v_sus)
+pVal$res_v_sus[pVal$aveRes > pVal$aveSus] = -1 * pVal$res_v_sus[pVal$aveRes > pVal$aveSus]
+ps = na.omit(pVal[,1:4])
+pcoaP <- capscale(ps[,-1]~1,distance="euclidean") #on the loggged p-values
+eig = eigenvals(pcoaP)
+if(any(eig<0)) {#need to check there are no negatives
+  warning("NEGATIVE EIGENVALUES-percent variance is incorrect")
+}
+var = eig/sum(eig)*100
+mrg = merge(df, ps, by="geneID")
+colors = ifelse(mrg$peak=="peak", "green", "black")
+jpeg("chs11_klebpneu_rbh_pcoa_pValue.jpg", res=200, height=1000, width=1200)
+par(mar=c(4.1, 4.1, 4.1, 8), xpd=T)
+plot(x=pcoaP$CA$u[,1], y=pcoaP$CA$u[,2], 
+     xlab=paste("MDS1 (", format(var[[1]], digits=0), "%)", sep=""), 
+     ylab=paste("MDS2 (", format(var[[2]], digits=0), "%)", sep=""),
+     main="Log p-values; Euclidean distance", 
+     col=colors, pch=16)
+legend("topright", inset=c(-.36, 0),
+       c("peak", "baseline"),
+       col = c("green", "black"),
+       pch=16)
+dev.off()

@@ -1,0 +1,330 @@
+##draw graphs of rbh p-value results
+##have sign of p-value reflect which group is higher
+##kleb pneu only
+##also add CARD results and Anthony's chunk results
+##4/11/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\Klebsiella pneumo only")
+
+##cards
+carHom = read.table("chs11genes_v_cardHomolog_summary.txt", sep="\t", header=T, colClasses="character")
+carVar = read.table("chs11genes_v_cardVariant_summary.txt", sep="\t", header=T, colClasses="character")
+
+##p-value comparisons
+pVal = read.table("chs11_klebpneu_rbh_pvalues.txt", sep="\t", header=T, colClasses=c("character", rep("numeric", 6)))
+pVal$car_v_res = log10(pVal$car_v_res)
+pVal$car_v_res[pVal$aveCar > pVal$aveRes] = -1 * pVal$car_v_res[pVal$aveCar > pVal$aveRes]
+pVal$car_v_sus = log10(pVal$car_v_sus)
+pVal$car_v_sus[pVal$aveCar > pVal$aveSus] = -1 * pVal$car_v_sus[pVal$aveCar > pVal$aveSus]
+pVal$res_v_sus = log10(pVal$res_v_sus)
+pVal$res_v_sus[pVal$aveRes > pVal$aveSus] = -1 * pVal$res_v_sus[pVal$aveRes > pVal$aveSus]
+jpeg("chs11_klebpneu_rbh_pValueComparisons.jpg", height=600, width=1800, res=150)
+col = ifelse(pVal$geneID %in% carHom$CHS11.gene, "red", "black")
+col[pVal$geneID %in% carVar$CHS11.gene] = "red"
+par(mfrow=c(1, 3), mar=c(5.1, 5.1, 2, 2))
+plot(x=pVal$car_v_res, y=pVal$car_v_sus, 
+     xlab="Carolina vs. Resistant log10 p-values\n(negative if Carolina is lower)", 
+     ylab="Carolina vs. Suseptible log10 p-value\n(negative if Carolina is lower)", 
+     pch=16, col=col)
+legend("bottomright",
+       legend="gene in CARDs",
+       col="red", pch=16)
+plot(x=pVal$car_v_res, y=pVal$res_v_sus, 
+     xlab="Carolina vs. Resistant log10 p-values\n(negative if Carolina is lower)", 
+     ylab="Resistant vs. Suseptible log10 p-values\n(negative if resistant is lower)", 
+     pch=16, col=col)
+legend("bottomright",
+       legend="gene in CARDs",
+       col="red", pch=16)
+plot(x=pVal$car_v_sus, y=pVal$res_v_sus, 
+     xlab="Carolina vs. Suseptible log10 p-values\n(negative if Carolina is lower)", 
+     ylab="Resistant vs. Suseptible log10 p-values\n(negative if resistant is lower)", 
+     pch=16, col=col)
+legend("bottomright",
+       legend="gene in CARDs",
+       col="red", pch=16)
+dev.off()
+
+##bit score comparisons
+##color and shape by significance; color by cards
+jpeg("chs11_klebpneu_rbh_bitScoreComparisons.jpg", height=600, width=1800, res=150)
+card = pVal$geneID %in% carHom$CHS11.gene | pVal$geneID %in% carVar$CHS11.gene
+par(mfrow=c(1, 3), mar=c(4.1, 4.1, 2, 2))
+max = max(pVal$aveCar, pVal$aveRes, pVal$aveSus)
+unlog = read.table("chs11_klebpneu_rbh_pvalues.txt", sep="\t", header=T, colClasses=c("character", rep("numeric", 6)))
+p = 0.0001
+
+sig = unlog$car_v_res < p
+col = ifelse(sig, "blue", "black")
+col[is.na(sig)] = "black"
+col[card] = "red"
+shape = ifelse(sig, 15, 16)
+shape[is.na(sig)] = 16
+plot(x=pVal$aveCar, y=pVal$aveRes, 
+     xlab="Carolina bit score", 
+     ylab="Resistant bit score", 
+     pch=shape, col=col)
+lines(x=c(0,max), y=c(0, max), col="gray")#identity line
+legend("bottomright",
+       legend=c("gene in CARDs", paste("p < ", p)),
+       col=c("red", "blue"), pch=c(16,15))
+
+sig = unlog$car_v_sus < p
+col = ifelse(sig, "blue", "black")
+col[is.na(sig)] = "black"
+col[card] = "red"
+shape = ifelse(sig, 15, 16)
+shape[is.na(sig)] = 16
+plot(x=pVal$aveCar, y=pVal$aveSus, 
+     xlab="Carolina bit score", 
+     ylab="Suseptible bit score", 
+     pch=shape, col=col)
+lines(x=c(0,max), y=c(0, max), col="gray")#identity line
+legend("bottomright",
+       legend=c("gene in CARDs", paste("p < ", p)),
+       col=c("red", "blue"), pch=c(16,15))
+
+sig = unlog$res_v_sus < p
+col = ifelse(sig, "blue", "black")
+col[is.na(sig)] = "black"
+col[card] = "red"
+shape = ifelse(sig, 15, 16)
+shape[is.na(sig)] = 16
+plot(x=pVal$aveRes, y=pVal$aveSus, 
+     xlab="Resistant bit score", 
+     ylab="Suseptible bit score", 
+     pch=shape, col=col)
+lines(x=c(0,max), y=c(0, max), col="gray")#identity line
+legend("bottomright",
+       legend=c("gene in CARDs", paste("p < ", p)),
+       col=c("red", "blue"), pch=c(16,15))
+dev.off()
+
+
+####p-values against scaffolds
+#read scaffold as character
+##scaffold and gene info
+scaff = read.table("carolina_klebsiella_pneumoniae_chs_11.0_scaffoldSizes.txt", 
+                   header=T, sep="\t", colClasses=c("character", "numeric"))
+genes = read.table("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\rbh\\carolina_klebsiella_pneumoniae_chs_11.0_genePositions.txt", 
+                   header=T, sep="\t", colClasses=c("character", "character", "numeric", "numeric"))
+##Anthony's chunks
+chunks = read.table("chunks_pcoaAllContigsPlusMetadata.txt", sep="\t", header=T,
+                    colClasses=c("character", "numeric", "numeric", "character", "character", rep("numeric",10)))
+chunks$contig = sub("contig_", "", chunks$contig)
+
+mrg = merge(pVal, genes, by="geneID")
+minP = min(mrg[,2:4], na.rm = T) + 2
+maxP = max(mrg[,2:4], na.rm=T)
+##function to generate plot of p-values for the given row in scaffold
+plotPvals <- function(i) {
+  tab = mrg[mrg$scaffold==scaff$scaffold[i],]
+  plot(0, type="n", xlim=c(0, scaff$length[i]), ylim=c(minP, maxP),
+       xlab="gene start on scaffold", ylab="log10 p-value",
+       main=paste("Scaffold", scaff$scaffold[i]))
+  points(x=tab$geneStart, y=tab$res_v_sus, pch=20, col="gold")
+  points(x=tab$geneStart, y=tab$car_v_sus, pch=20, col="red")
+  points(x=tab$geneStart, y=tab$car_v_res, pch=20, col="blue")
+  
+  ##add chunks
+  y = maxP
+  ch = chunks[chunks$contig==scaff$scaffold[i],]
+  for(c in 1:nrow(ch)) {
+    col = "black"
+    if(ch$type[c] == "peak") { #peaks are green everything else (singleton, baseline) black
+      col = "green"
+    }
+    lines(x=c(ch$start[c]+1, ch$stop[c]+1), y=c(y, y), col=col, lwd=2)
+  }
+  
+  ##add card
+  hom = tab$geneStart[tab$geneID %in% carHom$CHS11.gene]
+  var = tab$geneStart[tab$geneID %in% carVar$CHS11.gene]
+  points(x=hom, y=rep(y, length(hom)), pch=15, col="purple")
+  points(x=var, y=rep(y, length(var)), pch=17, col="purple")
+}
+##function to generate legend for p-value plots; if oneRow, print one row, otherwise do multiple
+legendPvals <- function(oneRow=T) {
+  par(fig=c(0,1,0,1), oma=c(0,0,0,0), mar=c(0,0,0,0), new=T)
+  plot(0, type="n", bty="n", xaxt="n", yaxt="n")
+  if(oneRow) {
+    legend("bottom", xpd=T, horiz=T,
+           c("carolina vs. resistant", "carolina vs. susceptible", "resistant vs. susceptible",
+             "AF peak", "AF baseline", "CARD homolog", "CARD variant"),
+           col = c("blue", "red", "gold", "green", "black", "purple", "purple"),
+           lty = c(rep(0, 3), rep(1, 2), rep(0, 3)),
+           pch=c(rep(20, 3), rep(NA, 2), 15, 17))
+  } else {
+    legend("bottom", xpd=T, ncol=4, 
+           c("carolina vs. resistant", "carolina vs. susceptible", "resistant vs. susceptible",
+             "AF peak", "AF baseline", "CARD homolog", "CARD variant"),
+           col = c("blue", "red", "gold", "green", "black", "purple", "purple"),
+           lty = c(rep(0, 3), rep(1, 2), rep(0, 3)),
+           pch=c(rep(20, 3), rep(NA, 2), 15, 17))
+  }
+}
+##plot everything together
+jpeg("chs11_klebpneu_rbh_scaffolds_pvalues.jpg", height=1400, width=1800, res=150)
+par(mfrow=c(3, 3), oma=c(2, .1, .1, .1)) #9 scaffolds
+for(i in 1:nrow(scaff)) {
+  print(plotPvals(i))
+}
+print(legendPvals())
+dev.off()
+##plot individual scaffolds for the bigger scaffolds
+for(i in 1:nrow(scaff)) {
+  if(scaff$length[i] > 10000) {
+    jpeg(paste("chs11_klebpneu_rbh_scaffolds_pvalues", scaff$scaffold[i], ".jpg", sep=""), 
+         height=750, width=1800, res=150)
+    par(oma=c(2, .1, .1, .1))
+    print(plotPvals(i))
+    print(legendPvals(F))
+    dev.off()
+  }
+}
+
+####average bit scores against scaffolds
+minBit = min(mrg[,5:7], na.rm = T)
+maxBit = max(mrg[,5:7], na.rm=T) + 2
+##function to generate plot of bit scores for the given row in scaffold
+plotBits <- function(i) {
+  tab = mrg[mrg$scaffold==scaff$scaffold[i],]
+  plot(0, type="n", xlim=c(0, scaff$length[i]), ylim=c(minBit, maxBit),
+       xlab="gene start on scaffold", ylab="average bit score",
+       main=paste("Scaffold", scaff$scaffold[i]))
+  points(x=tab$geneStart, y=tab$aveSus, pch=20, col="gold")
+  points(x=tab$geneStart, y=tab$aveRes, pch=20, col="red")
+  points(x=tab$geneStart, y=tab$aveCar, pch=20, col="blue")
+  
+  ##add chunks
+  y = maxBit
+  ch = chunks[chunks$contig==scaff$scaffold[i],]
+  for(c in 1:nrow(ch)) {
+    col = "black"
+    if(ch$type[c] == "peak") { #peaks are green everything else (singleton, baseline) black
+      col = "green"
+    }
+    lines(x=c(ch$start[c]+1, ch$stop[c]+1), y=c(y, y), col=col, lwd=2)
+  }
+  
+  ##add card
+  hom = tab$geneStart[tab$geneID %in% carHom$CHS11.gene]
+  var = tab$geneStart[tab$geneID %in% carVar$CHS11.gene]
+  points(x=hom, y=rep(y, length(hom)), pch=15, col="purple")
+  points(x=var, y=rep(y, length(var)), pch=17, col="purple")
+}
+##function to generate legend for bit score plots; if oneRow, print one row, otherwise do multiple
+legendBits <- function(oneRow = T) {
+  par(fig=c(0,1,0,1), oma=c(0,0,0,0), mar=c(0,0,0,0), new=T)
+  plot(0, type="n", bty="n", xaxt="n", yaxt="n")
+  if(oneRow) {
+    legend("bottom", xpd=T, horiz=T,
+           c("Carolina", "Resistant", "Susceptible",
+             "AF peak", "AF baseline", "CARD homolog", "CARD variant"),
+           col = c("blue", "red", "gold", "green", "black", "purple", "purple"),
+           lty = c(rep(0, 3), rep(1, 2), rep(0, 3)),
+           pch=c(rep(20, 3), rep(NA, 2), 15, 17))
+  } else {
+    legend("bottom", xpd=T, ncol=4,
+           c("Carolina", "Resistant", "Susceptible",
+             "AF peak", "AF baseline", "CARD homolog", "CARD variant"),
+           col = c("blue", "red", "gold", "green", "black", "purple", "purple"),
+           lty = c(rep(0, 3), rep(1, 2), rep(0, 3)),
+           pch=c(rep(20, 3), rep(NA, 2), 15, 17))
+  }
+}
+jpeg("chs11_klebpneu_rbh_scaffolds_bitScores.jpg", height=1400, width=1800, res=150)
+par(mfrow=c(3, 3), oma=c(2, .1, .1, .1)) #9 scaffolds
+for(i in 1:nrow(scaff)) {
+  print(plotBits(i))
+}
+print(legendBits())
+dev.off()
+##plot individual scaffolds for the bigger scaffolds
+for(i in 1:nrow(scaff)) {
+  if(scaff$length[i] > 10000) {
+    jpeg(paste("chs11_klebpneu_rbh_scaffolds_bitScores", scaff$scaffold[i], ".jpg", sep=""), 
+         height=750, width=1800, res=150)
+    par(oma=c(2, .1, .1, .1))
+    print(plotBits(i))
+    print(legendBits(F))
+    dev.off()
+  }
+}
+
+
+####write table merging chunks, p values, genes, and CARDs results
+numGenes = rep(NA, nrow(chunks))
+pVals = data.frame(Pcar_v_res = rep(NA, nrow(chunks)),
+                   Pcar_v_sus = rep(NA, nrow(chunks)),
+                   Pres_v_sus = rep(NA, nrow(chunks)),
+                   aveCar = rep(NA, nrow(chunks)),
+                   aveRes = rep(NA, nrow(chunks)),
+                   aveSus = rep(NA, nrow(chunks)))
+numCards = rep(NA, nrow(chunks))
+for(i in seq(1, nrow(chunks))) {
+  scaff = chunks$contig[i]
+  start = chunks$start[i]+1 #AF's is 0based, mine is 1
+  stop = chunks$stop[i]+1
+  g = genes$geneID[genes$scaffold==scaff & genes$geneStart >= start & genes$geneStop <= stop]
+  numGenes[i] = length(g)
+  numCards[i] = sum(g %in% carHom$CHS11.gene | g %in% carVar$CHS11.gene)
+  pVals$Pcar_v_res[i] = mean(pVal$car_v_res[pVal$geneID %in% g], na.rm = T)
+  pVals$Pcar_v_sus[i] = mean(pVal$car_v_sus[pVal$geneID %in% g], na.rm = T)
+  pVals$Pres_v_sus[i] = mean(pVal$res_v_sus[pVal$geneID %in% g], na.rm = T)
+  pVals$aveCar[i] = mean(pVal$aveCar[pVal$geneID %in% g], na.rm = T)
+  pVals$aveRes[i] = mean(pVal$aveRes[pVal$geneID %in% g], na.rm = T)
+  pVals$aveSus[i] = mean(pVal$aveSus[pVal$geneID %in% g], na.rm = T)
+}
+results = cbind(chunks, numGenes, numCards, perCards = numCards/numGenes*100, pVals)
+write.table(results, "chunks_withCardsAndPvalues.txt", row.names = F, col.names = T, quote=F, sep="\t")
+
+###box plots of peak vs baseline
+peaks = factor(ifelse(results$type=="peak", "peak", "baseline"))
+jpeg("chunks_peak_v_baseline.jpg", height=1200, width=1200, res=150)
+par(mfrow=c(3,3))
+offset = 1
+##p-values
+boxplot(results$Pcar_v_res~peaks, xlab="", ylab="mean log p-value", main="Carolina vs Resistant")
+p=t.test(results$Pcar_v_res~peaks, alternative="two.sided")$p.value
+text(x=1.5, y=max(results$Pcar_v_res)-offset, labels=paste("p=", format(p, digits=3)))
+
+boxplot(results$Pcar_v_sus~peaks, xlab="", ylab="mean log p-value", main="Carolina vs Susceptible")
+p=t.test(results$Pcar_v_sus~peaks, alternative="two.sided")$p.value
+text(x=1.5, y=max(results$Pcar_v_sus)-offset, labels=paste("p=", format(p, digits=3)))
+
+boxplot(results$Pres_v_sus~peaks, xlab="", ylab="mean log p-value", main="Resistant vs Susceptible")
+p=t.test(results$Pres_v_sus~peaks, alternative="two.sided")$p.value
+text(x=1.5, y=max(results$Pres_v_sus)-offset, labels=paste("p=", format(p, digits=3)))
+
+##bit-scores
+offset = 2
+boxplot(results$aveCar~peaks, xlab="", ylab="mean bit score", main="Carolina")
+p=t.test(results$aveCar~peaks, alternative="two.sided")$p.value
+text(x=1.5, y=max(results$aveCar)-offset, labels=paste("p=", format(p, digits=3)))
+
+boxplot(results$aveRes~peaks, xlab="", ylab="mean bit score", main="Resistant")
+p=t.test(results$aveRes~peaks, alternative="two.sided")$p.value
+text(x=1.5, y=max(results$aveRes)-offset, labels=paste("p=", format(p, digits=3)))
+
+boxplot(results$aveSus~peaks, xlab="", ylab="mean bit score", main="Susceptible")
+p=t.test(results$aveSus~peaks, alternative="two.sided")$p.value
+text(x=1.5, y=max(results$aveSus)-offset, labels=paste("p=", format(p, digits=3)))
+
+##genes
+perBP = results$numGenes / ((results$stop - results$start) / 1000)
+boxplot(perBP~peaks, xlab="", ylab="# genes per 1000bp", main="Number Genes")
+p=t.test(perBP~peaks, alternative="two.sided")$p.value
+text(x=1.5, y=max(perBP)-.1, labels=paste("p=", format(p, digits=3)))
+
+perBP = results$numCards / ((results$stop - results$start) / 1000)
+boxplot(perBP~peaks, xlab="", ylab="# genes mapped to CARDs per 1000bp", main="Number CARDs Genes")
+p=t.test(perBP~peaks, alternative="two.sided")$p.value
+text(x=1.5, y=max(perBP)-.01, labels=paste("p=", format(p, digits=3)))
+
+boxplot(results$perCards~peaks, xlab="", ylab="% genes mapped to CARDS", main="Percent CARDs")
+p=t.test(results$perCards~peaks, alternative="two.sided")$p.value
+text(x=1.5, y=max(results$perCards)-1, labels=paste("p=", format(p, digits=3)))
+
+dev.off()
