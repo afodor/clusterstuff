@@ -1,3 +1,5 @@
+#!/usr/bin/env Rscript
+
 ##get distance matrices for CHS11 RBH table, and draw pcoa
 ##generate full table instead of upper triangle (very slow to run)
 ##do by row (gene) instead of column (genome)
