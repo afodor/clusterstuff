@@ -191,8 +191,9 @@ public class ParseCHS11scaffoldToCARDdbBlastResults {
 					String[] sp = h.split(";");
 					int hstart = Integer.parseInt(sp[3]);
 					int hstop = Integer.parseInt(sp[4]);
-					if((hstart <= bstart & hstop >= bstart) ||
-							(hstart <= bstop & hstop >= bstop)) {//overlapping
+					if((hstart <= bstart && hstop >= bstart) ||
+							(hstart <= bstop && hstop >= bstop) ||
+							(hstart >= bstart && hstop <= bstop)) {//overlapping or contained within
 						out.write(h + "|");
 					} else {
 						nonOverlap.add(h);
