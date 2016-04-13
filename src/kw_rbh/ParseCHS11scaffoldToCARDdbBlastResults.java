@@ -144,7 +144,7 @@ public class ParseCHS11scaffoldToCARDdbBlastResults {
 		//header
 		out.write("scaffold\thit start\thit stop\t"
 				+ "best CARD hit ARO\tARO name\tARO description\t"
-				+ "best hit bit score\tother hits (ARO;ARO name;bit score)\n");
+				+ "best hit bit score\tother hits (ARO;ARO name;bit score;hit start on scaffold; hit stop)\n");
 		String[] hitSet = hits.keySet().toArray(new String[hits.keySet().size()]);
 		Arrays.sort(hitSet);
 		for(String key : hitSet) {
@@ -180,6 +180,7 @@ public class ParseCHS11scaffoldToCARDdbBlastResults {
 			out.write(parseOutput(key, best));
 			
 			//write other hits if they are overlapping; otherwise make new set
+			boolean ol = false;//true if any genes overlap
 			it = set.iterator();
 			Set<String> nonOverlap = new HashSet<String>();
 			String[] b = best.split(";");
@@ -195,10 +196,14 @@ public class ParseCHS11scaffoldToCARDdbBlastResults {
 							(hstart <= bstop && hstop >= bstop) ||
 							(hstart >= bstart && hstop <= bstop)) {//overlapping or contained within
 						out.write(h + "|");
+						ol = true;
 					} else {
 						nonOverlap.add(h);
 					}
 				}
+			}
+			if(!ol) {
+				out.write("NA");
 			}
 			out.write("\n");
 			if(!nonOverlap.isEmpty()) {
