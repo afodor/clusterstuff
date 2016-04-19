@@ -19,6 +19,7 @@ pVal$car_v_sus = log10(pVal$car_v_sus)
 pVal$car_v_sus[pVal$aveCar > pVal$aveSus] = -1 * pVal$car_v_sus[pVal$aveCar > pVal$aveSus]
 pVal$res_v_sus = log10(pVal$res_v_sus)
 pVal$res_v_sus[pVal$aveRes > pVal$aveSus] = -1 * pVal$res_v_sus[pVal$aveRes > pVal$aveSus]
+write.table(pVal, "chs11_klebpneu_rbh_pvalues_log.txt", sep="\t", row.names = F, col.names = T, quote=F)
 jpeg("chs11_klebpneu_rbh_pValueComparisons.jpg", height=600, width=1800, res=150)
 col = ifelse(pVal$geneID %in% carHom$CHS11.gene, "red", "black")
 col[pVal$geneID %in% carVar$CHS11.gene] = "red"
