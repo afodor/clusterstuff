@@ -34,8 +34,9 @@ public class MakeMetaphlanScripts {
 				script.write("export mpa_dir=" + MET_DIR + "\n");
 				//run metaphlan
 				script.write("metaphlan2.py " + fastaDir + f + 
-						" --bowtie2out --input_type fasta --nproc 2 > " + 
-						outDir + "metaphlan_" + sample + "\n");
+						" --bowtie2out " + outDir + "metaphlan_bowtie2_" + sample + ".bz2" +
+						" --input_type fasta --nproc 2 > " + 
+						outDir + "metaphlan_table_" + sample + "\n");
 				script.close();
 				
 				runAll.write("qsub -q \"Cobra\" " + scriptName + "\n");
