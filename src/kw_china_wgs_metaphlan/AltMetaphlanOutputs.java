@@ -31,13 +31,21 @@ public class AltMetaphlanOutputs {
 				String sample = f.replace("_1.fa", "");
 				
 				//run metaphlan with marker abundance output
-				script.write("metaphlan2.py " + outDir + "met_bowtie2_" + sample + ".bz2 " +
+				/*script.write("metaphlan2.py " + outDir + "met_bowtie2_" + sample + ".bz2 " +
 						" --input_type bowtie2out --nproc 2 -t marker_ab_table > " + 
 						outDir + "metaphlan_marker_ab_table_" + sample + "\n");
 				//run metaphlan with clade profiles
 				script.write("metaphlan2.py " + outDir + "met_bowtie2_" + sample + ".bz2 " +
 						" --input_type bowtie2out --nproc 2 -t clade_profiles > " + 
-						outDir + "metaphlan_clade_table_" + sample + "\n");
+						outDir + "metaphlan_clade_table_" + sample + "\n");*/
+				//run metaphlan with relative abundance with read stats
+				script.write("metaphlan2.py " + outDir + "met_bowtie2_" + sample + ".bz2 " +
+						" --input_type bowtie2out --nproc 2 -t rel_ab_w_read_stats > " + 
+						outDir + "metaphlan_rel_ab_w_read_stats_table_" + sample + "\n");
+				//run metaphlan with clade profiles
+				script.write("metaphlan2.py " + outDir + "met_bowtie2_" + sample + ".bz2 " +
+						" --input_type bowtie2out --nproc 2 -t reads_map > " + 
+						outDir + "metaphlan_reads_map_" + sample + "\n");
 				
 			}
 		}
