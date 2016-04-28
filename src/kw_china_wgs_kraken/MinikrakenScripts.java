@@ -25,7 +25,7 @@ public class MinikrakenScripts {
 			if(fa.endsWith(".fa")) {
 				String name = fa.replace("_1.fa", "");
 				String scriptName = "mini_" + name;
-				String seqName = "minikrakenSeqs_" + name;
+				String seqName = OUT_DIR + "minikrakenSeqs_" + name;
 				
 				//generate script
 				BufferedWriter script = new BufferedWriter(new FileWriter(new File(
