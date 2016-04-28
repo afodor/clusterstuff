@@ -37,7 +37,7 @@ public class MinikrakenScripts {
 				//translate output
 				script.write(KRAKEN_DIR + "kraken-translate --db "
 						+ DB + " " + seqName + " > " + seqName + "_translate\n");
-				script.write(KRAKEN_DIR + "kraken-translate --mpa-report --db "
+				script.write(KRAKEN_DIR + "kraken-translate --mpa-format --db "
 						+ DB + " " + seqName + " > " + seqName + "_mpa\n");
 				script.close();
 				
