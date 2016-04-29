@@ -43,7 +43,7 @@ public class TrimFastqForStitching {
 					fwd_out = new BufferedWriter(
 							new FileWriter(
 									new File(
-											OUT_DIR + rName[0] + "_R1.fasta")));
+											OUT_DIR + rName[0] + "_R1.fastq")));
 				} else if(r.contains("R2")) {
 					rev_in = new BufferedReader(
 							new InputStreamReader(
@@ -53,7 +53,7 @@ public class TrimFastqForStitching {
 					rev_out = new BufferedWriter(
 							new FileWriter(
 									new File(
-											OUT_DIR + rName[0] + "_R2.fasta")));
+											OUT_DIR + rName[0] + "_R2.fastq")));
 				}
 			}
 			
