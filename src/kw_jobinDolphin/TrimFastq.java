@@ -12,7 +12,7 @@ import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.util.zip.GZIPInputStream;
 
-public class FastqToFasta {
+public class TrimFastq {
 	public static final String FQ_DIR = "/nobackup/afodor_research/kwinglee/jobin/dolphin/fastqs/";
 	public static final String FA_DIR = "/nobackup/afodor_research/kwinglee/jobin/dolphin/fastas/";
 	/*public static final String F16S = "CCTACGGGNGGCWGCAG";//forward 16s primer
