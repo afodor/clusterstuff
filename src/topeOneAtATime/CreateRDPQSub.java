@@ -1,4 +1,4 @@
-package topeJan2016TwoRunsMerged;
+package topeOneAtATime;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -11,7 +11,7 @@ public class CreateRDPQSub
 
 	public static final File FASTA_DIR = new File("/nobackup/afodor_research/topeOneAtATime/file3/fastaOut");
 	public static final File RDP_OUT_DIR = new File( "/nobackup/afodor_research/topeOneAtATime/file3/rdpOut");
-	public static final File RDP_RUN_DIR = new File("//nobackup/afodor_research/topeOneAtATime/file3/scripts);
+	public static final File RDP_RUN_DIR = new File("/nobackup/afodor_research/topeOneAtATime/file3/scripts");
 	
 	public static void main(String[] args) throws Exception
 	{
