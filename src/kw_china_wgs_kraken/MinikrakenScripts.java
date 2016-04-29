@@ -14,7 +14,7 @@ public class MinikrakenScripts {
 	public static String DB = KRAKEN_DIR + "minikraken_20141208";
 	public static String FASTA_DIR = "/nobackup/afodor_research/kwinglee/china/wgs/fastas/";
 	public static String SCRIPT_DIR = "/nobackup/afodor_research/kwinglee/china/wgs/krakenScripts/";
-	public static String OUT_DIR = "/nobackup/afodor_research/kwinglee/china/wgs/minikrakenResults";
+	public static String OUT_DIR = "/nobackup/afodor_research/kwinglee/china/wgs/minikrakenResults/";
 	
 	public static void main(String[] args) throws IOException {
 		//set up script to run everything
