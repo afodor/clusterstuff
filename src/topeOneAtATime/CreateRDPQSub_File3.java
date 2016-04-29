@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.HashMap;
 
-public class CreateRDPQSub
+public class CreateRDPQSub_File3
 {
 	private static int NUM_CORES =100;
 
