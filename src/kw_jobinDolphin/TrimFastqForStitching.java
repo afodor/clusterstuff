@@ -23,7 +23,9 @@ public class TrimFastqForStitching {
 	public static void main(String[] args) throws Exception {
 		String[] samples = new File(FQ_DIR).list();
 			
-		for(String s : samples) {
+		//for(String s : samples) {
+		String s = samples[0];
+		System.out.println(s);
 			String path = FQ_DIR + s + "/Data/Intensities/BaseCalls/";
 			String[] reads = new File(path).list();
 			//fastq readers
@@ -85,6 +87,9 @@ public class TrimFastqForStitching {
 							+ rseq + "\n"
 							+ r3 + "\n"
 							+ rqual + "\n");
+				} else {
+					System.out.println("R1" + f1 + "\n" + f2 + "\n"
+							+ "R2" + r1 + "\n" + r2 + "\n");
 				}
 				f1 = fwd_in.readLine();
 				r1 = rev_in.readLine();
@@ -96,7 +101,7 @@ public class TrimFastqForStitching {
 			rev_in.close();
 			fwd_out.close();
 			rev_out.close();
-		}
+		//}
 	}
 
 }
