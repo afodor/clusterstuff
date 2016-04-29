@@ -8,12 +8,12 @@ rm(list=ls())
 setwd("/nobackup/afodor_research/kwinglee/cre/outbreaker")
 # setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE\\paper1_analysisMethods\\figures")
 
-library(ape)
-library(adegenet)
-library(igraph)
-library(RBGL)
-library(Rgraphviz)
-library(outbreaker)
+require(ape)
+require(adegenet)
+require(igraph)
+require(RBGL)
+require(Rgraphviz)
+require(outbreaker)
 
 max.dist = 11
 
