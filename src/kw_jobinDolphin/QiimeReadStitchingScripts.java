@@ -33,7 +33,7 @@ public class QiimeReadStitchingScripts {
 				script.write("module load qiime\n");
 				script.write("join_paired_ends.py -f " + FQ_DIR + fq
 						+ " -r " + FQ_DIR + sample + "_R2.fastq -o " +
-						OUT_DIR + sample + "_stitched\n");
+						OUT_DIR + "\n");
 				script.close();
 				
 				//add to runAll
