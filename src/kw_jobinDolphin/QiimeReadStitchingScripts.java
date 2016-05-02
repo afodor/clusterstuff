@@ -1,5 +1,5 @@
 /*
- * generates the scripts for stitching reads using QIIME 1.9.1
+ * generates the scripts for stitching reads using fastq-join
  */
 package kw_jobinDolphin;
 
@@ -29,11 +29,15 @@ public class QiimeReadStitchingScripts {
 				//individual script
 				BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 						SCRIPT_DIR + name)));
+				/*//for qiime
 				script.write("module load openmpi\n");
 				script.write("module load qiime\n");
 				script.write("join_paired_ends.py -f " + FQ_DIR + fq
 						+ " -r " + FQ_DIR + sample + "_R2.fastq -o " +
-						OUT_DIR + sample + "%.fastq\n");
+						OUT_DIR + sample + "%.fastq\n");*/
+				script.write("/users/kwinglee/ea-utils-read-only/clipper/fastq-join " +
+						FQ_DIR + fq + " " + FQ_DIR + sample + "_R2.fastq" + 
+						" -o " + OUT_DIR + "" + sample + "%.fastq");
 				script.close();
 				
 				//add to runAll
