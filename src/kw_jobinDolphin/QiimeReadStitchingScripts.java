@@ -37,7 +37,7 @@ public class QiimeReadStitchingScripts {
 						OUT_DIR + sample + "%.fastq\n");*/
 				script.write("/users/kwinglee/ea-utils-read-only/clipper/fastq-join " +
 						FQ_DIR + fq + " " + FQ_DIR + sample + "_R2.fastq" + 
-						" -o " + OUT_DIR + "" + sample + "%.fastq");
+						" -o " + OUT_DIR + sample  + "." + "%.fastq");
 				script.close();
 				
 				//add to runAll
