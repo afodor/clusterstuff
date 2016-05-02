@@ -18,7 +18,7 @@ public class MakeQiimeMap {
 		for(File f : files) {
 			String name = f.getName();
 			if(name.endsWith("join.fasta")) {
-				String id = name.replaceAll(".join.fasta", "");
+				String id = name.replaceAll(".join.fasta", "").replace("-", "");//water samples have dashes (not allowed)
 				out.write(id + "\tX\tX\t" + name + "\n");
 			}
 		}
