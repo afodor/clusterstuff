@@ -7,11 +7,11 @@ import java.util.HashMap;
 
 public class CreateRDPQSub
 {
-	private static int NUM_CORES =100;
+	private static int NUM_CORES =42;
 
-	public static final File FASTA_DIR = new File("/nobackup/afodor_research/sangMay2016/forwardFasta");
-	public static final File RDP_RUN_DIR = new File( "/nobackup/afodor_research/sangMay2016/forwardScripts");
-	public static final File RDP_OUT_DIR = new File("/nobackup/afodor_research/sangMay2016/forwardRDP");
+	public static final File FASTA_DIR = new File("/nobackup/afodor_research/sangMay2016/fastaOut");
+	public static final File RDP_RUN_DIR = new File( "/nobackup/afodor_research/sangMay2016/scripts");
+	public static final File RDP_OUT_DIR = new File("/nobackup/afodor_research/sangMay2016/rdpOut");
 	
 	public static void main(String[] args) throws Exception
 	{
