@@ -14,7 +14,7 @@ public class WriteSparseThreeColumn
 	private static int THRESHOLD = 50;
 	
 	private static File SPREADSHEET_DIR =
-			new File("/nobackup/afodor_research/sangMay2016/forwardSpreadsheets");
+			new File("/nobackup/afodor_research/sangMay2016/spreadsheets");
 	
 	public static void main(String[] args) throws Exception
 	{
