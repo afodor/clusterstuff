@@ -84,6 +84,7 @@ public class MergeKrakenOutput {
 		//map of level -> (map of taxa -> counts)
 		HashMap<String, HashMap<String, Integer[]>> split = 
 				new HashMap<String, HashMap<String, Integer[]>>();
+		split.put("domain", new HashMap<String, Integer[]>());
 		split.put("phylum", new HashMap<String, Integer[]>());
 		split.put("class", new HashMap<String, Integer[]>());
 		split.put("order", new HashMap<String, Integer[]>());
@@ -96,39 +97,62 @@ public class MergeKrakenOutput {
 			Integer[] counts = baseMap.get(k);
 			String[] sp = k.split("\\|");//Pattern.quote("|")
 			String name = sp[0];
-			if(!sp[0].equals("d__Bacteria")) {
-				System.out.println("non bacterial domain " + sp[0]);
-			}
-			if(sp.length > 7) {
+			/*if(sp.length > 7) {
 				System.out.println("more taxonomy than d to s " + k);
 			}
-			if(sp.length >= 2 && sp[1].startsWith("p__")) {
-				name += "|" + sp[1];
-				addCounts(split.get("phylum"), name, counts);
-				if(sp.length >= 3 && sp[2].startsWith("c__")) {
-					name += "|" + sp[2];
-					addCounts(split.get("class"), name, counts);
-					if(sp.length >= 4 && sp[3].startsWith("o__")) {
-						name += "|" + sp[3];
-						addCounts(split.get("order"), name, counts);
-						if(sp.length >= 5 && sp[4].startsWith("f__")) {
-							name += "|" + sp[4];
-							addCounts(split.get("family"), name, counts);
-							if(sp.length >= 6 && sp[5].startsWith("g__")) {
-								name += "|" + sp[5];
-								addCounts(split.get("genus"), name, counts);
-								if(sp.length >= 7 && sp[6].startsWith("s__")) {
-									name += "|" + sp[6];
-									addCounts(split.get("species"), name, counts);
+			if(sp.length >= 1 && !sp[0].startsWith("d__Viruses")) {//bacteria and archaea
+				addCounts(split.get("domain"), name, counts);
+				if(sp.length >= 2 && sp[1].startsWith("p__")) {
+					name += "|" + sp[1];
+					addCounts(split.get("phylum"), name, counts);
+					if(sp.length >= 3 && sp[2].startsWith("c__")) {
+						name += "|" + sp[2];
+						addCounts(split.get("class"), name, counts);
+						if(sp.length >= 4 && sp[3].startsWith("o__")) {
+							name += "|" + sp[3];
+							addCounts(split.get("order"), name, counts);
+							if(sp.length >= 5 && sp[4].startsWith("f__")) {
+								name += "|" + sp[4];
+								addCounts(split.get("family"), name, counts);
+								if(sp.length >= 6 && sp[5].startsWith("g__")) {
+									name += "|" + sp[5];
+									addCounts(split.get("genus"), name, counts);
+									if(sp.length >= 7 && sp[6].startsWith("s__")) {
+										name += "|" + sp[6];
+										addCounts(split.get("species"), name, counts);
+									}
 								}
 							}
 						}
 					}
 				}
-			}
+			} else if(sp.length >= 1 && sp[0].startsWith("d__Viruses")) {*/	
+			//viruses missing some levels so adjust accordingly
+				addCounts(split.get("domain"), name, counts);
+
+				for(int i = 1; i < sp.length; i++) {
+					name += "|" + sp[i];
+					if(sp[i].startsWith("p__")) {
+						addCounts(split.get("phylum"), name, counts);
+					} else if(sp[i].startsWith("c__")) {
+						addCounts(split.get("class"), name, counts);
+					} else if(sp[i].startsWith("o__")) {
+						addCounts(split.get("order"), name, counts);
+					} else if(sp[i].startsWith("f__")) {
+						addCounts(split.get("family"), name, counts);
+					} else if(sp[i].startsWith("g__")) {
+						addCounts(split.get("genus"), name, counts);
+					} else if(sp[i].startsWith("s__")) {
+						addCounts(split.get("species"), name, counts);
+					} else {
+						System.out.println("unknown phylogeny: " + sp[i] + " " + k);
+					}
+				}
+			//}
 		}
 		
 		//write tables
+		writeSplitTable(tables, "domain", split.get("domain"));
 		writeSplitTable(tables, "phylum", split.get("phylum"));
 		writeSplitTable(tables, "class", split.get("class"));
 		writeSplitTable(tables, "order", split.get("order"));
