@@ -1,0 +1,32 @@
+##Perform ANOSIM to get R from stool data
+##BF+ vs BF-, IL10, wk12
+##5/10/16
+
+rm(list=ls())
+
+library(vegan)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis3\\BFminus v BFplus ApcIL10 wk12\\stool")
+
+taxaLevels <- c("phylum","class","order","family","genus")
+
+res = data.frame(level=vector(), r=vector(), p=vector())
+for(taxa in taxaLevels ) {
+  print(taxa)
+  fname = paste("BFminus_v_plus_IL10_wk12_stool_", taxa, "_taxaAsCol_logNorm.txt", sep="")
+  table = read.table(fname, sep="\t", header=T, comment.char="")
+  nc = ncol(table)
+  cc = c("numeric", rep("character", 3), rep(c("numeric", "character"), 3), "character", "numeric", rep("character", 3), rep("numeric", nc-15))
+  table = read.table(fname, sep="\t", header=T, comment.char="", na.strings="N/A", colClasses=cc)
+  
+  ##BF+NF vs. BF+T
+  dat = table[, -(1:17)]
+  ##group
+  an = anosim(dat, table$Group..Associated.with.)
+  r = an$statistic
+  p = an$signif
+  
+  res = rbind(res, data.frame(level=taxa, r=r, p=p))
+}
+res$pAdj = p.adjust(res$p, method="BH")
+write.table(res, "BFminus_v_plus_IL10_wk12_stool_anosim.txt", sep="\t", quote=F, row.names=F, col.names=T)
