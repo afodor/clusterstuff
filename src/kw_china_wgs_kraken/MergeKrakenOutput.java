@@ -20,7 +20,7 @@ import java.util.HashMap;
 public class MergeKrakenOutput {
 	public static String DIR = "/nobackup/afodor_research/kwinglee/china/wgs/minikrakenResults/";
 	public static int NUM_SAMP = 40;//number of samples
-	
+
 	public static void main(String[] args) throws Exception {
 		//get list of files to read
 		ArrayList<String> tables = new ArrayList<String> ();
@@ -34,10 +34,10 @@ public class MergeKrakenOutput {
 		if(tables.size() != NUM_SAMP) {
 			throw new Exception("Wrong number mpa files " + tables.size());
 		}
-		
+
 		//map of phylogeny to counts for each sample
 		HashMap<String, Integer[]> baseMap = new HashMap<String, Integer[]>();
-		
+
 		//files set up as read phylogeny -> convert to counts
 		for(int i = 0; i < tables.size(); i++) {
 			BufferedReader br = new BufferedReader(new FileReader(
@@ -56,7 +56,7 @@ public class MergeKrakenOutput {
 			}
 			br.close();
 		}
-		
+
 		////write table
 		ArrayList<String> keys = new ArrayList<String>(baseMap.keySet());
 		Collections.sort(keys);
@@ -79,7 +79,7 @@ public class MergeKrakenOutput {
 			out.write("\n");
 		}
 		out.close();
-		
+
 		////split by level
 		//map of level -> (map of taxa -> counts)
 		HashMap<String, HashMap<String, Integer[]>> split = 
@@ -91,43 +91,13 @@ public class MergeKrakenOutput {
 		split.put("family", new HashMap<String, Integer[]>());
 		split.put("genus", new HashMap<String, Integer[]>());
 		split.put("species", new HashMap<String, Integer[]>());
-		
+
 		//for each key, split by level and add counts
 		for(String k : keys) {
-			Integer[] counts = baseMap.get(k);
-			String[] sp = k.split("\\|");//Pattern.quote("|")
-			String name = sp[0];
-			/*if(sp.length > 7) {
-				System.out.println("more taxonomy than d to s " + k);
-			}
-			if(sp.length >= 1 && !sp[0].startsWith("d__Viruses")) {//bacteria and archaea
-				addCounts(split.get("domain"), name, counts);
-				if(sp.length >= 2 && sp[1].startsWith("p__")) {
-					name += "|" + sp[1];
-					addCounts(split.get("phylum"), name, counts);
-					if(sp.length >= 3 && sp[2].startsWith("c__")) {
-						name += "|" + sp[2];
-						addCounts(split.get("class"), name, counts);
-						if(sp.length >= 4 && sp[3].startsWith("o__")) {
-							name += "|" + sp[3];
-							addCounts(split.get("order"), name, counts);
-							if(sp.length >= 5 && sp[4].startsWith("f__")) {
-								name += "|" + sp[4];
-								addCounts(split.get("family"), name, counts);
-								if(sp.length >= 6 && sp[5].startsWith("g__")) {
-									name += "|" + sp[5];
-									addCounts(split.get("genus"), name, counts);
-									if(sp.length >= 7 && sp[6].startsWith("s__")) {
-										name += "|" + sp[6];
-										addCounts(split.get("species"), name, counts);
-									}
-								}
-							}
-						}
-					}
-				}
-			} else if(sp.length >= 1 && sp[0].startsWith("d__Viruses")) {*/	
-			//viruses missing some levels so adjust accordingly
+			if(!k.equals("root")) {
+				Integer[] counts = baseMap.get(k);
+				String[] sp = k.split("\\|");//Pattern.quote("|")
+				String name = sp[0];
 				addCounts(split.get("domain"), name, counts);
 
 				for(int i = 1; i < sp.length; i++) {
@@ -148,9 +118,9 @@ public class MergeKrakenOutput {
 						System.out.println("unknown phylogeny: " + sp[i] + " " + k);
 					}
 				}
-			//}
+			}
 		}
-		
+
 		//write tables
 		writeSplitTable(tables, "domain", split.get("domain"));
 		writeSplitTable(tables, "phylum", split.get("phylum"));
@@ -174,14 +144,14 @@ public class MergeKrakenOutput {
 			counts[i] += newCounts[i];
 		}
 	}
-	
+
 	//writes the table for the given level containing the given counts
 	public static void writeSplitTable(ArrayList<String> tables, 
 			String level, 
 			HashMap<String, Integer[]> map) throws IOException {
 		BufferedWriter out = new BufferedWriter(new FileWriter(
 				new File(DIR + "minikraken_merged_" + level + ".txt")));
-		
+
 		//write header
 		out.write("taxa\ttaxonomy");
 		for(String t: tables) {
@@ -189,7 +159,7 @@ public class MergeKrakenOutput {
 			out.write("\t" + sample);
 		}
 		out.write("\n");
-		
+
 		//write counts
 		ArrayList<String> keys = new ArrayList<String>(map.keySet());
 		Collections.sort(keys);
@@ -204,7 +174,7 @@ public class MergeKrakenOutput {
 			}
 			out.write("\n");
 		}
-				
+
 		out.close();
 	}
 }
