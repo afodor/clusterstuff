@@ -193,6 +193,7 @@ public class MergeKrakenOutput {
 		//write counts
 		ArrayList<String> keys = new ArrayList<String>(map.keySet());
 		Collections.sort(keys);
+		System.out.println(level + " " + keys.size());
 		for(String k : keys) {
 			String[] ksplit = k.split("\\|");
 			out.write(ksplit[ksplit.length-1].replaceFirst(".__", "") +
