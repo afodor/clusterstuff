@@ -1,0 +1,55 @@
+##DC pcoa, BF- vs BF+, IL10 only, wk12 only
+##5/10/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis3\\BFminus v BFplus ApcIL10 wk12\\DC")
+
+library("vegan")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+pdf("BFminus_v_plus_IL10_wk12_dc_pcoa.pdf")
+for(taxa in taxaLevels) {
+  fname = paste("BFminus_v_plus_IL10_wk12_dc_", taxa, "_taxaAsCol_logNorm.txt", sep="")
+  table = read.table(fname, sep="\t", header=T, comment.char="")
+  nc = ncol(table)
+  cc = c(rep(c("numeric", "character"),5), "character", "numeric", rep("character", 3), rep("numeric", nc-15))
+  table = read.table(fname, sep="\t", header=T, comment.char="", na.strings="N/A", colClasses=cc)
+  
+  ##pcoa with vegan capscale
+  par(mar=c(4,4,4,5), xpd=T)
+  pcoa <- capscale(table[,-(1:17)]~1,distance="bray")
+  
+  ##color by group
+  groups = sort(unique(table$Group..Associated.with.)) #[1] "BF-" "BF+"
+  col = c("deepskyblue", "black")
+  colors = rep(NA, nrow(table))
+  for(j in 1:length(groups)) {
+    colors[table$Group..Associated.with.==groups[j]] = col[j]
+  }
+  
+  ##get percent variance
+  eig = eigenvals(pcoa)
+  if(any(eig<0)) {#need to check there are no negatives
+    warning(paste("NEGATIVE EIGENVALUES-percent variance is incorrect for ", taxa, sep=""))
+  }
+  # cumsum(eig/sum(eig))
+  var = eig/sum(eig)*100 
+  
+  ##plot
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], 
+       xlab=paste("MDS1 (", format(var[[1]], digits=0), "%)", sep=""), 
+       ylab=paste("MDS2 (", format(var[[2]], digits=0), "%)", sep=""), 
+       main=taxa, 
+       col=colors, pch=16)
+  
+  legend("topright", inset=c(-.15,0),
+         legend=groups,
+         col=col,
+         pch=16)
+  
+  ##write axes
+  combine = cbind(table[,1:17], pcoa$CA$u)
+  write.table(combine, sep="\t", file=paste("BFminus_v_plus_IL10_wk12_dc_pcoaCorrected_", taxa, ".txt",sep=""), quote=F, row.names=F, col.names=T)
+}
+dev.off()

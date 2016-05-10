@@ -1,0 +1,123 @@
+##linear model for DC dataset analysis BF+ vs. BF- all samples, IL10 only, wk 12 only
+##5/10/16
+
+rm(list=ls())
+
+library("pscl")
+library("lmtest")
+library("nlme")
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\analysis3\\BFminus v BFplus ApcIL10 wk12\\DC")
+
+taxaLevels <- c("phylum","class","order","family","genus")
+
+for(taxa in taxaLevels ) {
+  print(taxa)
+  fname = paste("BFminus_v_plus_IL10_wk12_dc_", taxa, "_taxaAsCol_logNorm.txt", sep="")
+  table = read.table(fname, sep="\t", header=T, comment.char="")
+  nc = ncol(table)
+  cc = c(rep(c("numeric", "character"),5), "character", "numeric", rep("character", 3), rep("numeric", nc-15))
+  table = read.table(fname, sep="\t", header=T, comment.char="", na.strings="N/A", colClasses=cc)
+  
+  ##output vectors
+  names = vector()
+  meanTaxa = vector()
+  meanBFminus = vector()
+  meanBFplus = vector()
+  pGroup = vector()
+  pCage = vector()
+  pGroupTtest = vector()
+  pGroupMixed = vector()
+  pGroupWilcox = vector()
+  index = 1
+  
+  pdf(paste("BFminus_v_plus_IL10_wk12_dc_otuModel_boxplots_", taxa, ".pdf", sep=""), height=10)
+  
+  for( i in 18:nc) {
+    if(sum(table[,i] != 0 ) > nrow(table) / 4) { 
+      
+      names[index] <- names(table)[i]
+      bug <- table[,i]
+      meanTaxa[index] <- mean(bug)
+      meanBFminus[index] <- mean(bug[table$Group..Associated.with.=="BF-"])
+      meanBFplus[index] <- mean(bug[table$Group..Associated.with.=="BF+"])
+      group <- factor(table$Group..Associated.with.)
+      cage <- factor(paste(table$Genotype, table$Cage.Number, sep=":"))
+      
+      myFrame <- data.frame(bug, group, cage)
+      
+      pGroupTtest[index] = t.test(bug~group)$p.value
+      fullModelLME <- lme(bug~group , method="REML", random = ~1|cage, data = myFrame)		
+      pGroupMixed[index] = anova(fullModelLME)$"p-value"[2]
+      reducedModel = lm(bug~group)
+      pCage[index] = anova(fullModelLME, reducedModel)$"p-value"[2]
+      pGroup[index] = anova(reducedModel)$"Pr(>F)"[1]
+      pGroupWilcox[index] = wilcox.test(bug~group, exact=F)$p.value
+      
+      ##plots
+      graphMain =  paste( names[index], 
+                          ":\n pGroup= ", format(pGroup[index],digits=3), 
+                          "; pCage= ", format(pCage[index], digits=3), sep="")
+      
+     
+      ##color by group
+      groups = sort(unique(table$Group..Associated.with.)) #[1] "BF-" "BF+"
+      col = c("deepskyblue", "black")
+      colors = rep(NA, nrow(table))
+      for(j in 1:length(groups)) {
+        colors[table$Group..Associated.with.==groups[j]] = col[j]
+      }
+      
+      ##shape by time; have open shape for ApcMin and closed for KO
+      shapes=16
+      
+      ##additional variables
+      sex <- factor(table$Sex)
+      mouse <- paste(cage, table$Mouse.., sep=":")
+      # mouse[duplicated(mouse)] = paste(mouse[duplicated(mouse)], ".1", sep="")#the two duplicated mice in BF+T in separate cages, from #1 and #2
+      mouse = factor(mouse)
+      
+      par(mfrow=c(2,1), oma=c(.5,.5,5,.5), mar=c(6,4,1,1))
+      ##group
+      boxplot(bug~group, xlab="", ylab="relative abundance", main="group")
+      points(bug~group, col=colors, pch=shapes)
+      ##cage
+      boxplot(bug~factor(cage), xlab="", ylab="relative abundance", las=2, main="cage", cex.axis=.5)
+      points(bug~factor(cage), col=colors, pch=shapes)
+      
+      ##add title
+      par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+      plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+      legend("top", horiz=T, legend=graphMain, cex=1.2, bty="n")
+      
+      index=index+1
+      
+    }
+  }
+  
+  dFrame <- data.frame(names, meanTaxa, meanBFminus, meanBFplus, pGroupMixed, pCage, pGroup, pGroupTtest, pGroupWilcox)
+  dFrame$pAdjGroupMixed <- p.adjust(dFrame$pGroupMixed, method = "BH")
+  dFrame$pAdjCage <- p.adjust(dFrame$pCage, method="BH")
+  dFrame$pAdjGroup <- p.adjust(dFrame$pGroup, method = "BH")
+  dFrame$pAdjGroupTtest <- p.adjust(dFrame$pGroupTtest, method = "BH")
+  dFrame$pAdjGroupWilcox <- p.adjust(dFrame$pGroupWilcox, method = "BH")
+  dFrame <- dFrame[order(dFrame$pGroupMixed),]
+  write.table(dFrame, file=paste("BFminus_v_plus_IL10_wk12_dc_otuModel_pValues_", taxa, ".txt",sep=""), sep="\t",row.names=FALSE, quote=F)
+  dev.off()
+}
+
+pdf("BFminus_v_plus_IL10_wk12_dc_otuModel_pvalueHistogram.pdf")
+for(taxa in taxaLevels ) {
+  res = read.table(paste("BFminus_v_plus_IL10_wk12_dc_otuModel_pValues_", taxa, ".txt",sep=""), header=T, sep="\t",
+                   colClasses = c("character", rep("numeric", 13)))
+  par(mfrow=c(3,2), mar=c(5.1,4.1,4.1,2.1))
+  hist(res$pAdjGroupMixed, main="mixed model group", xlab="p values")
+  hist(res$pAdjCage, main="mixed model cage", xlab="p values")
+  hist(res$pAdjGroup, main="linear model group", xlab="p values")
+  hist(res$pAdjGroupTtest, main="t-test group", xlab="p values")
+  hist(res$pAdjGroupWilcox, main="Wilcox test group", xlab="p values")
+  par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+  plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+  legend("top", horiz=T, legend=taxa, cex=2, bty="n")
+}
+dev.off()
