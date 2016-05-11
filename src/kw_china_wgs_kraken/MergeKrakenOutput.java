@@ -1,5 +1,5 @@
 /*
- * Merge the kraken outputs for China WGS 
+ * Merge the kraken outputs for China WGS, filtering human reads 
  * also generate tables split by level
  * 
  * kraken output is two columns: read classification
@@ -16,9 +16,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 public class MergeKrakenOutput {
 	public static String DIR = "/nobackup/afodor_research/kwinglee/china/wgs/minikrakenResults/";
+	public static String HGDIR= "/nobackup/afodor_research/kwinglee/china/wgs/alignToHG38/";
 	public static int NUM_SAMP = 40;//number of samples
 
 	public static void main(String[] args) throws Exception {
@@ -42,19 +45,31 @@ public class MergeKrakenOutput {
 		for(int i = 0; i < tables.size(); i++) {
 			BufferedReader br = new BufferedReader(new FileReader(
 					new File(DIR + tables.get(i))));
+			String sample = tables.get(i).replace("minikrakenSeqs_", "").replace("_mpa", "");
+			Set<String> human = getHumanReads(sample);
+			int numHum = 0;//number human reads seen
 			String line = br.readLine();
 			while(line != null) {
-				String taxa = line.split("\t")[1];
-				if(!baseMap.containsKey(taxa)) {//taxa not previously seen; add array of zeros
-					Integer[] counts = new Integer[tables.size()];
-					Arrays.fill(counts, 0);
-					baseMap.put(taxa, counts);
+				String[] sp = line.split("\t");
+				String taxa = sp[1];
+				if(!human.contains(sp[0])) {
+					if(!baseMap.containsKey(taxa)) {//taxa not previously seen; add array of zeros
+						Integer[] counts = new Integer[tables.size()];
+						Arrays.fill(counts, 0);
+						baseMap.put(taxa, counts);
+					}
+					Integer[] counts = baseMap.get(taxa);
+					counts[i]++;
+					line = br.readLine();
+				} else if(!sp[1].equals("root")) {
+					br.close();
+					throw new Exception("human read mapped " + sample + " " + sp[0]);
+				} else {
+					numHum++;
 				}
-				Integer[] counts = baseMap.get(taxa);
-				counts[i]++;
-				line = br.readLine();
 			}
 			br.close();
+			System.out.println(sample + " " + numHum + "human reads");
 		}
 
 		////write table
@@ -176,5 +191,20 @@ public class MergeKrakenOutput {
 		}
 
 		out.close();
+	}
+	
+	//for the given genome, return the set of reads that mapped to the human genome
+	public static Set<String> getHumanReads(String sample) throws IOException {
+		Set<String> reads = new HashSet<String>();
+		BufferedReader map = new BufferedReader(new FileReader(new File(
+				HGDIR + sample + "_1.hg38.mapped.sam")));
+		String line = map.readLine();
+		while(line != null) {
+			String[] sp = line.split("\t");
+			reads.add(sp[0] + "/1");//kegg results and fasta have extra /1
+			line = map.readLine();
+		}
+		map.close();
+		return(reads);
 	}
 }
