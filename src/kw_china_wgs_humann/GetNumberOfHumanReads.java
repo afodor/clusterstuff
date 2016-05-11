@@ -38,7 +38,7 @@ public class GetNumberOfHumanReads {
 				totReads+=count;
 			}
 		}
-		out.write("average\t" + (double)(totReads / numSamps) + "\n");
+		out.write("average\t" + ((double)totReads / numSamps) + "\n");
 		out.close();
 	}
 
