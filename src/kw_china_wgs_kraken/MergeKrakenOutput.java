@@ -62,8 +62,8 @@ public class MergeKrakenOutput {
 					counts[i]++;
 					line = br.readLine();
 				} else if(!sp[1].equals("root")) {
-					br.close();
-					throw new Exception("human read mapped " + sample + " " + sp[0]);
+					System.err.println("human read mapped " + sample + " " + line);
+					numHum++;
 				} else {
 					numHum++;
 				}
