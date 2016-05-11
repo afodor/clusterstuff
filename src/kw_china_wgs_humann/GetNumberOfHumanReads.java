@@ -19,8 +19,11 @@ public class GetNumberOfHumanReads {
 		BufferedWriter out = new BufferedWriter(new FileWriter(new File(
 				HGDIR + "numberHumanReadsPerSample.txt")));
 		out.write("sample\tnumberReadsAlignedToHg38\n");
+		int numSamps = 0;
+		int totReads = 0;
 		for(String f : files) {
 			if(f.endsWith(".hg38.mapped.sam")) {
+				numSamps++;
 				int count = 0;
 				BufferedReader br = new BufferedReader(new FileReader(new File(
 						HGDIR + f)));
@@ -32,8 +35,10 @@ public class GetNumberOfHumanReads {
 				br.close();
 				out.write(f.replace("_1.hg38.mapped.sam", "") + 
 						"\t" + count + "\n");
+				totReads+=count;
 			}
 		}
+		out.write("average\t" + (double)(totReads / numSamps) + "\n");
 		out.close();
 	}
 
