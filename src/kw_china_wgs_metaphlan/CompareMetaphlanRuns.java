@@ -20,6 +20,7 @@ public class CompareMetaphlanRuns {
 		for(String f : files) {
 			if(f.startsWith("metaphlan_table_filterHuman")) {
 				String sample = f.replace("metaphlan_table_filterHuman_", "");
+				script.write("echo " + sample + "\n");
 				script.write("diff " + filterDir + "metaphlan_table_filterHuman_"
 						+ sample + " " + otherDir + "metaphlan_table_" + sample + "\n");
 			}
