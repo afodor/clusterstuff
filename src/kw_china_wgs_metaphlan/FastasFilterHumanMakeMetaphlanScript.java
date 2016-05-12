@@ -33,9 +33,10 @@ public class FastasFilterHumanMakeMetaphlanScript {
 			if(f.endsWith(".fa")) {
 				//generate fasta file with reads mapped to hg38 removed
 				String sample = f.replace("_1.fa", "");
+				String faname = sample + "_filterHuman.fa";
 				Set<String> human = getHumanReads(sample);
 				BufferedWriter out = new BufferedWriter(new FileWriter(new File
-						(FAOUTDIR + sample + "_filterHuman.fa")));
+						(FAOUTDIR + faname)));
 				BufferedReader fa = new BufferedReader(new FileReader(new File(
 						FADIR + f)));
 				String line = fa.readLine();
@@ -67,7 +68,7 @@ public class FastasFilterHumanMakeMetaphlanScript {
 				script.write("export PATH=" + MET_DIR + ":" + BOW_DIR + ":$PATH\n");
 				script.write("export mpa_dir=" + MET_DIR + "\n");
 				//run metaphlan
-				script.write("metaphlan2.py " + FAOUTDIR + f + 
+				script.write("metaphlan2.py " + FAOUTDIR + faname + 
 						" --bowtie2out " + METOUTDIR + "met_bowtie2_filterHuman_" + sample + ".bz2" +
 						" --input_type fasta --nproc 2 > " + 
 						METOUTDIR + "metaphlan_table_filterHuman_" + sample + "\n");
