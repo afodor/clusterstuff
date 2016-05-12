@@ -60,13 +60,13 @@ public class MergeKrakenOutput {
 					}
 					Integer[] counts = baseMap.get(taxa);
 					counts[i]++;
-					line = br.readLine();
 				} else if(!sp[1].equals("root")) {
 					System.err.println("human read mapped " + sample + " " + line);
 					numHum++;
 				} else {
 					numHum++;
 				}
+				line = br.readLine();
 			}
 			br.close();
 			System.out.println(sample + " " + numHum + "human reads");
