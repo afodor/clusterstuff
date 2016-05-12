@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 public class GetNumberOfHumanReads {
 	public static String HGDIR = "/nobackup/afodor_research/kwinglee/china/wgs/alignToHG38/";
@@ -23,19 +25,19 @@ public class GetNumberOfHumanReads {
 		int totReads = 0;
 		for(String f : files) {
 			if(f.endsWith(".hg38.mapped.sam")) {
+				Set<String> reads = new HashSet<String>();//instead of counting, use set to remove reads that may have mapped twice
 				numSamps++;
-				int count = 0;
 				BufferedReader br = new BufferedReader(new FileReader(new File(
 						HGDIR + f)));
 				String line = br.readLine();
 				while(line != null) {
-					count++;
+					reads.add(line.split("\t")[0]);
 					line = br.readLine();
 				}
 				br.close();
 				out.write(f.replace("_1.hg38.mapped.sam", "") + 
-						"\t" + count + "\n");
-				totReads+=count;
+						"\t" + reads.size() + "\n");
+				totReads+=reads.size();
 			}
 		}
 		out.write("average\t" + ((double)totReads / numSamps) + "\n");
