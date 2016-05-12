@@ -69,7 +69,7 @@ public class MergeKrakenOutput {
 				line = br.readLine();
 			}
 			br.close();
-			System.out.println(sample + " " + numHum + "human reads");
+			System.out.println(sample + " " + numHum + " human reads");
 		}
 
 		////write table

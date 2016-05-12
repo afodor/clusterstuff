@@ -68,7 +68,7 @@ public class FastasFilterHumanMakeMetaphlanScript {
 				script.write("export mpa_dir=" + MET_DIR + "\n");
 				//run metaphlan
 				script.write("metaphlan2.py " + FAOUTDIR + f + 
-						" --bowtie2out " + METOUTDIR + "met_bowtie2_" + sample + ".bz2" +
+						" --bowtie2out " + METOUTDIR + "met_bowtie2_filterHuman_" + sample + ".bz2" +
 						" --input_type fasta --nproc 2 > " + 
 						METOUTDIR + "metaphlan_table_filterHuman_" + sample + "\n");
 				script.close();
