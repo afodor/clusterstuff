@@ -23,7 +23,7 @@ public class ParseRDPforQIIME {
 			String[] sp = line.split("\t");
 			out.write(sp[0] + "\t");//the id
 			String taxa = "";
-			int index = 5;
+			int index = 6;
 			//domain
 			while(index < sp.length && !sp[index].equals("domain")) {
 				index += 3;
