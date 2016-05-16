@@ -74,7 +74,7 @@ public class ParseRDPforQIIME {
 			System.out.println();
 			return(";");
 		} else if(Double.parseDouble(splits[index+1]) > 0.8) {
-			return(splits[index-1].replace("\"", "").replace(" ", "_") + ";");
+			return(splits[index-1].replace("\"", "") + ";");
 		} else {
 			return(";");
 		}
@@ -90,7 +90,7 @@ public class ParseRDPforQIIME {
 			System.out.println();
 			return(prefix + "|");
 		} else if(Double.parseDouble(splits[index+1]) > 0.8) {
-			return(prefix + splits[index-1].replace("\"", "") + "|");
+			return(prefix + splits[index-1].replace("\"", "").replace(" ", "_") + "|");
 		} else {
 			return(prefix + "|");
 		}
