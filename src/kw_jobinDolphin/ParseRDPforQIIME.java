@@ -25,8 +25,13 @@ public class ParseRDPforQIIME {
 			String taxa = "";
 			int index = 5;
 			//domain
-			while(!sp[index].equals("domain")) {
+			while(index < sp.length && !sp[index].equals("domain")) {
 				index += 3;
+			}
+			if(index >= sp.length) {
+				System.out.println("Missing domain:");
+				System.out.println(line);
+				continue;
 			}
 			if(Double.parseDouble(sp[index+1]) > 0.8) {
 				taxa += sp[index-1].replace("\"", "") + ";";
@@ -36,8 +41,13 @@ public class ParseRDPforQIIME {
 			index += 3;
 			
 			//phylum
-			while(!sp[index].equals("phylum")) {
+			while(index < sp.length && !sp[index].equals("phylum")) {
 				index += 3;
+			}
+			if(index >= sp.length) {
+				System.out.println("Missing phylum:");
+				System.out.println(line);
+				continue;
 			}
 			if(Double.parseDouble(sp[index+1]) > 0.8) {
 				taxa += sp[index-1].replace("\"", "") + ";";
@@ -47,8 +57,13 @@ public class ParseRDPforQIIME {
 			index += 3;
 			
 			//class
-			while(!sp[index].equals("class")) {
+			while(index < sp.length && !sp[index].equals("class")) {
 				index += 3;
+			}
+			if(index >= sp.length) {
+				System.out.println("Missing class:");
+				System.out.println(line);
+				continue;
 			}
 			if(Double.parseDouble(sp[index+1]) > 0.8) {
 				taxa += sp[index-1].replace("\"", "") + ";";
@@ -58,8 +73,13 @@ public class ParseRDPforQIIME {
 			index += 3;
 			
 			//order
-			while(!sp[index].equals("order")) {
+			while(index < sp.length && !sp[index].equals("order")) {
 				index += 3;
+			}
+			if(index >= sp.length) {
+				System.out.println("Missing order:");
+				System.out.println(line);
+				continue;
 			}
 			if(Double.parseDouble(sp[index+1]) > 0.8) {
 				taxa += sp[index-1].replace("\"", "") + ";";
@@ -69,8 +89,13 @@ public class ParseRDPforQIIME {
 			index += 3;
 			
 			//family
-			while(!sp[index].equals("family")) {
+			while(index < sp.length && !sp[index].equals("family")) {
 				index += 3;
+			}
+			if(index >= sp.length) {
+				System.out.println("Missing family:");
+				System.out.println(line);
+				continue;
 			}
 			if(Double.parseDouble(sp[index+1]) > 0.8) {
 				taxa += sp[index-1].replace("\"", "") + ";";
@@ -80,8 +105,13 @@ public class ParseRDPforQIIME {
 			index += 3;
 			
 			//genus
-			while(!sp[index].equals("genus")) {
+			while(index < sp.length && !sp[index].equals("genus")) {
 				index += 3;
+			}
+			if(index >= sp.length) {
+				System.out.println("Missing genus:");
+				System.out.println(line);
+				continue;
 			}
 			if(Double.parseDouble(sp[index+1]) > 0.8) {
 				taxa += sp[index-1].replace("\"", "");
