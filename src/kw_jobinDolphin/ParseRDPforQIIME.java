@@ -1,6 +1,7 @@
 /*
  * parse RDP classification of abundant OTU results
  * for QIIME blast_fragments chimera detector
+ * and in format like metaphlan mpa output
  */
 package kw_jobinDolphin;
 
@@ -19,110 +20,78 @@ public class ParseRDPforQIIME {
 				DIR + "dolphinAbundantOTU.cons.rdpTaxonomy")));
 		BufferedWriter out = new BufferedWriter(new FileWriter(new File(
 				DIR + "dolphinAbundantOTU.cons.rdpTaxonomy.forQiime")));
+		BufferedWriter outmpa = new BufferedWriter(new FileWriter(new File(
+				DIR + "dolphinAbundantOTU.cons.rdpTaxonomy.mpa")));
 		for(String line = in.readLine(); line != null; line=in.readLine()) {
 			String[] sp = line.split("\t");
 			out.write(sp[0] + "\t");//the id
 			String taxa = "";
-			int index = 6;
+			String mpa = "";
 			//domain
-			while(index < sp.length && !sp[index].equals("domain")) {
-				index += 3;
-			}
-			if(index >= sp.length) {
-				System.out.println("Missing domain:");
-				System.out.println(line);
-				continue;
-			}
-			if(Double.parseDouble(sp[index+1]) > 0.8) {
-				taxa += sp[index-1].replace("\"", "") + ";";
-			} else {
-				taxa += ";";
-			}
-			index += 3;
+			taxa += getTaxonomyName(sp, "domain");
+			mpa += getTaxonomyNameMpa(sp, "domain");
 			
 			//phylum
-			while(index < sp.length && !sp[index].equals("phylum")) {
-				index += 3;
-			}
-			if(index >= sp.length) {
-				System.out.println("Missing phylum:");
-				System.out.println(line);
-				continue;
-			}
-			if(Double.parseDouble(sp[index+1]) > 0.8) {
-				taxa += sp[index-1].replace("\"", "") + ";";
-			} else {
-				taxa += ";";
-			}
-			index += 3;
+			taxa += getTaxonomyName(sp, "phylum");
+			mpa += getTaxonomyNameMpa(sp, "phylum");
 			
 			//class
-			while(index < sp.length && !sp[index].equals("class")) {
-				index += 3;
-			}
-			if(index >= sp.length) {
-				System.out.println("Missing class:");
-				System.out.println(line);
-				continue;
-			}
-			if(Double.parseDouble(sp[index+1]) > 0.8) {
-				taxa += sp[index-1].replace("\"", "") + ";";
-			} else {
-				taxa += ";";
-			}
-			index += 3;
+			taxa += getTaxonomyName(sp, "class");
+			mpa += getTaxonomyNameMpa(sp, "class");
 			
 			//order
-			while(index < sp.length && !sp[index].equals("order")) {
-				index += 3;
-			}
-			if(index >= sp.length) {
-				System.out.println("Missing order:");
-				System.out.println(line);
-				continue;
-			}
-			if(Double.parseDouble(sp[index+1]) > 0.8) {
-				taxa += sp[index-1].replace("\"", "") + ";";
-			} else {
-				taxa += ";";
-			}
-			index += 3;
+			taxa += getTaxonomyName(sp, "order");
+			mpa += getTaxonomyNameMpa(sp, "order");
 			
 			//family
-			while(index < sp.length && !sp[index].equals("family")) {
-				index += 3;
-			}
-			if(index >= sp.length) {
-				System.out.println("Missing family:");
-				System.out.println(line);
-				continue;
-			}
-			if(Double.parseDouble(sp[index+1]) > 0.8) {
-				taxa += sp[index-1].replace("\"", "") + ";";
-			} else {
-				taxa += ";";
-			}
-			index += 3;
+			taxa += getTaxonomyName(sp, "family");
+			mpa += getTaxonomyNameMpa(sp, "family");
 			
 			//genus
-			while(index < sp.length && !sp[index].equals("genus")) {
-				index += 3;
-			}
-			if(index >= sp.length) {
-				System.out.println("Missing genus:");
-				System.out.println(line);
-				continue;
-			}
-			if(Double.parseDouble(sp[index+1]) > 0.8) {
-				taxa += sp[index-1].replace("\"", "");
-			} 
-			index += 3;
+			taxa += getTaxonomyName(sp, "genus").replace(";", "");
+			mpa += getTaxonomyNameMpa(sp, "genus").replace("\\|", "");
 			
 			out.write(taxa + "\n");
+			outmpa.write(mpa + "\n");
 		}
 		
 		in.close();
 		out.close();
+		outmpa.close();
 	}
 
+	public static String getTaxonomyName(String[] splits, String level) {
+		int index = 6;
+		while(index < splits.length && !splits[index].equals(level)) {
+			index += 3;
+		}
+		if(index >= splits.length) {
+			System.out.println("Missing " + level + ":");
+			for(int i = 0; i < splits.length; i++) {
+				System.out.print(splits[i] + "\t");
+			}
+			System.out.println();
+			return(";");
+		} else if(Double.parseDouble(splits[index+1]) > 0.8) {
+			return(splits[index-1].replace("\"", "") + ";");
+		} else {
+			return(";");
+		}
+	}
+	
+	public static String getTaxonomyNameMpa(String[] splits, String level) {
+		int index = 6;
+		String prefix = level.charAt(0) + "__";
+		while(index < splits.length && !splits[index].equals(level)) {
+			index += 3;
+		}
+		if(index >= splits.length) {
+			System.out.println();
+			return(prefix + "|");
+		} else if(Double.parseDouble(splits[index+1]) > 0.8) {
+			return(prefix + splits[index-1].replace("\"", "") + "|");
+		} else {
+			return(prefix + "|");
+		}
+	}
 }
