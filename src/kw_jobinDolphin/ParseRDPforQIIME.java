@@ -25,6 +25,7 @@ public class ParseRDPforQIIME {
 		for(String line = in.readLine(); line != null; line=in.readLine()) {
 			String[] sp = line.split("\t");
 			out.write(sp[0] + "\t");//the id
+			outmpa.write(sp[0] + "\t");//the id
 			String taxa = "";
 			String mpa = "";
 			//domain
@@ -49,7 +50,7 @@ public class ParseRDPforQIIME {
 			
 			//genus
 			taxa += getTaxonomyName(sp, "genus").replace(";", "");
-			mpa += getTaxonomyNameMpa(sp, "genus").replace("\\|", "");
+			mpa += getTaxonomyNameMpa(sp, "genus").replaceAll("\\|", "");
 			
 			out.write(taxa + "\n");
 			outmpa.write(mpa + "\n");
@@ -73,7 +74,7 @@ public class ParseRDPforQIIME {
 			System.out.println();
 			return(";");
 		} else if(Double.parseDouble(splits[index+1]) > 0.8) {
-			return(splits[index-1].replace("\"", "") + ";");
+			return(splits[index-1].replace("\"", "").replace(" ", "_") + ";");
 		} else {
 			return(";");
 		}
