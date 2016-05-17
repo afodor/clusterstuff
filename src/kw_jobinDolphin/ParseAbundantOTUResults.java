@@ -20,6 +20,7 @@ public class ParseAbundantOTUResults {
 	
 	public static void main(String[] args) throws IOException {
 		//get list of samples
+		SAMPLES = new ArrayList<String>();
 		String[] files = new File("/nobackup/afodor_research/kwinglee/jobin/dolphin/stitched_reads").list();
 		for(String f: files) {
 			if(f.endsWith(".join.fasta")) {
