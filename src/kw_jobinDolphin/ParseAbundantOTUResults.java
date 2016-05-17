@@ -1,5 +1,6 @@
 /*
  * parse AbundantOTU+ results into OTU table
+ * no chimeric sequences so don't need to filter
  * 5/17/16
  */
 package kw_jobinDolphin;
@@ -36,6 +37,7 @@ public class ParseAbundantOTUResults {
 			SAMPLES.add(line.split("\t")[0]);
 			line = qiimeMap.readLine();
 		}
+		qiimeMap.close();
 		Collections.sort(SAMPLES);
 		
 		//write header/set up output file
