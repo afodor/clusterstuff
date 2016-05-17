@@ -1,0 +1,129 @@
+##format merged metaphlan table for downstream analyses
+##split by level, log
+##5/9/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\China\\metaphlan2 analysis")
+
+table = read.table("metaphlan_table_merged.txt", sep="\t", stringsAsFactors = F) #lose the sampleID row
+
+##format IDs
+table[1,] = gsub("metaphlan_table_filterHuman_", "", table[1,])
+table[1,1] = "sampleID" #ID causes errors in Excel
+
+write.table(table, "metaphlan_taxaAsRow.txt", sep="\t", row.names = F, col.names = F, quote=F)
+write.table(t(table), "metaphlan_taxaAsCol.txt", sep="\t", row.names = F, col.names = F, quote=F)
+
+##add metadata
+table = read.table("metaphlan_taxaAsCol.txt", sep="\t", header=T,
+                   colClasses = c("character", rep("numeric", 689)))
+meta = read.table("..\\rdp\\genus_taxaAsColumns_relAbunFwd.txt", sep="\t", header=T,
+                  colClasses=c(rep("character", 3), rep("numeric", 347)))
+meta = meta[meta$timepoint=="first_A",1:2]
+meta$sampleID = gsub("_1", "", meta$sampleID)
+table = merge(meta, table, by="sampleID")
+write.table(table, "metaphlan_taxaAsCol_withRurUrb.txt", sep="\t", row.names = F, col.names = T, quote=F)
+
+####split by level; counts are not cumulative but for every level so just split based on lowest level in taxa
+# split = data.frame()
+# split = rbind(split, table[1,])
+ty = data.frame(sampleID=table$sampleID, ruralUrban=table$ruralUrban, stringsAsFactors = F)#type?
+sp = data.frame(sampleID=table$sampleID, ruralUrban=table$ruralUrban, stringsAsFactors = F)#species
+gen = data.frame(sampleID=table$sampleID, ruralUrban=table$ruralUrban, stringsAsFactors = F)#genus
+fam = data.frame(sampleID=table$sampleID, ruralUrban=table$ruralUrban, stringsAsFactors = F)#family
+ord = data.frame(sampleID=table$sampleID, ruralUrban=table$ruralUrban, stringsAsFactors = F)#order
+cl = data.frame(sampleID=table$sampleID, ruralUrban=table$ruralUrban, stringsAsFactors = F)#class
+phy = data.frame(sampleID=table$sampleID, ruralUrban=table$ruralUrban, stringsAsFactors = F)#phylum
+kin = data.frame(sampleID=table$sampleID, ruralUrban=table$ruralUrban, stringsAsFactors = F)#kingdom
+
+for(c in 3:ncol(table)) {
+  name = names(table)[c]
+  if(grepl("t__", name)) {
+    ty = cbind(ty, table[,c])
+    names(ty)[ncol(ty)] = name
+  } else if(grepl("s__", name)) {
+    sp = cbind(sp, table[,c])
+    names(sp)[ncol(sp)] = name
+  } else if(grepl("g__", name)) {
+    gen = cbind(gen, table[,c])
+    names(gen)[ncol(gen)] = name
+  } else if(grepl("f__", name)) {
+    fam = cbind(fam, table[,c])
+    names(fam)[ncol(fam)] = name
+  } else if(grepl("o__", name)) {
+    ord = cbind(ord, table[,c])
+    names(ord)[ncol(ord)] = name
+  } else if(grepl("c__", name)) {
+    cl = cbind(cl, table[,c])
+    names(cl)[ncol(cl)] = name
+  } else if(grepl("p__", name)) {
+    phy = cbind(phy, table[,c])
+    names(phy)[ncol(phy)] = name
+  } else if(grepl("k__", name)) {
+    kin = cbind(kin, table[,c])
+    names(kin)[ncol(kin)] = name
+  } else {
+    print(name)
+  }
+}
+
+rowSums(ty[,-(1:2)])
+rowSums(sp[,-(1:2)])
+rowSums(gen[,-(1:2)])
+rowSums(fam[,-(1:2)])
+rowSums(ord[,-(1:2)])
+rowSums(cl[,-(1:2)])
+rowSums(phy[,-(1:2)])
+rowSums(kin[,-(1:2)])
+
+#get number in each group
+ncol(kin)-2
+ncol(phy)-2
+ncol(cl)-2
+ncol(ord)-2
+ncol(fam)-2
+ncol(gen)-2
+ncol(sp)-2
+ncol(ty)-2
+
+write.table(ty, "metaphlan_split_subtype.txt", sep="\t", row.names = F, col.names = T, quote = F)
+write.table(sp, "metaphlan_split_species.txt", sep="\t", row.names = F, col.names = T, quote = F)
+write.table(gen, "metaphlan_split_genus.txt", sep="\t", row.names = F, col.names = T, quote = F)
+write.table(fam, "metaphlan_split_family.txt", sep="\t", row.names = F, col.names = T, quote = F)
+write.table(ord, "metaphlan_split_order.txt", sep="\t", row.names = F, col.names = T, quote = F)
+write.table(cl, "metaphlan_split_class.txt", sep="\t", row.names = F, col.names = T, quote = F)
+write.table(phy, "metaphlan_split_phylum.txt", sep="\t", row.names = F, col.names = T, quote = F)
+write.table(kin, "metaphlan_split_kingdom.txt", sep="\t", row.names = F, col.names = T, quote = F)
+
+##log normalize
+count = 0.000001
+levels = c("kingdom", "phylum", "class", "order", "family", "genus", "species", "subtype")
+prefix = "metaphlan_split_"
+for(lev in levels) {
+  print(lev)
+  fileName = paste(prefix, lev, ".txt", sep="")
+  table = read.table(fileName, header=T, sep="\t")
+  nc = ncol(table)
+  table = read.table(fileName, header=T, sep="\t", 
+                     colClasses=c(rep("character",2), rep("numeric", nc-2)))
+  
+#   for(c in 3:nc) {
+#     for(r in 1:nrow(table)) {
+#       table[r,c] = log10(table[r,c] + count)
+#     }
+#   }
+  
+  lognorm = table
+  nc = ncol(lognorm)
+  start = 3 #first taxa after metadata
+  n = rowSums(table[,start:nc]) #number of reads in each sample
+  sumX = sum(n) #total number of reads in all samples = sum(table[,4:nc])
+  N = nrow(table) #total number of samples
+  for(col in start:nc) {
+    for(row in 1:N) {
+      lognorm[row, col] = log10(table[row, col]/n[row] * sumX/N + 1)
+    }
+  }
+  
+  write.table(lognorm, paste(prefix, "log_", lev, ".txt", sep=""), sep="\t", row.names = F, col.names = T, quote = F)
+}
