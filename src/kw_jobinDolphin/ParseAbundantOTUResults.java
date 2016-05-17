@@ -16,16 +16,25 @@ import java.util.HashMap;
 
 public class ParseAbundantOTUResults {
 	public static String DIR = "/nobackup/afodor_research/kwinglee/jobin/dolphin/abunOTU/";
+	public static String QIIMEMAP = "/nobackup/afodor_research/kwinglee/jobin/dolphin/qiimeMap.txt";
 	public static ArrayList<String> SAMPLES;
 	
 	public static void main(String[] args) throws IOException {
 		//get list of samples
 		SAMPLES = new ArrayList<String>();
-		String[] files = new File("/nobackup/afodor_research/kwinglee/jobin/dolphin/stitched_reads").list();
+		/*String[] files = new File("/nobackup/afodor_research/kwinglee/jobin/dolphin/stitched_reads").list();
 		for(String f: files) {
 			if(f.endsWith(".join.fasta")) {
-				SAMPLES.add(f.replace(".join.fasta", ""));
+				SAMPLES.add(f.replace(".join.fasta", "").replace("-", ""));//water samples are Water-Sample-# in stitched and WaterSample# in cluster file
 			}
+		}*/
+		BufferedReader qiimeMap = new BufferedReader(new FileReader(new File(
+				QIIMEMAP)));
+		String line = qiimeMap.readLine();
+		line = qiimeMap.readLine();
+		while(line != null) {
+			SAMPLES.add(line.split("\t")[0]);
+			line = qiimeMap.readLine();
 		}
 		Collections.sort(SAMPLES);
 		
@@ -49,7 +58,7 @@ public class ParseAbundantOTUResults {
 		HashMap<String, Integer> map = new HashMap<String, Integer>();
 		String name = "";
 		int numSeqs = 0;
-		for(String line = clust.readLine(); line != null; line=clust.readLine()) {
+		for(line = clust.readLine(); line != null; line=clust.readLine()) {
 			if(line.startsWith("#")) {
 				if(numSeqs > 0) {
 					printCounts(out, name, numSeqs, map);
@@ -67,6 +76,7 @@ public class ParseAbundantOTUResults {
 				}
 			}
 		}
+		printCounts(out, name, numSeqs, map);
 		
 		clust.close();
 		out.close();
