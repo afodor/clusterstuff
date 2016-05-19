@@ -32,8 +32,8 @@ div = read.table("metaphlan_diversity_log_pValues.txt", sep="\t", header=T,
 
 ####function to set up graph
 ##polygon of significance region
--log10(min(mds[,-1], div[,-c(1, 10:17)])) #[1] 3.816269
-ymax = 4
+# -log10(min(mds[,-1], div[,-c(1, 10:17)])) #[1] 5.972999
+ymax = ceiling(-log10(min(mds[,-1], div[,-c(1, 10:17)])))
 drawBase <- function() {
   plot.new()
   plot.window(xlim=c(1,length(xvals)), ylim=c(0,ymax))
