@@ -96,7 +96,7 @@ write.table(phy, "metaphlan_split_phylum.txt", sep="\t", row.names = F, col.name
 write.table(kin, "metaphlan_split_kingdom.txt", sep="\t", row.names = F, col.names = T, quote = F)
 
 ##log normalize
-count = 0.000001
+count = 0.00001
 levels = c("kingdom", "phylum", "class", "order", "family", "genus", "species", "subtype")
 prefix = "metaphlan_split_"
 for(lev in levels) {
@@ -107,23 +107,24 @@ for(lev in levels) {
   table = read.table(fileName, header=T, sep="\t", 
                      colClasses=c(rep("character",2), rep("numeric", nc-2)))
   
-#   for(c in 3:nc) {
-#     for(r in 1:nrow(table)) {
-#       table[r,c] = log10(table[r,c] + count)
+  for(c in 3:nc) {
+    for(r in 1:nrow(table)) {
+      table[r,c] = log10(table[r,c] + count) + -log10(count)
+    }
+  }
+  write.table(table, paste(prefix, "log_", lev, ".txt", sep=""), sep="\t", row.names = F, col.names = T, quote = F)
+  
+#   lognorm = table
+#   nc = ncol(lognorm)
+#   start = 3 #first taxa after metadata
+#   n = rowSums(table[,start:nc]) #number of reads in each sample
+#   sumX = sum(n) #total number of reads in all samples = sum(table[,4:nc])
+#   N = nrow(table) #total number of samples
+#   for(col in start:nc) {
+#     for(row in 1:N) {
+#       lognorm[row, col] = log10(table[row, col]/n[row] * sumX/N + 1)
 #     }
 #   }
   
-  lognorm = table
-  nc = ncol(lognorm)
-  start = 3 #first taxa after metadata
-  n = rowSums(table[,start:nc]) #number of reads in each sample
-  sumX = sum(n) #total number of reads in all samples = sum(table[,4:nc])
-  N = nrow(table) #total number of samples
-  for(col in start:nc) {
-    for(row in 1:N) {
-      lognorm[row, col] = log10(table[row, col]/n[row] * sumX/N + 1)
-    }
-  }
-  
-  write.table(lognorm, paste(prefix, "log_", lev, ".txt", sep=""), sep="\t", row.names = F, col.names = T, quote = F)
+  # write.table(lognorm, paste(prefix, "log_", lev, ".txt", sep=""), sep="\t", row.names = F, col.names = T, quote = F)
 }
