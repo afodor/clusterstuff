@@ -20,7 +20,8 @@ graph<-function(met, rrna, taxa, minus1=T) {
   abline(a=0, b=1, col="green", lwd=2.5)#identity line
   mod1 = lm(rrna~met)
   abline(mod1, col="blue", lwd=2.5)#linear model
-  lab=paste("R^2=", round(summary(mod1)$r.squared,2), sep="")
+  # lab=paste("R^2=", round(summary(mod1)$r.squared,2), sep="")
+  lab=paste("p=", format(anova(mod1)$`Pr(>F)`[1],digits=2), sep="")
   legend("bottomright", legend=lab, text.col="blue", cex=2, bty="n")
 }
 
