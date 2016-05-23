@@ -1,0 +1,93 @@
+##plot p-values for humann results
+##MDS1, 2 and diversity
+##linear model and Wilcox, corrected and uncorrected
+##5/23/16
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\China\\humann")
+
+levels = c("module", "pathway")
+xvals = 1:length(levels)
+
+####MDS p values
+mds = data.frame(x=xvals, mds1lm=rep(NA, length(levels)), mds2lm=rep(NA, length(levels)),
+                 mds1wilc=rep(NA, length(levels)), mds2wilc=rep(NA, length(levels)))
+for(i in xvals) {
+  lev = levels[i]
+  table = read.table(paste("humann_pcoaModel_pValues_", lev, ".txt", sep=""), sep="\t", header=T, 
+                     colClasses=c("character", rep("numeric", 8)))
+  mds1row = table$names=="MDS1"
+  mds$mds1lm[i] = table$pValuesUrbanRural[mds1row]
+  mds$mds1wilc[i] = table$pValuesUrbanRuralWilcox[mds1row]
+  
+  mds2row = table$names=="MDS2"
+  mds$mds2lm[i] = table$pValuesUrbanRural[mds2row]
+  mds$mds2wilc[i] = table$pValuesUrbanRuralWilcox[mds2row]
+}
+
+####diversity p values
+div = read.table("humann_diversity_pValues.txt", sep="\t", header=T,
+                 colClasses = c("character", rep("numeric", 8)))
+
+####function to set up graph
+##polygon of significance region
+ymax = ceiling(-log10(min(mds[,-1], div[,-c(1, 10:17)], na.rm=T)))
+drawBase <- function() {
+  plot.new()
+  plot.window(xlim=c(1,length(xvals)), ylim=c(0,ymax))
+  polygon(x=c(0, 0, 9, 9), y=c(-log10(0.05), ymax+.15, ymax+.15, -log10(0.05)), col="ivory2", border=NA)
+  par(new=T)
+  plot(1, type="n", xaxt="n", xlim=c(1,length(xvals)), ylim=c(0,ymax), 
+       ylab="-log10(urban/rural P-value)", xlab="", cex.lab=1.2)
+  axis(1, at=1:length(xvals), labels=F) #add x-axis ticks
+  text(x=1:length(xvals), y=par("usr")[3]-.1, srt=22, adj=1, xpd=T, 
+       labels=levels, cex=1) #rotate x-axis labels
+}
+
+##function to draw lines of the given color  and pattern (lty) for the given rural urban pvalues (pvals)
+drawLines <- function(pvals, color, lty, pch) {
+  lines(x=xvals, y=-log10(pvals), lty=lty, col=color, lwd=1.5)
+  points(x=xvals, y=-log10(pvals), pch=pch, col=color, cex=1.5)
+}
+
+jpeg("humann_pValue_plot.jpg", height=1000, width=3000, res=300)
+# par(mfrow=c(1,3))
+layout(matrix(1:3, ncol=3, nrow=1), widths=c(2,2,1))
+mdCol = "red"
+divCol="blue"
+####linear model
+drawBase()
+title("linear model")
+##mds
+drawLines(mds$mds1lm, mdCol, 1, 15)
+drawLines(mds$mds2lm, mdCol, 2, 16)
+##diversity
+drawLines(div$pRichness, divCol, 1, 15)
+drawLines(div$pInvSimpson, divCol, 2, 16)
+drawLines(div$pShannon, divCol, 3, 17)
+drawLines(div$pShanEvenness, divCol, 4, 18)
+
+####wilcox
+drawBase()
+title("Wilcox test")
+##mds
+drawLines(mds$mds1wilc, mdCol, 1, 15)
+drawLines(mds$mds2wilc, mdCol, 2, 16)
+##diversity
+drawLines(div$pRichnessWilcox, divCol, 1, 15)
+drawLines(div$pInvSimpsonWilcox, divCol, 2, 16)
+drawLines(div$pShannonWilcox, divCol, 3, 17)
+drawLines(div$pShanEvennessWilcox, divCol, 4, 18)
+
+####legend
+par(mar=c(0,0,4.2,0))
+plot.new()
+legend("topleft",
+       legend=c("MDS1", "MDS2", "Richness", "Inverse Simpson Index", "Shannon Index", "Shannon Evenness"),
+       col=c(rep(mdCol, 2), rep(divCol, 4)),
+       lty=c(1:2, 1:4), 
+       pch=c(15:16, 15:18),
+       cex=1.2)
+
+dev.off()

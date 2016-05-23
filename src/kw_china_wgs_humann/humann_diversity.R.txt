@@ -1,0 +1,93 @@
+##comparison of diversity measures (measured by humann)
+##5/23/16
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\China\\humann")
+
+levels = c("module", "pathway")
+
+pVal = data.frame(level=levels, 
+                  pRichness = rep(NA, length(levels)), pRichnessWilcox = rep(NA, length(levels)), 
+                  pInvSimpson = rep(NA, length(levels)), pInvSimpsonWilcox = rep(NA, length(levels)),
+                  pShannon = rep(NA, length(levels)), pShannonWilcox = rep(NA, length(levels)),
+                  pShanEvenness = rep(NA, length(levels)), pShanEvennessWilcox = rep(NA, length(levels)),
+                  stringsAsFactors = F)
+
+jpeg("humann_diversity.jpg", height=4200, width=1000, res=300)
+layout(matrix(1:8, nrow=4, ncol=2, byrow=F), heights=1, widths=1)
+par(cex.axis=1.5, cex.lab=1.5, cex.main=1.9, oma=c(2,0,0,0), mar=c(4.1, 6, 4,.5))
+
+for(lev in levels) {
+  print(lev)
+  file = paste("humann_keggAsCol_log_", lev, ".txt", sep="")
+  table = read.table(file, header=T, sep="\t")
+  ncol = ncol(table)
+  table = read.table(file, header=T, sep="\t", colClasses=c(rep("character", 2), rep("numeric", ncol-2)))
+  
+  #####plot and calculate p-values
+  urb = factor(table$ruralUrban)
+  col=ifelse(urb=="rural", "blue", "red")
+  points=16
+  x=ifelse(urb=="rural", 1, 2)
+  row = pVal$level==lev
+  
+  ##richness
+  rich = table$Richness
+  boxplot(rich~urb, ylab="Richness")
+  points(rich~jitter(x), col=col, pch=points)
+  p = anova(lm(rich~urb))$`Pr(>F)`[1]
+  mtext(paste("p=",format(p, digits=2),sep=""), side=3, line=0)
+  mtext(lev, side = 3, line = 2, cex=1.5)
+  pVal$pRichness[row] = p
+  pVal$pRichnessWilcox[row] = wilcox.test(rich~urb, exact=F)$p.value
+  
+  ##inverse simpson
+  inv = table$InverseSimpson
+  boxplot(inv~urb, ylab="Inverse Simpson Index")
+  points(inv~jitter(x), col=col, pch=points)
+  p = anova(lm(inv~urb))$`Pr(>F)`[1]
+  mtext(paste("p=",format(p, digits=2),sep=""), side=3, line=0)
+  pVal$pInvSimpson[row] = p
+  pVal$pInvSimpsonWilcox[row] = wilcox.test(inv~urb, exact=F)$p.value
+  
+  ##shannon
+  shan = table$Shannon
+  boxplot(shan~urb, ylab="Shannon Index")
+  points(shan~jitter(x), col=col, pch=points)
+  p = anova(lm(shan~urb))$`Pr(>F)`[1]
+  mtext(paste("p=",format(p, digits=2),sep=""), side=3, line=0)
+  pVal$pShannon[row] = p
+  pVal$pShannonWilcox[row] = wilcox.test(shan~urb, exact=F)$p.value
+  
+  ##evenness
+  even = table$Pielou
+  boxplot(even~urb, ylab="Pielou Evenness")
+  points(even~jitter(x), col=col, pch=points)
+  p = anova(lm(even~urb))$`Pr(>F)`[1]
+  mtext(paste("p=",format(p, digits=2),sep=""), side=3, line=0)
+  pVal$pShanEvenness[row] = p
+  pVal$pShanEvennessWilcox[row] = wilcox.test(even~urb, exact=F)$p.value
+  
+#   #####correct p-values
+#   pVal$pAdjRichness = p.adjust(pVal$pRichness, method="BH")
+#   pVal$pAdjRichnessWilcox = p.adjust(pVal$pRichnessWilcox, method="BH")
+#   pVal$pAdjInvSimpson = p.adjust(pVal$pInvSimpson, method="BH")
+#   pVal$pAdjInvSimpsonWilcox = p.adjust(pVal$pInvSimpsonWilcox, method="BH")
+#   pVal$pAdjShannon = p.adjust(pVal$pShannon, method="BH")
+#   pVal$pAdjShannonWilcox = p.adjust(pVal$pShannonWilcox, method="BH")
+#   pVal$pAdjShanEvenness = p.adjust(pVal$pShanEvenness, method="BH")
+#   pVal$pAdjShanEvennessWilcox = p.adjust(pVal$pShanEvennessWilcox, method="BH")
+}
+
+write.table(pVal, "humann_diversity_pValues.txt", 
+            col.names = T, row.names = F, quote=F, sep="\t")
+
+##legend
+par(oma=c(0,0,0,0), mar=c(0.1,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+legend("bottom", cex=1.5, horiz=T,
+       legend=c("rural", "urban"),
+       col=c("blue", "red"),
+       pch=16)
+dev.off()
