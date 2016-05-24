@@ -1,0 +1,85 @@
+##linear model for stool OTU data
+##run on data with samples < 31 ng removed
+##analyze feeding tube data
+##5/23/16
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\GA-stools\\rdpResults\\stool")
+
+taxaLevels <- c("phylum","class","order","family","genus")
+
+##get feeding tube metadata
+assay = read.table("..\\..\\Stool for Microbiome with deliverry mode -no DOB 11-2015.txt", header=T, sep="\t", comment.char='')#table with group
+tubeData = read.table("..\\..\\Stool for Microbiome divided into OG dwell groups.txt", sep="\t", header=T,
+                      colClasses = "character", comment.char = "")
+assay = assay[,c(9,1)]
+tubeData = tubeData[,c(1, 10, 11)]
+meta = merge(assay, tubeData, by="Subject..")
+meta = meta[meta$Group != "discard",]
+names(meta)[2] = "id"
+
+for(taxa in taxaLevels) {
+  print(taxa)
+  inFileName = paste("stool_taxaAsCol_logNorm_with_metadata_remove31ng_", taxa, ".txt", sep ="")
+  myT = read.table(inFileName,header=TRUE,sep="\t")
+  numCols = ncol(myT)
+  myT = read.table(inFileName,header=TRUE,sep="\t",colClasses=c("character", "character", "numeric", "numeric", "character", rep("numeric", numCols-5)))
+  myT = merge(meta, myT, by="id")
+  
+  ##remove samples with < 1000 reads
+  myT = myT[myT$numReads > 1000, ]
+  
+  ##set up output
+  names <- vector()
+  pValuesGroup <- vector()
+  pValuesByDay <- vector()
+  index <- 1
+  pdf(paste("stoolOTUmodel_boxplots_remove31ng_feedingTube_", taxa, ".pdf", sep=""), height=6, width=12)
+  
+  for(i in 11:ncol(myT)) 
+    if(sum(myT[,i] != 0 ) > nrow(myT) / 4 ) {
+      bug <- myT[,i]
+      group <- factor(myT$Group)
+      days <- as.numeric(myT$X..of.days.tube.was.in)
+      
+      ##linear models
+      pValuesGroup[index] <- anova(lm(bug ~ group))$"Pr(>F)"[1]
+      pValuesByDay[index] <- anova(lm(bug ~ days))$"Pr(>F)"[1]
+      
+      names[index] = names(myT)[i]
+      
+      graphMain =  paste(names(myT)[i], ":\n  pGroup=",  format(pValuesGroup[index], digits=3),
+                         "   pByDay=", format(pValuesByDay[index], digits=3), 
+                          sep="")
+      
+      ##plots
+      gr = sort(unique(myT$Group))
+      colors = c("red", "blue", "black", "gold")
+      col = rep(NA, nrow(myT)) 
+      for(g in 1:length(gr)) {
+        col[myT$Group==gr[g]] = colors[g]
+      }
+      shapes = ifelse(myT$delivery=="SVD", 15, 17)
+      
+      par(mfrow=c(1,2), oma=c(.5,.5,5,.5), mar=c(4.5,4,1,1))
+      boxplot(bug~group, xlab="Group", ylab="relative abundance")
+      points(bug~group, col=col, pch=shapes)
+      plot(x=days, y=bug, xlab="Days Feeding Tube Was In", ylab="relative abundance", col=col, pch=shapes)
+      
+      ##label
+      par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+      plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+      legend("top", horiz=T, legend=graphMain, cex=1.2, bty="n")
+      
+      index=index+1
+      
+    }
+  
+  df <- data.frame(names, pValuesGroup, pValuesByDay)
+  df$pAdjGroup <- p.adjust(df$pValuesGroup, method="BH")
+  df$pAdjByDay <- p.adjust(df$pValuesByDay, method="BH")
+  df <- df[order(df$pValuesGroup),]
+  write.table(df, file=paste("stoolOTUmodel_pValues_remove31ng_feedingTube_", taxa, ".txt",sep=""), sep="\t",row.names=FALSE, col.names=T, quote=F)
+  dev.off()
+}
