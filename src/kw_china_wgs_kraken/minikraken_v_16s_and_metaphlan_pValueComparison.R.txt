@@ -1,0 +1,278 @@
+##compare minikraken, metaphlan and 16S p-values
+##5/24/16
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\China")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+##function to draw graph with regression and identity line, with kraken (krak) on x 
+##and other (RDP or Metaphlan) on y (with given otherName to label axis)
+##if minus1 is true, axis labels indicate times -1
+graph<-function(krak, other, taxa, otherName, minus1=T) {
+  par(mar=c(4.5, 4.5, 4.5, .2))
+  xlab = ifelse(minus1, "log10(minikraken p-Values) * -1 if higher in urban", "log10(minikraken p-Values)")
+  ylab = paste("log10(", otherName, " p-Values)", sep="")
+  ylab = ifelse(minus1, paste(ylab, "* -1 if higher in urban"), ylab)
+  plot(x=krak, y=other, 
+       xlab=xlab, 
+       ylab=ylab, cex.lab=1.5, cex.axis=1.5, 
+       pch=16, main=taxa, cex.main=1.5)
+  abline(a=0, b=1, col="green", lwd=2.5)#identity line
+  mod1 = lm(other~krak)
+  abline(mod1, col="blue", lwd=2.5)#linear model
+  lab=paste("p=", format(anova(mod1)$`Pr(>F)`[1],digits=2), sep="")
+  legend("bottomright", legend=lab, text.col="blue", cex=2, bty="n")
+}
+
+drawLegend <- function() {
+  plot.new()
+  legend("topleft", c("Linear Regression Line", "Identity Line"),
+         lty=1, col=c("blue", "green"), bty='n', cex=2.5, lwd=2.5)
+}
+
+######16S
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+####OTU model
+###log10 p-values, times -1 if higher in urban
+jpeg("minikraken\\minikraken_v_16S_pValueComparison_otuModel.jpg", height = 2000, width=3000, res=200)
+par(mfrow=c(2,3))
+for(taxa in taxaLevels) {
+  print(taxa)
+  
+  ##get minikraken results
+  krak.table = read.table(paste("minikraken\\minikraken_otuModel_pValues_", taxa, ".txt", sep=""),
+                          header = T, sep="\t", colClasses = c("character", rep("numeric", 8)))
+  krak.table$pValuesUrbanRural = log10(krak.table$pValuesUrbanRural)
+  krak.table$pValuesUrbanRural[krak.table$meanUrban > krak.table$meanRural] = 
+    -1*krak.table$pValuesUrbanRural[krak.table$meanUrban > krak.table$meanRural]
+  krak.table = krak.table[,c(1,5)] #"names"             "pValuesUrbanRural"
+  if(names(krak.table)[2] != "pValuesUrbanRural") {
+    stop("incorrect metaphlan p column")
+  }
+  names(krak.table)[2] = "minikraken"
+  
+  ##get 16s results
+  rrna.table = read.table(paste("otuModel_pValues_", taxa, ".txt", sep=""),
+                          header = T, sep="\t", colClasses = c("character", rep("numeric", 16)))
+  rrna.table$pValuesUrbanRural = log10(rrna.table$pValuesUrbanRural)
+  rrna.table$pValuesUrbanRural[rrna.table$meanUrban > rrna.table$meanRural] = -1*rrna.table$pValuesUrbanRural[rrna.table$meanUrban > rrna.table$meanRural]
+  rrna.table = rrna.table[,c(1,9)] #"names"             "pValuesUrbanRural"
+  if(names(rrna.table)[2] != "pValuesUrbanRural") {
+    stop("incorrect 16s p column")
+  }
+  names(rrna.table)[2] = "rrna"
+  
+  ##merge and graph
+  mrg = merge(krak.table, rrna.table, by="names")
+  print(nrow(mrg))
+  graph(mrg$minikraken, mrg$rrna, taxa, "RDP")
+}
+drawLegend()
+dev.off()
+
+####metabolite associations
+jpeg("minikraken\\minikraken_v_16S_pValueComparison_metaboliteAssoc.jpg", height = 2000, width=3000, res=200)
+par(mfrow=c(2,3))
+for(taxa in taxaLevels) {
+  print(taxa)
+  
+  ##get minikraken results
+  krak.table = read.table(paste("minikraken\\minikraken_model_pValues_metabolon_v_", taxa, ".txt", sep=""),
+                          header = T, sep="\t", colClasses = c("character", "character", rep("numeric", 5)))
+  krak.table$pLM = log10(krak.table$pLM)
+  krak.table = krak.table[,c(1, 2, 4)] #"namesOTU"   "namesOther" "pLM" 
+  if(names(krak.table)[3] != "pLM") {
+    stop("incorrect metaphlan p column")
+  }
+  names(krak.table)[3] = "minikraken"
+  
+  ##get 16s results
+  rrna.table = read.table(paste("model_metabolon_v_", taxa, "_pValues.txt", sep=""),
+                          header = T, sep="\t", colClasses = c("character", "character", rep("numeric", 5)))
+  rrna.table$pLM = log10(rrna.table$pLM)
+  rrna.table = rrna.table[,c(1,2,4)] #"namesOTU"   "namesOther" "pLM"
+  if(names(rrna.table)[3] != "pLM") {
+    stop("incorrect 16s p column")
+  }
+  names(rrna.table)[3] = "rrna"
+  
+  ##merge and graph
+  mrg = merge(krak.table, rrna.table, by=c("namesOTU", "namesOther"))
+  print(nrow(mrg))
+  graph(mrg$minikraken, mrg$rrna, taxa, "RDP", F)
+}
+drawLegend()
+dev.off()
+
+####metadata associations
+jpeg("minikraken\\minikraken_v_16S_pValueComparison_metadataAssoc.jpg", height = 2000, width=3000, res=200)
+par(mfrow=c(2,3))
+for(taxa in taxaLevels) {
+  print(taxa)
+  
+  ##get minikraken results
+  krak.table = read.table(paste("minikraken\\minikraken_model_pValues_metadata_v_", taxa, ".txt", sep=""),
+                          header = T, sep="\t", colClasses = c("character", "character", rep("numeric", 5)))
+  krak.table$pLM = log10(krak.table$pLM)
+  krak.table = krak.table[,c(1, 2, 4)] #"namesOTU"   "namesOther" "pLM" 
+  if(names(krak.table)[3] != "pLM") {
+    stop("incorrect metaphlan p column")
+  }
+  names(krak.table)[3] = "minikraken"
+  
+  ##get 16s results
+  rrna.table = read.table(paste("model_metadata_v_", taxa, "_pValues.txt", sep=""),
+                          header = T, sep="\t", colClasses = c("character", "character", rep("numeric", 5)))
+  rrna.table$pLM = log10(rrna.table$pLM)
+  rrna.table = rrna.table[,c(1,2,4)] #"namesOTU"   "namesOther" "pLM"
+  if(names(rrna.table)[3] != "pLM") {
+    stop("incorrect 16s p column")
+  }
+  names(rrna.table)[3] = "rrna"
+  
+  ##merge and graph
+  mrg = merge(krak.table, rrna.table, by=c("namesOTU", "namesOther"))
+  print(nrow(mrg))
+  graph(mrg$minikraken, mrg$rrna, taxa, "RDP", F)
+}
+drawLegend()
+dev.off()
+
+######metaphlan
+taxaLevels = c("domain", "phylum", "class", "order", "family", "genus", "species")
+rm(list="rrna.table")
+####OTU model
+###log10 p-values, times -1 if higher in urban
+jpeg("minikraken\\minikraken_v_metaphlan_pValueComparison_otuModel.jpg", height = 2000, width=4000, res=200)
+par(mfrow=c(2,4))
+for(i in 2:length(taxaLevels)) {
+  taxa = taxaLevels[i]
+  print(taxa)
+  
+  ##get minikraken results
+  krak.table = read.table(paste("minikraken\\minikraken_otuModel_pValues_", taxa, ".txt", sep=""),
+                          header = T, sep="\t", colClasses = c("character", rep("numeric", 8)))
+  krak.table$pValuesUrbanRural = log10(krak.table$pValuesUrbanRural)
+  krak.table$pValuesUrbanRural[krak.table$meanUrban > krak.table$meanRural] = 
+    -1*krak.table$pValuesUrbanRural[krak.table$meanUrban > krak.table$meanRural]
+  krak.table = krak.table[,c(1,5)] #"names"             "pValuesUrbanRural"
+  if(names(krak.table)[2] != "pValuesUrbanRural") {
+    stop("incorrect metaphlan p column")
+  }
+  names(krak.table)[2] = "minikraken"
+  
+  ##get metaphlan results
+  if(taxa == "domain") {
+    taxa = "kingdom"
+  }
+  met.table = read.table(paste("metaphlan2 analysis\\mtphln_otuModel_pValues_", taxa, ".txt", sep=""),
+                         header = T, sep="\t", colClasses = c("character", rep("numeric", 8)))
+  ##format names so just that taxa level
+  sp.names = strsplit(met.table$names, "__")
+  for(i in 1:nrow(met.table)) {
+    sp = sp.names[[i]]
+    met.table$names[i] = sp[length(sp)]
+  }
+  met.table$pValuesUrbanRural = log10(met.table$pValuesUrbanRural)
+  met.table$pValuesUrbanRural[met.table$meanUrban > met.table$meanRural] = -1*met.table$pValuesUrbanRural[met.table$meanUrban > met.table$meanRural]
+  met.table = met.table[,c(1,5)] #"names"             "pValuesUrbanRural"
+  if(names(met.table)[2] != "pValuesUrbanRural") {
+    stop("incorrect metaphlan p column")
+  }
+  names(met.table)[2] = "metaphlan"
+  
+  ##merge and graph
+  mrg = merge(krak.table, met.table, by="names")
+  print(nrow(mrg))
+  graph(mrg$minikraken, mrg$metaphlan, taxa, "MetaPhlAn2")
+}
+drawLegend()
+dev.off()
+
+####metabolite associations
+jpeg("minikraken\\minikraken_v_metaphlan_pValueComparison_metaboliteAssoc.jpg", height = 2000, width=4000, res=200)
+par(mfrow=c(2,4))
+for(taxa in taxaLevels) {
+  print(taxa)
+  
+  ##get minikraken results
+  krak.table = read.table(paste("minikraken\\minikraken_model_pValues_metabolon_v_", taxa, ".txt", sep=""),
+                          header = T, sep="\t", colClasses = c("character", "character", rep("numeric", 5)))
+  krak.table$pLM = log10(krak.table$pLM)
+  krak.table = krak.table[,c(1, 2, 4)] #"namesOTU"   "namesOther" "pLM" 
+  if(names(krak.table)[3] != "pLM") {
+    stop("incorrect metaphlan p column")
+  }
+  names(krak.table)[3] = "minikraken"
+  
+  ##get metaphlan results
+  if(taxa == "domain") {
+    taxa = "kingdom"
+  }
+  met.table = read.table(paste("metaphlan2 analysis\\mtphln_model_metabolon_v_", taxa, "_pValues.txt", sep=""),
+                         header = T, sep="\t", colClasses = c("character", "character", rep("numeric", 5)))
+  ##format names so just that taxa level
+  sp.names = strsplit(met.table$namesOTU, "__")
+  for(i in 1:nrow(met.table)) {
+    sp = sp.names[[i]]
+    met.table$namesOTU[i] = sp[length(sp)]
+  }
+  met.table$pLM = log10(met.table$pLM)
+  met.table = met.table[,c(1, 2, 4)] #"namesOTU"   "namesOther" "pLM" 
+  if(names(met.table)[3] != "pLM") {
+    stop("incorrect metaphlan p column")
+  }
+  names(met.table)[3] = "metaphlan"
+  
+  ##merge and graph
+  mrg = merge(krak.table, met.table, by=c("namesOTU", "namesOther"))
+  print(nrow(mrg))
+  graph(mrg$minikraken, mrg$metaphlan, taxa, "MetaPhlAn2", F)
+}
+drawLegend()
+dev.off()
+
+####metadata associations
+jpeg("minikraken\\minikraken_v_metaphlan_pValueComparison_metadataAssoc.jpg", height = 2000, width=4000, res=200)
+par(mfrow=c(2,4))
+for(taxa in taxaLevels) {
+  print(taxa)
+  
+  ##get minikraken results
+  krak.table = read.table(paste("minikraken\\minikraken_model_pValues_metadata_v_", taxa, ".txt", sep=""),
+                          header = T, sep="\t", colClasses = c("character", "character", rep("numeric", 5)))
+  krak.table$pLM = log10(krak.table$pLM)
+  krak.table = krak.table[,c(1, 2, 4)] #"namesOTU"   "namesOther" "pLM" 
+  if(names(krak.table)[3] != "pLM") {
+    stop("incorrect metaphlan p column")
+  }
+  names(krak.table)[3] = "minikraken"
+  
+  ##get metaphlan results
+  if(taxa == "domain") {
+    taxa = "kingdom"
+  }
+  met.table = read.table(paste("metaphlan2 analysis\\mtphln_model_metadata_v_", taxa, "_pValues.txt", sep=""),
+                         header = T, sep="\t", colClasses = c("character", "character", rep("numeric", 5)))
+  ##format names so just that taxa level
+  sp.names = strsplit(met.table$namesOTU, "__")
+  for(i in 1:nrow(met.table)) {
+    sp = sp.names[[i]]
+    met.table$namesOTU[i] = sp[length(sp)]
+  }
+  met.table$pLM = log10(met.table$pLM)
+  met.table = met.table[,c(1, 2, 4)] #"namesOTU"   "namesOther" "pLM" 
+  if(names(met.table)[3] != "pLM") {
+    stop("incorrect metaphlan p column")
+  }
+  names(met.table)[3] = "metaphlan"
+  
+  ##merge and graph
+  mrg = merge(krak.table, met.table, by=c("namesOTU", "namesOther"))
+  print(nrow(mrg))
+  graph(mrg$minikraken, mrg$metaphlan, taxa, "MetaPhlAn2", F)
+}
+drawLegend()
+dev.off()
