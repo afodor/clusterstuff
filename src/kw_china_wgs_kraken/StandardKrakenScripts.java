@@ -20,7 +20,7 @@ public class StandardKrakenScripts {
 		//set up script to run everything
 		BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 				SCRIPT_DIR + "runStandardKraken")));
-		script.write("#PBS -l walltime=400:00:00");
+		script.write("#PBS -l walltime=400:00:00\n");
 		String[] fastas = new File(FASTA_DIR).list();
 		for(String fa : fastas) {
 			if(fa.endsWith(".fa")) {
