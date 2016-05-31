@@ -42,7 +42,7 @@ public class BWAcardsScripts {
 		File[] fastas = new File(fastaDir).listFiles();
 		for(File f : fastas) {
 			if(f.getName().endsWith(".fa")) {
-				String name = f.getName().replace(".fa", "");
+				String name = f.getName().replace("_1.fa", "");
 				
 				BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 						scriptDir + "runAlignToCards_" + name)));				
