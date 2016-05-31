@@ -1,0 +1,192 @@
+##OTU model for dolphin data
+##each variable separately, but separated by body site
+##5/24/16
+
+rm(list=ls())
+
+library("pscl")
+library("lmtest")
+library("nlme")
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\dolphin\\qiime")
+
+levels = c(#"closed_ref_otu", "de_novo_otu_chimeraFiltered",
+           "closed_ref_otu_noWater", "de_novo_otu_chimeraFiltered_noWater") #don't include water because most variables will only have one value at this point
+
+for(taxa in levels) {
+  print(taxa)
+  fname = paste("dolphin_taxaAsCol_logNorm_", taxa, ".txt", sep="")
+  table = read.table(fname, sep="\t", header=T, comment.char="")
+  nc = ncol(table)
+  table = read.table(fname, sep="\t", header=T, comment.char="", 
+                     colClasses=c(rep("character", 12), rep("numeric", nc-12)))
+  
+  ##fix water variables
+  table$BODY.SITE.SAMPLED = sub("W[1-9]", "W", table$BODY.SITE.SAMPLED)
+  table$ANIMAL.ID = sub(" Sample #[1-9]", "", table$ANIMAL.ID)
+  table$SEX[grepl("Water", table$ANIMAL.ID)] = "water"
+  table$AGE.CLASS[grepl("Water", table$ANIMAL.ID)] = "water"
+  table$HEALTH.STATUS[grepl("Water", table$ANIMAL.ID)] = "water"
+  table$LACTATING.STATUS[grepl("Water", table$ANIMAL.ID)] = "water"
+  
+  ##make new variable with mother/calf info
+  mothCalf = rep("other", nrow(table))
+  mothCalf[table$ANIMAL.ID == "TT15015" | table$ANIMAL.ID == "TT15027"] = "TT15015/TT15027"
+  mothCalf[table$ANIMAL.ID == "TT15016" | table$ANIMAL.ID == "TT15025"] = "TT15016/TT15025"
+  mothCalf[table$ANIMAL.ID == "TT15020" | table$ANIMAL.ID == "TT15021"] = "TT15020/TT15021"
+  mothCalf[table$ANIMAL.ID == "TT15022" | table$ANIMAL.ID == "TT15029"] = "TT15022/TT15029"
+  
+  site = sort(unique(table$BODY.SITE.SAMPLED))
+  variables = c("ID", "Sex", "Age", "Health", "Lactating", "MotherCalf")
+  
+  ##output vectors
+  names = vector()
+  pValues = data.frame(stringsAsFactors = F)
+  index = 1
+  pdf(paste("dolphin_qiime_otuModel_boxplots_", taxa, "_separateSites.pdf", sep=""), width=18, height=18)
+  
+  for( i in 14:nc) {
+    if(sum(table[,i] != 0 ) > nrow(table) / 4 ) {
+      
+      names[index] <- names(table)[i]
+      bug <- table[,i]
+      id = factor(table$ANIMAL.ID)
+      sex = factor(table$SEX)
+      age = factor(table$AGE.CLASS)
+      health = factor(table$HEALTH.STATUS)
+      lac = factor(table$LACTATING.STATUS)
+      mc = factor(mothCalf)
+      
+      ##individual models for each body site
+      pBug = vector()
+      for(bs in site) { #for each body site, run individual models
+        p = rep(NA, 6)
+        rows = table$BODY.SITE.SAMPLED == bs
+        
+        ##with missing samples, some sites/variables only have one value, ex age at site D
+        if(length(unique(id[rows])) > 1) {
+          p[1] = anova(lm(bug[rows]~id[rows]))$"Pr(>F)"[1]
+        } else {
+          p[1] = NA
+        }
+        
+        if(length(unique(sex[rows])) > 1) {
+          p[2] = anova(lm(bug[rows]~sex[rows]))$"Pr(>F)"[1]
+        } else {
+          p[2] = NA
+        }
+        
+        if(length(unique(age[rows])) > 1) {
+          p[3] = anova(lm(bug[rows]~age[rows]))$"Pr(>F)"[1]
+        } else {
+          p[3] = NA
+        }
+        
+        if(length(unique(health[rows])) > 1) {
+          p[4] = anova(lm(bug[rows]~health[rows]))$"Pr(>F)"[1] 
+        } else {
+          p[4] = NA
+        }
+        
+        if(length(unique(lac[rows])) > 1) {
+          p[5] = anova(lm(bug[rows]~lac[rows]))$"Pr(>F)"[1]
+        } else {
+          p[5] = NA
+        }
+        
+        if(length(unique(mc[rows])) > 1) {
+          p[6] = anova(lm(bug[rows]~mc[rows]))$"Pr(>F)"[1]
+        } else {
+          p[6] = NA
+        }
+        
+        pBug = c(pBug, p)
+      }
+      
+      ##plots
+      ##color by body site
+      s = sort(unique(table$BODY.SITE.SAMPLED)) #[1] "A" "B" "C" "D" "E" "F" "W"
+      colors = c("red", "blue", "green", "gold", "purple", "turquoise", "black")
+      col = rep(NA, nrow(table))
+      for(i in 1:length(s)) {
+        col[table$BODY.SITE.SAMPLED == s[i]] = colors[i]
+      }
+      
+      ##shape by animal ID; open is mother, closed is calf
+      aid = c("TT15015", "TT15027", #mother calf pairs
+              "TT15016", "TT15025",
+              "TT15021", "TT15020", 
+              "TT15022", "TT15029",
+              "TT15017", "TT15018", "TT15019", "TT15023", "TT15024", "TT15026", "Water")
+      shapes = c(0, 15,
+                 1, 16,
+                 2, 17,
+                 5, 18,
+                 3, 4, 6:10)
+      sh = rep(NA, nrow(table))
+      for(i in 1:length(aid)) {
+        sh[table$ANIMAL.ID==aid[i]] = shapes[i]
+      }
+      
+      par(mfrow=c(6,6), oma=c(.5,.5,2,.5), mar=c(4.8,4,1,1))
+      ppos = 1 #position in matrix
+      for(bs in site) { #for each body site, plot each variable
+        rows = table$BODY.SITE.SAMPLED == bs
+        ##id
+        boxplot(bug[rows]~id[rows], xlab="", ylab="relative abundance", las=2,
+                main=paste("animal id, site", bs, "p =", format(pBug[ppos], digits=3)))
+        points(bug[rows]~id[rows], col=col[rows], pch=sh[rows])
+        ##sex
+        boxplot(bug[rows]~sex[rows], xlab="", ylab="relative abundance", 
+                main=paste("sex, site", bs, "p =", format(pBug[ppos+1], digits=3)))
+        points(bug[rows]~sex[rows], col=col[rows], pch=sh[rows])
+        ##age
+        boxplot(bug[rows]~age[rows], xlab="", ylab="relative abundance", 
+                main=paste("age class, site", bs, "p =", format(pBug[ppos+2], digits=3)))
+        points(bug[rows]~age[rows], col=col[rows], pch=sh[rows])
+        ##health
+        boxplot(bug[rows]~health[rows], xlab="", ylab="relative abundance",
+                main=paste("health status, site", bs, "p =", format(pBug[ppos+3], digits=3)))
+        points(bug[rows]~health[rows], col=col[rows], pch=sh[rows])
+        ##lactating
+        boxplot(bug[rows]~lac[rows], xlab="", ylab="relative abundance",
+                main=paste("lactating status, site", bs, "p =", format(pBug[ppos+4], digits=3)))
+        points(bug[rows]~lac[rows], col=col[rows], pch=sh[rows])
+        ##mother calf
+        boxplot(bug[rows]~mc[rows], xlab="", ylab="relative abundance",
+                main=paste("mother-calf pair, site", bs, "p =", format(pBug[ppos+5], digits=3)),
+                las=2, cex.axis=.7, par(mar=c(6,4,1,1)))
+        points(bug[rows]~mc[rows], col=col[rows], pch=sh[rows])
+        ppos = ppos+6
+      }
+      ##add title
+      par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+      plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+      legend("top", horiz=T, legend=names[index], cex=1.2, bty="n")
+      
+      pValues = rbind(pValues, pBug)
+      index=index+1
+      
+    }
+  }
+  dev.off()
+  
+  ##get column names
+  s = vector() #body site
+  for(bs in site) {
+    s = c(s, rep(bs, 6))
+  }
+  v = rep(variables, 6)
+  cnames = paste(v, s, sep="")
+  
+  dFrame <- data.frame(names, pValues)
+  
+  ##adjust p values 
+  for(c in 1:ncol(pValues)) {
+    dFrame = cbind(dFrame, p.adjust(pValues[,c], method = "BH"))
+  }
+  
+  ##fix names, sort, write file
+  names(dFrame) = c("names", paste("p", cnames, sep=""), paste("pAdj", cnames, sep=""))
+  write.table(dFrame, file=paste("dolphin_qiime_otuModel_pValues_", taxa, "_separateSites.txt",sep=""), sep="\t",row.names=FALSE, quote=F)
+}

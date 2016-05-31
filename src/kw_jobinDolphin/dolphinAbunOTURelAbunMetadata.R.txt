@@ -1,0 +1,43 @@
+##for dolphin data, AbundantOTU results
+##add metadata
+##relative abundance for divesity
+##with and without water
+##5/31/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\dolphin\\abundantOTU")
+
+##metadata
+metadata = read.table("..\\dolphinMetadata_withSampleID.txt", sep="\t", fill=T, header=T, comment.char="", colClasses="character")
+metadata$sampleID = gsub("-", "", metadata$sampleID) #remove dashes in water sample
+
+##return relative abundance
+relAbun <- function(tab) {
+  lognorm = tab
+  nc = ncol(lognorm)
+  start = 14 #first taxa after metadata
+  n = rowSums(tab[,start:nc]) #number of reads in each sample
+  sumX = sum(n) #total number of reads in all samples = sum(table[,4:nc])
+  N = nrow(tab) #total number of samples
+  for(col in start:nc) {
+    for(row in 1:N) {
+      lognorm[row, col] = tab[row, col]/n[row]
+    }
+  }
+  print(rowSums(lognorm[,start:nc]))
+  return(lognorm)
+}
+
+
+table = read.table("dolphinAbundantOTUtable_taxaAsColWithMeta.txt", sep="\t", header=T, comment.char = "",
+                   colClasses=c(rep("character", 12), rep("numeric", 28973)))
+
+
+##normalize and write table
+write.table(relAbun(table), "dolphinAbundantOTUtable_taxaAsCol_relAbun.txt", sep="\t", 
+            row.names=F, col.names=T, quote=F)
+
+##remove water samples, normalize and write
+nowat = table[!grepl("Water", table$sampleID),]
+write.table(relAbun(nowat), "dolphinAbundantOTUtable_taxaAsCol_relAbun_noWater.txt", sep="\t", 
+            row.names=F, col.names=T, quote=F)

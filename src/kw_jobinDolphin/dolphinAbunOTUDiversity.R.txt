@@ -1,0 +1,72 @@
+##Compare diversity and richness for abundant otu results
+##plot shannon, inverted simpson and richness against body site
+##use relative abundance (unlogged data) and log normalized data
+##5/31/15
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\dolphin\\abundantOTU")
+
+library("vegan")
+
+levels = c("logNorm", "relAbun")
+names = c("logged", "unlogged")
+
+pdf("dolphinAbunDiversity.pdf", width=9, height=3)
+par(mfrow=c(1,3), mar=c(4, 4, 1, 1))
+for(lev in levels) {
+  print(lev)
+  fname = paste("dolphinAbundantOTUtable_taxaAsCol_", lev, ".txt", sep="")
+  table = read.table(fname, sep="\t", header=T, comment.char="", 
+                     colClasses=c(rep("character", 12), rep("numeric", 28973)))
+  
+  ##color by body site
+  table$BODY.SITE.SAMPLED = sub("W[1-9]", "W", table$BODY.SITE.SAMPLED)
+  site = sort(unique(table$BODY.SITE.SAMPLED)) #[1] "A" "B" "C" "D" "E" "F" "W"
+  colors = c("red", "blue", "green", "gold", "purple", "turquoise", "black")
+  col = rep(NA, nrow(table))
+  for(i in 1:length(site)) {
+    col[table$BODY.SITE.SAMPLED == site[i]] = colors[i]
+  }
+  ##shape by animal ID; open is mother, closed is calf
+  table$ANIMAL.ID = sub(" Sample #[1-9]", "", table$ANIMAL.ID)
+  # id = sort(unique(table$ANIMAL.ID))
+  id = c("TT15015", "TT15027", #mother calf pairs
+         "TT15016", "TT15025",
+         "TT15021", "TT15020", 
+         "TT15022", "TT15029",
+         "TT15017", "TT15018", "TT15019", "TT15023", "TT15024", "TT15026", "Water")
+  shapes = c(0, 15,
+             1, 16,
+             2, 17,
+             5, 18,
+             3, 4, 6:10)
+  sh = rep(NA, nrow(table))
+  for(i in 1:length(id)) {
+    sh[table$ANIMAL.ID==id[i]] = shapes[i]
+  }
+  
+  site = factor(table$BODY.SITE.SAMPLED)
+  
+  ##shannon diversity
+  shan = diversity(table[,-c(1:15)], index="shannon") #margin=1=row
+  boxplot(shan~site, xlab="body site", ylab="Shannon Diversity", main=lev)
+  points(shan~site, col=col, pch=sh)
+  ptt = pairwise.t.test(shan, site, p.adjust.method="BH", alternative="two.sided")
+  write.table(ptt[["p.value"]], paste("pairwise-t-test_shannon_", lev, ".txt", sep=""), sep="\t", quote=F, row.names=T, col.names=NA)
+  
+  ##inverted simpson
+  is = diversity(table[,-c(1:15)], index="invsimpson") #margin=1=row
+  boxplot(is~site, xlab="body site", ylab="Inverse Simpson", main=lev)
+  points(is~site, col=col, pch=sh)
+  ptt = pairwise.t.test(is, site, p.adjust.method="BH", alternative="two.sided")
+  write.table(ptt[["p.value"]], paste("pairwise-t-test_inverseSimpson_", lev, ".txt", sep=""), sep="\t", quote=F, row.names=T, col.names=NA)
+  
+  ##richness
+  rich = specnumber(table[,-c(1:15)])
+  boxplot(rich~site, xlab="group", ylab="richness", main=lev)
+  points(rich~site, col=col, pch=sh)
+  ptt = pairwise.t.test(rich, site, p.adjust.method="BH", alternative="two.sided")
+  write.table(ptt[["p.value"]], paste("pairwise-t-test_richness_", lev, ".txt", sep=""), sep="\t", quote=F, row.names=T, col.names=NA)
+}
+
+dev.off()

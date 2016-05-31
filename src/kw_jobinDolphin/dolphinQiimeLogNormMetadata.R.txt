@@ -1,0 +1,74 @@
+##for dolphin data, qiime results
+##remove read 2
+##add metadata
+##log normalize
+##with and without water
+##5/20/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\dolphin\\qiime")
+
+##metadata
+metadata = read.table("..\\dolphinMetadata_withSampleID.txt", sep="\t", fill=T, header=T, comment.char="", colClasses="character")
+metadata$sampleID = gsub("-", "", metadata$sampleID) #remove dashes in water sample
+
+levels = c("closed_ref_otu", "de_novo_otu_chimeraFiltered")
+
+##log normalize the given table
+logNormalize <- function(tab) {
+  lognorm = tab
+  nc = ncol(lognorm)
+  start = 14 #first taxa after metadata
+  n = rowSums(tab[,start:nc]) #number of reads in each sample
+  sumX = sum(n) #total number of reads in all samples = sum(table[,4:nc])
+  N = nrow(tab) #total number of samples
+  for(col in start:nc) {
+    for(row in 1:N) {
+      lognorm[row, col] = log10(tab[row, col]/n[row] * sumX/N + 1)
+    }
+  }
+  return(lognorm)
+}
+
+for(lev in levels) {
+  print(lev)
+  fname = paste("dolphin_", lev, ".txt", sep="")
+  table = read.table(fname, sep="\t", header=T)
+  nc = ncol(table)
+  table = read.table(fname, sep="\t", header=T, skip=1, comment.char = "",
+                     colClasses=c("character", rep("numeric", nc-2), "character"))
+  
+  ##move taxonomy, remove otu id
+  table = table[,c(ncol(table), 2:(ncol(table)-1))] #table[,c(1, ncol(table), 2:(ncol(table)-1))]
+  names(table)[1] = "sampleID"
+  
+  ##transpose
+  fname = paste("dolphin_taxaAsCol_", lev, ".txt", sep="")
+  write.table(t(table), fname, 
+              row.names = T, col.names = F, quote=F, sep="\t")
+  table = read.table(fname, sep="\t", header=T, comment.char = "",
+                     colClasses=c("character", rep("numeric", nc-1)))
+  
+  ##add # reads per sample; reorganize so sampleID is first
+  n = rowSums(table[,2:nc]) #total number reads in each sample
+  table = data.frame(sampleID=table$sampleID, numReads=n, table[,2:nc], stringsAsFactors = F)
+  
+  ##remove samples with low read counts
+  rem = n < 20
+  print(table$sampleID[rem])
+  table = table[!rem,]
+  
+  ##add metdata
+  tab = merge(metadata, table, by="sampleID") #lose TT15028C, which we don't want to analyze
+  
+  ##log normalize and write table
+  lognorm = logNormalize(tab)
+  write.table(lognorm, paste("dolphin_taxaAsCol_logNorm_", lev, ".txt", sep=""), sep="\t", 
+              row.names=F, col.names=T, quote=F)
+  
+  ##remove water samples, log normalize and write
+  nowat = tab[!grepl("Water", tab$sampleID),]
+  lognorm = logNormalize(nowat)
+  write.table(lognorm, paste("dolphin_taxaAsCol_logNorm_", lev, "_noWater.txt", sep=""), sep="\t", 
+              row.names=F, col.names=T, quote=F)
+}

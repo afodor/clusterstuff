@@ -1,0 +1,152 @@
+##PCoA of dolphin Abundant OTU data
+##all samples and without water
+##5/25/16
+
+rm(list=ls())
+
+library(vegan)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\dolphin\\abundantOTU")
+
+levels = c("", "_noWater")
+names = c("Abundant OTU", "Abundant OTU, no water")
+
+pdf("dolphinAbunOTUPCoA.pdf", height=6, width=18)
+for(i in 1:length(levels)) {
+  taxa = levels[i]
+  print(taxa)
+  name = names[i]
+  fname = paste("dolphinAbundantOTUtable_taxaAsCol_logNorm", taxa, ".txt", sep="")
+  table = read.table(fname, sep="\t", header=T, comment.char="", 
+                     colClasses=c(rep("character", 12), rep("numeric", 28973)))
+  
+  ##pcoa using vegan capscale
+  par(mar=c(4,4.1,4,8), xpd=T, mfrow=c(1,3), cex.lab=1.5)
+  pcoa <- capscale(table[,-(1:13)]~1,distance="bray")
+  write.table(cbind(table[,1:13], pcoa$CA$u), paste("pcoaCorrected_AbunOTU", taxa, ".txt", sep=""), sep="\t",
+              row.names=F, col.names=T, quote=F)
+  
+  ##get percent variance
+  eig = eigenvals(pcoa)
+  if(any(eig<0)) {#need to check there are no negatives
+    warning(paste("NEGATIVE EIGENVALUES-percent variance is incorrect for ", taxa, sep=""))
+  }
+  var = eig/sum(eig)*100
+  
+  #####body site and animal ID
+  ##color by body site
+  table$BODY.SITE.SAMPLED = sub("W[1-9]", "W", table$BODY.SITE.SAMPLED)
+  site = sort(unique(table$BODY.SITE.SAMPLED)) #[1] "A" "B" "C" "D" "E" "F" "W"
+  ##shape by animal ID; open is mother, closed is calf
+  table$ANIMAL.ID = sub(" Sample #[1-9]", "", table$ANIMAL.ID)
+  if(any(grepl("W", site))) {
+    colors = c("red", "blue", "green", "gold", "purple", "turquoise", "black")
+    id = c("TT15015", "TT15027", #mother calf pairs
+           "TT15016", "TT15025",
+           "TT15021", "TT15020", 
+           "TT15022", "TT15029",
+           "TT15017", "TT15018", "TT15019", "TT15023", "TT15024", "TT15026", "Water")
+    shapes = c(0, 15,
+               1, 16,
+               2, 17,
+               5, 18,
+               3, 4, 6:10)
+  } else {
+    colors = c("red", "blue", "green", "gold", "purple", "turquoise")
+    id = c("TT15015", "TT15027", #mother calf pairs
+           "TT15016", "TT15025",
+           "TT15021", "TT15020", 
+           "TT15022", "TT15029",
+           "TT15017", "TT15018", "TT15019", "TT15023", "TT15024", "TT15026")
+    shapes = c(0, 15,
+               1, 16,
+               2, 17,
+               5, 18,
+               3, 4, 6:9)
+  }
+  col = rep(NA, nrow(table))
+  for(i in 1:length(site)) {
+    col[table$BODY.SITE.SAMPLED == site[i]] = colors[i]
+  }
+  sh = rep(NA, nrow(table))
+  for(i in 1:length(id)) {
+    sh[table$ANIMAL.ID==id[i]] = shapes[i]
+  }
+  ##plot
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], 
+       xlab=paste("MDS1 (", format(var[[1]], digits=0), "%)", sep=""), 
+       ylab=paste("MDS2 (", format(var[[2]], digits=0), "%)", sep=""),
+       main=paste(name, "color by body site and shape by animal id"), col=col, pch=sh)
+  ##legend
+  legend("topright", inset=c(-.2,0),
+         legend=c(site, id),
+         col=c(colors, rep("grey", length(id))),
+         pch=c(rep(13, length(site)), shapes))
+  
+  #####sex and age
+  ##color by sex
+  table$SEX[grepl("Water", table$ANIMAL.ID)] = "water"
+  sex=sort(unique(table$SEX))
+  ##shape by age
+  table$AGE.CLASS[grepl("Water", table$ANIMAL.ID)] = "water"
+  age = sort(unique(table$AGE.CLASS))
+  if(any(grepl("water", sex))) {
+    colors = c("pink", "blue", "black")
+    shapes = 16:18
+  } else {
+    colors = c("pink", "blue")
+    shapes = 16:17
+  }
+  col = rep(NA, nrow(table))
+  for(i in 1:length(sex)) {
+    col[table$SEX == sex[i]] = colors[i]
+  }
+  sh = rep(NA, nrow(table))
+  for(i in 1:length(age)) {
+    sh[table$AGE.CLASS==age[i]] = shapes[i]
+  }
+  ##plot
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], 
+       xlab=paste("MDS1 (", format(var[[1]], digits=0), "%)", sep=""), 
+       ylab=paste("MDS2 (", format(var[[2]], digits=0), "%)", sep=""),
+       main=paste(name, "color by gender and shape by age"), col=col, pch=sh)
+  ##legend
+  legend("topright", inset=c(-.2,0),
+         legend=c(sex, age),
+         col=c(colors, rep("grey", length(sh))),
+         pch=c(rep(15, length(colors)), shapes))
+  
+  #####health and lactation
+  ##color by health
+  table$HEALTH.STATUS[grepl("Water", table$ANIMAL.ID)] = "water"
+  health=sort(unique(table$HEALTH.STATUS))
+  ##shape by lacation
+  table$LACTATING.STATUS[grepl("Water", table$ANIMAL.ID)] = "water"
+  lac = sort(unique(table$LACTATING.STATUS))
+  if(any(grepl("water", health))) {
+    colors = c("red", "blue", "black")
+    shapes = 15:18
+  } else {
+    colors = c("red", "blue")
+    shapes = 15:17
+  }
+  col = rep(NA, nrow(table))
+  for(i in 1:length(health)) {
+    col[table$HEALTH.STATUS == health[i]] = colors[i]
+  }
+  sh = rep(NA, nrow(table))
+  for(i in 1:length(lac)) {
+    sh[table$LACTATING.STATUS==lac[i]] = shapes[i]
+  }
+  ##plot
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], 
+       xlab=paste("MDS1 (", format(var[[1]], digits=0), "%)", sep=""), 
+       ylab=paste("MDS2 (", format(var[[2]], digits=0), "%)", sep=""),
+       main=paste(name, "color by health and shape by lactation status"), col=col, pch=sh)
+  ##legend
+  legend("topright", inset=c(-.2,0),
+         legend=c(health, lac),
+         col=c(colors, rep("grey", length(sh))),
+         pch=c(rep(20, length(colors)), shapes))
+}
+dev.off() 
