@@ -70,8 +70,9 @@ public class BWAcardsScripts {
 					//index
 					script.write("samtools index " + fname + ".mapped.bam\n");
 					//call snps
-					script.write("samtools mpileup -f " + REF_DIR + models[i]
-							+ " " + fname + ".mapped.bam\n");
+					script.write("samtools mpileup -uf " + REF_DIR + models[i]
+							+ " " + fname + ".mapped.bam | bcftools call -mv > " 
+							+ fname + ".vcf\n");
 				}
 				script.close();
 			}
