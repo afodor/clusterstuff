@@ -49,12 +49,13 @@ for(i in 1:length(humNames)) {
   ##remove all columns that are all 0
   table = table[,c(T, T, colSums(table[,-(1:2)]) > 0)]
   print(ncol(table)) #215 for mpm, 287 for mpt
+  # print(rowSums(table[,-(1:6)]))
   write.table(table, paste("humann_keggAsCol_withRurUrb_", names[i], ".txt", sep=""), 
               sep="\t", row.names = F, col.names = T, quote=F)
   
   ##log
   count = 0.00001
-  for(c in 3:ncol(table)) {
+  for(c in 7:ncol(table)) {
     for(r in 1:nrow(table)) {
       table[r,c] = log10(table[r,c] + count) + -log10(count)
     }

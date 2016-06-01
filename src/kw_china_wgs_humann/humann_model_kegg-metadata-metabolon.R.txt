@@ -32,7 +32,7 @@ runComparisons <- function(table, splitCol, name, desc) {
   
   pdf(paste("humann_model_", name, "_plots.pdf",sep=""))
   
-  for( i in 6:splitCol )
+  for( i in 7:splitCol )
   {
     if(sum(table[,i] >0 ) > nrow(table) /4 && length(unique(table[,i])) > 1)  #metabolon columns that are all equal mess up kendall
     {
