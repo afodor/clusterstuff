@@ -14,7 +14,7 @@ pVal = data.frame(level=levels,
                   pShanEvenness = rep(NA, length(levels)), pShanEvennessWilcox = rep(NA, length(levels)),
                   stringsAsFactors = F)
 
-jpeg("humann_diversity.jpg", height=4200, width=1000, res=300)
+jpeg("humann_diversity.jpg", height=4200, width=1200, res=300)
 layout(matrix(1:8, nrow=4, ncol=2, byrow=F), heights=1, widths=1)
 par(cex.axis=1.5, cex.lab=1.5, cex.main=1.9, oma=c(2,0,0,0), mar=c(4.1, 6, 4,.5))
 
