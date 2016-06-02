@@ -1,0 +1,50 @@
+##get WGS comparisons to arsenic metadata values only
+##6/2/16
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\China")
+
+arsenic = c("log_avg_urin", "avg_pct_dma", "avg_pct_mma")
+
+##humann vs arsenic metadata
+taxaLevels <- c("module", "pathway")
+
+for(taxa in taxaLevels) {
+  print(taxa)
+  table = read.table(paste("humann\\humann_model_metadata_v_", taxa, "_pValues.txt", sep=""), sep="\t", header=T, colClasses=c(rep("character", 3), rep("numeric", 5)))
+  asTab = table[table$namesOther %in% arsenic,]
+  names(asTab) = c("namesKEGG", "description", "ArsenicVariable", "pKendall", "pLM", "r", "pAdjKendall", "pAdjLM")
+  asTab$pAdjLM = p.adjust(asTab$pLM, method="BH")
+  asTab$pAdjKendall = p.adjust(asTab$pKendall, method="BH")
+  asTab = asTab[order(asTab$pLM),]
+  write.table(asTab, paste("arsenic only\\arsenic_v_humann_", taxa, "_pValues.txt", sep=""), sep="\t", row.names=F, col.names=T, quote=F)
+}
+
+##metaphlan vs arsenic metadata
+taxaLevels = c("kingdom", "phylum", "class", "order", "family", "genus", "species", "subtype")
+
+for(taxa in taxaLevels) {
+  print(taxa)
+  table = read.table(paste("metaphlan2 analysis\\mtphln_model_metadata_v_", taxa, "_pValues.txt", sep=""), sep="\t", header=T, colClasses=c(rep("character", 2), rep("numeric", 5)))
+  asTab = table[table$namesOther %in% arsenic,]
+  names(asTab) = c("namesTaxa", "ArsenicVariable", "pKendall", "pLM", "r", "pAdjKendall", "pAdjLM")
+  asTab$pAdjLM = p.adjust(asTab$pLM, method="BH")
+  asTab$pAdjKendall = p.adjust(asTab$pKendall, method="BH")
+  asTab = asTab[order(asTab$pLM),]
+  write.table(asTab, paste("arsenic only\\arsenic_v_metaphlan2_", taxa, "_pValues.txt", sep=""), sep="\t", row.names=F, col.names=T, quote=F)
+}
+
+##minikraken vs arsenic metadata
+taxaLevels = c("domain", "phylum", "class", "order", "family", "genus", "species")
+
+for(taxa in taxaLevels) {
+  print(taxa)
+  table = read.table(paste("minikraken\\minikraken_model_pValues_metadata_v_", taxa, ".txt", sep=""), sep="\t", header=T, colClasses=c(rep("character", 2), rep("numeric", 5)))
+  asTab = table[table$namesOther %in% arsenic,]
+  names(asTab) = c("namesTaxa", "ArsenicVariable", "pKendall", "pLM", "r", "pAdjKendall", "pAdjLM")
+  asTab$pAdjLM = p.adjust(asTab$pLM, method="BH")
+  asTab$pAdjKendall = p.adjust(asTab$pKendall, method="BH")
+  asTab = asTab[order(asTab$pLM),]
+  write.table(asTab, paste("arsenic only\\arsenic_v_minikraken_", taxa, "_pValues.txt", sep=""), sep="\t", row.names=F, col.names=T, quote=F)
+}
