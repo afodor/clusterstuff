@@ -58,21 +58,21 @@ public class BWAcardsScripts {
 				for(int i = 0; i < models.length; i++) {
 					String fname = outDir + modelNames[i] + "_v_" + name;
 					//align
-					script.write("bwa mem " + REF_DIR + models[i] + 
+					/*script.write("bwa mem " + REF_DIR + models[i] + 
 							" " + f.getAbsolutePath() + " > " +
-							fname + ".sam\n");//command to align file
+							fname + ".sam\n");//command to align file*/
 					//get mapped reads only
-					script.write("samtools view -S -F 4 " + fname + ".sam > " 
+					script.write("samtools view -h -S -F 4 " + fname + ".sam > " 
 							+ fname + ".mapped.sam\n"); //get mapped reads; use -f 4 for unmapped
 					//convert to bam
-					script.write("samtools view -bS " + fname +".mapped.sam > " 
+					/*script.write("samtools view -bS " + fname +".mapped.sam > " 
 							+ fname + ".mapped.bam\n");
 					//index
 					script.write("samtools index " + fname + ".mapped.bam\n");
 					//call snps
 					script.write("samtools mpileup -uf " + REF_DIR + models[i]
 							+ " " + fname + ".mapped.bam | bcftools call -mv > " 
-							+ fname + ".vcf\n");
+							+ fname + ".vcf\n");*/
 				}
 				script.close();
 			}
