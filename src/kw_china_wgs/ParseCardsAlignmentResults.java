@@ -50,10 +50,9 @@ public class ParseCardsAlignmentResults {
 			//get reads that mapped to cards protein homolog
 			BufferedReader sam = new BufferedReader(new FileReader(new File(
 					alignDir + "pro_homolog_v_" + samp + ".mapped.sam")));
-			String read = sam.readLine();
 			//set up counts
 			int numNotPrimary = 0;
-			while(read != null) {
+			for(String read = sam.readLine(); read != null; read = sam.readLine()){
 				String[] sp = read.split("\t");
 				//only include read if primary alignment
 				if(sp[1].equals("256")) {
