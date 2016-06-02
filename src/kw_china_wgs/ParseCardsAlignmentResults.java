@@ -22,7 +22,8 @@ public class ParseCardsAlignmentResults {
 	
 	public static void main(String[] args) throws Exception {
 		//get list of samples
-		String[] fastas = new File(DIR + "fastas").list();
+		String fastaDir = DIR + "fastas/";
+		String[] fastas = new File(fastaDir).list();
 		String[] samples = new String[NUM_SAMPS];
 		int check = 0;
 		for(String f : fastas) {
@@ -35,7 +36,21 @@ public class ParseCardsAlignmentResults {
 			throw new Exception("Incorrect number of samples " + check);
 		}
 		
-		//get counts (raw and non-human) for each gene
+		//get number of reads in each file
+		double[] totReads = new double[NUM_SAMPS];
+		for(int i = 0; i < NUM_SAMPS; i++) {
+			String sample = samples[i];
+			BufferedReader fa = new BufferedReader(new FileReader(new File(
+					fastaDir + sample + "_1.fa")));
+			for(String line = fa.readLine(); line != null; line = fa.readLine()) {
+				if(line.startsWith(">")) {
+					totReads[i]++;
+				}
+			}
+			fa.close();
+		}
+		
+		//get counts (all and non-human) for each gene
 		HashMap<String, Integer[]> geneCounts = new HashMap<String, Integer[]>();
 		HashMap<String, Integer[]> nonHumGeneCounts = new HashMap<String, Integer[]>();
 		int[] numHits = new int[NUM_SAMPS];
@@ -96,7 +111,7 @@ public class ParseCardsAlignmentResults {
 		Collections.sort(genes);
 		
 		//write header
-		out.write("sample\tnumberReadsMapped\tnumberNonHumanReadsMapped");
+		out.write("sample\tproportionReadsMapped\tproportionReadsMappedNonHuman");
 		for(String g : genes) {
 			out.write("\t" + g + "\t" + "nonhuman " + g);
 			//out.write("\t" + g);
@@ -105,15 +120,18 @@ public class ParseCardsAlignmentResults {
 		
 		//write counts
 		for(int i = 0; i < NUM_SAMPS; i++) {
-			out.write(samples[i] + "\t" + numHits[i] + "\t" + numNonHumanHits[i]);
+			out.write(samples[i] + "\t" 
+						+ (numHits[i] / totReads[i]) + "\t" + 
+						(numNonHumanHits[i] / totReads[i]));
 			if(numHits[i] != numNonHumanHits[i]) {
-				System.err.println("human hits mapped in " + samples[i]);
+				System.err.println("human hits mapped in " + samples[i] + 
+						" " + (numHits[i] - numNonHumanHits[i]));
 			}
 			for(String g : genes) {
 				//out.write("\t" + geneCounts.get(g)[i]);
-				out.write("\t" + geneCounts.get(g)[i] + "\t");
+				out.write("\t" + (geneCounts.get(g)[i] / totReads[i]) + "\t");
 				if(nonHumGeneCounts.containsKey(g)) {
-					out.write(String.valueOf(nonHumGeneCounts.get(g)[i]));
+					out.write(String.valueOf(nonHumGeneCounts.get(g)[i] / totReads[i]));
 				} else {
 					out.write("0");
 				}
