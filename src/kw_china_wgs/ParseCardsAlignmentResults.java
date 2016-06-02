@@ -53,33 +53,35 @@ public class ParseCardsAlignmentResults {
 			//set up counts
 			int numNotPrimary = 0;
 			for(String read = sam.readLine(); read != null; read = sam.readLine()){
-				String[] sp = read.split("\t");
-				//only include read if primary alignment
-				if(sp[1].equals("256")) {
-					numNotPrimary++;
-				} else {
-					numHits[i]++;
-					String gene = sp[2];
-					
-					if(!geneCounts.containsKey(gene)) {
-						Integer[] counts = new Integer[NUM_SAMPS];
-						Arrays.fill(counts, 0);
-						geneCounts.put(gene, counts);
-					}
-					Integer[] counts = geneCounts.get(gene);
-					counts[i]++;
-					
-					//reads that didn't map to human
-					if(!humanReads.contains(sp[0])) {
-						numNonHumanHits[i]++;
-						
-						if(!nonHumGeneCounts.containsKey(gene)) {
-							Integer[] nonHumCounts = new Integer[NUM_SAMPS];
-							Arrays.fill(nonHumCounts, 0);
-							nonHumGeneCounts.put(gene, nonHumCounts);
+				if(!read.startsWith("@")) {
+					String[] sp = read.split("\t");
+					//only include read if primary alignment
+					if(sp[1].equals("256")) {
+						numNotPrimary++;
+					} else {
+						numHits[i]++;
+						String gene = sp[2];
+
+						if(!geneCounts.containsKey(gene)) {
+							Integer[] counts = new Integer[NUM_SAMPS];
+							Arrays.fill(counts, 0);
+							geneCounts.put(gene, counts);
 						}
-						Integer[] nonHumCounts = nonHumGeneCounts.get(gene);
-						nonHumCounts[i]++;
+						Integer[] counts = geneCounts.get(gene);
+						counts[i]++;
+
+						//reads that didn't map to human
+						if(!humanReads.contains(sp[0])) {
+							numNonHumanHits[i]++;
+
+							if(!nonHumGeneCounts.containsKey(gene)) {
+								Integer[] nonHumCounts = new Integer[NUM_SAMPS];
+								Arrays.fill(nonHumCounts, 0);
+								nonHumGeneCounts.put(gene, nonHumCounts);
+							}
+							Integer[] nonHumCounts = nonHumGeneCounts.get(gene);
+							nonHumCounts[i]++;
+						}
 					}
 				}
 			}
