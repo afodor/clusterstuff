@@ -113,9 +113,9 @@ public class ParseCardsAlignmentResults {
 				//out.write("\t" + geneCounts.get(g)[i]);
 				out.write("\t" + geneCounts.get(g)[i] + "\t");
 				if(nonHumGeneCounts.containsKey(g)) {
-					out.write(nonHumGeneCounts.get(g)[i]);
+					out.write(String.valueOf(nonHumGeneCounts.get(g)[i]));
 				} else {
-					out.write(0);
+					out.write("0");
 				}
 			}
 			out.write("\n");
