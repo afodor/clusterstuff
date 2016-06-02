@@ -98,8 +98,8 @@ public class ParseCardsAlignmentResults {
 		//write header
 		out.write("sample\tnumberReadsMapped\tnumberNonHumanReadsMapped");
 		for(String g : genes) {
-			//out.write("\t" + g + "\t" + "nonhuman " + g);
-			out.write("\t" + g);
+			out.write("\t" + g + "\t" + "nonhuman " + g);
+			//out.write("\t" + g);
 		}
 		out.write("\n");
 		
@@ -110,13 +110,13 @@ public class ParseCardsAlignmentResults {
 				System.err.println("human hits mapped in " + samples[i]);
 			}
 			for(String g : genes) {
-				out.write("\t" + geneCounts.get(g)[i]);
-				/*out.write("\t" + geneCounts.get(g)[i] + "\t");
+				//out.write("\t" + geneCounts.get(g)[i]);
+				out.write("\t" + geneCounts.get(g)[i] + "\t");
 				if(nonHumGeneCounts.containsKey(g)) {
 					out.write(nonHumGeneCounts.get(g)[i]);
 				} else {
 					out.write(0);
-				}*/
+				}
 			}
 			out.write("\n");
 		}
