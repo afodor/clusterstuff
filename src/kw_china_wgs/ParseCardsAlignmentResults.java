@@ -111,7 +111,7 @@ public class ParseCardsAlignmentResults {
 		Collections.sort(genes);
 		
 		//write header
-		out.write("sample\tproportionReadsMapped\tproportionReadsMappedNonHuman");
+		out.write("sample\tnumberReads\tproportionReadsMapped\tproportionReadsMappedNonHuman");
 		for(String g : genes) {
 			out.write("\t" + g + "\t" + "nonhuman " + g);
 			//out.write("\t" + g);
@@ -120,7 +120,7 @@ public class ParseCardsAlignmentResults {
 		
 		//write counts
 		for(int i = 0; i < NUM_SAMPS; i++) {
-			out.write(samples[i] + "\t" 
+			out.write(samples[i] + "\t" + totReads[i] + "\t" +
 						+ (numHits[i] / totReads[i]) + "\t" + 
 						(numNonHumanHits[i] / totReads[i]));
 			if(numHits[i] != numNonHumanHits[i]) {
