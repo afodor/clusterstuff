@@ -12,10 +12,14 @@ import java.util.HashSet;
 import java.util.List;
 
 import coPhylog.ContextCount;
+import utils.Translate;
 
 public class WriteSNPFile
 {
 	private static int MIN_NUMBER_READS = 5;
+	
+	// todo: This is sometimes passed in and sometimes hard coded
+	private static final int KMER_SIZE =30;
 	
 	public static HashMap<Long, ContextCount> readFileRequireMin(File file, int minRequiredReads) 
 			throws Exception
@@ -78,6 +82,13 @@ public class WriteSNPFile
 		
 		for( Long l : map1.keySet() )
 		{
+			if( ! map2.containsKey(l))
+			{
+				String kmer = Encode.getKmer(l, KMER_SIZE);
+				kmer = Translate.reverseTranscribe(kmer);
+				l = Encode.makeLong(kmer);
+			}
+			
 			if( map2.containsKey(l))
 			{
 				ContextCount cc1 = map1.get(l);
@@ -144,8 +155,8 @@ public class WriteSNPFile
 			
 		Collections.sort(snpList);
 		System.out.println("Found " + snpList.size() + " out of " + map1.size() + " " + map2.size() + " " + numMatch + " " + 
-		"fractionMatch = " + (numMatch/map1.size()));
-		writeResults(outFile, snpList, numMatch, numMatch/map1.size());
+		"fractionMatch = " + (numMatch/(map1.size())));
+		writeResults(outFile, snpList, numMatch, numMatch/ Math.min(map1.size(), map2.size()) );
 	}
 	
 	private static void writeResults(File outFile, List<Holder> snpList, double numMatch, double fractionMatch) 
