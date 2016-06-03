@@ -39,8 +39,8 @@ public class WriteSNPFile
 				throw new Exception("Duplicate");
 			
 
-			ContextCount cc = new ContextCount(Byte.parseByte(splits[1]), 
-					Byte.parseByte(splits[2]), Byte.parseByte(splits[3]), Byte.parseByte(splits[4]));
+			ContextCount cc = new ContextCount(Integer.parseInt(splits[1]), 
+					Integer.parseInt(splits[2]), Integer.parseInt(splits[3]), Integer.parseInt(splits[4]));
 			
 			if( cc.getMax() >= minRequiredReads)
 				map.put(longKey,cc);
