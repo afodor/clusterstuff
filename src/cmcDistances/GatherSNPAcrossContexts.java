@@ -1,9 +1,15 @@
 package cmcDistances;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import coPhylog.ContextCount;
@@ -12,6 +18,62 @@ import utils.Translate;
 public class GatherSNPAcrossContexts
 {
 	public static final int CUTOFF = 10;
+	
+	private static final File RESULTS_SPREADSHEET 
+		= new File("/nobackup/afodor_research/fromNury52016/snpsAt" + CUTOFF + ".txt");
+			
+	private static void writeResults( HashSet<String> set ) throws Exception
+	{
+		List<String> list = new ArrayList<>(set);
+		Collections.sort(list);
+		
+		BufferedWriter writer = new BufferedWriter(new FileWriter(RESULTS_SPREADSHEET));
+		
+		writer.write("genome");
+		
+		for(String s : list)
+			writer.write("\t" + s);
+		
+		writer.write("\n");
+		
+		for(String s : WriteContextScripts.OUTPUT_DIRECTORY.list())
+			if( s.endsWith("context"))
+			{
+				writer.write(s.replaceAll(".context", ""));
+				
+				File inFile = new File(WriteContextScripts.OUTPUT_DIRECTORY + 
+							File.separator + s);
+				System.out.println("reading " + inFile.getAbsolutePath());
+				HashMap<Long, ContextCount> map = 
+						WriteSNPFile.readFileRequireMin(inFile, 0);
+				
+				for(String s2 : list)
+				{
+					Long aLong = Encode.makeLong(s2);
+					ContextCount cc = map.get(aLong);
+					
+					if( cc == null)
+					{
+						cc = map.get(Encode.makeLong(Translate.reverseTranscribe(s2)));
+						
+						if( cc != null)
+							cc.reverseTranscribe();
+					}
+						
+					if( cc== null)
+						writer.write("\t-");
+					else
+						writer.write("\t" + cc.toString());
+					
+				}
+				
+				writer.write("\n");
+				writer.flush();
+			}
+		
+		writer.flush();  writer.close();
+	}
+	
 	
 	public static void main(String[] args) throws Exception
 	{
