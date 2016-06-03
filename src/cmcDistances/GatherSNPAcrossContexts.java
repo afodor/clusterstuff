@@ -24,7 +24,7 @@ public class GatherSNPAcrossContexts
 			
 	private static void writeResults( HashSet<String> set ) throws Exception
 	{
-		List<String> list = new ArrayList<>(set);
+		List<String> list = new ArrayList<String>(set);
 		Collections.sort(list);
 		
 		BufferedWriter writer = new BufferedWriter(new FileWriter(RESULTS_SPREADSHEET));
@@ -81,6 +81,8 @@ public class GatherSNPAcrossContexts
 		
 		for(String s : set)
 			System.out.println(s);
+		
+		writeResults(set);
 	}
 	
 	
