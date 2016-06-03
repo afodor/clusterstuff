@@ -38,7 +38,7 @@ public class WriteContextScripts
 				
 				BufferedWriter writer = new BufferedWriter(new FileWriter(scriptFile));
 				
-				writer.write("java -cp /users/afodor/gitInstall/clusterstuff/bin cmcDistances.MakeContextMap -Xmx20g " + 
+				writer.write("java  -Xmx20g -cp /users/afodor/gitInstall/clusterstuff/bin cmcDistances.MakeContextMap" + 
 								 inFile.getAbsolutePath() + " " + outFile.getAbsolutePath() + " 15 " 
 								+"\n"
 						);
