@@ -9,7 +9,7 @@ public class WriteDistanceScripts
 	private static File SCRIPT_DIRECTORY = new File(
 			"/nobackup/afodor_research/fromNury52016/scripts/snpScripts");
 	
-	private static File SNP_DIRECTORY = new File(
+	static File SNP_DIRECTORY = new File(
 			"/nobackup/afodor_research/fromNury52016/snpFiles");
 	
 	public static void main(String[] args) throws Exception

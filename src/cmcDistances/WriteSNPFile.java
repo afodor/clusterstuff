@@ -19,7 +19,7 @@ public class WriteSNPFile
 	private static int MIN_NUMBER_READS = 5;
 	
 	// todo: This is sometimes passed in and sometimes hard coded
-	private static final int KMER_SIZE =30;
+	static final int KMER_SIZE =30;
 	
 	public static HashMap<Long, ContextCount> readFileRequireMin(File file, int minRequiredReads) 
 			throws Exception
