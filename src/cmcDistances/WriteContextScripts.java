@@ -7,7 +7,7 @@ import java.io.FileWriter;
 public class WriteContextScripts
 {
 	private static File INPUT_DIRECTORY = new File(
-			"/projects/afodor_chs/From Nury 5-2016");
+			"/projects/afodor_chs/fromNury5_2016");
 	
 	private static File OUTPUT_DIRECTORY = new File(
 			"/nobackup/afodor_research/fromNury52016/contexts");
@@ -39,7 +39,7 @@ public class WriteContextScripts
 				BufferedWriter writer = new BufferedWriter(new FileWriter(scriptFile));
 				
 				writer.write("java -cp /users/afodor/gitInstall/clusterstuff/bin cmcDistances.MakeContextMap -Xmx20g " + 
-								"\"" + inFile.getAbsolutePath() + "\" " + outFile.getAbsolutePath() + " 15 " 
+								 inFile.getAbsolutePath() + " " + outFile.getAbsolutePath() + " 15 " 
 								+"\n"
 						);
 				
