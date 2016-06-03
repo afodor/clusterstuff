@@ -82,6 +82,8 @@ public class WriteSNPFile
 		
 		for( Long l : map1.keySet() )
 		{
+			ContextCount cc1 = map1.get(l);
+
 			if( ! map2.containsKey(l))
 			{
 				String kmer = Encode.getKmer(l, KMER_SIZE);
@@ -91,7 +93,6 @@ public class WriteSNPFile
 			
 			if( map2.containsKey(l))
 			{
-				ContextCount cc1 = map1.get(l);
 				ContextCount cc2 = map2.get(l);
 				
 				if( cc1.isDifferentInHighest(cc2))
