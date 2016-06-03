@@ -89,6 +89,7 @@ public class WriteSNPFile
 				String kmer = Encode.getKmer(l, KMER_SIZE);
 				kmer = Translate.reverseTranscribe(kmer);
 				l = Encode.makeLong(kmer);
+				cc1.reverseTranscribe();
 			}
 			
 			if( map2.containsKey(l))
