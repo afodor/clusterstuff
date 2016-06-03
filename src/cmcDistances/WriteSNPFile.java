@@ -21,6 +21,7 @@ public class WriteSNPFile
 			throws Exception
 	{
 		BufferedReader reader = new BufferedReader(new FileReader(file));
+		reader.readLine();
 		
 		HashMap<Long, ContextCount> map = new HashMap<Long, ContextCount>();
 
