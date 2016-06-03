@@ -36,10 +36,11 @@ public class WriteContextScripts
 				File scriptFile = new File(SCRIPT_DIRECTORY.getAbsolutePath() + File.separator 
 						+ "run_" + index + ".sh");
 				
-				BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
-						"java -cp /users/afodor/gitInstall/clusterstuff/bin -Xmx20g " + 
+				BufferedWriter writer = new BufferedWriter(new FileWriter(scriptFile));
+				
+				writer.write("java -cp /users/afodor/gitInstall/clusterstuff/bin -Xmx20g " + 
 								inFile.getAbsolutePath() + " " + outFile.getAbsolutePath() + "\n"
-						)));
+						);
 				
 				allWriter.write("qsub -q\"viper\" " + scriptFile.getAbsolutePath());
 				
