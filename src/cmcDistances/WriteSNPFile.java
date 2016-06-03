@@ -145,15 +145,18 @@ public class WriteSNPFile
 		Collections.sort(snpList);
 		System.out.println("Found " + snpList.size() + " out of " + map1.size() + " " + map2.size() + " " + numMatch + " " + 
 		"fractionMatch = " + (numMatch/map1.size()));
-		writeResults(outFile, snpList);
+		writeResults(outFile, snpList, numMatch, numMatch/map1.size());
 	}
 	
-	private static void writeResults(File outFile, List<Holder> snpList) throws Exception
+	private static void writeResults(File outFile, List<Holder> snpList, double numMatch, double fractionMatch) 
+				throws Exception
 	{
 		if( outFile.exists())
 			throw new Exception(outFile.getAbsolutePath() + " already exists ");
 		
 		BufferedWriter writer = new BufferedWriter(new FileWriter(outFile));
+		writer.write("Num match = " + numMatch + "\n");
+		writer.write("Fraction match = " + fractionMatch + "\n");
 		writer.write("sequence\tcontext1\tcontext2\tdistance\n");
 		
 		for( Holder h : snpList)
