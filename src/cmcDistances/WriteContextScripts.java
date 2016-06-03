@@ -45,6 +45,7 @@ public class WriteContextScripts
 				allWriter.write("qsub -q\"viper\" " + scriptFile.getAbsolutePath());
 				
 				writer.flush();  writer.close();
+				index++;
 			}
 		}
 		
