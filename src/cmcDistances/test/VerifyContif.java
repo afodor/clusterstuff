@@ -49,7 +49,7 @@ public class VerifyContif
 	{
 		StringBuffer buff = new StringBuffer();
 		
-		for( int x=s.length()-1; x > 0 ; x--)
+		for( int x=s.length()-1; x >= 0 ; x--)
 			buff.append(flip(s.charAt(x)));
 		
 		return buff.toString();
