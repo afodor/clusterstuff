@@ -93,8 +93,8 @@ public class VerifyContif
 		
 		for(String s : map.keySet())
 		{
-			writer.write(s );
-			Holder h = map.get(s + "\t");
+			writer.write(s + "\t" );
+			Holder h = map.get(s);
 			
 			writer.write(h.numA + "\t" + h.numC + "\t" + h.numG + "\t" + h.numT + "\n");
 		}
