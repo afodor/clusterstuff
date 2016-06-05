@@ -94,7 +94,7 @@ public class VerifyContif
 		for(String s : map.keySet())
 		{
 			writer.write(s );
-			Holder h = map.get(s);
+			Holder h = map.get(s + "\t");
 			
 			writer.write(h.numA + "\t" + h.numC + "\t" + h.numG + "\t" + h.numT + "\n");
 		}
@@ -112,7 +112,6 @@ public class VerifyContif
 		
 		for(String s = reader.readLine(); s != null; s = reader.readLine())
 		{
-			reader.readLine();
 			String seq = reader.readLine();
 			reader.readLine();  reader.readLine();
 			
