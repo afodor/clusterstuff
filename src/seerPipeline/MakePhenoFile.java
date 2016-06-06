@@ -9,6 +9,7 @@ import creOrthologs.RunBlastAll;
 public class MakePhenoFile
 {
 	public static final File SEER_DIR= new File( "/nobackup/afodor_research/seerStuff");
+	public static final File TOP_DIR = new File("/nobackup/afodor_research/af_broad");
 	
 	public static void main(String[] args) throws Exception
 	{
@@ -17,7 +18,7 @@ public class MakePhenoFile
 		
 		for( String d : RunBlastAll.DIRECTORIES)
 		{
-			File genomeDir = new File("/projects/afodor_research/af_broad" + File.separator + d);
+			File genomeDir = new File(TOP_DIR.getAbsolutePath() + File.separator + d);
 			
 			String[] list = genomeDir.list();
 
