@@ -58,7 +58,8 @@ public class ParseCardsBlastResults {
 		
 		//for gene blasts, for each genome get set of genes that mapped to each cards gene
 		HashMap<String, ArrayList<Set<String>>> hits = new HashMap<String, ArrayList<Set<String>>>();
-		HashMap<String, Integer> genomeHits = new HashMap<String, Integer>();
+		//HashMap<String, Integer> genomeHits = new HashMap<String, Integer>();
+		HashMap<String, ArrayList<Set<String>>> shortNameHits = new HashMap<String, ArrayList<Set<String>>>();
 		for(int i = 0; i < samples.length; i++) {
 			String samp = samples[i];
 			int numHits = 0;
@@ -85,11 +86,27 @@ public class ParseCardsBlastResults {
 							sets.set(i,new HashSet<String>());
 						}
 						sets.get(i).add(sp[0]);
+						
+						//also add to short name
+						String[] sp2 = cards.split("\\|");
+						String sName = sp2[sp2.length-1].split("-")[0];
+						if(!shortNameHits.containsKey(sName)) {
+							sets = new ArrayList<Set<String>>(NUM_SAMPLES);
+							for(int j = 0; j < NUM_SAMPLES; j++) {
+								sets.add(null);
+							}
+							shortNameHits.put(sName, sets);
+						}
+						sets = shortNameHits.get(sName);
+						if(sets.get(i) == null) {
+							sets.set(i,new HashSet<String>());
+						}
+						sets.get(i).add(sp[0]);
 					}
 				}
 			}
 			System.out.println(samp + " " + numHits + " gene hits");
-			genomeHits.put(samp, new Integer(numHits));
+			//genomeHits.put(samp, new Integer(numHits));
 			br.close();
 		}
 
@@ -110,7 +127,37 @@ public class ParseCardsBlastResults {
 			ArrayList<Set<String>> matches = hits.get(k);
 			for(int gen = 0; gen < matches.size(); gen++) {
 				if(matches.get(gen) == null) {
-					out.write("\t");
+					out.write("\tNA");
+				} else {
+					ArrayList<String> genes = new ArrayList<String>(matches.get(gen));
+					out.write("\t" + genes.get(0));
+					for(int g = 1; g < genes.size(); g++) {
+						out.write(";" + genes.get(g));
+					}
+				}
+			}
+			out.write("\n");
+		}
+		out.close();
+		
+		//write collapse hits by gene type
+		out = new BufferedWriter(new FileWriter(new File(
+				DIR + "blastCardsProHomologGeneTables_pid" + PID_CUT 
+				+ "_len" + LEN_CUT + "_collapsed.txt")));
+		//header
+		out.write("CARDSgeneShort");
+		for(int i = 0; i < samples.length; i++) {
+			out.write("\t" + samples[i]);
+		}
+		out.write("\n");
+		keys = new ArrayList<String>(shortNameHits.keySet());
+		Collections.sort(keys);
+		for(String k : keys) {
+			out.write(k);
+			ArrayList<Set<String>> matches = shortNameHits.get(k);
+			for(int gen = 0; gen < matches.size(); gen++) {
+				if(matches.get(gen) == null) {
+					out.write("\tNA");
 				} else {
 					ArrayList<String> genes = new ArrayList<String>(matches.get(gen));
 					out.write("\t" + genes.get(0));
@@ -124,7 +171,7 @@ public class ParseCardsBlastResults {
 		out.close();
 		
 		//check with scaffolds
-		for(int i = 0; i < samples.length; i++) {
+		/*for(int i = 0; i < samples.length; i++) {
 			String samp = samples[i];
 			int numHits = 0;
 			BufferedReader br = new BufferedReader(new FileReader(new File(
@@ -154,7 +201,7 @@ public class ParseCardsBlastResults {
 						+ numHits + " scaffolds");
 			}
 			br.close();
-		}
+		}*/
 	}
 
 }
