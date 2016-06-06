@@ -109,10 +109,14 @@ public class ParseCardsBlastResults {
 			out.write(k);
 			ArrayList<Set<String>> matches = hits.get(k);
 			for(int gen = 0; gen < matches.size(); gen++) {
-				ArrayList<String> genes = new ArrayList<String>(matches.get(gen));
-				out.write("\t" + genes.get(0));
-				for(int g = 1; g < genes.size(); g++) {
-					out.write(";" + genes.get(g));
+				if(matches.get(gen) == null) {
+					out.write("\t");
+				} else {
+					ArrayList<String> genes = new ArrayList<String>(matches.get(gen));
+					out.write("\t" + genes.get(0));
+					for(int g = 1; g < genes.size(); g++) {
+						out.write(";" + genes.get(g));
+					}
 				}
 			}
 			out.write("\n");
