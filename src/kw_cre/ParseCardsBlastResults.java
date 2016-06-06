@@ -63,7 +63,7 @@ public class ParseCardsBlastResults {
 			String samp = samples[i];
 			int numHits = 0;
 			BufferedReader br = new BufferedReader(new FileReader(new File(
-					DIR + samp + ".genes_v_cardsProHomolog")));
+					DIR + "carolina_" + samp + ".genes_v_cardsProHomolog")));
 			for(String line = br.readLine(); line != null; line = br.readLine()) {
 				if(!line.startsWith("#")) {
 					String[] sp = line.split("\t");
