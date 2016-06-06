@@ -75,6 +75,9 @@ public class ParseCardsBlastResults {
 						numHits++;
 						if(!hits.containsKey(cards)) {
 							ArrayList<Set<String>> sets = new ArrayList<Set<String>>(NUM_SAMPLES);
+							for(int j = 0; j < NUM_SAMPLES; j++) {
+								sets.add(null);
+							}
 							hits.put(cards, sets);
 						}
 						ArrayList<Set<String>> sets = hits.get(cards);
