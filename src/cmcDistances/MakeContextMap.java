@@ -78,7 +78,7 @@ public class MakeContextMap
 			// todo: add the reverse complement
 			int stopPoint = seq.length() - (leftHashLength + rightHashLength + 1);
 			
-			for( int x=0; x < stopPoint; x++ )
+			for( int x=0; x <= stopPoint; x++ )
 			{
 				String leftHash = seq.substring(x, x + leftHashLength);
 				
