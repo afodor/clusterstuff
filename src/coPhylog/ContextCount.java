@@ -30,6 +30,17 @@ public class ContextCount
 		this.numT = numT;
 	}
 	
+	public void reverseTranscribe()
+	{
+		byte temp = this.numA;
+		this.numA = this.numT;
+		this.numT = temp;
+		
+		temp = this.numC;
+		this.numC = this.numG;
+		this.numG = temp;
+	}
+	
 	public ContextCount( int numA, int numC, int numG, int numT) throws Exception
 	{
 		if( (numA-128) > Byte.MAX_VALUE  || (numC-128) > Byte.MAX_VALUE 

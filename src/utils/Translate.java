@@ -515,21 +515,9 @@ public class Translate
 	}
 	
 	
-	/*
 	public static void main(String[] args) throws Exception
 	{
-		//String sequence = readSequenceFromFastaFile( new File("C:\\vectorSequences\\mbr5_ss.txt" ));
-		String sequence= readSequenceFromFastaFile(new File("C:\\vectorSequences\\dslo-Adelman-DNA.1.txt"));
-		String upPrimer = "GGCACGGGCACACAGAATC";
-		String downPrimer = "AGAGTTATCATCCTTGTTGGA";
-		downPrimer = reverseTranslate(downPrimer);
-		
-		System.out.println( getProteinSequence(downPrimer) );
-		
-		System.out.println ( sequence.indexOf(downPrimer) - sequence.indexOf(upPrimer) );
-		
-		
-		
+		System.out.println( Translate.reverseTranscribe("GATCGGCGAGAAGCCGCGACGCGGTCCGGG") );
 	}
 	
 	/*
