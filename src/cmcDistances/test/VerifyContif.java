@@ -9,7 +9,7 @@ import java.util.HashMap;
 
 public class VerifyContif
 {
-	private static class Holder
+	static class Holder
 	{
 		int numA=0;
 		int numC=0;
@@ -28,6 +28,21 @@ public class VerifyContif
 				numT++;
 			else
 				throw new Exception("No " + c);
+		}
+		
+		@Override
+		public boolean equals(Object obj)
+		{
+			Holder o = (Holder) obj;
+			
+			return this.numA == o.numA && this.numC == o.numC && this.numG == o.numG 
+						&& this.numT == o.numT;
+		}
+		
+		@Override
+		public String toString()
+		{
+			return "[" + this.numA + "," + this.numC + "," + this.numG + "," + this.numT + "]";
 		}
 		
 	}
@@ -103,7 +118,7 @@ public class VerifyContif
 	}
 	
 	
-	private static HashMap<String, Holder> parseFile(File f, int leftIndex, int rightIndex) 
+	static HashMap<String, Holder> parseFile(File f, int leftIndex, int rightIndex) 
 				throws Exception
 	{
 		HashMap<String, Holder> map = new HashMap<String,Holder>();
