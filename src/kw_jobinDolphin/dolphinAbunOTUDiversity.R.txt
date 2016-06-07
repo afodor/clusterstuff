@@ -49,21 +49,21 @@ for(ind in 1:length(levels)) {
   site = factor(table$BODY.SITE.SAMPLED)
   
   ##shannon diversity
-  shan = diversity(table[,-c(1:15)], index="shannon") #margin=1=row
+  shan = diversity(table[,-c(1:13)], index="shannon") #margin=1=row
   boxplot(shan~site, xlab="body site", ylab="Shannon Diversity", main=names[ind])
   points(shan~site, col=col, pch=sh)
   ptt = pairwise.t.test(shan, site, p.adjust.method="BH", alternative="two.sided")
   write.table(ptt[["p.value"]], paste("abunOTU_pairwise-t-test_shannon_", lev, ".txt", sep=""), sep="\t", quote=F, row.names=T, col.names=NA)
   
   ##inverted simpson
-  is = diversity(table[,-c(1:15)], index="invsimpson") #margin=1=row
+  is = diversity(table[,-c(1:13)], index="invsimpson") #margin=1=row
   boxplot(is~site, xlab="body site", ylab="Inverse Simpson", main=names[ind])
   points(is~site, col=col, pch=sh)
   ptt = pairwise.t.test(is, site, p.adjust.method="BH", alternative="two.sided")
   write.table(ptt[["p.value"]], paste("abunOTU_pairwise-t-test_inverseSimpson_", lev, ".txt", sep=""), sep="\t", quote=F, row.names=T, col.names=NA)
   
   ##richness
-  rich = specnumber(table[,-c(1:15)])
+  rich = specnumber(table[,-c(1:13)])
   boxplot(rich~site, xlab="group", ylab="richness", main=names[ind])
   points(rich~site, col=col, pch=sh)
   ptt = pairwise.t.test(rich, site, p.adjust.method="BH", alternative="two.sided")
