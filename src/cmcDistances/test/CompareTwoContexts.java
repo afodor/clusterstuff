@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.HashMap;
 
 import cmcDistances.test.VerifyContif.Holder;
+import utils.Translate;
 
 public class CompareTwoContexts
 {
@@ -23,11 +24,32 @@ public class CompareTwoContexts
 		
 		for(String s : map1.keySet())
 		{
-			if(  map1.get(s).equals(map2.get(s)) )
-				throw new Exception("No " + map1.get(s) + " " + map2.get(s) );
+			Holder h1 = map1.get(s);
+			
+			if( h1 == null)
+				throw new Exception("No");
+			
+			Holder h2 = map2.get(2);
+			
+			if( h2 == null)
+			{
+				String rev = Translate.reverseTranscribe(s);
+				
+				h2 = map2.get(rev);
+				
+				if( h2 == null)
+					throw new Exception("Could not find " + s + " " + rev);
+				
+				h2.flip();
+				
+			}
+			
+			if(  ! h1.equals(h2) )
+				throw new Exception("No " + h1 + " " + h2 );
 		}
 		
-		System.out.println("passed " + args[0] + " " + args[1]);
+		System.out.println("passed " + args[0] + " " + args[1] 
+				+ " " + map1.size() + " " + map2.size());
 	}
 	
 	

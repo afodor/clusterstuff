@@ -16,6 +16,17 @@ public class VerifyContif
 		int numG=0;
 		int numT=0;
 		
+		void flip()
+		{
+			int temp = this.numA;
+			this.numA = this.numT;
+			this.numT = temp;
+			
+			temp = this.numC;
+			this.numC = this.numG;
+			this.numG = temp;
+		}
+		
 		void add(char c) throws Exception
 		{
 			if( c== 'A')
