@@ -26,6 +26,8 @@ public class CompareTwoContexts
 			if(  map1.get(s).equals(map2.get(s)) )
 				throw new Exception("No " + map1.get(s) + " " + map2.get(s) );
 		}
+		
+		System.out.println("passed " + args[0] + " " + args[1]);
 	}
 	
 	
