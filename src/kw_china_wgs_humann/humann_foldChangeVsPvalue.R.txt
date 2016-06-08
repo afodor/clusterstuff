@@ -1,0 +1,41 @@
+##look at whether the significant taxa are higher in urban or rural
+##6/8/16
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\China\\humann")
+
+levels = c("module", "pathway")
+
+pValues = data.frame(level = levels, p = rep(NA, length(levels)))
+
+for(i in 1:length(levels)) {
+  lev = levels[i]
+  print(lev)
+  table = read.table(paste("humann_otuModel_pValues_", lev, ".txt",sep=""), sep="\t", header=T,
+                     colClasses=c("character", "character", rep("numeric", 8)))
+  
+  ##contingency table
+  ctbl = cbind(hiUrban = c(sum(table$adjustedPurbanRural <= 0.05 & table$UrbanToRural > 1),
+                           sum(table$adjustedPurbanRural > 0.05 & table$UrbanToRural > 1)),
+               hiRural = c(sum(table$adjustedPurbanRural <= 0.05 & table$UrbanToRural < 1),
+                           sum(table$adjustedPurbanRural > 0.05 & table$UrbanToRural < 1)))
+  row.names(ctbl) = c("sig", "notSig")
+  print(ctbl)
+  ##chi square test
+  p = chisq.test(ctbl, simulate.p.value = T)$p.value
+  pValues$p[i] = p
+  
+  ##volcano plot
+  jpeg(paste("humann_volcanoPlot_", lev, ".jpg", sep=""))
+  plot(x = log2(table$UrbanToRural), y = -1*log10(table$pValuesUrbanRural),
+       xlab = "log2 urban/rural fold change", ylab= "-log10 p-values", pch=16,
+       main = paste("humann", lev, "\np =", format(p, digits = 2)))
+  abline(h=-log10(0.05), lty=3, col="gray")
+  abline(v=0, lty=3, col="gray")
+  dev.off()
+  
+}
+
+pValues$pAdj = p.adjust(pValues$p, method="BH")
+write.table(pValues, "humann_chisquare.txt", row.names = F, col.names = T, quote=F, sep="\t")
