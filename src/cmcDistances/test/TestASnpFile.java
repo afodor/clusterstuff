@@ -85,6 +85,8 @@ public class TestASnpFile
 		return collected;
 	}
 	
+	
+	
 	private static void verifyAFile(File file) throws Exception
 	{
 		StringTokenizer sToken = new StringTokenizer(file.getName(), "@");
@@ -103,6 +105,11 @@ public class TestASnpFile
 		
 		if( sToken.hasMoreTokens())
 			throw new Exception("Unexpected file name " +bFile.getAbsolutePath() );
+		
+		HashMap<String, String> aMap = getMostMap(aFile);
+		HashMap<String, String> bMap =getMostMap(bFile);
+		
+		
 		
 	}
 }
