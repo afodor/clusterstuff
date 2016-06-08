@@ -20,7 +20,7 @@ public class GatherSNPAcrossContexts
 	public static final int CUTOFF = 10;
 	
 	private static final File RESULTS_SPREADSHEET 
-		= new File("/nobackup/afodor_research/fromNury52016/snpsAt" + CUTOFF + ".txt");
+		= new File("/nobackup/afodor_research/fromNury52016/bothSnpsAt" + CUTOFF + ".txt");
 			
 	private static void writeResults( HashSet<String> set ) throws Exception
 	{
@@ -127,7 +127,7 @@ public class GatherSNPAcrossContexts
 					ContextCount cc1 = parseToken(splits[1]);
 					ContextCount cc2 = parseToken(splits[2]);
 					
-					if( cc1.getMax() >= CUTOFF || 
+					if( cc1.getMax() >= CUTOFF && 
 							cc2.getMax() >= CUTOFF)
 					{
 						String seq = Encode.getKmer( Long.parseLong(splits[0]) , 
