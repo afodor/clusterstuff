@@ -3,9 +3,12 @@ package cmcDistances.test;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.StringTokenizer;
 
+import cmcDistances.Encode;
 import utils.Translate;
 
 /*
@@ -21,6 +24,54 @@ public class TestASnpFile
 	private static final char[] NUCLEOTIDES = { 'A', 'C', 'G', 'T' };
 	
 	private static final int BOTH_CUTOFF = 10;
+	
+	private static int getMax(String s) throws Exception
+	{
+		int max =0;
+		
+		s =s.replace("[", "").replace("]", "");
+		StringTokenizer sToken = new StringTokenizer(s, ",");
+		
+		for( int x=0; x < 4; x++ )
+		{
+			max = Math.max( Integer.parseInt(sToken.nextToken()), max);
+		}
+		
+		if( sToken.hasMoreTokens())
+			throw new Exception("No");
+		
+		return max;
+		
+	}
+	
+	private static List<String> getExpectedDifferences(File file)
+		throws Exception
+	{
+		List<String> list = new ArrayList<String>();
+		
+		BufferedReader reader = new BufferedReader(new FileReader(file));
+		
+		reader.readLine(); 
+		reader.readLine(); 
+		reader.readLine(); 
+		
+		for(String s = reader.readLine(); s != null; s = reader.readLine())
+		{
+			String[] splits = s.split("\t");
+			if( splits.length != 4)
+				throw new Exception("Parsing error " + s);
+			
+			if( getMax(splits[1]) >= BOTH_CUTOFF && getMax(splits[2]) >= BOTH_CUTOFF )
+			{
+				String key = Encode.getKmer(Long.parseLong(splits[0]), 30);
+				list.add(key);
+			}
+		}
+		
+		reader.close();
+		
+		return list;
+	}
 	
 	private static HashMap<String, String> getMostMap(File contextFile) throws Exception
 	{
@@ -84,7 +135,6 @@ public class TestASnpFile
 		
 		return collected;
 	}
-	
 	
 	
 	private static void verifyAFile(File file) throws Exception
