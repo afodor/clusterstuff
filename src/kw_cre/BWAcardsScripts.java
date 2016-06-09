@@ -63,11 +63,14 @@ public class BWAcardsScripts {
 					//convert to bam
 					script.write("samtools view -bS " + fname +".mapped.sam > " 
 							+ fname + ".mapped.bam\n");
+					//sort
+					script.write("samotools sort -o " + fname + ".mapped.sort.bam "
+							+ fname + ".mapped.bam\n");
 					//index
-					script.write("samtools index " + fname + ".mapped.bam\n");
+					script.write("samtools index " + fname + ".mapped.sort.bam\n");
 					//call snps
 					script.write("samtools mpileup -uf " + REF_DIR + models[i]
-							+ " " + fname + ".mapped.bam | bcftools call -mv > " 
+							+ " " + fname + ".mapped.sort.bam | bcftools call -mv > " 
 							+ fname + ".vcf\n");
 				}
 				script.close();
