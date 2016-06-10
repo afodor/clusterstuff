@@ -163,7 +163,7 @@ public class TestASnpFile
 			throw new Exception("Could not find " + aFile.getAbsolutePath());
 		
 		File bFile = new File(cmcDistances.WriteContextScripts.OUTPUT_DIRECTORY.getAbsolutePath() + 
-				File.separator + sToken.nextToken() + ".context");
+				File.separator + sToken.nextToken().replace(".txt", "") + ".context");
 		
 		if( ! bFile.exists())
 			throw new Exception("Could not find " + bFile.getAbsolutePath());
