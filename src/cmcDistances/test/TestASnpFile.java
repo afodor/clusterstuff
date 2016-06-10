@@ -107,10 +107,12 @@ public class TestASnpFile
 		String collected = null;
 		StringTokenizer sToken = new StringTokenizer(fileLine);
 		sToken.nextToken();
+		int max = 0;
 		
 		for( int x=0; x < NUCLEOTIDES.length; x++ )
 		{
 			Integer count = Integer.parseInt(sToken.nextToken());
+			max = Math.max(count, max);
 			
 			if( highest == null || count >= highest)
 			{
@@ -133,21 +135,34 @@ public class TestASnpFile
 		if( sToken.hasMoreTokens())
 			throw new Exception("Parsing error");
 		
+		if( max < BOTH_CUTOFF)
+			return "";
+		
 		return collected;
 	}
 	
+	public static void main(String[] args) throws Exception
+	{
+		if( args.length != 1)
+		{
+			System.out.println("Usage fileToVerify");
+			System.exit(1);
+		}
+		
+		verifyAFile(new File(args[0]));
+	}
 	
 	private static void verifyAFile(File file) throws Exception
 	{
 		StringTokenizer sToken = new StringTokenizer(file.getName(), "@");
 		
-		File aFile = new File(WriteContextScripts.OUTPUT_DIRECTORY.getAbsolutePath() + 
+		File aFile = new File(cmcDistances.WriteContextScripts.OUTPUT_DIRECTORY.getAbsolutePath() + 
 				File.separator + sToken.nextToken() + ".context");
 		
 		if( ! aFile.exists())
 			throw new Exception("Could not find " + aFile.getAbsolutePath());
 		
-		File bFile = new File(WriteContextScripts.OUTPUT_DIRECTORY.getAbsolutePath() + 
+		File bFile = new File(cmcDistances.WriteContextScripts.OUTPUT_DIRECTORY.getAbsolutePath() + 
 				File.separator + sToken.nextToken() + ".context");
 		
 		if( ! bFile.exists())
@@ -159,7 +174,51 @@ public class TestASnpFile
 		HashMap<String, String> aMap = getMostMap(aFile);
 		HashMap<String, String> bMap =getMostMap(bFile);
 		
+		List<String> expectedDiffs = getExpectedDifferences(file);
 		
+		int numMatching = 0;
+		int numTooSmall =0;
+		
+		for(String s : aMap.keySet())
+		{
+			if( bMap.containsKey(s))
+			{
+				String aMost = aMap.get(s);
+				String bMost = bMap.get(s);
+				 
+				if( aMost.length() == 0 || bMost.length() ==0 )
+				{
+					numTooSmall++;
+				}
+				else if( aMost.equals(bMost))
+				{
+					numMatching++;
+				}
+				else
+				{
+					boolean gotOne = false;
+					
+					for(String s2 : expectedDiffs)
+					{
+						if( ! gotOne)
+						{
+							if( s.equals(s2) || s.equals(Translate.reverseTranscribe(s2)))
+							{
+								System.out.println("MATCH " + s + " " + s2);
+								gotOne = true;
+							}
+						}
+						
+						if( ! gotOne)
+						{
+							System.out.println("Did not match " + s + " " + s2 );
+						}
+					}
+				}
+			}
+		}
+		
+		System.out.println("Matched "  + numMatching + " skipped " + numTooSmall );
 		
 	}
 }
