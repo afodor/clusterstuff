@@ -1,0 +1,165 @@
+##For stool samples:
+##add metadata, including # reads per sample
+##remove samples with <50 reads (114 RDP)
+##ApcMin
+##remove R2
+##log normalize
+##RDP and QIIME results
+##timepoints 0, 1, 12
+##6/7/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\paperRequests060216\\apc")
+rdpdatadir = "C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\stool\\"
+denovodir = "C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\qiimeDeNovo\\"
+closedrefdir = "C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\qiimeClosedRef\\"
+
+##metadata
+metadata = read.table("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\StoolMetadata.txt", sep="\t", header=T, comment.char="")
+names(metadata)[1] = "sampleID"
+
+inocID = c(18, 27, 39, 77, 91)
+metadata = metadata[metadata$Sample.Type!="remaining inoculum",] #metadata[metadata$sampleID!=113,]
+
+
+##function to set up the table
+setUpTable <- function(table) {
+  ##add # reads per sample; reorganize so sampleID is first
+  nc = ncol(table)
+  n = rowSums(table[,2:nc]) #total number reads in each sample
+  table = cbind(sampleID=table$sampleID, numReads=n, table[,2:nc])
+  
+  ##add metadata
+  tab = merge(metadata, table, by="sampleID")
+  
+  ##sample 114 was with controls; only has 22 reads mapped -> remove
+  tab = tab[tab$numReads>50,]
+  
+  ##remove ApcMin IL10
+  tab = tab[!grepl("IL10", tab$Genotype),]
+  tab$Genotype = "ApcMin" #some are Apcmin, make uniform
+  
+  ##timepoints 0, 1, and 12 only
+  tab = tab[tab$Timepoint..weeks.==0 | tab$Timepoint..weeks.==1 | tab$Timepoint..weeks.==12,]
+  
+  ##fix BF+T to be one group
+  tab$Group..Associated.with. = as.character(tab$Group..Associated.with.)
+  tab$Group..Associated.with.[grepl("#", tab$Group..Associated.with.)] = "BF+T"
+  
+  return(tab)
+}
+
+##function to log normalize the table
+logNormalize <- function(tab) {
+  nc = ncol(tab)
+  lognorm = tab
+  start = 16
+  n = rowSums(tab[,start:nc]) #number of reads in each sample
+  sumX = sum(n) #total number of reads in all samples = sum(table[,4:nc])
+  N = nrow(tab) #total number of samples
+  for(col in start:nc) {
+    for(row in 1:N) {
+      lognorm[row, col] = log10(tab[row, col]/n[row] * sumX/N + 1)
+    }
+  }
+ return(lognorm) 
+}
+
+###RDP
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+for(taxa in taxaLevels) {
+  fname = paste(rdpdatadir, "stool_", taxa, "_taxaAsCol.txt", sep="")
+  table = read.table(fname, sep="\t", header=T)
+  nc = ncol(table)
+  table = read.table(fname, sep="\t", header=T, colClasses=c("character", rep("numeric", nc-1)))
+  
+  # inoculum already in
+#   ##add inoculum in
+#   inocTab = read.table(paste("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\rdpResults\\rdp_",
+#                              taxa, "_taxaAsCol.txt", sep=""), 
+#                        sep="\t", header=T, colClasses=c("character", rep("numeric", nc-1)))
+#   inocTab = inocTab[inocTab$sampleID %in% inocID,]
+#   table = rbind(table, inocTab)
+  
+  ##remove R2
+  table = table[table$read==1,]
+  
+  ##remove fileName and read columns so same as QIIME tables
+  if(names(table)[1] != "fileName" | names(table)[3] != "read") {
+    stop("incorrect columns")
+  }
+  table = table[,-c(1,3)]
+  
+  ##set up table
+  tab = setUpTable(table)
+  
+  ##log normalize and write table (logged and unlogged)
+  write.table(tab, paste("apcStool_", taxa, "_taxaAsCol.txt", sep=""), sep="\t", row.names=F, col.names=T, quote=F)
+  logNorm = logNormalize(tab)
+  write.table(logNorm, paste("apcStool_", taxa, "_logNorm.txt", sep=""), sep="\t", row.names=F, col.names=T, quote=F)
+  
+  ##remove inoculum
+  tab = tab[tab$Timepoint..weeks.!=0,]
+  
+  ##log normalize and write table (logged and unlogged)
+  write.table(tab, paste("apcStool_", taxa, "_taxaAsCol_noInoc.txt", sep=""), sep="\t", row.names=F, col.names=T, quote=F)
+  logNorm = logNormalize(tab)
+  write.table(logNorm, paste("apcStool_", taxa, "_logNorm_noInoc.txt", sep=""), sep="\t", row.names=F, col.names=T, quote=F)
+}
+
+####QIIME de novo
+table = read.table(paste(denovodir, "stool_qiimeDeNovo_taxaAsCol.txt", sep=""), 
+                   sep="\t", header=T, colClasses=rep("numeric", 10894))
+
+##add inoculum in
+inocTab = read.table(paste(denovodir, "biofilm_de_novo_otu_taxaAsCol.txt", sep=""), skip=1,
+                     sep="\t", header=T, colClasses=c("character", rep("numeric", 10893)))
+names(inocTab)[1] = "sampleID"
+inocTab$sampleID = as.numeric(sub("X", "", inocTab$sampleID))
+inocTab = inocTab[inocTab$sampleID %in% inocID,]
+table = rbind(table, inocTab)
+
+##set up table
+tab = setUpTable(table)
+
+##log normalize and write table (logged and unlogged)
+write.table(tab, "apcStool_qiimeDeNovo_taxaAsCol.txt", sep="\t", row.names=F, col.names=T, quote=F)
+logNorm = logNormalize(tab)
+write.table(logNorm, "apcStool_qiimeDeNovo_logNorm.txt", sep="\t", row.names=F, col.names=T, quote=F)
+
+##remove inoculum
+tab = tab[tab$Timepoint..weeks.!=0,]
+
+##log normalize and write table (logged and unlogged)
+write.table(tab, "apcStool_qiimeDeNovo_taxaAsCol_noInoc.txt", sep="\t", row.names=F, col.names=T, quote=F)
+logNorm = logNormalize(tab)
+write.table(logNorm, "apcStool_qiimeDeNovo_logNorm_noInoc.txt", sep="\t", row.names=F, col.names=T, quote=F)
+
+####QIIME closed ref
+table = read.table(paste(closedrefdir, "stool_qiimeClosedRef_taxaAsCol.txt", sep=""), 
+                   sep="\t", header=T, colClasses=rep("numeric", 2304))
+
+##add inoculum in
+inocTab = read.table(paste(closedrefdir, "biofilm_closed_ref_otu_taxaAsCol.txt", sep=""), skip=1,
+                     sep="\t", header=T, colClasses=c("character", rep("numeric", 2303)))
+names(inocTab)[1] = "sampleID"
+inocTab$sampleID = as.numeric(sub("X", "", inocTab$sampleID))
+inocTab = inocTab[inocTab$sampleID %in% inocID,]
+table = rbind(table, inocTab)
+
+##set up table
+tab = setUpTable(table)
+
+##log normalize and write table (logged and unlogged)
+write.table(tab, "apcStool_qiimeClosedRef_taxaAsCol.txt", sep="\t", row.names=F, col.names=T, quote=F)
+logNorm = logNormalize(tab)
+write.table(logNorm, "apcStool_qiimeClosedRef_logNorm.txt", sep="\t", row.names=F, col.names=T, quote=F)
+
+##remove inoculum
+tab = tab[tab$Timepoint..weeks.!=0,]
+
+##log normalize and write table (logged and unlogged)
+write.table(tab, "apcStool_qiimeClosedRef_taxaAsCol_noInoc.txt", sep="\t", row.names=F, col.names=T, quote=F)
+logNorm = logNormalize(tab)
+write.table(logNorm, "apcStool_qiimeClosedRef_logNorm_noInoc.txt", sep="\t", row.names=F, col.names=T, quote=F)
