@@ -209,11 +209,11 @@ public class TestASnpFile
 								gotOne = true;
 							}
 						}
-						
-						if( ! gotOne)
-						{
-							System.out.println("Did not match " + s + " " + s2 );
-						}
+					}
+					
+					if( ! gotOne)
+					{
+						System.out.println("Did not match " + s );
 					}
 				}
 			}
