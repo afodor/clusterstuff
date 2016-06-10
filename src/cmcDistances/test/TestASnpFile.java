@@ -78,6 +78,7 @@ public class TestASnpFile
 		HashMap<String, String> map = new HashMap<String,String>();
 		
 		BufferedReader reader = new BufferedReader(new FileReader(contextFile));
+		reader.readLine();
 		
 		for(String s = reader.readLine(); s != null; s = reader.readLine())
 		{
