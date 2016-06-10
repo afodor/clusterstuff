@@ -20,7 +20,7 @@ public class ParseSilvaBlastResults {
 	
 	public static void main(String[] args) throws IOException {
 		//get best hit
-		HashMap<String, Integer> bitScore = new HashMap<String, Integer>();//map of consensus to bit score
+		HashMap<String, Double> bitScore = new HashMap<String, Double>();//map of consensus to bit score
 		HashMap<String, String> hits = new HashMap<String, String>();//map of consensus to hit and percent identity
 		BufferedReader blast = new BufferedReader(new FileReader(new File(
 				DIR + "blastSilva_v_dolphinAbundantOTUcons.txt")));
@@ -28,7 +28,7 @@ public class ParseSilvaBlastResults {
 			if(!line.startsWith("#")) {
 				String[] sp = line.split("\t");
 				String cons = sp[0];
-				Integer bit = Integer.parseInt(sp[11]);
+				Double bit = Double.parseDouble(sp[11].trim());
 				String hit = sp[1] + "\t" + sp[2];
 				//add to map only if consensus sequence not in map or this bit score is higher than previously seen
 				if(!bitScore.containsKey(cons) || bit > bitScore.get(cons)) {
