@@ -9,7 +9,7 @@ public class WriteContextScripts
 	private static File INPUT_DIRECTORY = new File(
 			"/projects/afodor_chs/fromNury5_2016");
 	
-	static File OUTPUT_DIRECTORY = new File(
+	public static File OUTPUT_DIRECTORY = new File(
 			"/nobackup/afodor_research/fromNury52016/contexts");
 	
 	private static File SCRIPT_DIRECTORY = new File(

@@ -156,13 +156,13 @@ public class TestASnpFile
 	{
 		StringTokenizer sToken = new StringTokenizer(file.getName(), "@");
 		
-		File aFile = new File(WriteContextScripts.OUTPUT_DIRECTORY.getAbsolutePath() + 
+		File aFile = new File(cmcDistances.WriteContextScripts.OUTPUT_DIRECTORY.getAbsolutePath() + 
 				File.separator + sToken.nextToken() + ".context");
 		
 		if( ! aFile.exists())
 			throw new Exception("Could not find " + aFile.getAbsolutePath());
 		
-		File bFile = new File(WriteContextScripts.OUTPUT_DIRECTORY.getAbsolutePath() + 
+		File bFile = new File(cmcDistances.WriteContextScripts.OUTPUT_DIRECTORY.getAbsolutePath() + 
 				File.separator + sToken.nextToken() + ".context");
 		
 		if( ! bFile.exists())
