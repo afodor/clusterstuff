@@ -166,10 +166,10 @@ public class TestASnpFile
 				File.separator + sToken.nextToken() + ".context");
 		
 		if( ! bFile.exists())
-			throw new Exception("Could not find " + aFile.getAbsolutePath());
+			throw new Exception("Could not find " + bFile.getAbsolutePath());
 		
 		if( sToken.hasMoreTokens())
-			throw new Exception("Unexpected file name " +bFile.getAbsolutePath() );
+			throw new Exception("Unexpected file name " +file.getName());
 		
 		HashMap<String, String> aMap = getMostMap(aFile);
 		HashMap<String, String> bMap =getMostMap(bFile);
