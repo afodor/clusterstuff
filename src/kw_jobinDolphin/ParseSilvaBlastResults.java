@@ -28,7 +28,7 @@ public class ParseSilvaBlastResults {
 			if(!line.startsWith("#")) {
 				String[] sp = line.split("\t");
 				String cons = sp[0];
-				Integer bit = Integer.parseInt(sp[11]);
+				Integer bit = Integer.parseInt(sp[11].trim());
 				String hit = sp[1] + "\t" + sp[2];
 				//add to map only if consensus sequence not in map or this bit score is higher than previously seen
 				if(!bitScore.containsKey(cons) || bit > bitScore.get(cons)) {
