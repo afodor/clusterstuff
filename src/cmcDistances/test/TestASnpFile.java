@@ -173,8 +173,7 @@ public class TestASnpFile
 				map.put(kmer, h);
 		}
 		
-		reader.readLine();
-		
+		reader.close();
 		return map;
 	}
 	
@@ -261,6 +260,7 @@ public class TestASnpFile
 			
 			if( bHolder != null)
 			{
+				numMatching++;
 				Holder aHolder = aMap.get(s);
 				
 				char aChar = aHolder.mostChar();
