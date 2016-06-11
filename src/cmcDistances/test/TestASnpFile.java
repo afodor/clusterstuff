@@ -249,7 +249,7 @@ public class TestASnpFile
 		{
 			Holder bHolder = bMap.get(s);
 			
-			if( bHolder != null)
+			if( bHolder == null)
 			{
 				String flip = Translate.reverseTranscribe(s);
 				bHolder = bMap.get(flip);
