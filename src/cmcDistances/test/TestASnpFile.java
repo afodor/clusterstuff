@@ -260,13 +260,12 @@ public class TestASnpFile
 			
 			if( bHolder != null)
 			{
-				numMatching++;
 				Holder aHolder = aMap.get(s);
 				
 				char aChar = aHolder.mostChar();
 				char bChar = bHolder.mostChar();
 				
-				if( aChar==bChar)
+				if( aChar!=bChar)
 				{
 					if( aHolder.charIsZero(bChar) && bHolder.charIsZero(aChar) )
 					{
@@ -278,14 +277,13 @@ public class TestASnpFile
 							{
 								if( s.equals(s2) || s.equals(Translate.reverseTranscribe(s2)))
 								{
-									System.out.println("MATCH " + s + " " + s2);
 									gotOne = true;
 								}
 							}
 						}
 						
 						if( gotOne)
-							System.out.println("Matched " + s);
+							System.out.println("AGREEED WITH SNP FILE " + s);
 						else
 							System.out.println("Failed to match " + s);
 					}
@@ -293,6 +291,10 @@ public class TestASnpFile
 					{
 						numOffSnp++;
 					}
+				}
+				else
+				{
+					numMatching++;
 				}
 				
 			}
