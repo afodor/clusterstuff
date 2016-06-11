@@ -213,7 +213,8 @@ public class TestASnpFile
 					
 					if( ! gotOne)
 					{
-						System.out.println("Did not match " + s );
+						System.out.println("Did not match " + s  + " " + aMost + " " + 
+										bMost);
 					}
 				}
 			}
