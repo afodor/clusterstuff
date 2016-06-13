@@ -32,6 +32,9 @@ setUpTable <- function(table) {
   ##add metadata
   tab = merge(metadata, table, by="sampleID")
   
+  ##fix mouse number
+  tab$Mouse.. = paste(tab$Group..Associated.with., tab$Cage.Number, tab$Mouse.., sep=":")
+  
   ##sample 114 was with controls; only has 22 reads mapped -> remove
   tab = tab[tab$numReads>50,]
   
@@ -69,6 +72,7 @@ logNormalize <- function(tab) {
 taxaLevels = c("phylum", "class", "order", "family", "genus")
 
 for(taxa in taxaLevels) {
+  print(taxa)
   fname = paste(rdpdatadir, "stool_", taxa, "_taxaAsCol.txt", sep="")
   table = read.table(fname, sep="\t", header=T)
   nc = ncol(table)
