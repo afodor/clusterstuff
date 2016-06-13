@@ -11,7 +11,7 @@ import java.io.IOException;
 
 public class StandardKrakenScripts {
 	public static String KRAKEN_DIR = "/nobackup/afodor_research/kwinglee/software/kraken/";
-	public static String DB = KRAKEN_DIR + "krakenStandardDB";
+	public static String DB = KRAKEN_DIR + "krakenStdDB";
 	public static String FASTA_DIR = "/nobackup/afodor_research/kwinglee/china/wgs/fastas/";
 	public static String SCRIPT_DIR = "/nobackup/afodor_research/kwinglee/china/wgs/krakenScripts/";
 	public static String OUT_DIR = "/nobackup/afodor_research/kwinglee/china/wgs/stdkrakenResults/";
