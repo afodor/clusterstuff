@@ -21,7 +21,6 @@ sequence        context1        context2        distance
 
 public class TestASnpFile
 {
-	private static final char[] NUCLEOTIDES = { 'A', 'C', 'G', 'T' };
 	
 	private static final int BOTH_CUTOFF = 10;
 	
@@ -73,9 +72,83 @@ public class TestASnpFile
 		return list;
 	}
 	
-	private static HashMap<String, String> getMostMap(File contextFile) throws Exception
+	private static class Holder
 	{
-		HashMap<String, String> map = new HashMap<String,String>();
+		int numA=0;
+		int numC=0;
+		int numG=0;
+		int numT=0;
+		
+		private void flip()
+		{
+			int temp = numA;
+			this.numA = this.numT;
+			this.numT = temp;
+		
+			temp = numC;
+			this.numC = this.numG;
+			this.numG = temp;
+		}
+		
+		private boolean charIsZero(char c) throws Exception
+		{
+			if( c == 'A' )
+			{
+				return numA ==0;
+			}
+			else if ( c =='C')
+			{
+				return numC ==0;
+			} else if ( c== 'G')
+			{
+				return numG ==0;
+			} else if ( c == 'T')
+			{
+				return numT ==0;
+			}
+			else throw new Exception("Unknown character");
+				
+		}
+		
+		private char mostChar() throws Exception
+		{
+			Character c = null;
+			int max=-1;
+			
+			if( numA > max)
+			{
+				max = numA;
+				c = 'A';
+			}
+			
+			if( numC > max)
+			{
+				max = numC;
+				c = 'C';
+			}
+			
+			if( numG > max )
+			{
+				max = numG;
+				c = 'G';
+			}
+			
+			if( numT > max )
+			{
+				max = numT;
+				c = 'T';
+			}
+			
+			if( c== null)
+				throw new Exception("Logic error");
+			
+			return c;
+		}
+	}
+	
+	private static HashMap<String, Holder> getMostMap(File contextFile) throws Exception
+	{
+		HashMap<String, Holder> map = new HashMap<String,Holder>();
 		
 		BufferedReader reader = new BufferedReader(new FileReader(contextFile));
 		reader.readLine();
@@ -84,9 +157,9 @@ public class TestASnpFile
 		{
 			String kmer = new StringTokenizer(s).nextToken();
 			
-			String val =  map.get(kmer);
+			Holder h =  map.get(kmer);
 			
-			if( val != null)
+			if( h != null)
 				throw new Exception("Duplicate entry " + kmer);
 				
 			String reverse = Translate.reverseTranscribe(kmer);
@@ -94,52 +167,43 @@ public class TestASnpFile
 			if( ! kmer.equals(reverse) && map.containsKey(reverse))
 					throw new Exception("Duplicate entry " + kmer + " " + reverse);
 			
-			map.put(kmer, getMostLine(s));
+			h = getHolder(s);
+			
+			if( h != null)
+				map.put(kmer, h);
 		}
 		
-		reader.readLine();
-		
+		reader.close();
 		return map;
 	}
 	
-	private static String getMostLine(String fileLine) throws Exception
+	private static Holder getHolder(String fileLine) throws Exception
 	{
-		Integer highest = null;
-		String collected = null;
+		Holder h= new Holder();
+		
 		StringTokenizer sToken = new StringTokenizer(fileLine);
 		sToken.nextToken();
 		int max = 0;
 		
-		for( int x=0; x < NUCLEOTIDES.length; x++ )
-		{
-			Integer count = Integer.parseInt(sToken.nextToken());
-			max = Math.max(count, max);
-			
-			if( highest == null || count >= highest)
-			{
-				if( highest != null && highest.equals(count))
-				{
-					collected += NUCLEOTIDES[x];
-				}
-				else if(  highest == null || count > highest )
-				{
-					collected = "" + NUCLEOTIDES[x];
-					highest = count;
-				}
-				else throw new Exception("Logic error");
-			}
-		}
+		h.numA = Integer.parseInt(sToken.nextToken());
+		max = Math.max(h.numA, max);
 		
-		if( collected == null)
-			throw new Exception("Logic error");
+		h.numC = Integer.parseInt(sToken.nextToken());
+		max = Math.max(h.numC, max);
+		
+		h.numG = Integer.parseInt(sToken.nextToken());
+		max = Math.max(h.numG, max);
+		
+		h.numT = Integer.parseInt(sToken.nextToken());
+		max = Math.max(h.numT, max);
 		
 		if( sToken.hasMoreTokens())
 			throw new Exception("Parsing error");
 		
 		if( max < BOTH_CUTOFF)
-			return "";
+			return null;
 		
-		return collected;
+		return h;
 	}
 	
 	public static void main(String[] args) throws Exception
@@ -172,54 +236,76 @@ public class TestASnpFile
 		if( sToken.hasMoreTokens())
 			throw new Exception("Unexpected file name " +file.getName());
 		
-		HashMap<String, String> aMap = getMostMap(aFile);
-		HashMap<String, String> bMap =getMostMap(bFile);
+		HashMap<String, Holder> aMap = getMostMap(aFile);
+		HashMap<String, Holder> bMap =getMostMap(bFile);
 		
 		List<String> expectedDiffs = getExpectedDifferences(file);
 		
 		int numMatching = 0;
-		int numTooSmall =0;
+		int numNotMatching =0;
+		int numOffSnp =0;
 		
 		for(String s : aMap.keySet())
 		{
-			if( bMap.containsKey(s))
+			Holder bHolder = bMap.get(s);
+			
+			if( bHolder == null)
 			{
-				String aMost = aMap.get(s);
-				String bMost = bMap.get(s);
-				 
-				if( aMost.length() == 0 || bMost.length() ==0 )
+				String flip = Translate.reverseTranscribe(s);
+				bHolder = bMap.get(flip);
+				
+				if( bHolder != null)
+					bHolder.flip();
+			}
+			
+			if( bHolder != null)
+			{
+				Holder aHolder = aMap.get(s);
+				
+				char aChar = aHolder.mostChar();
+				char bChar = bHolder.mostChar();
+				
+				if( aChar!=bChar)
 				{
-					numTooSmall++;
-				}
-				else if( aMost.equals(bMost))
-				{
-					numMatching++;
-				}
-				else
-				{
-					boolean gotOne = false;
-					
-					for(String s2 : expectedDiffs)
+					if( aHolder.charIsZero(bChar) && bHolder.charIsZero(aChar) )
 					{
-						if( ! gotOne)
+						boolean gotOne = false;
+						
+						for(String s2 : expectedDiffs)
 						{
-							if( s.equals(s2) || s.equals(Translate.reverseTranscribe(s2)))
+							if( ! gotOne)
 							{
-								System.out.println("MATCH " + s + " " + s2);
-								gotOne = true;
+								if( s.equals(s2) || s.equals(Translate.reverseTranscribe(s2)))
+								{
+									gotOne = true;
+								}
 							}
 						}
 						
-						if( ! gotOne)
-						{
-							System.out.println("Did not match " + s + " " + s2 );
-						}
+						if( gotOne)
+							System.out.println("AGREEED WITH SNP FILE " + s);
+						else
+							System.out.println("Failed to match " + s);
+					}
+					else
+					{
+						numOffSnp++;
 					}
 				}
+				else
+				{
+					numMatching++;
+				}
+				
+			}
+			else
+			{
+				numNotMatching++;
 			}
 		}
 		
-		System.out.println("Matched "  + numMatching + " skipped " + numTooSmall );
+		System.out.println("Matched "  + numMatching + " skipped " + numNotMatching + " off SNP " + 
+						numOffSnp);
 		
 	}
 }
