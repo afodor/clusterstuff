@@ -37,6 +37,9 @@ setUpTable <- function(table) {
   ##fix mouse number
   tab$Mouse.. = paste(tab$Group..Associated.with., tab$Cage.Number, tab$Mouse.., sep=":")
   
+  ##fix cage number
+  tab$Cage.Number = paste(tab$Group..Associated.with., tab$Cage.Number, sep=":")
+  
   ##sample 114 was with controls; only has 22 reads mapped -> remove
   tab = tab[tab$numReads>50,]
   

@@ -84,7 +84,7 @@ for(i in 1:length(taxaLevels)) {
   name = paste("apcStool_", taxa, "_logNorm.txt", sep="")
   table = read.table(name, sep="\t", header=T, comment.char="", na.strings="N/A", 
                      colClasses=c("numeric", rep("character", 3), "numeric", rep("character", 3),
-                                  "numeric", "character", "numeric", "numeric", "character", "character", 
+                                  "numeric", "character", "character", "numeric", "character", "character", 
                                   rep("numeric", nn)))
   drawPCoA(table)
 }
@@ -99,7 +99,7 @@ for(i in 1:length(taxaLevels)) {
   name = paste("apcDC_", taxa, "_logNorm.txt", sep="")
   table = read.table(name, sep="\t", header=T, comment.char="", na.strings="N/A", 
                      colClasses=c("numeric", rep("character", 3), "numeric", rep("character", 3),
-                                  "numeric", "character", "numeric", "numeric", "character", "character", 
+                                  "numeric", "character", "character", "numeric", "character", "character", 
                                   rep("numeric", nn)))
   drawPCoA(table)
 }
@@ -114,7 +114,7 @@ for(i in 1:length(taxaLevels)) {
   name = paste("apcStool_", taxa, "_logNorm_noInoc.txt", sep="")
   table = read.table(name, sep="\t", header=T, comment.char="", na.strings="N/A", 
                      colClasses=c("numeric", rep("character", 3), "numeric", rep("character", 3),
-                                  "numeric", "character", "numeric", "numeric", "character", "character", 
+                                  "numeric", "character", "character", "numeric", "character", "character", 
                                   rep("numeric", nn)))
   drawPCoA(table)
 }
@@ -129,7 +129,7 @@ for(i in 1:length(taxaLevels)) {
   name = paste("apcDC_", taxa, "_logNorm_noInoc.txt", sep="")
   table = read.table(name, sep="\t", header=T, comment.char="", na.strings="N/A", 
                      colClasses=c("numeric", rep("character", 3), "numeric", rep("character", 3),
-                                  "numeric", "character", "numeric", "numeric", "character", "character", 
+                                  "numeric", "character", "character", "numeric", "character", "character", 
                                   rep("numeric", nn)))
   drawPCoA(table)
 }
