@@ -1,0 +1,146 @@
+##mixed model of bug~group+time+1|cage/mouse for stool
+##6/13/16
+
+rm(list=ls())
+
+library(pscl)
+library(lmtest)
+library(nlme)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\paperRequests060216\\apc")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus", "qiimeClosedRef", "qiimeDeNovo")
+numNumeric = c(20, 27, 48, 107, 313, 2303, 10893) #number of numeric columns
+
+##function to get color (based on group)
+getColor <- function(group) {
+  if(group == "BF-bx") {
+    return("deepskyblue") #close alts are dodgerblue and steelblue1
+  } else if(group == "BF+bx") {
+    return("orangered3") #close alts are tomato3 and firebrick
+  } else if(group == "BF+NF") {
+    return("turquoise4") #close alt is darkcyan
+  } else if(group == "BF+T") {
+    return("orchid4") #not as good alts plum4 and mediumpurple3
+  } else {
+    stop(paste("Bad group:", group))
+  }
+}
+
+##function to get shape (based on time)
+getShape <- function(time) {
+  if(time == 0) {
+    return(17)
+  } else if(time == 1) {
+    return(15)
+  } else if(time == 12) {
+    return(16)
+  } else {
+    stop(paste("Bad time:", time))
+  }
+}
+
+for(t in 1:length(taxaLevels)) {
+  taxa = taxaLevels[t]
+  print(taxa)
+  table = read.table(paste("apcStool_", taxa, "_logNorm_noInoc.txt", sep=""), 
+                     sep="\t", header=T, comment.char="", na.strings="N/A", 
+                     colClasses=c("numeric", rep("character", 3), "numeric", rep("character", 3),
+                                  "numeric", "character", "character", "numeric", "character", "character", 
+                                  rep("numeric", numNumeric[t])))
+  
+  ##output vectors
+  names = vector()
+  meanTaxa = vector()
+  meanBFminusBX = vector()
+  meanBFplusBX = vector()
+  meanBFplusNF = vector()
+  meanBFplusT = vector()
+  pGroup = vector()
+  pTime = vector()
+  pCageMouse = vector()
+  index = 1
+  
+  pdf(paste("apcAnalysis2_otuModel_boxplots_stool_", taxa, ".pdf", sep=""))
+  
+  for( i in 16:ncol(table)) {
+    if(sum(table[,i] != 0 ) > nrow(table) / 4 &&
+       !(taxa == "order" && i == 23) && #Erysipelotrichales has a singular convergence
+       !(taxa == "qiimeDeNovo" && i == 8262)) {  #k__Bacteria..p__Firmicutes..c__Clostridia..o__Clostridiales..f__Lachnospiraceae..g__.Ruminococcus...s__.62
+      
+      names[index] <- names(table)[i]
+      bug <- table[,i]
+      meanTaxa[index] <- mean(bug)
+      meanBFminusBX[index] <- mean(bug[table$Group..Associated.with.=="BF-bx"])
+      meanBFplusBX[index] <- mean(bug[table$Group..Associated.with.=="BF+bx"])
+      meanBFplusNF[index] <- mean(bug[table$Group..Associated.with.=="BF+NF"])
+      meanBFplusT[index] <- mean(bug[table$Group..Associated.with.=="BF+T"])
+      group <- factor(table$Group..Associated.with.)
+      time <- table$Timepoint..weeks.
+      cage <- factor(table$Cage.Number)
+      mouse <- factor(table$Mouse..)
+      
+      myFrame <- data.frame(bug, time, group, cage, mouse)
+      
+#       fullModel <- gls(bug~time+group, method="REML",correlation=corCompSymm(form=~1|cage/mouse),
+#                        data = myFrame )
+      
+      reducedModel <- gls(bug~time+group, method="REML",	data = myFrame )
+      
+      fullModelLME <- lme(bug~time+group, method="REML", random = ~1|cage/mouse, data = myFrame)		
+      
+      pTime[index] <- anova(fullModelLME)$"p-value"[2]
+      pGroup[index] <- anova(fullModelLME)$"p-value"[3]
+      pCageMouse[index] <- anova(fullModelLME, reducedModel)$"p-value"[2]
+      # intraclassCoefficient<- coef(fullModel$modelStruct[1]$corStruct,unconstrained=FALSE)[[1]]
+      
+      ##plots
+      graphMain =  paste(names[index], 
+                          ":\n pGroup= ", format(pGroup[index],digits=3), 
+                          "; pCageMouse= ", format(pCageMouse[index], digits=3), sep="") #"\n",
+      # " icc= " , format( intraclassCoefficient, digits=3 ), sep="")
+      
+      
+      ##color by group
+      colors = sapply(table$Group..Associated.with., getColor, USE.NAMES = F)
+      
+      ##shape by time; only single timepoint (12)
+      shapes = sapply(table$Timepoint..weeks., getShape, USE.NAMES = F)
+      
+      ##additional variables
+      sex <- factor(table$Sex)
+      
+      par(mfrow=c(2,2), oma=c(.5,.5,5,.5), mar=c(4.5,4,1,1))
+      ##group
+      boxplot(bug~group, xlab="", ylab="relative abundance", las=2, main="group")
+      points(bug~group, col=colors, pch=shapes)
+      ##cage
+      boxplot(bug~factor(cage), xlab="", ylab="relative abundance", las=2, main="cage")
+      points(bug~factor(cage), col=colors, pch=shapes)
+      ##mouse
+      boxplot(bug~mouse, xlab="", ylab="relative abundance", las=2, main="mouse")
+      points(bug~mouse, col=colors, pch=shapes)
+      ##sex
+      boxplot(bug~sex, xlab="", ylab="relative abundance", main="sex")
+      points(bug~sex, col=colors, pch=shapes)
+      
+      ##add title
+      par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+      plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+      cex = ifelse(grepl("qiime", taxa), .7, 1.2)
+      legend("top", horiz=T, legend=graphMain, cex=cex, bty="n")
+      
+      index=index+1
+      
+    }
+  }
+  
+  dFrame <- data.frame(names, meanTaxa, meanBFminusBX, meanBFplusBX, meanBFplusNF, meanBFplusT, pGroup, pTime, pCageMouse)
+  dFrame$pAdjGroup <- p.adjust(dFrame$pGroup, method = "BH")
+  dFrame$pAdjTime <- p.adjust(dFrame$pTime, method = "BH")
+  dFrame$pAdjCageMouse <- p.adjust(dFrame$pCageMouse, method="BH")
+  dFrame <- dFrame[order(dFrame$pGroup),]
+  write.table(dFrame, file=paste("apcAnalysis2_otuModel_pValues_stool_", taxa, ".txt", sep=""), 
+              sep="\t",row.names=FALSE, quote=F)
+  dev.off()
+}
