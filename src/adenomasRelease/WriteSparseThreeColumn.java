@@ -33,7 +33,7 @@ public class WriteSparseThreeColumn
 		for(String s : CreateRDPQSub.RDP_OUT_DIR.list())
 		{
 			System.out.println(s);
-			if( s.endsWith("toRdp.txt"))
+			if( s.endsWith("toRDP.txt"))
 			{
 				List<NewRDPParserFileLine> list = NewRDPParserFileLine.getRdpListSingleThread(
 					CreateRDPQSub.RDP_OUT_DIR.getAbsoluteFile() + File.separator + s	);
