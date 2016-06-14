@@ -1,5 +1,5 @@
-##mixed model of bug~group+time+1|cage/mouse for stool
-##6/13/16
+##mixed model of bug~group+1|cage for DC IL10
+##6/14/16
 
 rm(list=ls())
 
@@ -7,7 +7,7 @@ library(pscl)
 library(lmtest)
 library(nlme)
 
-setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\paperRequests060216\\apc")
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\paperRequests060216\\ApcIL10")
 
 taxaLevels = c("phylum", "class", "order", "family", "genus", "qiimeClosedRef", "qiimeDeNovo")
 numNumeric = c(20, 27, 48, 107, 313, 2303, 10893) #number of numeric columns
@@ -43,7 +43,7 @@ getShape <- function(time) {
 for(t in 1:length(taxaLevels)) {
   taxa = taxaLevels[t]
   print(taxa)
-  table = read.table(paste("apcStool_", taxa, "_logNorm_noInoc.txt", sep=""), 
+  table = read.table(paste("il10DC_", taxa, "_logNorm_noInoc.txt", sep=""), 
                      sep="\t", header=T, comment.char="", na.strings="N/A", 
                      colClasses=c("numeric", rep("character", 3), "numeric", rep("character", 3),
                                   "numeric", "character", "character", "numeric", "character", "character", 
@@ -57,16 +57,13 @@ for(t in 1:length(taxaLevels)) {
   meanBFplusNF = vector()
   meanBFplusT = vector()
   pGroup = vector()
-  pTime = vector()
-  pCageMouse = vector()
+  pCage = vector()
   index = 1
   
-  pdf(paste("apcAnalysis2_otuModel_boxplots_stool_", taxa, ".pdf", sep=""))
+  pdf(paste("il10Analysis2_otuModel_boxplots_dc_", taxa, ".pdf", sep=""))
   
   for( i in 16:ncol(table)) {
-    if(sum(table[,i] != 0 ) > nrow(table) / 4 &&
-       !(taxa == "order" && i == 23) && #Erysipelotrichales has a singular convergence
-       !(taxa == "qiimeDeNovo" && i == 8262)) {  #k__Bacteria..p__Firmicutes..c__Clostridia..o__Clostridiales..f__Lachnospiraceae..g__.Ruminococcus...s__.62
+    if(sum(table[,i] != 0 ) > nrow(table) / 4) { 
       
       names[index] <- names(table)[i]
       bug <- table[,i]
@@ -76,29 +73,26 @@ for(t in 1:length(taxaLevels)) {
       meanBFplusNF[index] <- mean(bug[table$Group..Associated.with.=="BF+NF"])
       meanBFplusT[index] <- mean(bug[table$Group..Associated.with.=="BF+T"])
       group <- factor(table$Group..Associated.with.)
-      time <- table$Timepoint..weeks.
       cage <- factor(table$Cage.Number)
-      mouse <- factor(table$Mouse..)
+      mouse <- paste(cage, table$Mouse.., sep=":")
       
-      myFrame <- data.frame(bug, time, group, cage, mouse)
+      myFrame <- data.frame(bug, group, cage, mouse)
       
-#       fullModel <- gls(bug~time+group, method="REML",correlation=corCompSymm(form=~1|cage/mouse),
-#                        data = myFrame )
+#       fullModel <- gls(bug~group, method="REML",correlation=corCompSymm(form=~1|cage),
+#                        data = myFrame) #don't nest mouse because only one mouse for most samples
       
-      reducedModel <- gls(bug~time+group, method="REML",	data = myFrame )
+      reducedModel <- gls(bug~group, method="REML",	data = myFrame )
       
-      fullModelLME <- lme(bug~time+group, method="REML", random = ~1|cage/mouse, data = myFrame)		
+      fullModelLME <- lme(bug~group, method="REML", random = ~1|cage, data = myFrame)		
       
-      pTime[index] <- anova(fullModelLME)$"p-value"[2]
-      pGroup[index] <- anova(fullModelLME)$"p-value"[3]
-      pCageMouse[index] <- anova(fullModelLME, reducedModel)$"p-value"[2]
+      pGroup[index] <- anova(fullModelLME)$"p-value"[2]
+      pCage[index] <- anova(fullModelLME, reducedModel)$"p-value"[2]
       # intraclassCoefficient<- coef(fullModel$modelStruct[1]$corStruct,unconstrained=FALSE)[[1]]
       
       ##plots
       graphMain =  paste(names[index], 
                           ":\n pGroup= ", format(pGroup[index],digits=3), 
-                         "; pTime= ", format(pTime[index], digits=3), 
-                          "; pCageMouse= ", format(pCageMouse[index], digits=3), sep="") #"\n",
+                          "; pCage= ", format(pCage[index], digits=3), sep="") #"\n",
       # " icc= " , format( intraclassCoefficient, digits=3 ), sep="")
       
       
@@ -110,6 +104,7 @@ for(t in 1:length(taxaLevels)) {
       
       ##additional variables
       sex <- factor(table$Sex)
+      mouse <- factor(paste(cage, table$Mouse.., sep=":"))
       
       par(mfrow=c(2,2), oma=c(.5,.5,5,.5), mar=c(4.5,4,1,1))
       ##group
@@ -136,12 +131,11 @@ for(t in 1:length(taxaLevels)) {
     }
   }
   
-  dFrame <- data.frame(names, meanTaxa, meanBFminusBX, meanBFplusBX, meanBFplusNF, meanBFplusT, pGroup, pTime, pCageMouse)
+  dFrame <- data.frame(names, meanTaxa, meanBFminusBX, meanBFplusBX, meanBFplusNF, meanBFplusT, pGroup, pCage)
   dFrame$pAdjGroup <- p.adjust(dFrame$pGroup, method = "BH")
-  dFrame$pAdjTime <- p.adjust(dFrame$pTime, method = "BH")
-  dFrame$pAdjCageMouse <- p.adjust(dFrame$pCageMouse, method="BH")
+  dFrame$pAdjCage <- p.adjust(dFrame$pCage, method="BH")
   dFrame <- dFrame[order(dFrame$pGroup),]
-  write.table(dFrame, file=paste("apcAnalysis2_otuModel_pValues_stool_", taxa, ".txt", sep=""), 
+  write.table(dFrame, file=paste("il10Analysis2_otuModel_pValues_dc_", taxa, ".txt", sep=""), 
               sep="\t",row.names=FALSE, quote=F)
   dev.off()
 }

@@ -1,0 +1,161 @@
+##heatmap of significant genera; inoculum, stool and DC il10 genotype
+##6/14/16
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\paperRequests060216\\ApcIL10")
+
+library(ggplot2)
+library(reshape2)
+library(gridExtra)
+
+dc = read.table("il10Analysis2_otuModel_pValues_dc_genus.txt", header=T, sep="\t",
+                colClasses = c("character", rep("numeric", 9)))
+stool = read.table("il10Analysis2_otuModel_pValues_stool_genus.txt", header=T, sep="\t",
+                colClasses = c("character", rep("numeric", 9)))
+
+##get significant
+sigdc = dc$names[dc$pAdjGroup < 0.05]
+sigstool = stool$names[stool$pAdjGroup < 0.05]
+sig = sort(unique(c(sigdc, sigstool)))
+
+##get raw counts of all samples together
+abunDC = read.table("il10DC_genus_taxaAsCol_noInoc.txt", 
+                    sep="\t", header=T, comment.char="", na.strings="N/A", 
+                    colClasses=c("numeric", rep("character", 3), "numeric", rep("character", 3),
+                                 "numeric", "character", "character", "numeric", "character", "character", 
+                                 rep("numeric", 313)))
+abunDC$Sample.Type = "DC"
+abunStool = read.table("il10Stool_genus_taxaAsCol.txt", 
+                        sep="\t", header=T, comment.char="", na.strings="N/A", 
+                        colClasses=c("numeric", rep("character", 3), "numeric", rep("character", 3),
+                                     "numeric", "character", "character", "numeric", "character", "character", 
+                                     rep("numeric", 313)))
+all = rbind(abunDC, abunStool)
+write.table(all, "il10All_genus_taxaAsCol.txt", sep="\t", quote=F, row.names = F, col.names = T)
+
+##log normalize
+nc = ncol(all)
+lognorm = all
+start = 16
+n = rowSums(all[,start:nc]) #number of reads in each sample
+sumX = sum(n) #total number of reads in all samples = sum(table[,4:nc])
+N = nrow(all) #total number of samples
+for(col in start:nc) {
+  for(row in 1:N) {
+    lognorm[row, col] = log10(all[row, col]/n[row] * sumX/N + 1)
+  }
+}
+write.table(lognorm, "il10All_genus_logNorm.txt", sep="\t", quote=F, row.names = F, col.names = T)
+
+##make table for heatmap
+meanAbun = data.frame(genera = sig, 
+                      inocBFminusBX = rep(NA, length(sig)),
+                      inocBFplusBX = rep(NA, length(sig)),
+                      inocBFplusNF = rep(NA, length(sig)),
+                      inocBFplusT = rep(NA, length(sig)),
+                      dcBFminusBX = rep(NA, length(sig)),
+                      dcBFplusBX = rep(NA, length(sig)),
+                      dcBFplusNF = rep(NA, length(sig)),
+                      dcBFplusT = rep(NA, length(sig)),
+                      stoolBFminusBX = rep(NA, length(sig)),
+                      stoolBFplusBX = rep(NA, length(sig)),
+                      stoolBFplusNF = rep(NA, length(sig)),
+                      stoolBFplusT = rep(NA, length(sig)),
+                      stringsAsFactors = F)
+for(i in 1:length(sig)) {
+  abun = lognorm[,names(lognorm)==sig[i]]
+  meanAbun$inocBFminusBX[i] = mean(abun[lognorm$Sample.Type=="inoculum" & lognorm$Group..Associated.with.=="BF-bx"])
+  meanAbun$inocBFplusBX[i] = mean(abun[lognorm$Sample.Type=="inoculum" & lognorm$Group..Associated.with.=="BF+bx"])
+  meanAbun$inocBFplusNF[i] = mean(abun[lognorm$Sample.Type=="inoculum" & lognorm$Group..Associated.with.=="BF+NF"])
+  meanAbun$inocBFplusT[i] = mean(abun[lognorm$Sample.Type=="inoculum" & lognorm$Group..Associated.with.=="BF+T"])
+ 
+  meanAbun$dcBFminusBX[i] = mean(abun[lognorm$Sample.Type=="DC" & lognorm$Group..Associated.with.=="BF-bx"])
+  meanAbun$dcBFplusBX[i] = mean(abun[lognorm$Sample.Type=="DC" & lognorm$Group..Associated.with.=="BF+bx"])
+  meanAbun$dcBFplusNF[i] = mean(abun[lognorm$Sample.Type=="DC" & lognorm$Group..Associated.with.=="BF+NF"])
+  meanAbun$dcBFplusT[i] = mean(abun[lognorm$Sample.Type=="DC" & lognorm$Group..Associated.with.=="BF+T"])
+  
+  meanAbun$stoolBFminusBX[i] = mean(abun[lognorm$Sample.Type=="stool" & lognorm$Group..Associated.with.=="BF-bx"])
+  meanAbun$stoolBFplusBX[i] = mean(abun[lognorm$Sample.Type=="stool" & lognorm$Group..Associated.with.=="BF+bx"])
+  meanAbun$stoolBFplusNF[i] = mean(abun[lognorm$Sample.Type=="stool" & lognorm$Group..Associated.with.=="BF+NF"])
+  meanAbun$stoolBFplusT[i] = mean(abun[lognorm$Sample.Type=="stool" & lognorm$Group..Associated.with.=="BF+T"])
+}
+meanAbun$genera = gsub("_", " ", gsub(".", " ", meanAbun$genera, fixed=T))
+
+##heatmap variables
+ylab = c("BF-bx", "BF+bx", "BF+NF", "BF+T")
+max = max(meanAbun[,-1])
+groupColor = c("deepskyblue", "orangered3", "turquoise4", "orchid4")
+##color genera by whether significant in stool and DC (black), DC only (blue), stool only (red)
+sigColor = rep(NA, length(sig))
+for(i in 1:length(sig)) {
+  if(!(sig[i] %in% dc$names)) {
+    sigColor[i] = "red"
+  } else if(!(sig[i] %in% stool$names)) {
+    sigColor[i] = "blue"
+  } else if(dc$pAdjGroup[dc$names==sig[i]] < 0.05 & stool$pAdjGroup[stool$names==sig[i]] < 0.05) {
+    sigColor[i] = "black"
+  } else if(dc$pAdjGroup[dc$names==sig[i]] < 0.05) {
+    sigColor[i] = "blue"
+  } else if(stool$pAdjGroup[stool$names==sig[i]] < 0.05) {
+    sigColor[i] = "red"
+  } else {
+    stop(paste("bad genera", sig[i]))
+  }
+}
+ySize = 15
+xSize = 15
+titleSize = 20
+
+##inoculum heatmap
+df.m <- melt(meanAbun[,1:5], id.vars="genera") #columns to rows differentiated by measurement and value
+plotInoc <- ggplot(df.m, aes(x=variable, y=genera)) + 
+  geom_tile(aes(fill=value)) + 
+  scale_fill_gradient(low="white", high="darkgreen", limits=c(0, max), na.value="lightgray", name="mean log\nnormalized\nabundance") + 
+  scale_x_discrete(name="", labels=ylab) +
+  scale_y_discrete(name="", limits=rev(meanAbun$genera)) +
+  ggtitle("inoculum") +
+  guides(fill=F) +
+  theme(axis.text.y=element_text(hjust=0, size=ySize, colour=rev(sigColor)), 
+        axis.text.x=element_text(colour=groupColor, size=xSize, angle=90),
+        panel.grid.major = element_blank(),
+        axis.line = element_blank(),
+        axis.ticks.y = element_blank())
+
+##DC heatmap
+df.m <- melt(meanAbun[,c(1, 6:9)], id.vars="genera") #columns to rows differentiated by measurement and value
+plotDC <- ggplot(df.m, aes(x=variable, y=genera)) + 
+  geom_tile(aes(fill=value)) + 
+  scale_fill_gradient(low="white", high="darkgreen", limits=c(0, max), 
+                      na.value="lightgray", name="mean log\nnormalized\nabundance") + 
+  scale_x_discrete(name="", labels=ylab) +
+  scale_y_discrete(name="", limits=rev(meanAbun$genera)) +
+  ggtitle("DC Tissue") +
+  guides(fill=F) +
+  theme(axis.text.y=element_blank(), 
+        axis.text.x=element_text(colour=groupColor, size=xSize, angle=90),
+        panel.grid.major = element_blank(),
+        axis.line = element_blank(),
+        axis.ticks.y = element_blank())
+
+##stool heatmap
+df.m <- melt(meanAbun[,c(1, 10:13)], id.vars="genera") #columns to rows differentiated by measurement and value
+plotStool <- ggplot(df.m, aes(x=variable, y=genera)) + 
+  geom_tile(aes(fill=value)) + 
+  scale_fill_gradient(low="white", high="darkgreen", limits=c(0, max), 
+                      na.value="lightgray", name="mean log\nnormalized\nabundance") + 
+  scale_x_discrete(name="", labels=ylab) +
+  scale_y_discrete(name="", limits=rev(meanAbun$genera)) +
+  ggtitle("Stool") +
+  theme(axis.text.y=element_blank(), 
+        axis.text.x=element_text(colour=groupColor, size=xSize, angle=90),
+        panel.grid.major = element_blank(),
+        axis.line = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.title=element_text(size=15), 
+        legend.text=element_text(size=15), 
+        legend.key.height=unit(30, "points"), 
+        legend.key.width=unit(20, "points"))
+
+##combine
+pdf("il10Analysis3_heatmap.pdf", height=6, width=12)
+grid.arrange(plotInoc, plotDC, plotStool, ncol=3, widths=c(1.75, .75, 1.2))
+dev.off()
