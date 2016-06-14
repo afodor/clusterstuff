@@ -1,0 +1,187 @@
+##Apc analysis 5: Shannon diversity and richness
+##p-values from same models as OTU model
+##6/13/16
+
+rm(list=ls())
+
+library(vegan)
+library(pscl)
+library(lmtest)
+library(nlme)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\paperRequests060216\\apc")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus", "qiimeClosedRef", "qiimeDeNovo")
+numNumeric = c(20, 27, 48, 107, 313, 2303, 10893) #number of numeric columns
+tissues = c("DC", "Stool")
+
+##function to get color (based on group)
+getColor <- function(group) {
+  if(group == "BF-bx") {
+    return("deepskyblue") #close alts are dodgerblue and steelblue1
+  } else if(group == "BF+bx") {
+    return("orangered3") #close alts are tomato3 and firebrick
+  } else if(group == "BF+NF") {
+    return("turquoise4") #close alt is darkcyan
+  } else if(group == "BF+T") {
+    return("orchid4") #not as good alts plum4 and mediumpurple3
+  } else {
+    stop(paste("Bad group:", group))
+  }
+}
+
+##function to get shape (based on time)
+getShape <- function(time) {
+  if(time == 0) {
+    return(17)
+  } else if(time == 1) {
+    return(15)
+  } else if(time == 12) {
+    return(16)
+  } else {
+    stop(paste("Bad time:", time))
+  }
+}
+
+for(t in tissues) {
+  print(t)
+  if(t=="DC") {
+    pValuesShannon = data.frame(level=taxaLevels, 
+                                meanBFminusBX = rep(NA, length(taxaLevels)), 
+                                meanBFplusBX = rep(NA, length(taxaLevels)), 
+                                meanBFplusNF = rep(NA, length(taxaLevels)), 
+                                meanBFplusT = rep(NA, length(taxaLevels)), 
+                                pGroup = rep(NA, length(taxaLevels)), 
+                                pCage = rep(NA, length(taxaLevels)))
+    pValuesRichness = data.frame(level=taxaLevels, 
+                                 meanBFminusBX = rep(NA, length(taxaLevels)), 
+                                 meanBFplusBX = rep(NA, length(taxaLevels)), 
+                                 meanBFplusNF = rep(NA, length(taxaLevels)), 
+                                 meanBFplusT = rep(NA, length(taxaLevels)), 
+                                 pGroup = rep(NA, length(taxaLevels)), 
+                                 pCage = rep(NA, length(taxaLevels)))
+  } else if(t == "Stool") {
+    pValuesShannon = data.frame(level=taxaLevels, 
+                                meanBFminusBX = rep(NA, length(taxaLevels)), 
+                                meanBFplusBX = rep(NA, length(taxaLevels)), 
+                                meanBFplusNF = rep(NA, length(taxaLevels)), 
+                                meanBFplusT = rep(NA, length(taxaLevels)), 
+                                pGroup = rep(NA, length(taxaLevels)), 
+                                pTime = rep(NA, length(taxaLevels)), 
+                                pCageMouse = rep(NA, length(taxaLevels)))
+    pValuesRichness = data.frame(level=taxaLevels, 
+                                 meanBFminusBX = rep(NA, length(taxaLevels)), 
+                                 meanBFplusBX = rep(NA, length(taxaLevels)), 
+                                 meanBFplusNF = rep(NA, length(taxaLevels)), 
+                                 meanBFplusT = rep(NA, length(taxaLevels)), 
+                                 pGroup = rep(NA, length(taxaLevels)), 
+                                 pTime = rep(NA, length(taxaLevels)), 
+                                 pCageMouse = rep(NA, length(taxaLevels)))
+  } else {
+    stop(paste("Bad tissue:", t))
+  }
+ 
+    
+  pdf(paste("apcAnalysis5_diversity_boxplots_", t, ".pdf", sep=""), height = 5, width = 10)
+  for(i in 1:length(taxaLevels)) {
+    taxa = taxaLevels[i]
+    print(paste(" ", taxa))
+    table = read.table(paste("apc", t, "_", taxa, "_taxaAsCol_noInoc.txt", sep=""), 
+                       sep="\t", header=T, comment.char="", na.strings="N/A", 
+                       colClasses=c("numeric", rep("character", 3), "numeric", rep("character", 3),
+                                    "numeric", "character", "character", "numeric", "character", "character", 
+                                    rep("numeric", numNumeric[i])))
+    
+    ##shannon
+    shan = diversity(table[,-(1:15)], index="shannon")
+    ##richness
+    samp = min(table$numReads)
+    print(samp)
+    rich = rarefy(table[,-(1:15)], sample=samp)
+    
+    ##plot
+    group = factor(table$Group..Associated.with.)
+    colors = sapply(table$Group..Associated.with., getColor, USE.NAMES = F)
+    shapes = sapply(table$Timepoint..weeks., getShape, USE.NAMES = F)
+    par(mfrow=c(1,2), mar=c(5.1,4.1,4.1,2.1))
+    boxplot(shan~group, ylab="Shannon Index")
+    points(shan~group, col=colors, pch=shapes)
+    boxplot(rich~group, ylab="richness")
+    points(rich~group, col=colors, pch=shapes)
+    par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+    plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+    legend("top", horiz=T, legend=paste(t, taxa), cex=1.2, bty="n")
+    
+    ##p-values
+    time = table$Timepoint..weeks.
+    cage = factor(table$Cage.Number)
+    mouse = factor(table$Mouse..)
+    shanFrame = data.frame(shan, time, group, cage, mouse)
+    richFrame = data.frame(rich, time, group, cage, mouse)
+    ##means
+    pValuesShannon$meanBFminusBX[i] = mean(shan[table$Group..Associated.with.=="BF-bx"])
+    pValuesShannon$meanBFplusBX[i] = mean(shan[table$Group..Associated.with.=="BF+bx"])
+    pValuesShannon$meanBFplusNF[i] = mean(shan[table$Group..Associated.with.=="BF+NF"])
+    pValuesShannon$meanBFplusT[i] = mean(shan[table$Group..Associated.with.=="BF+T"])
+    pValuesRichness$meanBFminusBX[i] = mean(rich[table$Group..Associated.with.=="BF-bx"])
+    pValuesRichness$meanBFplusBX[i] = mean(rich[table$Group..Associated.with.=="BF+bx"])
+    pValuesRichness$meanBFplusNF[i] = mean(rich[table$Group..Associated.with.=="BF+NF"])
+    pValuesRichness$meanBFplusT[i] = mean(rich[table$Group..Associated.with.=="BF+T"])
+    ##models
+    if(t == "DC") {
+      ##shannon
+      reducedModel <- gls(shan~group, method="REML",	data = shanFrame )
+      fullModelLME <- lme(shan~group, method="REML", random = ~1|cage, data = shanFrame)		
+      
+      pValuesShannon$pGroup[i] <- anova(fullModelLME)$"p-value"[2]
+      pValuesShannon$pCage[i] <- anova(fullModelLME, reducedModel)$"p-value"[2]
+      
+      ##richness
+      reducedModel <- gls(rich~group, method="REML",	data = richFrame )
+      fullModelLME <- lme(rich~group, method="REML", random = ~1|cage, data = richFrame)		
+      
+      pValuesRichness$pGroup[i] <- anova(fullModelLME)$"p-value"[2]
+      pValuesRichness$pCage[i] <- anova(fullModelLME, reducedModel)$"p-value"[2]
+    } else { #stool
+      ##shannon
+      reducedModel <- gls(shan~time+group, method="REML",	data = shanFrame )
+      fullModelLME <- lme(shan~time+group, method="REML", random = ~1|cage/mouse, data = shanFrame)		
+      
+      pValuesShannon$pTime[i] <- anova(fullModelLME)$"p-value"[2]
+      pValuesShannon$pGroup[i] <- anova(fullModelLME)$"p-value"[3]
+      pValuesShannon$pCageMouse[i] <- anova(fullModelLME, reducedModel)$"p-value"[2]
+      
+      ##richness
+      reducedModel <- gls(rich~time+group, method="REML",	data = richFrame )
+      fullModelLME <- lme(rich~time+group, method="REML", random = ~1|cage/mouse, data = richFrame)		
+      
+      pValuesRichness$pTime[i] <- anova(fullModelLME)$"p-value"[2]
+      pValuesRichness$pGroup[i] <- anova(fullModelLME)$"p-value"[3]
+      pValuesRichness$pCageMouse[i] <- anova(fullModelLME, reducedModel)$"p-value"[2]
+    }
+    
+  }
+  dev.off()
+  
+  ##adjust p
+  if(t == "DC") {
+    pValuesShannon$pAdpGroup = p.adjust(pValuesShannon$pGroup, method="BH")
+    pValuesShannon$pAdjCage = p.adjust(pValuesShannon$pCage, method="BH")
+    
+    pValuesRichness$pAdpGroup = p.adjust(pValuesRichness$pGroup, method="BH")
+    pValuesRichness$pAdjCage = p.adjust(pValuesRichness$pCage, method="BH")
+  } else {
+    pValuesShannon$pAdjTime = p.adjust(pValuesShannon$pTime, method="BH")
+    pValuesShannon$pAdjGroup = p.adjust(pValuesShannon$pGroup, method="BH")
+    pValuesShannon$pAdhCageMouse = p.adjust(pValuesShannon$pCageMouse, method="BH")
+    
+    pValuesRichness$pAdjTime = p.adjust(pValuesRichness$pTime, method="BH")
+    pValuesRichness$pAdjGroup = p.adjust(pValuesRichness$pGroup, method="BH")
+    pValuesRichness$pAdhCageMouse = p.adjust(pValuesRichness$pCageMouse, method="BH")
+  }
+  
+  write.table(pValuesShannon, paste("apcAnalysis5_diversity_pvalues_shannon_", t, ".txt", sep=""), 
+              sep="\t", row.names = F, col.names = T, quote = F)
+  write.table(pValuesRichness, paste("apcAnalysis5_diversity_pvalues_richness_", t, ".txt", sep=""), 
+              sep="\t", row.names = F, col.names = T, quote = F)
+}

@@ -1,0 +1,94 @@
+##APC analysis 4 PCoA of stool separated by group
+##6/13/16
+
+rm(list=ls())
+
+library(vegan)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\paperRequests060216\\apc")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus", "qiimeClosedRef", "qiimeDeNovo")
+numNumeric = c(20, 27, 48, 107, 313, 2303, 10893) #number of numeric columns
+
+##function to get color (based on group)
+getColor <- function(group) {
+  if(group == "BF-bx") {
+    return("deepskyblue") #close alts are dodgerblue and steelblue1
+  } else if(group == "BF+bx") {
+    return("orangered3") #close alts are tomato3 and firebrick
+  } else if(group == "BF+NF") {
+    return("turquoise4") #close alt is darkcyan
+  } else if(group == "BF+T") {
+    return("orchid4") #not as good alts plum4 and mediumpurple3
+  } else {
+    stop(paste("Bad group:", group))
+  }
+}
+
+##function to get shape (based on time)
+getShape <- function(time) {
+  if(time == 0) {
+    return(17)
+  } else if(time == 1) {
+    return(15)
+  } else if(time == 12) {
+    return(16)
+  } else {
+    stop(paste("Bad time:", time))
+  }
+}
+
+##function to draw PCoA
+drawPCoA <- function(table, main) {
+  par(mar=c(4,4,4,8), xpd=T)
+  pcoa <- capscale(table[,-(1:15)]~1,distance="bray")
+  
+  colors = sapply(table$Group..Associated.with., getColor, USE.NAMES = F)
+  shapes = sapply(table$Timepoint..weeks., getShape, USE.NAMES = F)
+  
+  ##get percent variance
+  eig = eigenvals(pcoa)
+  if(any(eig<0)) {#need to check there are no negatives
+    warning(paste("NEGATIVE EIGENVALUES-percent variance is incorrect for ", lev, sep=""))
+  }
+  var = eig/sum(eig)*100 
+  
+  ##plot
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], 
+       xlab=paste("MDS1 (", format(var[[1]], digits=0), "%)", sep=""), 
+       ylab=paste("MDS2 (", format(var[[2]], digits=0), "%)", sep=""),
+       main=main, 
+       col=colors, pch=shapes)
+  
+  ##legend
+  groups = c("BF-bx", "BF+bx", "BF+NF", "BF+T")
+  time = sort(unique(table$Timepoint..weeks.))
+  timelab = paste("week", time)
+  if(time[1] == 0) {
+    timelab[1] = "inoculum"
+  }
+  col = sapply(groups, getColor, USE.NAMES = F)
+  sh = sapply(time, getShape, USE.NAMES = F)
+  legend("topright", inset=c(-.4,0),
+         legend=c(groups, timelab),
+         col=c(col, rep("gray", length(time))),
+         pch=c(rep(18, length(groups)), sh))
+}
+
+pdf("apcAnalysis4__indiv_stool_pcoa.pdf", height = 4, width=10)
+for(i in 1:length(taxaLevels)) {
+  taxa = taxaLevels[i]
+  print(taxa)
+  nn = numNumeric[i]
+  name = paste("apcStool_", taxa, "_logNorm_noInoc.txt", sep="")
+  table = read.table(name, sep="\t", header=T, comment.char="", na.strings="N/A", 
+                     colClasses=c("numeric", rep("character", 3), "numeric", rep("character", 3),
+                                  "numeric", "character", "character", "numeric", "character", "character", 
+                                  rep("numeric", nn)))
+  par(mfrow=c(1,2))
+  drawPCoA(table[table$Group..Associated.with.=="BF-bx",], paste("ApcMin", taxa, "BF-bx"))
+  drawPCoA(table[table$Group..Associated.with.=="BF+T",], paste("ApcMin", taxa, "BF+T"))
+}
+dev.off()
+
+
