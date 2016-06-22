@@ -1,0 +1,50 @@
+##get fraction of novel reads based on percent identity to Silva
+##6/13/16
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\dolphin\\abundantOTU")
+
+####fraction of reads novel at different cutoffs for each sample
+results = read.table("blastSilva_v_dolphinAbundantOTUcons.table.txt", sep="\t", header= T,
+                     colClasses = c(rep("character", 2), rep("numeric", 2)))
+relabun = read.table("dolphinAbundantOTUtable_taxaAsCol_relAbun.txt", sep="\t", header=T, comment.char="", 
+                     colClasses=c(rep("character", 12), rep("numeric", 28973)))
+
+cutoffs = c(99, 97, 95, 90, 80)
+
+##for the given row (sample), return the fraction of reads above the cutoff
+getFraction <- function(row, cutoff) {
+  r = relabun[row,14:ncol(relabun)]
+  names = names(r)
+  r = as.numeric(r)
+  conf = results$percentIdentity
+  fr = 0 #fraction reads
+  for(col in 1:length(r)) {
+    confidence = conf[results$consensusSequence == names[col]]
+    if(length(confidence) > 1) {
+      print(paste(row, col))
+      print(confidence)
+    } else if(is.na(confidence) || length(confidence) == 0 || confidence < cutoff) {
+      fr = fr + r[col]
+    }
+  }
+  return(fr)
+}
+
+frac = data.frame(sampleID = relabun$sampleID,
+                  frac99 = rep(0, nrow(relabun)),
+                  frac97 = rep(0, nrow(relabun)),
+                  frac95 = rep(0, nrow(relabun)),
+                  frac90 = rep(0, nrow(relabun)),
+                  frac80 = rep(0, nrow(relabun)),
+                  stringsAsFactors = F)
+for(r in 1:nrow(relabun)) {
+  print(r)
+  for(c in 1:length(cutoffs)) {
+    frac[r, c+1] = getFraction(r, cutoffs[c])
+  }
+}
+write.table(frac, "dolphinAbundantOTU.fractionNovelReads_silva.txt", sep="\t", 
+            row.names = F, col.names=T, quote=F)
+

@@ -1,0 +1,137 @@
+##plot percent novel taxa for RDP and SILVA
+##6/17/16
+
+rm(list=ls())
+
+library(ggplot2)
+library(reshape2)
+library(plyr)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\dolphin\\abundantOTU")
+
+levels = c("silva", "phylum", "class", "order", "family", "genus")
+
+##get metadata; use table instead of metadata to remove low read count samples
+# relabun = read.table("dolphinAbundantOTUtable_taxaAsCol_relAbun.txt", sep="\t", header=T, comment.char="", 
+#                      colClasses=c(rep("character", 12), rep("numeric", 28973)))
+# metadata = data.frame(sampleID=relabun$sampleID, site=relabun$BODY.SITE.SAMPLED)
+metadata = read.table("..\\dolphinMetadata_withSampleID.txt", sep="\t", fill=T, header=T, 
+                      comment.char="", colClasses="character", blank.lines.skip = T)
+metadata$sampleID = gsub("-", "", metadata$sampleID) #remove dashes in water sample
+metadata = data.frame(sampleID=metadata$sampleID, site=metadata$BODY.SITE.SAMPLED)
+metadata$site = gsub("[1-7]", "", metadata$site)
+metadata = metadata[metadata$sampleID!="",] #theres an extra blank line
+sites = sort(unique(metadata$site)) #fix water
+
+
+# jpeg("novelTaxa.jpg", res=300, height=600, width=900)
+# par(mfrow=c(2,3))
+pdf("novelTaxa_clusterbypercent.pdf", height=5, width=8)
+for(lev in levels) {
+  print(lev)
+  table = read.table(paste("dolphinAbundantOTU.fractionNovelReads_", lev, ".txt", sep=""), sep="\t", header=T,
+                     colClasses = c("character", rep("numeric", 5)))
+  
+  ##merge with metadata
+  table = merge(metadata, table, by="sampleID")
+  
+  ##get average and standard deviation by body site
+  means = data.frame(site = sites,
+                     frac99 = rep(NA, length(sites)),
+                     frac97 = rep(NA, length(sites)),
+                     frac95 = rep(NA, length(sites)),
+                     frac90 = rep(NA, length(sites)),
+                     frac80 = rep(NA, length(sites)))
+  sds = data.frame(site = sites, 
+                   frac99 = rep(NA, length(sites)),
+                   frac97 = rep(NA, length(sites)),
+                   frac95 = rep(NA, length(sites)),
+                   frac90 = rep(NA, length(sites)),
+                   frac80 = rep(NA, length(sites)))
+  for(i in 1:length(sites)) {
+    s = sites[i]
+    means$frac99[i] = mean(table$frac99[table$site == s])
+    means$frac97[i] = mean(table$frac97[table$site == s])
+    means$frac95[i] = mean(table$frac95[table$site == s])
+    means$frac90[i] = mean(table$frac90[table$site == s])
+    means$frac80[i] = mean(table$frac80[table$site == s])
+    
+    sds$frac99[i] = sd(table$frac99[table$site == s])
+    sds$frac97[i] = sd(table$frac97[table$site == s])
+    sds$frac95[i] = sd(table$frac95[table$site == s])
+    sds$frac90[i] = sd(table$frac90[table$site == s])
+    sds$frac80[i] = sd(table$frac80[table$site == s])
+  }
+  
+  ##plot
+  df = melt(means, id.vars="site", value.name = "mean")
+  df2 = melt(sds, id.vars="site", value.name = "sd")
+  df = merge(df, df2, by=c("site", "variable"))
+  
+  p = ggplot(df, aes(x=variable, y=mean)) +
+    geom_bar(stat="identity", aes(fill=site), position=position_dodge()) +
+    geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd, fill=site), position=position_dodge()) +
+    ggtitle(lev) +
+    scale_x_discrete(name = "percent", labels=c("99%", "97%", "95%", "90%", "80%")) +
+    scale_y_continuous(name = "fraction of reads") +
+    scale_fill_manual(name="body site", 
+                      values=c("red", "blue", "green", "gold", "purple", "turquoise", "black"))
+  
+  print(p)
+  
+}
+dev.off()
+
+pdf("novelTaxa_clusterbysite.pdf", height=5, width=8)
+for(lev in levels) {
+  print(lev)
+  table = read.table(paste("dolphinAbundantOTU.fractionNovelReads_", lev, ".txt", sep=""), sep="\t", header=T,
+                     colClasses = c("character", rep("numeric", 5)))
+  
+  ##merge with metadata
+  table = merge(metadata, table, by="sampleID")
+  
+  ##get average and standard deviation by body site
+  means = data.frame(site = sites,
+                     frac99 = rep(NA, length(sites)),
+                     frac97 = rep(NA, length(sites)),
+                     frac95 = rep(NA, length(sites)),
+                     frac90 = rep(NA, length(sites)),
+                     frac80 = rep(NA, length(sites)))
+  sds = data.frame(site = sites, 
+                   frac99 = rep(NA, length(sites)),
+                   frac97 = rep(NA, length(sites)),
+                   frac95 = rep(NA, length(sites)),
+                   frac90 = rep(NA, length(sites)),
+                   frac80 = rep(NA, length(sites)))
+  for(i in 1:length(sites)) {
+    s = sites[i]
+    means$frac99[i] = mean(table$frac99[table$site == s])
+    means$frac97[i] = mean(table$frac97[table$site == s])
+    means$frac95[i] = mean(table$frac95[table$site == s])
+    means$frac90[i] = mean(table$frac90[table$site == s])
+    means$frac80[i] = mean(table$frac80[table$site == s])
+    
+    sds$frac99[i] = sd(table$frac99[table$site == s])
+    sds$frac97[i] = sd(table$frac97[table$site == s])
+    sds$frac95[i] = sd(table$frac95[table$site == s])
+    sds$frac90[i] = sd(table$frac90[table$site == s])
+    sds$frac80[i] = sd(table$frac80[table$site == s])
+  }
+  
+  ##plot
+  df = melt(means, id.vars="site", value.name = "mean")
+  df2 = melt(sds, id.vars="site", value.name = "sd")
+  df = merge(df, df2, by=c("site", "variable"))
+  p = ggplot(df, aes(x=site, y=mean)) +
+    geom_bar(stat="identity", aes(fill=variable), position=position_dodge()) +
+    geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd, fill=variable), position=position_dodge()) +
+    ggtitle(lev) +
+    scale_x_discrete(name = "body site") +
+    scale_y_continuous(name = "fraction of reads") +
+    scale_fill_brewer(name="percent", labels=c("99", "97", "95", "90", "80"), palette="Set1") 
+  
+  print(p)
+  
+}
+dev.off()
