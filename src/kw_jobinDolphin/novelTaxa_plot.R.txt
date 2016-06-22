@@ -26,7 +26,7 @@ sites = sort(unique(metadata$site)) #fix water
 
 # jpeg("novelTaxa.jpg", res=300, height=600, width=900)
 # par(mfrow=c(2,3))
-pdf("novelTaxa_clusterbypercent.pdf", height=5, width=8)
+pdf("novelTaxa_clusterbycutoff.pdf", height=5, width=8)
 for(lev in levels) {
   print(lev)
   table = read.table(paste("dolphinAbundantOTU.fractionNovelReads_", lev, ".txt", sep=""), sep="\t", header=T,
@@ -72,7 +72,7 @@ for(lev in levels) {
     geom_bar(stat="identity", aes(fill=site), position=position_dodge()) +
     geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd, fill=site), position=position_dodge()) +
     ggtitle(lev) +
-    scale_x_discrete(name = "percent", labels=c("99%", "97%", "95%", "90%", "80%")) +
+    scale_x_discrete(name = "cutoff", labels=c("99%", "97%", "95%", "90%", "80%")) +
     scale_y_continuous(name = "fraction of reads") +
     scale_fill_manual(name="body site", 
                       values=c("red", "blue", "green", "gold", "purple", "turquoise", "black"))
@@ -129,7 +129,7 @@ for(lev in levels) {
     ggtitle(lev) +
     scale_x_discrete(name = "body site") +
     scale_y_continuous(name = "fraction of reads") +
-    scale_fill_brewer(name="percent", labels=c("99", "97", "95", "90", "80"), palette="Set1") 
+    scale_fill_brewer(name="cutoff", labels=c("99%", "97%", "95%", "90%", "80%"), palette="Set1") 
   
   print(p)
   
