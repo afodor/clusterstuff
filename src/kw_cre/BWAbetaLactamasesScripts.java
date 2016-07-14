@@ -76,8 +76,8 @@ public class BWAbetaLactamasesScripts {
 				script.write("samtools view -bSh " + fname +".sam > " 
 						+ fname + ".bam\n");
 				//sort
-				script.write("samtools sort " + fname + ".bam > "
-						+ fname + ".sort.bam\n");
+				script.write("samtools sort " + fname + ".bam "
+						+ fname + ".sort\n");
 				//remove duplicates
 				script.write("samtools rmdup " + fname + ".sort.bam " + fname +
 						".sort.rmdup.bam\n");
