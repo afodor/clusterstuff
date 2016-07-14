@@ -61,6 +61,7 @@ public class ParseCardsBlastResultsScaffolds {
 		//for scaffold blasts, for each genome get set of regions that mapped to each cards gene
 		HashMap<String, ArrayList<Set<String>>> hits = new HashMap<String, ArrayList<Set<String>>>();
 		HashMap<String, ArrayList<Set<String>>> shortNameHits = new HashMap<String, ArrayList<Set<String>>>();
+		samples = new String[]{"klebsiella_pneumoniae_chs_20.0"};
 		for(int i = 0; i < samples.length; i++) {
 			String samp = samples[i];
 			int numHits = 0;
@@ -88,9 +89,14 @@ public class ParseCardsBlastResultsScaffolds {
 						if(sets.get(i) == null) {
 							sets.set(i,new HashSet<String>());
 						}
+						if(cards.contains("LEN")) {
+							System.out.println("Before check overlaps " + cards + " " + sets.size() + " " + region);
+						}
 						//check does not overlap any regions already found
 						sets.set(i, checkOverlap(region, sets.get(i)));
-
+						if(cards.contains("LEN")) {
+							System.out.println("Before check overlaps " + cards + " " + sets.size() + " " + region);
+						}
 
 						//also add to short name
 						String[] sp2 = cards.split("\\|");
