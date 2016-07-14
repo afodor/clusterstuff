@@ -74,7 +74,8 @@ public class ParseCardsBlastResultsScaffolds {
 					double len = 100.0 * (Double.parseDouble(sp[9]) - 
 							Double.parseDouble(sp[8])) / cardsLengths.get(cards);//cards length
 					if(pid > PID_CUT && len > LEN_CUT) {
-						String region = "[" + sp[0] + "," + sp[6] + "," + sp[7] + "]";//region is [scaffold, start, stop]
+						String region = "[" + sp[0] + "," + sp[6] + "," + sp[7] +
+								"," + sp[11] + "]";//region is [scaffold, start, stop, bit score]
 						numHits++;
 						if(!hits.containsKey(cards)) {
 							ArrayList<Set<String>> sets = new ArrayList<Set<String>>(NUM_SAMPLES);
@@ -197,8 +198,8 @@ public class ParseCardsBlastResultsScaffolds {
 							(start1 <= start2 && stop1 >= start2) ||
 							(start2 <= start1 && stop2 >= start1) ||
 							(start2 <= start1 && stop2 >= stop1)) {//overlap
-						int bit1 = Integer.parseInt(sp1[3].replace("]", ""));
-						int bit2 = Integer.parseInt(sp2[3].replace("]", ""));
+						double bit1 = Double.parseDouble(sp1[3].replace("]", ""));
+						double bit2 = Double.parseDouble(sp2[3].replace("]", ""));
 						if(bit1 > bit2) {
 							set.remove(s);
 							set.add(region);
