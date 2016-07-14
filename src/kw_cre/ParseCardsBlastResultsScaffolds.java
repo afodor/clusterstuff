@@ -162,7 +162,7 @@ public class ParseCardsBlastResultsScaffolds {
 			out.write(k);
 			ArrayList<Set<String>> matches = shortNameHits.get(k);
 			for(int gen = 0; gen < matches.size(); gen++) {
-				if(matches.get(gen) == null) {
+				if(matches.get(gen) == null || matches.get(gen).isEmpty()) {
 					out.write("\tNA");
 				} else {
 					ArrayList<String> genes = new ArrayList<String>(matches.get(gen));
