@@ -132,7 +132,7 @@ public class ParseCardsBlastResultsScaffolds {
 			out.write(k);
 			ArrayList<Set<String>> matches = hits.get(k);
 			for(int gen = 0; gen < matches.size(); gen++) {
-				if(matches.get(gen) == null || matches.get(gen).isEmpty()) {
+				if(matches.get(gen) == null || matches.get(gen).size() == 0) {
 					out.write("\tNA");
 				} else {
 					ArrayList<String> genes = new ArrayList<String>(matches.get(gen));
