@@ -61,7 +61,7 @@ public class ParseCardsBlastResultsScaffolds {
 		//for scaffold blasts, for each genome get set of regions that mapped to each cards gene
 		HashMap<String, ArrayList<Set<String>>> hits = new HashMap<String, ArrayList<Set<String>>>();
 		HashMap<String, ArrayList<Set<String>>> shortNameHits = new HashMap<String, ArrayList<Set<String>>>();
-		samples = new String[]{"klebsiella_pneumoniae_chs_20.0"};
+		//samples = new String[]{"klebsiella_pneumoniae_chs_20.0"};
 		for(int i = 0; i < samples.length; i++) {
 			String samp = samples[i];
 			int numHits = 0;
