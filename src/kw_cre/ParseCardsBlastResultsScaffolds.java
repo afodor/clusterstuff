@@ -182,7 +182,6 @@ public class ParseCardsBlastResultsScaffolds {
 	//region is given as [scaffold, start, stop, bit]
 	private static Set<String> checkOverlap(String region,
 			Set<String> set) {
-		set.add(region);
 		String[] sp1 = region.split(",");
 		Set<String> remove = new HashSet<String>(); //can't remove as iterating through, so remove at end
 		for(String s : set) {
@@ -207,6 +206,7 @@ public class ParseCardsBlastResultsScaffolds {
 				}
 			}
 		}
+		set.add(region);
 		set.removeAll(remove);
 		return set;
 	}
