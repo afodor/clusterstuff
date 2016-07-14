@@ -204,7 +204,11 @@ public class ParseCardsBlastResultsScaffolds {
 							set.remove(s);
 							set.add(region);
 						}
+					} else {
+						set.add(region);
 					}
+				} else {
+					set.add(region);
 				}
 			}
 		}
