@@ -57,10 +57,10 @@ public class BWAbetaLactamasesScripts {
 				String name = f.getName().replace("_1.fastq.gz", "");
 
 				BufferedWriter script = new BufferedWriter(new FileWriter(new File(
-						scriptDir + "runAlignToBLs_" + name)));				
+						scriptDir + "runAlignToBLs_" + name)));		
 
 				//add to run all
-				runAll.write("qsub -q \"viper\" runAlignToCards_" + name + "\n");
+				runAll.write("qsub -q \"viper\" runAlignToBLs_" + name + "\n");
 				
 				//load needed modules
 				script.write("module load bwa\n");
