@@ -75,7 +75,7 @@ public class ParseCardsBlastResultsScaffolds {
 							Double.parseDouble(sp[8])) / cardsLengths.get(cards);//cards length
 					if(pid > PID_CUT && len > LEN_CUT) {
 						String region = "[" + sp[0] + "," + sp[6] + "," + sp[7] +
-								"," + sp[11] + "]";//region is [scaffold, start, stop, bit score]
+								"," + sp[11].trim() + "]";//region is [scaffold, start, stop, bit score]
 						numHits++;
 						if(!hits.containsKey(cards)) {
 							ArrayList<Set<String>> sets = new ArrayList<Set<String>>(NUM_SAMPLES);
