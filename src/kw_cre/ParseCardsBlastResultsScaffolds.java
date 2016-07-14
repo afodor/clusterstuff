@@ -197,8 +197,8 @@ public class ParseCardsBlastResultsScaffolds {
 							(start1 <= start2 && stop1 >= start2) ||
 							(start2 <= start1 && stop2 >= start1) ||
 							(start2 <= start1 && stop2 >= stop1)) {//overlap
-						int bit1 = Integer.parseInt(sp1[3]);
-						int bit2 = Integer.parseInt(sp2[3]);
+						int bit1 = Integer.parseInt(sp1[3].replace("]", ""));
+						int bit2 = Integer.parseInt(sp2[3].replace("]", ""));
 						if(bit1 > bit2) {
 							set.remove(s);
 							set.add(region);
