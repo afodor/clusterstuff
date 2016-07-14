@@ -72,8 +72,11 @@ public class ParseCardsBlastResultsScaffolds {
 					String[] sp = line.split("\t");
 					String cards = sp[1];
 					double pid = Double.parseDouble(sp[2]);//percent identity
-					double len = 100.0 * (Double.parseDouble(sp[9]) - 
+					double len = 100.0 * Math.abs(Double.parseDouble(sp[9]) - 
 							Double.parseDouble(sp[8])) / cardsLengths.get(cards);//cards length
+					/*if(cards.contains("LEN")) {
+						System.out.println("pid/len " + cards + " " + pid + " " + len + " " + (pid > PID_CUT) + " " + (len > LEN_CUT));
+					}*/
 					if(pid > PID_CUT && len > LEN_CUT) {
 						String region = "[" + sp[0] + "," + sp[6] + "," + sp[7] +
 								"," + sp[11].trim() + "]";//region is [scaffold, start, stop, bit score]
@@ -89,14 +92,14 @@ public class ParseCardsBlastResultsScaffolds {
 						if(sets.get(i) == null) {
 							sets.set(i,new HashSet<String>());
 						}
-						if(cards.contains("LEN")) {
+						/*if(cards.contains("LEN")) {
 							System.out.println("Before check overlaps " + cards + " " + sets.size() + " " + region);
-						}
+						}*/
 						//check does not overlap any regions already found
 						sets.set(i, checkOverlap(region, sets.get(i)));
-						if(cards.contains("LEN")) {
+						/*if(cards.contains("LEN")) {
 							System.out.println("Before check overlaps " + cards + " " + sets.size() + " " + region);
-						}
+						}*/
 
 						//also add to short name
 						String[] sp2 = cards.split("\\|");
