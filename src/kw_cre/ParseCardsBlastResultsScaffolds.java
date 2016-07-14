@@ -182,36 +182,32 @@ public class ParseCardsBlastResultsScaffolds {
 	//region is given as [scaffold, start, stop, bit]
 	private static Set<String> checkOverlap(String region,
 			Set<String> set) {
-		if(set.isEmpty()) {
-			set.add(region);
-		} else {
-			String[] sp1 = region.split(",");
-			for(String s : set) {
-				String[] sp2 = s.split(",");
-				//check scaffolds
-				if(sp1[0].equals(sp2[0])) {
-					int start1 = Integer.parseInt(sp1[1]);
-					int stop1 = Integer.parseInt(sp1[2]);
-					int start2 = Integer.parseInt(sp2[1]);
-					int stop2 = Integer.parseInt(sp2[2]);
-					if((start1 <= start2 && stop1 >= stop2) ||
-							(start1 <= start2 && stop1 >= start2) ||
-							(start2 <= start1 && stop2 >= start1) ||
-							(start2 <= start1 && stop2 >= stop1)) {//overlap
-						double bit1 = Double.parseDouble(sp1[3].replace("]", ""));
-						double bit2 = Double.parseDouble(sp2[3].replace("]", ""));
-						if(bit1 > bit2) {
-							set.remove(s);
-							set.add(region);
-						}
+		set.add(region);
+		String[] sp1 = region.split(",");
+		Set<String> remove = new HashSet<String>(); //can't remove as iterating through, so remove at end
+		for(String s : set) {
+			String[] sp2 = s.split(",");
+			//check scaffolds
+			if(sp1[0].equals(sp2[0])) {
+				int start1 = Integer.parseInt(sp1[1]);
+				int stop1 = Integer.parseInt(sp1[2]);
+				int start2 = Integer.parseInt(sp2[1]);
+				int stop2 = Integer.parseInt(sp2[2]);
+				if((start1 <= start2 && stop1 >= stop2) ||
+						(start1 <= start2 && stop1 >= start2) ||
+						(start2 <= start1 && stop2 >= start1) ||
+						(start2 <= start1 && stop2 >= stop1)) {//overlap
+					double bit1 = Double.parseDouble(sp1[3].replace("]", ""));
+					double bit2 = Double.parseDouble(sp2[3].replace("]", ""));
+					if(bit1 > bit2) {
+						remove.add(s);
 					} else {
-						set.add(region);
+						remove.add(region);
 					}
-				} else {
-					set.add(region);
 				}
 			}
 		}
+		set.removeAll(remove);
 		return set;
 	}
 
