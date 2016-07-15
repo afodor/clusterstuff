@@ -85,13 +85,6 @@ public class BWAbetaLactamaseStats {
 				br.close();
 				//if no reads mapped reference, ref is not in depth output file,
 				//so add missing refs in
-				if(srr.equals("SRR1197698")) {
-					System.out.print("SRR1197698 " + map.size());
-					for(String k : map.keySet()) {
-						System.out.print(" " + k);
-					}
-					System.out.println();
-				}
 				if(refs.size() > map.size()) {
 					Set<String> keys = map.keySet();
 					Set<String> refset = new HashSet<String>();
@@ -104,13 +97,6 @@ public class BWAbetaLactamaseStats {
 				} else if(map.size() > refs.size()) {
 					System.out.println("File " + file + 
 							" has incorrect number of refs: " + map.size());
-				}
-				if(srr.equals("SRR1197698")) {
-					System.out.print("SRR1197698 " + map.size());
-					for(String k : map.keySet()) {
-						System.out.print(" " + k);
-					}
-					System.out.println();
 				}
 				sumDepth.put(srr, map);
 			}
@@ -203,7 +189,6 @@ public class BWAbetaLactamaseStats {
 				double mapReads = 0;
 				double dep = 0;
 				for(String f : files) {
-					System.out.println(f + " " + r);
 					mapReads += numMapped.get(f).get(r);
 					dep += sumDepth.get(f).get(r);
 				}
