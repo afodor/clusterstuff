@@ -60,7 +60,7 @@ public class BWAbetaLactamasesScripts {
 						scriptDir + "runAlignToBLs_" + name)));		
 
 				//add to run all
-				runAll.write("qsub -q \"viper\" runAlignToBLs_" + name + "\n");
+				runAll.write("qsub -q \"viper_batch\" runAlignToBLs_" + name + "\n");
 				
 				//load needed modules
 				script.write("module load bwa\n");
