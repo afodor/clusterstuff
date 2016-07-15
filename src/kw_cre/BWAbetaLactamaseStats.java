@@ -121,7 +121,7 @@ public class BWAbetaLactamaseStats {
 					String[] sp = line.split("\t");
 					String key = sp[0];
 					//check lengths
-					if(!refLengths.containsKey(key)) {
+					if(!refLengths.containsKey(key) && !key.equals("*")) {
 						br.close();
 						throw new Exception("Extra key " + key);
 					}
