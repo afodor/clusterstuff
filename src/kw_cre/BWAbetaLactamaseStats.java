@@ -1,0 +1,187 @@
+/*
+ * Uses the results from BWAbetaLactamaseScripts (idxstats and depth) to get
+ * the proportion of reads that mapped to each reference, and the average depth.
+ * Also combines individual SRR file results into one number for each isolate.
+ */
+package kw_cre;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+
+public class BWAbetaLactamaseStats {
+	public static final String DIR = "/nobackup/afodor_research/kwinglee/cre/chs_v_cards/bwaAlignToBetaLactamases/";
+	public static final String CONVERT = "/nobackup/afodor_research/mjzapata/CRE/CHS_raw/chs_batch_download_results.csv";//file used to convert to from SRR to CHS
+	public static final String REF = "/users/kwinglee/card/beta_lactamase.protein_homolog.fasta";//reference used for alignment
+	
+	public static void main(String[] args) throws Exception {
+		//get SRR to CHS conversion (map of CHS number to list of corresponding SRR numbers
+		HashMap<String, String[]> chs = new HashMap<String, String[]>();
+		BufferedReader conv = new BufferedReader(new FileReader(new File(CONVERT)));
+		for(String line = conv.readLine(); line != null; line = conv.readLine()) {
+			String[] sp = line.replace("[", "").replace("]", "").split("\t");
+			chs.put(sp[0], sp[1].split(", "));
+		}
+		conv.close();
+		
+		//list of references and their lengths
+		HashMap<String, Integer> refLengths = new HashMap<String, Integer>();
+		BufferedReader brRef = new BufferedReader(new FileReader(new File(REF)));
+		String name = "";
+		int len = 0;
+		for(String line = brRef.readLine(); line != null; line = brRef.readLine()) {
+			if(line.startsWith(">")) {
+				if(name.length() > 0) {
+					refLengths.put(name, len);
+				}
+				name = line.replace(">", "").split(" ")[0];
+				len = 0;
+			} else {
+				len += line.length();
+			}
+		}
+		brRef.close();
+		List<String> refs = new ArrayList<String>();
+		refs.addAll(refLengths.keySet());
+		Collections.sort(refs);
+		System.out.println(refs.size() + " references");
+		
+		//list of files
+		String[] results = new File(DIR).list();
+		
+		//sum of depths (from depth command)
+		HashMap<String, HashMap<String, Integer>> sumDepth = new HashMap<String, HashMap<String, Integer>>();
+		//map of SRR to map of reference to sum of number reads that aligned at each position in that reference
+		for(String file : results) {
+			if(file.endsWith("depth.txt")) {
+				String srr = file.split("\\.")[0];
+				HashMap<String, Integer> map = new HashMap<String, Integer>();
+				BufferedReader br = new BufferedReader(new FileReader(new File(
+						DIR + file)));
+				String line = br.readLine();
+				if(line == null || line.length() < 1) {//file is empty
+					br.close();
+					throw new Exception("File " + file + "is empty");
+				}
+				while(line != null) {
+					String[] sp = line.split("\t");
+					String key = sp[0];
+					int count = Integer.parseInt(sp[2]);
+					if(!map.containsKey(key)) {
+						map.put(key, count);
+					} else {
+						map.put(key, map.get(key) + count);
+					}
+					line = br.readLine();
+				}
+				br.close();
+				if(refs.size() != map.size()) {
+					System.out.println("File " + file + 
+							" has incorrect number of refs: " + map.size());
+				}
+				sumDepth.put(srr, map);
+			}
+		}
+		
+		//number of reads mapped (from idxstats) and total number reads
+		HashMap<String, HashMap<String, Integer>> numMapped = new HashMap<String, HashMap<String, Integer>>();
+		     //map of SRR to map of reference to number of reads that mapped that reference
+		HashMap<String, Integer> numReads = new HashMap<String, Integer>();
+		    //map of SRR to total number of reads
+		for(String file : results){
+			if(file.endsWith(".idxstats.txt")) {
+				String srr = file.split("\\.")[0];
+				HashMap<String, Integer> map = new HashMap<String, Integer>();
+				BufferedReader br = new BufferedReader(new FileReader(new File(
+						DIR + file)));
+				String line = br.readLine();
+				if(line == null || line.length() < 1 || line.startsWith("*")) {//file is empty or no reads mapped
+					br.close();
+					throw new Exception("File " + file + "is empty");
+				}
+				int totReads = 0;
+				while(line != null) {
+					String[] sp = line.split("\t");
+					String key = sp[0];
+					//check lengths
+					if(refLengths.get(key) != Integer.parseInt(sp[1])) {
+						br.close();
+						throw new Exception("Mismatching lengths: " + file + " "
+								+ key + " " + Integer.parseInt(sp[1]) + " " 
+										+ refLengths.get(key));
+					}
+					int numMap = Integer.parseInt(sp[2]);
+					totReads += numMap + Integer.parseInt(sp[3]);
+					if(!key.equals("*")) {
+						if(!map.containsKey(key)) {
+							map.put(key, numMap);
+						} else {
+							map.put(key, map.get(key) + numMap);
+						}
+					}
+					line = br.readLine();
+				}
+				br.close();
+				numReads.put(srr, totReads);
+				numMapped.put(srr, map);
+				if(refs.size() != map.size()) {
+					System.out.println("File " + file + 
+							" has incorrect number of refs: " + map.size());
+				}
+			}
+		}
+		
+		//get list of srr files
+		HashSet<String> srrSet = new HashSet<String>();
+		srrSet.addAll(sumDepth.keySet());
+		srrSet.addAll(numMapped.keySet());
+		List<String> srr = new ArrayList<String>();
+		srr.addAll(srrSet);
+		Collections.sort(srr);
+		
+		//write intermediate table to check numbers
+		BufferedWriter srrOut = new BufferedWriter(new FileWriter(new File(
+				DIR + "betaLactamaseAlignmentStatsBySRR.txt")));
+		srrOut.write("id\ttotReads\treference\tnumMappedReads\tsumDepth\n");
+		for(String s : srr) {
+			for(String r : refs) {
+				srrOut.write(s + "\t" + numReads.get(s) + r + 
+						"\t" + numMapped.get(s).get(r) + "\t" +
+						sumDepth.get(s).get(r) + "\n");
+			}
+		}
+		srrOut.close();
+		
+		//combine individual read files into one
+		BufferedWriter chsOut = new BufferedWriter(new FileWriter(new File(
+				DIR + "betaLactamaseAlignmentStatsByCHS.txt")));
+		chsOut.write("chs\ttotReads\treference\tnumMappedReads\tpropMappedRead\tsumDepth\taveDepth\n");
+		for(String c : chs.keySet()) {
+			String[] files = chs.get(c);
+			int totReads = 0;
+			for(String f : files) {
+				totReads += numReads.get(f);
+			}
+			for(String r : refs) {
+				double mapReads = 0;
+				double dep = 0;
+				for(String f : files) {
+					mapReads += numMapped.get(f).get(r);
+					dep += sumDepth.get(f).get(r);
+				}
+				chsOut.write(c + "\t" + totReads + "\t" + r + "\t" +
+						mapReads + "\t" + (mapReads / totReads) + "\t" +
+						dep + "\t" + (dep / refLengths.get(r)) + "\n");
+			}
+		}
+		chsOut.close();
+	}
+
+}
