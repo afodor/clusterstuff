@@ -1,0 +1,124 @@
+##look at parsed results of blasting carolina genes against cards protein homolog database
+##7/14/16
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE")
+
+allgenes = read.table("blastCardsProHomologScaffoldTables_pid80.0_len90.0.txt", 
+                      sep="\t", header=T, colClasses="character", quote="")
+collapse = read.table("blastCardsProHomologScaffoldTables_pid80.0_len90.0_collapsed.txt", 
+                      sep="\t", header=T, colClasses="character", quote="")
+
+numSamps = 76
+if(ncol(allgenes) != numSamps + 1) {
+  stop("allgenes wrong size")
+}
+if(ncol(collapse) != numSamps + 1) {
+  stop("collapse wrong size")
+}
+
+##get number and percent of genomes that contained that cards gene; sort by name
+getStats <- function(table) {
+  num = rowSums(!is.na(table[,-1]))
+  per = num / numSamps * 100
+  table = data.frame(cardsGene=table[,1], numberGenomesWithGene=num, percentGenomesWithGene=per, table[,-1], 
+                     stringsAsFactors = F)
+  table = table[order(table$cardsGene),]
+  return(table)
+}
+allgenes = getStats(allgenes)
+collapse = getStats(collapse)
+
+##identify genes of interest
+ag90 = allgenes$cardsGene[allgenes$percentGenomesWithGene > 90] #list of 29
+c90 = collapse$cardsGene[collapse$percentGenomesWithGene > 90] #[1] "acrA" "acrB" "acrD" "emrB" "emrD" "KPC"  "mdtB" "mdtC" "mdtD" "SHV" 
+ag90
+c90
+
+##for c90, see if same genes picked up
+for(i in 1:(length(c90)-1)) {
+  for(j in i:length(c90)) {
+    if(all((is.na(collapse[collapse$cardsGene==c90[i],]) & is.na(collapse[collapse$cardsGene==c90[j],])) 
+           | collapse[collapse$cardsGene==c90[i],] == collapse[collapse$cardsGene==c90[j],])) {
+      print(paste(c90[i], c90[j]))
+    }
+  }
+}##none are the same
+
+##for c90, see if any genomes had multiple hits
+for(c in c90) {
+  if(any(grepl(";", collapse[collapse$cardsGene==c,]))) {
+    print(c)
+  }
+} #KPC and SHV
+
+##clean up gene and genome names for paper
+clean <- function(table) {
+  for(row in 1:nrow(table)) {
+    table[row,] = gsub("carolina_", "", table[row,])
+    table[row,] = gsub("chs_", "", table[row,])
+    table[row,] = gsub("klebsiella_pneumoniae_", "", table[row,])
+    table[row,] = gsub("escherichia_coli_", "", table[row,])
+    table[row,] = gsub("enterobacter_cloacae_", "", table[row,])
+    table[row,] = gsub("lelliottia_amnigena_", "", table[row,])
+    table[row,] = gsub("[0-9]+\\.0_", "", table[row,])
+    table[row, is.na(table[row,])] = "none"
+  }
+  
+  names = names(table)
+  names = gsub("chs_", "", names)
+  names = gsub("klebsiella_pneumoniae_", "", names)
+  names = gsub("escherichia_coli_", "", names)
+  names = gsub("enterobacter_cloacae_", "", names)
+  names = gsub("lelliottia_amnigena_", "", names)
+  names = gsub(".0", "", names, fixed=T)
+  # names[1] = "genomeNumber"
+  names(table) = names
+  return(table)
+}
+coll = clean(collapse)
+all = clean(allgenes)
+
+##write.tables
+write.table(all, "blastCardsProHomologScaffoldTable_pid80.0_len90.0_suppTable.txt", sep="\t",
+            quote=F, row.names = F, col.names = T)
+write.table(coll, "blastCardsProHomologScaffoldTable_pid80.0_len90.0_collapsed_suppTable.txt", sep="\t",
+            quote=F, row.names = F, col.names = T)
+
+#####compare to gene analysis
+genecoll = read.table("blastCardsProHomologGeneTables_pid80.0_len90.0_collapsed_suppTable.txt",
+                      sep="\t", header=T, colClasses="character", quote="")
+##gene has more collapsed hits than scaffold
+scaff = coll[coll$cardsGene %in% genecoll$cardsGene,]
+gene = genecoll[genecoll$cardsGene %in% coll$cardsGene,]
+any(gene$cardsGene != scaff$cardsGene)
+diff = as.numeric(gene$numberGenomesWithGene) - as.numeric(scaff$numberGenomesWithGene)
+gene$cardsGene[diff < 0]
+
+
+####compare counts
+library(stringr)
+bl = c("KPC", "LEN", "OKP", "OXA", "SHV", "TEM")
+getBetaLacCounts <- function(res) {
+  blonly = res[res$cardsGene %in% bl,]
+  blcount = data.frame(matrix(NA, nrow = nrow(blonly), ncol = ncol(blonly)))
+  names(blcount) = names(blonly)
+  blcount$cardsGene = blonly$cardsGene
+  blcount$numberGenomesWithGene = as.numeric(blonly$numberGenomesWithGene)
+  blcount$percentGenomesWithGene = as.numeric(blonly$percentGenomesWithGene)
+  for(r in 1:nrow(blonly)) {
+    for(c in 4:ncol(blonly)) {
+      count = ifelse(blonly[r,c]=="none", 0, 1) + str_count(blonly[r,c], ";")
+      blcount[r,c] = count
+    }
+  }
+  return(blcount)
+}
+geneCount = getBetaLacCounts(genecoll)
+scaffCount = getBetaLacCounts(coll)
+names(geneCount) = sub("X", "", names(geneCount))
+any(names(geneCount) != names(scaffCount)) #columns are the same
+diff = cbind(geneCount$cardsGene, geneCount[,-1] - scaffCount[,-1])
+any(diff[,-1] != 0)
+all(diff[,-1] == 0) #everything is the same
