@@ -53,11 +53,6 @@ public class BWAbetaLactamaseStats {
 		List<String> refs = new ArrayList<String>();
 		refs.addAll(refLengths.keySet());
 		Collections.sort(refs);
-		System.out.println(refs.size() + " references");
-		for(String r : refs) {
-			System.out.print(r + " ");
-		}
-		System.out.println("");
 		
 		//list of files
 		String[] results = new File(DIR).list();
@@ -88,28 +83,18 @@ public class BWAbetaLactamaseStats {
 					line = br.readLine();
 				}
 				br.close();
-				if(refs.size() != map.size()) {
-					System.out.println("File " + file + 
-							" has incorrect number of refs: " + map.size());
+				//if no reads mapped reference, ref is not in depth output file,
+				//so add missing refs in
+				if(refs.size() > map.size()) {
 					Set<String> keys = map.keySet();
 					Set<String> refset = new HashSet<String>();
-					refset.addAll(refs);
-					Set<String> diff;
-					if(refs.size() > map.size()) {
-						refset.removeAll(keys);
-						System.out.print("Extra references:");
-						for(String r : refset) {
-							System.out.print(" " + r);
-						}
-						System.out.println();
-					} else {
-						keys.removeAll(refset);
-						System.out.print("Extra keys:");
-						for(String k : keys) {
-							System.out.print(" " + k);
-						}
-						System.out.println();
+					refset.removeAll(keys);
+					for(String r : refset) {
+						map.put(r, 0);
 					}
+				} else if(map.size() > refs.size()) {
+					System.out.println("File " + file + 
+							" has incorrect number of refs: " + map.size());
 				}
 				sumDepth.put(srr, map);
 			}
