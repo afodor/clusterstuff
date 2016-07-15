@@ -99,15 +99,15 @@ public class ParseCardsBlastResultsScaffolds {
 							System.out.println("Before check overlaps " + cards + " " + sets.size() + " " + region);
 						}*/
 						if(cards.endsWith("OXA-1")) {
-							System.out.println("Before check overlaps " + cards + " " + sets.size() + " " + region);
+							System.out.println("Before check overlaps " + cards + " " + sets.get(i).size() + " " + region);
 						}
 						//check does not overlap any regions already found
 						sets.set(i, checkOverlap(region, sets.get(i)));
 						/*if(cards.contains("LEN")) {
-							System.out.println("Before check overlaps " + cards + " " + sets.size() + " " + region);
+							System.out.println("After check overlaps " + cards + " " + sets.size() + " " + region);
 						}*/
 						if(cards.endsWith("OXA-1")) {
-							System.out.println("Before check overlaps " + cards + " " + sets.size() + " " + region);
+							System.out.println("After check overlaps " + cards + " " + sets.get(i).size() + " " + region);
 						}
 
 						//also add to short name
