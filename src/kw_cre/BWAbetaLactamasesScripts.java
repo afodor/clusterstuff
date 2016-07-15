@@ -10,14 +10,23 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class BWAbetaLactamasesScripts {
-	public static final String BASE_DIR = "/nobackup/afodor_research/kwinglee/cre/chs_v_cards/";
+	//public static final String BASE_DIR = "/nobackup/afodor_research/kwinglee/cre/chs_v_cards/";
+	public static final String BASE_DIR = "/nobackup/test_afodor_research/kwinglee/cre/chs_v_cards/";
 	public static final String REF_DIR = "/users/kwinglee/card/";
-	public static final String FQ_DIR = "/nobackup/afodor_research/mjzapata/CRE/CHS_raw/";
+	//public static final String FQ_DIR = "/nobackup/afodor_research/mjzapata/CRE/CHS_raw/";
+	public static final String FQ_DIR = "/nobackup/test_afodor_research/mjzapata/CRE/CHS_raw/";
 
 	public static void main(String[] args) throws IOException {
 		String outDir = BASE_DIR + "bwaAlignToBetaLactamases/";//folder to write results
-		new File(outDir).mkdirs();
+		File outFolder = new File(outDir);
+		if(!outFolder.exists()) {
+			outFolder.mkdirs();
+		}
 		String scriptDir = BASE_DIR + "bwaScripts/";
+		File scriptFile = new File(scriptDir);
+		if(!scriptFile.exists()) {
+			scriptFile.mkdirs();
+		}
 		String ref = REF_DIR + "beta_lactamase.protein_homolog.fasta";
 
 		//make reference file containing one representative for each beta lactam
