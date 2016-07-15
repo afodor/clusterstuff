@@ -95,6 +95,7 @@ public class BWAbetaLactamaseStats {
 				if(refs.size() > map.size()) {
 					Set<String> keys = map.keySet();
 					Set<String> refset = new HashSet<String>();
+					refset.addAll(refs);
 					refset.removeAll(keys);
 					for(String r : refset) {
 						System.out.println(r);
