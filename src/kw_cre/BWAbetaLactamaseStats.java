@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class BWAbetaLactamaseStats {
 	public static final String DIR = "/nobackup/afodor_research/kwinglee/cre/chs_v_cards/bwaAlignToBetaLactamases/";
@@ -47,11 +48,16 @@ public class BWAbetaLactamaseStats {
 				len += line.length();
 			}
 		}
+		refLengths.put(name, len);
 		brRef.close();
 		List<String> refs = new ArrayList<String>();
 		refs.addAll(refLengths.keySet());
 		Collections.sort(refs);
 		System.out.println(refs.size() + " references");
+		for(String r : refs) {
+			System.out.print(r + " ");
+		}
+		System.out.println("");
 		
 		//list of files
 		String[] results = new File(DIR).list();
@@ -85,6 +91,25 @@ public class BWAbetaLactamaseStats {
 				if(refs.size() != map.size()) {
 					System.out.println("File " + file + 
 							" has incorrect number of refs: " + map.size());
+					Set<String> keys = map.keySet();
+					Set<String> refset = new HashSet<String>();
+					refset.addAll(refs);
+					Set<String> diff;
+					if(refs.size() > map.size()) {
+						refset.removeAll(keys);
+						System.out.print("Extra references:");
+						for(String r : refset) {
+							System.out.print(" " + r);
+						}
+						System.out.println();
+					} else {
+						keys.removeAll(refset);
+						System.out.print("Extra keys:");
+						for(String k : keys) {
+							System.out.print(" " + k);
+						}
+						System.out.println();
+					}
 				}
 				sumDepth.put(srr, map);
 			}
@@ -111,6 +136,10 @@ public class BWAbetaLactamaseStats {
 					String[] sp = line.split("\t");
 					String key = sp[0];
 					//check lengths
+					if(!refLengths.containsKey(key)) {
+						br.close();
+						throw new Exception("Extra key " + key);
+					}
 					if(refLengths.get(key) != Integer.parseInt(sp[1])) {
 						br.close();
 						throw new Exception("Mismatching lengths: " + file + " "
