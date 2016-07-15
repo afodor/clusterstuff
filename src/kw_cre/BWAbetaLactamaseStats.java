@@ -125,7 +125,7 @@ public class BWAbetaLactamaseStats {
 						br.close();
 						throw new Exception("Extra key " + key);
 					}
-					if(refLengths.get(key) != Integer.parseInt(sp[1])) {
+					if(!key.equals("*") && refLengths.get(key) != Integer.parseInt(sp[1])) {
 						br.close();
 						throw new Exception("Mismatching lengths: " + file + " "
 								+ key + " " + Integer.parseInt(sp[1]) + " " 
