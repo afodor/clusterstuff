@@ -22,7 +22,8 @@ public class BWAbetaLactamaseStats {
 	//public static final String DIR = "/nobackup/afodor_research/kwinglee/cre/chs_v_cards/bwaAlignToBetaLactamases/";
 	public static final String DIR = "/nobackup/test_afodor_research/kwinglee/cre/chs_v_cards/bwaAlignToBetaLactamases/";
 	public static final String CONVERT = "/nobackup/afodor_research/mjzapata/CRE/CHS_raw/chs_batch_download_results.csv";//file used to convert to from SRR to CHS
-	public static final String REF = "/users/kwinglee/card/beta_lactamase.protein_homolog.fasta";//reference used for alignment
+	//public static final String REF = "/users/kwinglee/card/beta_lactamase.protein_homolog.fasta";//reference used for alignment
+	public static final String REF = "/users/kwinglee/card/beta_lactamase2.protein_homolog.fasta";//reference used for alignment
 	
 	public static void main(String[] args) throws Exception {
 		//get SRR to CHS conversion (map of CHS number to list of corresponding SRR numbers
