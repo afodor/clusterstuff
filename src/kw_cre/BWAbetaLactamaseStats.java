@@ -28,14 +28,14 @@ public class BWAbetaLactamaseStats {
 		//note: SRR numbers are all duplicated in the conversion file
 		HashMap<String, HashSet<String>> chs = new HashMap<String, HashSet<String>>();
 		BufferedReader conv = new BufferedReader(new FileReader(new File(CONVERT)));
+		ArrayList<Integer> strains = new ArrayList<Integer>();
 		for(String line = conv.readLine(); line != null; line = conv.readLine()) {
 			String[] sp = line.replace("[", "").replace("]", "").split("\t");
 			HashSet<String> set = new HashSet<String>(Arrays.asList(sp[1].split(", ")));
 			chs.put(sp[0], set);
+			strains.add(Integer.parseInt(sp[0]));
 		}
 		conv.close();
-		List<String> strains = new ArrayList<String>();
-		strains.addAll(chs.keySet());
 		Collections.sort(strains);
 		
 		//list of references and their lengths
@@ -184,7 +184,8 @@ public class BWAbetaLactamaseStats {
 		BufferedWriter chsOut = new BufferedWriter(new FileWriter(new File(
 				DIR + "betaLactamaseAlignmentStatsByCHS.txt")));
 		chsOut.write("chs\ttotReads\treference\tnumMappedReads\tpropMappedRead\tsumDepth\taveDepth\n");
-		for(String c : strains) {
+		for(int s : strains) {
+			String c = Integer.toString(s);
 			String[] files = chs.get(c).toArray(new String[chs.get(c).size()]);
 			int totReads = 0;
 			for(String f : files) {
