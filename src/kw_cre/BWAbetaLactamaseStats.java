@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,13 +25,18 @@ public class BWAbetaLactamaseStats {
 	
 	public static void main(String[] args) throws Exception {
 		//get SRR to CHS conversion (map of CHS number to list of corresponding SRR numbers
-		HashMap<String, String[]> chs = new HashMap<String, String[]>();
+		//note: SRR numbers are all duplicated in the conversion file
+		HashMap<String, HashSet<String>> chs = new HashMap<String, HashSet<String>>();
 		BufferedReader conv = new BufferedReader(new FileReader(new File(CONVERT)));
 		for(String line = conv.readLine(); line != null; line = conv.readLine()) {
 			String[] sp = line.replace("[", "").replace("]", "").split("\t");
-			chs.put(sp[0], sp[1].split(", "));
+			HashSet<String> set = new HashSet<String>(Arrays.asList(sp[1].split(", ")));
+			chs.put(sp[0], set);
 		}
 		conv.close();
+		List<String> strains = new ArrayList<String>();
+		strains.addAll(chs.keySet());
+		Collections.sort(strains);
 		
 		//list of references and their lengths
 		HashMap<String, Integer> refLengths = new HashMap<String, Integer>();
@@ -91,7 +97,6 @@ public class BWAbetaLactamaseStats {
 					refset.addAll(refs);
 					refset.removeAll(keys);
 					for(String r : refset) {
-						System.out.println(r);
 						map.put(r, 0);
 					}
 				} else if(map.size() > refs.size()) {
@@ -168,7 +173,7 @@ public class BWAbetaLactamaseStats {
 		srrOut.write("id\ttotReads\treference\tnumMappedReads\tsumDepth\n");
 		for(String s : srr) {
 			for(String r : refs) {
-				srrOut.write(s + "\t" + numReads.get(s) + r + 
+				srrOut.write(s + "\t" + numReads.get(s) + "\t" + r + 
 						"\t" + numMapped.get(s).get(r) + "\t" +
 						sumDepth.get(s).get(r) + "\n");
 			}
@@ -179,22 +184,22 @@ public class BWAbetaLactamaseStats {
 		BufferedWriter chsOut = new BufferedWriter(new FileWriter(new File(
 				DIR + "betaLactamaseAlignmentStatsByCHS.txt")));
 		chsOut.write("chs\ttotReads\treference\tnumMappedReads\tpropMappedRead\tsumDepth\taveDepth\n");
-		for(String c : chs.keySet()) {
-			String[] files = chs.get(c);
+		for(String c : strains) {
+			String[] files = chs.get(c).toArray(new String[chs.get(c).size()]);
 			int totReads = 0;
 			for(String f : files) {
 				totReads += numReads.get(f);
 			}
 			for(String r : refs) {
-				double mapReads = 0;
-				double dep = 0;
+				int mapReads = 0;
+				int dep = 0;
 				for(String f : files) {
 					mapReads += numMapped.get(f).get(r);
 					dep += sumDepth.get(f).get(r);
 				}
 				chsOut.write(c + "\t" + totReads + "\t" + r + "\t" +
-						mapReads + "\t" + (mapReads / totReads) + "\t" +
-						dep + "\t" + (dep / refLengths.get(r)) + "\n");
+						mapReads + "\t" + (1.0 * mapReads / totReads) + "\t" +
+						dep + "\t" + (1.0 * dep / refLengths.get(r)) + "\n");
 			}
 		}
 		chsOut.close();
