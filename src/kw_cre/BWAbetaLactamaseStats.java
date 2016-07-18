@@ -19,7 +19,8 @@ import java.util.List;
 import java.util.Set;
 
 public class BWAbetaLactamaseStats {
-	public static final String DIR = "/nobackup/afodor_research/kwinglee/cre/chs_v_cards/bwaAlignToBetaLactamases/";
+	//public static final String DIR = "/nobackup/afodor_research/kwinglee/cre/chs_v_cards/bwaAlignToBetaLactamases/";
+	public static final String DIR = "/nobackup/test_afodor_research/kwinglee/cre/chs_v_cards/bwaAlignToBetaLactamases/";
 	public static final String CONVERT = "/nobackup/afodor_research/mjzapata/CRE/CHS_raw/chs_batch_download_results.csv";//file used to convert to from SRR to CHS
 	public static final String REF = "/users/kwinglee/card/beta_lactamase.protein_homolog.fasta";//reference used for alignment
 	
@@ -67,7 +68,7 @@ public class BWAbetaLactamaseStats {
 		HashMap<String, HashMap<String, Integer>> sumDepth = new HashMap<String, HashMap<String, Integer>>();
 		//map of SRR to map of reference to sum of number reads that aligned at each position in that reference
 		for(String file : results) {
-			if(file.endsWith("depth.txt")) {
+			if(file.endsWith("2.depth.txt")) {
 				String srr = file.split("\\.")[0];
 				HashMap<String, Integer> map = new HashMap<String, Integer>();
 				BufferedReader br = new BufferedReader(new FileReader(new File(
@@ -113,7 +114,7 @@ public class BWAbetaLactamaseStats {
 		HashMap<String, Integer> numReads = new HashMap<String, Integer>();
 		    //map of SRR to total number of reads
 		for(String file : results){
-			if(file.endsWith(".idxstats.txt")) {
+			if(file.endsWith("2.idxstats.txt")) {
 				String srr = file.split("\\.")[0];
 				HashMap<String, Integer> map = new HashMap<String, Integer>();
 				BufferedReader br = new BufferedReader(new FileReader(new File(
@@ -169,7 +170,7 @@ public class BWAbetaLactamaseStats {
 		
 		//write intermediate table to check numbers
 		BufferedWriter srrOut = new BufferedWriter(new FileWriter(new File(
-				DIR + "betaLactamaseAlignmentStatsBySRR.txt")));
+				DIR + "betaLactamaseAlignmentStatsBySRR_ref2.txt")));
 		srrOut.write("id\ttotReads\treference\tnumMappedReads\tsumDepth\n");
 		for(String s : srr) {
 			for(String r : refs) {
@@ -182,7 +183,7 @@ public class BWAbetaLactamaseStats {
 		
 		//combine individual read files into one
 		BufferedWriter chsOut = new BufferedWriter(new FileWriter(new File(
-				DIR + "betaLactamaseAlignmentStatsByCHS.txt")));
+				DIR + "betaLactamaseAlignmentStatsByCHS_ref2.txt")));
 		chsOut.write("chs\ttotReads\treference\tnumMappedReads\tpropMappedRead\tsumDepth\taveDepth\n");
 		for(int s : strains) {
 			String c = Integer.toString(s);
