@@ -27,17 +27,24 @@ public class BWAbetaLactamasesScripts {
 		if(!scriptFile.exists()) {
 			scriptFile.mkdirs();
 		}
-		String ref = REF_DIR + "beta_lactamase.protein_homolog.fasta";
+		String ref = REF_DIR + "beta_lactamase2.protein_homolog.fasta";
 
 		//make reference file containing one representative for each beta lactam
 		Set<String> refBL = new HashSet<String>();
 		//reference is lowest number of that family that is from kleb pneumoniae
-		refBL.add(">gb|NC_022346.1|17139-18021|ARO:3002312|KPC-2");
+		//below were references used in first round
+		/*refBL.add(">gb|NC_022346.1|17139-18021|ARO:3002312|KPC-2");
 		refBL.add(">gb|X04515|285-1125|ARO:3002454|LEN-1");
 		//refBL.add(">gb|AJ635401|0-861|ARO:3002418|OKP-A-1");
 		refBL.add(">gb|M55547|0-825|ARO:3001404|OXA-9");
 		refBL.add(">gb|FJ668814|76-937|ARO:3001059|SHV-1");
-		refBL.add(">gb|X64523|476-1337|ARO:3000875|TEM-3");
+		refBL.add(">gb|X64523|476-1337|ARO:3000875|TEM-3");*/
+		//below are references used in second round
+		refBL.add(">gb|KM379100|0-882|ARO:3003180|KPC-22");
+		refBL.add(">gb|AM850922|24-885|ARO:3002453|OKP-B-20");
+		refBL.add(">gb|KF151169|0-831|ARO:3001793|OXA-320");//from Proteus mirabilis but mapped CHS66
+		refBL.add(">gb|KP050489|0-861|ARO:3001364|SHV-182");
+		refBL.add(">gb|HQ877606|0-861|ARO:3001056|TEM-197");
 		BufferedReader db = new BufferedReader(new FileReader(new File(
 				REF_DIR + "nucleotide_fasta.protein_homolog.fasta")));
 		BufferedWriter dbout = new BufferedWriter(new FileWriter(new File(
@@ -75,7 +82,7 @@ public class BWAbetaLactamasesScripts {
 				script.write("module load bwa\n");
 				script.write("module load samtools\n");
 
-				String fname = outDir + name + ".blalign";
+				String fname = outDir + name + ".blalign2";
 				//align
 				script.write("bwa mem " + ref + 
 						" " + f.getAbsolutePath() + " " + 
