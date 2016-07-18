@@ -1,0 +1,101 @@
+##correct metadata (previous analyses some samples had been switched for body site)
+##7/11/16
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\dolphin\\corrected metadata rdp abunotu")
+rdpdir = "C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\dolphin\\rdpResults\\"
+aotudir = "C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\dolphin\\abundantOTU\\"
+
+##corrected metadata
+metadata = read.table("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\dolphin\\dolphinMetadata_withSampleID-CORRECTED.txt",
+                      sep = "\t", header=T, comment.char="", colClasses="character")
+metadata$sampleID = gsub("-", "", metadata$sampleID) #remove dashes in water sample
+##fix water variables
+metadata$BODY.SITE.SAMPLED = sub("W[1-9]", "W", metadata$BODY.SITE.SAMPLED)
+# metadata$ANIMAL.ID = sub(" Sample #[1-9]", "", metadata$ANIMAL.ID)
+metadata$ANIMAL.ID = sub("#", "", metadata$ANIMAL.ID)
+metadata$SEX[grepl("Water", metadata$ANIMAL.ID)] = "water"
+metadata$AGE.CLASS[grepl("Water", metadata$ANIMAL.ID)] = "water"
+metadata$HEALTH.STATUS[grepl("Water", metadata$ANIMAL.ID)] = "water"
+metadata$LACTATING.STATUS[grepl("Water", metadata$ANIMAL.ID)] = "water"
+
+##function that takes the given table and swaps the sample ids of the samples that had the incorrect indexes
+fixSamples <- function(table) {
+  ##swap TT15018C and TT15018F
+  table$sampleID[table$sampleID=="TT15018C"] = "temp"
+  table$sampleID[table$sampleID=="TT15018F"] = "TT15018C"
+  table$sampleID[table$sampleID=="temp"] = "TT15018F"
+  
+  ##swap TT15018E and TT15018D
+  table$sampleID[table$sampleID=="TT15018E"] = "temp"
+  table$sampleID[table$sampleID=="TT15018D"] = "TT15018E"
+  table$sampleID[table$sampleID=="temp"] = "TT15018D"
+  
+  ##swap TT15019C and TT15019F
+  table$sampleID[table$sampleID=="TT15019C"] = "temp"
+  table$sampleID[table$sampleID=="TT15019F"] = "TT15019C"
+  table$sampleID[table$sampleID=="temp"] = "TT15019F"
+  
+  ##swap TT15018E and TT15018D
+  table$sampleID[table$sampleID=="TT15019E"] = "temp"
+  table$sampleID[table$sampleID=="TT15019D"] = "TT15019E"
+  table$sampleID[table$sampleID=="temp"] = "TT15019D"
+  
+  return(table)
+}
+
+####abundantOTU
+water = c("", "_noWater")
+norm = c("relAbun", "logNorm")
+for(w in water) {
+  print(w)
+  for(n in norm) {
+    print(n)
+    table = read.table(paste(aotudir, "dolphinAbundantOTUtable_taxaAsCol_", n, w, ".txt", sep=""),
+                       sep="\t", header=T, colClasses="character", comment.char="")
+    table$sampleID = gsub("-", "", table$sampleID) #remove dashes in water sample
+    counts = table[,-(2:12)] #keep sample ID and number of reads
+    counts = fixSamples(counts)
+    print(ncol(counts)-1) #28973
+    mrg = merge(metadata, counts, by="sampleID")
+    write.table(mrg, paste("dolphin_OTU_", n, w, ".txt", sep=""),
+                sep = "\t", row.names = F, col.names = T, quote = F)
+  }
+}
+
+
+####RDP
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+for(t in taxaLevels) {
+  print(t)
+  for(w in water) {
+    for(n in norm) {
+      if(!(n=="relAbun" && w=="_noWater")) { #didn't do relative abundance for nowater
+        table = read.table(paste(rdpdir, "dolphin_", t, "_taxaAsCol_", n, w, ".txt", sep=""),
+                           sep="\t", header=T, colClasses="character", comment.char="")
+        table$sampleID = gsub("-", "", table$sampleID) #remove dashes in water sample
+        counts = table[,-(2:14)] #keep sample ID and number of reads
+        counts = fixSamples(counts)
+        print(ncol(counts)-1)
+        mrg = merge(metadata, counts, by="sampleID")
+        write.table(mrg, paste("dolphin_", t, "_", n, w, ".txt", sep=""),
+                    sep = "\t", row.names = F, col.names = T, quote = F)
+      }
+      
+    }
+  }
+}
+
+##number columns
+# taxaLevels = c("phylum", "class", "order", "family", "genus", "OTU")
+# numNumericCols = c(36, 62, 92, 211, 672, 28973) #number of numeric columns, including number of reads
+# 
+# for(i in 1:length(taxaLevels)) {
+#   taxa = taxaLevels[i]
+#   print(taxa)
+#   fname = paste("dolphin_", taxa, "_relAbun.txt", sep="")
+#   table = read.table(fname, sep="\t", header=T, colClasses=c(rep("character",12), rep("numeric", numNumericCols[i])))
+#   nc = ncol(table)
+#   print(class(table[,nc]))
+# }

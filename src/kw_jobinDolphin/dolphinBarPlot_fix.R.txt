@@ -1,0 +1,143 @@
+##stacked bar chart of dolphin data
+##7/11/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\dolphin\\corrected metadata rdp abunotu")
+
+library(reshape2)
+library(ggplot2)
+library(RColorBrewer)
+library(cowplot)
+
+cutoff = 0.005 #cutoff of ave rel abun to include in figure
+print(cutoff)
+
+##25 color palette
+c25 <- c("dodgerblue2","#E31A1C", # red
+         "green4",
+         "#6A3D9A", # purple
+         "#FF7F00", # orange
+         "black","gold1",
+         "skyblue2","#FB9A99", # lt pink
+         "palegreen2",
+         "#CAB2D6", # lt purple
+         "#FDBF6F", # lt orange
+         "gray70", "khaki2",
+         "maroon","orchid1","deeppink1","blue1","steelblue4",
+         "darkturquoise","green1","yellow4","yellow3",
+         "darkorange4","brown") #from http://stackoverflow.com/questions/9563711/r-color-palettes-for-many-data-classes
+
+##function to convert letter abbreviation to actual site name
+convertSite <- function(abbrev) {
+  if(abbrev == "A") {
+    return("fecal")
+  } else if(abbrev == "B") {
+    return("blowhole")
+  } else if(abbrev == "C") {
+    return("blowhole plate")
+  } else if(abbrev == "D") {
+    return("gastric")
+  } else if(abbrev == "E") {
+    return("skin")
+  } else if(abbrev == "F") {
+    return("genital")
+  } else if(abbrev == "W") {
+    return("water")
+  } else {
+    warning(paste("Invalid abbreviation:", abbrev))
+    return(abbrev)
+  }
+}
+
+##function to draw bar plot for given table and body site
+##draw legend if incLegend is true, legend name is the level
+drawPlot <- function(table, site, incLegend, level=NULL) {
+  abun = table[table$BODY.SITE.SAMPLED==site,]
+  abun = abun[,-c(1,3:12)]
+  names(abun)[1] = "animalID"
+  names(abun) = gsub("_", " ", gsub(".", " ", names(abun), fixed=T))
+  relMelt = melt(abun, id.vars="animalID")
+  colorCount = ncol(abun)-1
+  colors = c25[1:colorCount]
+  plot = ggplot(relMelt, aes(x=animalID, y=value, fill=variable)) + 
+    geom_bar(stat="identity") + 
+    scale_fill_manual(values=colors) +
+    # ylim(0,1) + #some samples must add to fractionally larger than 1 and as a result the other group doesn't get plotted
+    ggtitle(convertSite(site)) +
+    labs(x="", y = "relative abundance") +
+    theme(axis.text.x = element_text(angle=90, hjust=1, size=18),
+          plot.title = element_text(size=30),
+          axis.text.y = element_text(size=20),
+          axis.title = element_text(size=20)) +
+    guides(fill=guide_legend(title=level))
+  if(!incLegend) {
+    plot = plot + guides(fill=F)
+  } else {
+    plot = plot +
+      theme(legend.title=element_text(size=22), legend.text=element_text(size=22), legend.key.height=unit(30, "points"), legend.key.width=unit(20, "points"))
+  }
+  return(plot)
+}
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+numNumericCols = c(36, 62, 92, 211, 672)
+
+for(i in 1:length(taxaLevels)) {
+  taxa = taxaLevels[i]
+  print(taxa)
+  fname = paste("dolphin_", taxa, "_relAbun.txt", sep="")
+  table = read.table(fname, sep="\t", header=T, colClasses=c(rep("character",12), rep("numeric", numNumericCols[i])))
+  table$ANIMAL.ID = sub(" Sample ", "", table$ANIMAL.ID)
+  nc = ncol(table)
+  rel.abun = table[,-c(1:13)]#remove metadata
+  metadata = table[,1:12]
+  rowSums(rel.abun)
+  
+  ##filter and sort by mean relative abundance
+  means = colMeans(rel.abun)
+  ra = rel.abun[,order(means, decreasing=T)]
+  cut = ra[,colMeans(ra) > cutoff]
+  nc = ncol(cut)
+  print(nc)
+  other = rowSums(ra[,(nc+1):ncol(ra)])
+  cut = cbind(cut, other)
+  rowSums(cut)
+  
+  ##add metadata 
+  relAbun = cbind(sampleID=table$sampleID, cut)
+  relMeta = merge(metadata, relAbun, by="sampleID")
+  
+  a = drawPlot(relMeta, "A", F, taxa)
+  b = drawPlot(relMeta, "B", F, taxa)
+  c = drawPlot(relMeta, "C", F, taxa)
+  d = drawPlot(relMeta, "D", F, taxa)
+  e = drawPlot(relMeta, "E", F, taxa)
+  f = drawPlot(relMeta, "F", F, taxa)
+  w = drawPlot(relMeta, "W", T, taxa)
+  
+  wy = 0.0084 #water needs different parameters because the x values are different
+  wh = 0.49
+  comb = ggdraw() +
+    draw_plot(a, x=0, y=.5, width=.25, height=.5) +
+    draw_plot(b, x=.25, y=.5, width=.25, height=.5) +
+    draw_plot(c, x=.5, y=.5, width=.25, height=.5) +
+    draw_plot(d, x=.75, y=.5, width=.25, height=.5) +
+    draw_plot(e, x=0, y=0, width=.25, height=.5) +
+    draw_plot(f, x=.25, y=0, width=.25, height=.5) +
+    draw_plot(w, x=.5, y=wy, width=.4, height=wh)
+  
+  if(nc > 20) { #legend becomes two rows
+    comb = ggdraw() +
+      draw_plot(a, x=0, y=.5, width=.25, height=.5) +
+      draw_plot(b, x=.25, y=.5, width=.25, height=.5) +
+      draw_plot(c, x=.5, y=.5, width=.25, height=.5) +
+      draw_plot(d, x=.75, y=.5, width=.25, height=.5) +
+      draw_plot(e, x=0, y=0, width=.25, height=.5) +
+      draw_plot(f, x=.25, y=0, width=.25, height=.5) +
+      draw_plot(w, x=.5, y=wy, width=.5, height=wh)
+  }
+  
+  jpeg(paste("dolphinBarPlot_", taxa, "_", cutoff, ".jpeg", sep=""), width=2000, height=2000)
+  print(comb)
+  dev.off()
+}

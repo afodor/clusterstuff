@@ -1,0 +1,207 @@
+##PCoA of dolphin data
+##all samples
+##7/11/16
+
+rm(list=ls())
+
+library(vegan)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\dolphin\\corrected metadata rdp abunotu")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus", "OTU")
+numNumericCols = c(36, 62, 92, 211, 672, 28973) #number of numeric columns, including number of reads
+
+##function to convert letter abbreviation to actual site name
+convertSite <- function(abbrev) {
+  if(abbrev == "A") {
+    return("fecal")
+  } else if(abbrev == "B") {
+    return("blowhole")
+  } else if(abbrev == "C") {
+    return("blowhole plate")
+  } else if(abbrev == "D") {
+    return("gastric")
+  } else if(abbrev == "E") {
+    return("skin")
+  } else if(abbrev == "F") {
+    return("genital")
+  } else if(abbrev == "W") {
+    return("water")
+  } else {
+    warning(paste("Invalid site abbreviation:", abbrev))
+    return(abbrev)
+  }
+}
+
+##function to convert abbreviation for gender
+convertGender <- function(abbrev) {
+  if(abbrev == "K") {
+    return("female")
+  } else if(abbrev == "M") {
+    return("male")
+  } else {
+    if(abbrev != "water") {
+      warning(paste("Invalid gender abbreviation:", abbrev))
+    }
+    return(abbrev)
+  }
+}
+
+##function to convert abbrevation for age
+convertAge <- function(abbrev) {
+  if(abbrev == "T") {
+    return("adult")
+  } else if (abbrev == "G") {
+    return("calf")
+  } else {
+    if(abbrev != "water") {
+      warning(paste("Invalid age abbreviation:", abbrev))
+    }
+    return(abbrev)
+  }
+}
+
+##function to convert abbrevation for health status
+convertHealth <- function(abbrev) {
+  if(abbrev == "H") {
+    return("healthy")
+  } else if(abbrev == "U") {
+    return("diseased")
+  } else {
+    if(abbrev != "water") {
+      warning(paste("Invalid health abbreviation:", abbrev))
+    }
+    return(abbrev)
+  }
+}
+
+##function to convert abbrevation for lactation status
+convertLactate <- function(abbrev) {
+  if(abbrev == "L") {
+    return("lactating")
+  } else if(abbrev == "N") {
+    return("not lactating")
+  } else {
+    if(abbrev != "water" && abbrev != "") {
+      warning(paste("Invalid lactation abbreviation:", abbrev))
+    }
+    return(abbrev)
+  }
+}
+
+pdf("dolphinPCoA.pdf", height=6, width=18)
+for(i in 1:length(taxaLevels)) {
+  taxa = taxaLevels[i]
+  print(taxa)
+  fname = paste("dolphin_", taxa, "_logNorm.txt", sep="")
+  table = read.table(fname, sep="\t", header=T, 
+                     colClasses=c(rep("character",12), rep("numeric", numNumericCols[i])))
+  
+  ##pcoa using vegan capscale
+  par(mar=c(4,4.1,4,8), xpd=T, mfrow=c(1,3), cex.lab=1.5)
+  pcoa <- capscale(table[,-(1:13)]~1,distance="bray")
+  write.table(cbind(table[,1:13], pcoa$CA$u), paste("pcoaCorrected_", taxa, ".txt", sep=""), sep="\t",
+              row.names=F, col.names=T, quote=F)
+  
+  ##get percent variance
+  eig = eigenvals(pcoa)
+  if(any(eig<0)) {#need to check there are no negatives
+    warning(paste("NEGATIVE EIGENVALUES-percent variance is incorrect for ", taxa, sep=""))
+  }
+  var = eig/sum(eig)*100
+  
+  #####body site and animal ID
+  ##color by body site
+  table$BODY.SITE.SAMPLED = sub("W[1-9]", "W", table$BODY.SITE.SAMPLED)
+  site = sort(unique(table$BODY.SITE.SAMPLED)) #[1] "A" "B" "C" "D" "E" "F" "W"
+  colors = c("red", "blue", "green", "gold", "purple", "turquoise", "black")
+  col = rep(NA, nrow(table))
+  for(i in 1:length(site)) {
+    col[table$BODY.SITE.SAMPLED == site[i]] = colors[i]
+  }
+  ##shape by animal ID; open is mother, closed is calf
+  table$ANIMAL.ID = sub(" Sample [1-9]", "", table$ANIMAL.ID)
+  # id = sort(unique(table$ANIMAL.ID))
+  id = c("TT15015", "TT15027", #mother calf pairs
+         "TT15016", "TT15025",
+         "TT15021", "TT15020", 
+         "TT15022", "TT15029",
+         "TT15017", "TT15018", "TT15019", "TT15023", "TT15024", "TT15026", "Water")
+  shapes = c(0, 15,
+             1, 16,
+             2, 17,
+             5, 18,
+             3, 4, 6:10)
+  sh = rep(NA, nrow(table))
+  for(i in 1:length(id)) {
+    sh[table$ANIMAL.ID==id[i]] = shapes[i]
+  }
+  ##plot
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], 
+       xlab=paste("MDS1 (", format(var[[1]], digits=0), "%)", sep=""), 
+       ylab=paste("MDS2 (", format(var[[2]], digits=0), "%)", sep=""),
+       main=paste(taxa, "color by body site and shape by animal id"), col=col, pch=sh)
+  ##legend
+  legend("topright", inset=c(-.22,0),
+         legend=c(sapply(site, convertSite, USE.NAMES = F), id),#c(site, id),
+         col=c(colors, rep("grey", length(id))),
+         pch=c(rep(13, length(site)), shapes))
+  
+  #####sex and age
+  ##color by sex
+  table$SEX[grepl("Water", table$ANIMAL.ID)] = "water"
+  sex=sort(unique(table$SEX))
+  colors = c("pink", "blue", "black")
+  col = rep(NA, nrow(table))
+  for(i in 1:length(sex)) {
+    col[table$SEX == sex[i]] = colors[i]
+  }
+  ##shape by age
+  table$AGE.CLASS[grepl("Water", table$ANIMAL.ID)] = "water"
+  age = sort(unique(table$AGE.CLASS))
+  shapes = 16:18
+  sh = rep(NA, nrow(table))
+  for(i in 1:length(age)) {
+    sh[table$AGE.CLASS==age[i]] = shapes[i]
+  }
+  ##plot
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], 
+       xlab=paste("MDS1 (", format(var[[1]], digits=0), "%)", sep=""), 
+       ylab=paste("MDS2 (", format(var[[2]], digits=0), "%)", sep=""),
+       main=paste(taxa, "color by gender and shape by age"), col=col, pch=sh)
+  ##legend
+  legend("topright", inset=c(-.18,0),
+         legend=c(sapply(sex, convertGender, USE.NAMES = F), sapply(age, convertAge, USE.NAMES = F)),#c(sex, age),
+         col=c(colors, rep("grey", length(sh))),
+         pch=c(rep(15, length(colors)), shapes))
+  
+  #####health and lactation
+  ##color by health
+  table$HEALTH.STATUS[grepl("Water", table$ANIMAL.ID)] = "water"
+  health=sort(unique(table$HEALTH.STATUS))
+  colors = c("red", "blue", "black")
+  col = rep(NA, nrow(table))
+  for(i in 1:length(health)) {
+    col[table$HEALTH.STATUS == health[i]] = colors[i]
+  }
+  ##shape by lacation
+  table$LACTATING.STATUS[grepl("Water", table$ANIMAL.ID)] = "water"
+  lac = sort(unique(table$LACTATING.STATUS))
+  shapes = 15:18
+  sh = rep(NA, nrow(table))
+  for(i in 1:length(lac)) {
+    sh[table$LACTATING.STATUS==lac[i]] = shapes[i]
+  }
+  ##plot
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], 
+       xlab=paste("MDS1 (", format(var[[1]], digits=0), "%)", sep=""), 
+       ylab=paste("MDS2 (", format(var[[2]], digits=0), "%)", sep=""),
+       main=paste(taxa, "color by health and shape by lactation status"), col=col, pch=sh)
+  ##legend
+  legend("topright", inset=c(-.22,0),
+         legend=c(sapply(health, convertHealth, USE.NAMES = F), sapply(lac, convertLactate, USE.NAMES = F)),#c(health, lac),
+         col=c(colors, rep("grey", length(sh))),
+         pch=c(rep(20, length(colors)), shapes))
+  
+}
+dev.off()
