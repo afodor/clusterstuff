@@ -1,0 +1,106 @@
+##compare numbers from aligning reads to betalactamases with bwa vs
+##blasting assembly against cards database
+##7/18/16
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\CRE")
+
+assembly = read.table("numberOfBetaLactamaseGenes.txt", header=T, sep="\t", 
+                      colClasses=c("character", rep("numeric", 78)))
+names(assembly) = sub("X", "", names(assembly))
+align = read.table("betaLactamaseAlignmentStatsByCHS.txt", header=T, sep="\t",
+                   colClasses = c("character", "numeric", "character", rep("numeric", 4)))
+betalactamases = c("KPC", "LEN", "OXA", "SHV", "TEM", "all")
+align$aveDepthPerBPperMilReads = align$aveDepth / (align$totReads / 1000000) #average depth (depth per base pair) divided by (total reads divided by 1 million)
+
+
+##combine results for the given beta lactamase
+combine <- function(bl) {
+  dfass = data.frame(chs = names(assembly)[-(1:3)],
+                     numGenes = as.numeric(assembly[assembly$cardsGene==bl,-(1:3)]),
+                     stringsAsFactors = F)
+  al = align[grepl(bl, align$reference),]
+  dfal = data.frame(chs = al$chs,
+                    aveDepthPerBPperMilReads = al$aveDepthPerBPperMilReads,
+                    stringsAsFactors = F)
+  mrg = merge(dfass, dfal, by="chs")
+  mrg$betaLactamase = bl
+  return(mrg)
+}
+kpc = combine("KPC")
+len = combine("LEN")
+oxa = combine("OXA")
+shv = combine("SHV")
+tem = combine("TEM")
+all = rbind(kpc, len, oxa, shv, tem)
+write.table(all, "betaLactamaseAlignmentVsAssembly.txt", row.names = F, col.names = T, sep="\t", quote=F)
+tables = list(kpc, len, oxa, shv, tem, all)
+
+##color plots by betalactamase -> return the unique color for the given betalactamase
+getColor <- function(bl) {
+  if(bl == "KPC") {
+    return("red")
+  } else if(bl == "LEN") {
+    return("blue")
+  } else if(bl == "OXA") {
+    return("black")
+  } else if(bl == "SHV") {
+    return("gold")
+  } else if(bl == "TEM") {
+    return("purple")
+  } else {
+    warning(paste("invalid beta lactamase:", bl))
+    return("gray")
+  }
+}
+
+
+##boxplot and stats
+jpeg("betaLactamaseAlignmentVsAssembly_boxplots.jpg", height=1400, width=2100, res=200)
+par(mfrow = c(2,3))
+box = data.frame(gene = betalactamases, p = rep(NA, length(betalactamases)))
+for(i in 1:length(tables)) {
+  bl = betalactamases[i]
+  table = tables[[i]]
+  x = factor(table$numGenes)
+  y = table$aveDepthPerBPperMilReads
+  col = sapply(table$betaLactamase, getColor, USE.NAMES = F)
+  p = anova(lm(y~x))$`Pr(>F)`[1]
+  box$p[i] = p
+  boxplot(y~x, 
+          main=paste(bl, "; p = ", format(p, digits=3), sep=""), 
+          xlab = "number of genes identified in assembly",
+          ylab = "alignment depth per base pair per million reads")
+  points(y~x, pch=16, col=col)
+}
+dev.off()
+box$pAdj = p.adjust(box$p, method="BH")
+write.table(box, "betaLactamaseAlignmentVsAssembly_pValues_boxplots.txt",
+            row.names = F, col.names = T, quote=F, sep="\t")
+
+##scatterplot and stats
+jpeg("betaLactamaseAlignmentVsAssembly_scatterplots.jpg", height=1400, width=2100, res=200)
+par(mfrow = c(2,3))
+scatter = data.frame(gene = betalactamases, p = rep(NA, length(betalactamases)))
+for(i in 1:length(tables)) {
+  bl = betalactamases[i]
+  table = tables[[i]]
+  x = table$numGenes
+  y = table$aveDepthPerBPperMilReads
+  col = sapply(table$betaLactamase, getColor, USE.NAMES = F)
+  spear = cor(x=x, y=y, method = "spearman")
+  p = anova(lm(y~x))$`Pr(>F)`[1]
+  scatter$p[i] = p
+  plot(y~jitter(x, amount=0.05), 
+          main=paste(bl, "; p = ", format(p, digits=3), "; Spearman = ", 
+                     format(spear, digits=3), sep=""), 
+          xlab = "number of genes identified in assembly",
+          ylab = "alignment depth per base pair per million reads",
+          pch = 16, col=col,
+       xlim = c(0, max(x)))
+}
+dev.off()
+scatter$pAdj = p.adjust(scatter$p, method="BH")
+write.table(scatter, "betaLactamaseAlignmentVsAssembly_pValues_scatterplots.txt",
+            row.names = F, col.names = T, quote=F, sep="\t")
