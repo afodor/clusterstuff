@@ -43,6 +43,7 @@ public class AlignSelectCardsHits {
 				HashSet<String> matches = new HashSet<String>(Arrays.asList(sp));
 				matches.remove(g);//remove first column
 				matches.remove("NA");//remove NAs
+				System.err.println(g + "\t" + matches.size());
 				BufferedWriter fasta = new BufferedWriter(new FileWriter(new File(
 						outDir + g + ".fasta")));
 				for(String m : matches) {
@@ -55,6 +56,7 @@ public class AlignSelectCardsHits {
 								fasta.close();
 								throw new Exception("bad gene split " + name.length + " " + s);
 							}
+							System.out.println(name[0] + "\t" + g + "\t" + name.length);
 							BufferedReader seq = new BufferedReader(new FileReader(new File(
 									FASTA_DIR + name[0] + File.separator + s + ".fasta")));
 							for(String seqline = seq.readLine(); seqline != null; seqline = seq.readLine()) {
@@ -73,11 +75,11 @@ public class AlignSelectCardsHits {
 				outDir + "alignCommands")));
 		script.write("module load mafft\n");
 		for(String g : genes) {
-			script.write("echo \"\"\n");
-			script.write("echo \"Starting " + g + "\"\n");
-			script.write("echo \"\"\n");
+			script.write("echo \"\" >&2\n");
+			script.write("echo \"Starting " + g + "\" >&2\n");//write gene to standard error so can tell differences
+			script.write("echo \"\" >&2\n");
 			script.write("mafft --auto --adjustdirection " + outDir + g + ".fasta" 
-						+ " > " + outDir + g + ".mafftAlign.fast\n");
+						+ " > " + outDir + g + ".mafftAlign.fasta\n");
 		}
 		script.close();
 	}
