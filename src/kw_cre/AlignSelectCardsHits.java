@@ -50,7 +50,7 @@ public class AlignSelectCardsHits {
 					for(String s : msp) {
 						if(s.contains("klebsiella_pneu")) {//kleb pneu only
 							//get fasta sequence
-							String[] name = s.split("_AE");
+							String[] name = s.split("_A[E|F]");
 							if(name.length != 2) {
 								fasta.close();
 								throw new Exception("bad gene split " + name.length + " " + s);
@@ -73,6 +73,9 @@ public class AlignSelectCardsHits {
 				outDir + "alignCommands")));
 		script.write("module load mafft\n");
 		for(String g : genes) {
+			script.write("echo \"\"\n");
+			script.write("echo \"Starting " + g + "\"\n");
+			script.write("echo \"\"\n");
 			script.write("mafft --auto --adjustdirection " + outDir + g + ".fasta" 
 						+ " > " + outDir + g + ".mafftAlign.fast\n");
 		}
