@@ -48,6 +48,9 @@ public class AlignSelectCardsHits {
 						outDir + g + ".fasta")));
 				for(String m : matches) {
 					String[] msp = m.split(";");//some genomes have multiple genes; include both
+					if(m.contains("klebsiella_pneu")) {
+						System.out.println(msp[0].split("_A[E|F]")[0] + "\t" + g + "\t" + msp.length);
+					}
 					for(String s : msp) {
 						if(s.contains("klebsiella_pneu")) {//kleb pneu only
 							//get fasta sequence
@@ -56,7 +59,6 @@ public class AlignSelectCardsHits {
 								fasta.close();
 								throw new Exception("bad gene split " + name.length + " " + s);
 							}
-							System.out.println(name[0] + "\t" + g + "\t" + name.length);
 							BufferedReader seq = new BufferedReader(new FileReader(new File(
 									FASTA_DIR + name[0] + File.separator + s + ".fasta")));
 							for(String seqline = seq.readLine(); seqline != null; seqline = seq.readLine()) {
