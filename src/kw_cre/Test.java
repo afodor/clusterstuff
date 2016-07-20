@@ -44,15 +44,13 @@ public class Test {
 				HashSet<String> written = new HashSet<String>();
 				matches.remove(g);//remove first column
 				matches.remove("NA");//remove NAs
-				System.err.println(g + "\t" + matches.size());
 				for(String m : matches) {
 					String[] msp = m.split(";");//some genomes have multiple genes; include both
-					if(m.contains("klebsiella_pneu")) {
-						System.out.println(msp[0].split("_A[E|F]")[0] + "\t" + g + "\t" + msp.length);
-					}
 					for(String s : msp) {
 						if(s.contains("klebsiella_pneu")) {//kleb pneu only
 							written.add(s);
+						} else {
+							System.out.println(s);
 						}
 					}
 				}
