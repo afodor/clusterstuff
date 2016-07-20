@@ -1,0 +1,268 @@
+##plot percent novel taxa for RDP and SILVA
+##6/17/16
+
+rm(list=ls())
+
+library(ggplot2)
+library(reshape2)
+library(plyr)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\dolphin\\corrected metadata rdp abunotu")
+aotudir = "C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\dolphin\\abundantOTU\\"
+
+levels = c("silva", "phylum", "class", "order", "family", "genus")
+
+##get metadata; use table instead of metadata to remove low read count samples
+##relabun is also used later for last set of plots
+relabun = read.table("dolphin_OTU_relAbun.txt", sep="\t", header=T, 
+                   colClasses=c(rep("character",12), rep("numeric", 28973)))
+metadata = data.frame(sampleID=relabun$sampleID, site=relabun$BODY.SITE.SAMPLED)
+sites = as.character(sort(unique(metadata$site)))
+colors = c("red", "blue", "green", "gold", "purple", "turquoise", "black") #for "A" "B" "C" "D" "E" "F" "W"
+
+##function to convert letter abbreviation to actual site name
+convertSite <- function(abbrev) {
+  if(abbrev == "A") {
+    return("fecal")
+  } else if(abbrev == "B") {
+    return("blowhole")
+  } else if(abbrev == "C") {
+    return("blowhole plate")
+  } else if(abbrev == "D") {
+    return("gastric")
+  } else if(abbrev == "E") {
+    return("skin")
+  } else if(abbrev == "F") {
+    return("genital")
+  } else if(abbrev == "W") {
+    return("water")
+  } else {
+    warning(paste("Invalid site abbreviation:", abbrev))
+    return(abbrev)
+  }
+}
+
+pdf("novelTaxa_clusterbycutoff.pdf", height=5, width=8)
+for(lev in levels) {
+  print(lev)
+  table = read.table(paste(aotudir, "dolphinAbundantOTU.fractionNovelReads_", lev, ".txt", sep=""),
+                     sep="\t", header=T,
+                     colClasses = c("character", rep("numeric", 5)))
+  
+  ##swap the sample ids of the samples that had the incorrect indexes
+  ##swap TT15018C and TT15018F
+  table$sampleID[table$sampleID=="TT15018C"] = "temp"
+  table$sampleID[table$sampleID=="TT15018F"] = "TT15018C"
+  table$sampleID[table$sampleID=="temp"] = "TT15018F"
+  ##swap TT15018E and TT15018D
+  table$sampleID[table$sampleID=="TT15018E"] = "temp"
+  table$sampleID[table$sampleID=="TT15018D"] = "TT15018E"
+  table$sampleID[table$sampleID=="temp"] = "TT15018D"
+  ##swap TT15019C and TT15019F
+  table$sampleID[table$sampleID=="TT15019C"] = "temp"
+  table$sampleID[table$sampleID=="TT15019F"] = "TT15019C"
+  table$sampleID[table$sampleID=="temp"] = "TT15019F"
+  ##swap TT15019E and TT15019D
+  table$sampleID[table$sampleID=="TT15019E"] = "temp"
+  table$sampleID[table$sampleID=="TT15019D"] = "TT15019E"
+  table$sampleID[table$sampleID=="temp"] = "TT15019D"
+  
+  ##merge with metadata
+  table = merge(metadata, table, by="sampleID")
+  write.table(table, paste("dolphinAbundantOTU.fractionNovelReads_", lev, ".txt", sep=""),
+              row.names = F, col.names = T, quote=F, sep="\t")
+  
+  ##get average and standard deviation by body site
+  means = data.frame(site = sites,
+                     frac99 = rep(NA, length(sites)),
+                     frac97 = rep(NA, length(sites)),
+                     frac95 = rep(NA, length(sites)),
+                     frac90 = rep(NA, length(sites)),
+                     frac80 = rep(NA, length(sites)))
+  sds = data.frame(site = sites, 
+                   frac99 = rep(NA, length(sites)),
+                   frac97 = rep(NA, length(sites)),
+                   frac95 = rep(NA, length(sites)),
+                   frac90 = rep(NA, length(sites)),
+                   frac80 = rep(NA, length(sites)))
+  for(i in 1:length(sites)) {
+    s = sites[i]
+    means$frac99[i] = mean(table$frac99[table$site == s])
+    means$frac97[i] = mean(table$frac97[table$site == s])
+    means$frac95[i] = mean(table$frac95[table$site == s])
+    means$frac90[i] = mean(table$frac90[table$site == s])
+    means$frac80[i] = mean(table$frac80[table$site == s])
+    
+    sds$frac99[i] = sd(table$frac99[table$site == s])
+    sds$frac97[i] = sd(table$frac97[table$site == s])
+    sds$frac95[i] = sd(table$frac95[table$site == s])
+    sds$frac90[i] = sd(table$frac90[table$site == s])
+    sds$frac80[i] = sd(table$frac80[table$site == s])
+  }
+  means$site = sapply(means$site, convertSite, USE.NAMES = F)
+  sds$site = sapply(sds$site, convertSite, USE.NAMES = F)
+  
+  ##plot
+  df = melt(means, id.vars="site", value.name = "mean")
+  df2 = melt(sds, id.vars="site", value.name = "sd")
+  df = merge(df, df2, by=c("site", "variable"))
+  
+  p = ggplot(df, aes(x=variable, y=mean)) +
+    geom_bar(stat="identity", aes(fill=site), position=position_dodge()) +
+    geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd, fill=site), position=position_dodge()) +
+    ggtitle(lev) +
+    scale_x_discrete(name = "cutoff", labels=c("99%", "97%", "95%", "90%", "80%")) +
+    scale_y_continuous(name = "fraction of reads") +
+    scale_fill_manual(name="body site", 
+                      values=c("red", "blue", "green", "gold", "purple", "turquoise", "black"),
+                      labels = sapply(sites, convertSite, USE.NAMES = F))
+  
+  print(p)
+  
+}
+dev.off()
+
+pdf("novelTaxa_clusterbysite.pdf", height=5, width=8)
+for(lev in levels) {
+  print(lev)
+  table = read.table(paste("dolphinAbundantOTU.fractionNovelReads_", lev, ".txt", sep=""), sep="\t", header=T,
+                     colClasses = c("character", "character", rep("numeric", 5)))
+  
+  ##get average and standard deviation by body site
+  means = data.frame(site = sites,
+                     frac99 = rep(NA, length(sites)),
+                     frac97 = rep(NA, length(sites)),
+                     frac95 = rep(NA, length(sites)),
+                     frac90 = rep(NA, length(sites)),
+                     frac80 = rep(NA, length(sites)))
+  sds = data.frame(site = sites, 
+                   frac99 = rep(NA, length(sites)),
+                   frac97 = rep(NA, length(sites)),
+                   frac95 = rep(NA, length(sites)),
+                   frac90 = rep(NA, length(sites)),
+                   frac80 = rep(NA, length(sites)))
+  for(i in 1:length(sites)) {
+    s = sites[i]
+    means$frac99[i] = mean(table$frac99[table$site == s])
+    means$frac97[i] = mean(table$frac97[table$site == s])
+    means$frac95[i] = mean(table$frac95[table$site == s])
+    means$frac90[i] = mean(table$frac90[table$site == s])
+    means$frac80[i] = mean(table$frac80[table$site == s])
+    
+    sds$frac99[i] = sd(table$frac99[table$site == s])
+    sds$frac97[i] = sd(table$frac97[table$site == s])
+    sds$frac95[i] = sd(table$frac95[table$site == s])
+    sds$frac90[i] = sd(table$frac90[table$site == s])
+    sds$frac80[i] = sd(table$frac80[table$site == s])
+  }
+  
+  ##plot
+  df = melt(means, id.vars="site", value.name = "mean")
+  df2 = melt(sds, id.vars="site", value.name = "sd")
+  df = merge(df, df2, by=c("site", "variable"))
+  p = ggplot(df, aes(x=site, y=mean)) +
+    geom_bar(stat="identity", aes(fill=variable), position=position_dodge()) +
+    geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd, fill=variable), position=position_dodge()) +
+    ggtitle(lev) +
+    scale_x_discrete(name = "body site", labels=sapply(sites, convertSite, USE.NAMES = F)) +
+    scale_y_continuous(name = "fraction of reads") +
+    scale_fill_brewer(name="cutoff", labels=c("99%", "97%", "95%", "90%", "80%"), palette="Set1") 
+  
+  print(p)
+  
+}
+dev.off()
+
+####log abundance vs percent identity
+extra = 0.000001 #pseudocount to add to log
+inset = c(-.4, 0)
+# pdf("novelTaxa_abunVpid.pdf", height=5, width=12)
+pdf("novelTaxa_abunVpid.pdf", height=5, width=6)
+par(mar = c(5, 4, 4, 8), xpd=T)
+##silva results
+pid = read.table(paste(aotudir, "blastSilva_v_dolphinAbundantOTUcons.table.txt", sep=""),
+                 sep="\t", header= T,
+                 colClasses = c(rep("character", 2), rep("numeric", 2)))
+plot(NA, type="n", xlim = log(range(relabun[,-(1:13)])+extra), ylim=range(pid$percentIdentity),
+     main="Silva", 
+     xlab = paste("log(mean relative abundance + ", extra, ")", sep=""),
+     ylab = "percent identity")
+legend("topright", inset=inset,
+       legend = sapply(sites, convertSite, USE.NAMES = F),
+       col = colors,
+       pch = 16)
+for(j in 1:length(sites)) {
+  s = sites[j]
+  print(s)
+  sub = relabun[relabun$BODY.SITE.SAMPLED==s,]
+  x = colMeans(sub[,-(1:13)])
+  logx = log(x+extra)
+  y = rep(NA, length(x))
+  for(i in 1:length(x)) {
+    if(names(x)[i] %in% pid$consensusSequence) {
+      y[i] = pid$percentIdentity[pid$consensusSequence==names(x)[i]]
+    }
+  }
+  points(x=logx, y=y, col=colors[j], pch=16)
+#   par(mfrow=c(1,2), mar = c(5, 4, 4, 8), xpd=T)
+#   plot(x=x, y=y, pch=16, col=colors[j],
+#        main="Silva", 
+#        xlab = "mean relative abundance",
+#        ylab = "percent identity")
+#   legend("topright", inset=inset,
+#          legend = sapply(sites, convertSite, USE.NAMES = F),
+#          col = colors,
+#          pch = 16)
+#   plot(x=logx, y=y, pch=16, col=colors[j],
+#        main="Silva", 
+#        xlab = paste("log(mean relative abundance + ", extra, ")", sep=""),
+#        ylab = "percent identity")
+#   legend("topright", inset=inset,
+#          legend = sapply(sites, convertSite, USE.NAMES = F),
+#          col = colors,
+#          pch = 16)
+}
+###RDP results
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+conf = read.table(paste(aotudir, "dolphinAbundantOTU.cons.rdpTaxonomy.confidence.txt", sep=""),
+                  header = T, sep = "\t", colClasses = c("character", rep("numeric", 5)))
+for(lev in taxaLevels) {
+  print(lev)
+  plot(NA, type="n", xlim = log(range(relabun[,-(1:13)])+extra), ylim=range(conf[,names(conf)==lev], na.rm = T),
+       main=lev, 
+       xlab = "mean relative abundance",
+       ylab = "RDP confidence")
+  legend("topright", inset=inset,
+         legend = sapply(sites, convertSite, USE.NAMES = F),
+         col = colors,
+         pch = 16)
+  for(j in 1:length(sites)) {
+    s = sites[j]
+    print(s)
+    sub = relabun[relabun$BODY.SITE.SAMPLED==s,]
+    x = colMeans(sub[,-(1:13)])
+    logx = log(x+extra)
+    col = which(names(conf)==lev)
+    y = rep(NA, length(x))
+    for(i in 1:length(x)) {
+      y[i] = conf[conf$sequence==names(x)[i],col]
+    }
+    points(x=logx, y=y, col=colors[j], pch=16)
+#     par(mfrow=c(1,2), mar = c(5, 4, 4, 8), xpd=T)
+#     plot(x=x, y=y, main=lev, pch=16, col=colors[j],
+#          xlab = "mean relative abundance",
+#          ylab = "RDP confidence")
+#     legend("topright", inset=inset,
+#            legend = sapply(sites, convertSite, USE.NAMES = F),
+#            col = colors,
+#            pch = 16)
+#     plot(x=logx, y=y, main=lev, pch=16, col=colors[j],
+#          xlab = paste("log(mean relative abundance + ", extra, ")", sep=""),
+#          ylab = "RDP confidence")
+#     legend("topright", inset=inset,
+#            legend = sapply(sites, convertSite, USE.NAMES = F),
+#            col = colors,
+#            pch = 16)
+  }
+}
+dev.off()
