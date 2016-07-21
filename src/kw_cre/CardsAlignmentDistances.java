@@ -68,9 +68,9 @@ public class CardsAlignmentDistances {
 						for(int k = 0; k < seq1.length(); k++) {
 							if(seq1.charAt(k) != (seq2.charAt(k)) && !gap) {//sequence is different and not currently part of gap
 								diff++;
-								if(bl == "KPC") {
+								/*if(bl == "KPC") {
 									System.out.println(gene1 + "\t" + gene2 + "\t" + j);
-								}
+								}*/
 								gap = seq1.charAt(k) == '-' || seq2.charAt(k) == '-';
 							} else if(gap) {//possible end of gap
 								gap = seq1.charAt(k) == '-' || seq2.charAt(k) == '-';
