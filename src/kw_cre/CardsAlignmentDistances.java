@@ -5,8 +5,10 @@
 package kw_cre;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,6 +34,7 @@ public class CardsAlignmentDistances {
 						seqs.put(header, align);
 					}
 					header = line.replace(">", "");
+					align = "";
 				} else {
 					align += line;
 				}
@@ -49,6 +52,7 @@ public class CardsAlignmentDistances {
 			}
 			
 			//calculate distances
+			boolean nonzero = false;
 			for(int i = 0; i < genes.size(); i++) {
 				String gene1 = genes.get(i);
 				String seq1 = seqs.get(gene1);
@@ -70,16 +74,30 @@ public class CardsAlignmentDistances {
 							}
 						}
 						dist[i][j] = diff;
+						if(diff != 0 && !nonzero) {//indicate there are differences
+							nonzero = true; // indicate have written a nonzero diff
+							System.out.println(bl);
+						}
 					}
 				}
 			}
 			
-			//write distance	
+			//write distance
+			BufferedWriter out = new BufferedWriter(new FileWriter(new File(
+					DIR + bl + ".dist.txt")));
+			//write header
 			for(int i = 0; i < genes.size(); i++) {
-				for(int j = 0; j < genes.size(); j++) {
-					System.out.println(i + "\t" + j + "\t" + dist[i][j]);
-				}
+				out.write("\t" + genes.get(i));
 			}
+			out.write("\n");
+			for(int i = 0; i < genes.size(); i++) {
+				out.write(genes.get(i));
+				for(int j = 0; j < genes.size(); j++) {
+					out.write("\t" + dist[i][j]);
+				}
+				out.write("\n");
+			}
+			out.close();
 		}
 	}
 	
