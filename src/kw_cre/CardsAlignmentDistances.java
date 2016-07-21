@@ -77,8 +77,8 @@ public class CardsAlignmentDistances {
 						nonzero = nonzero || diff != 0;
 					}
 				}
-				System.out.println(bl + "had nonzero: " + nonzero);
 			}
+			System.out.println(bl + " had nonzero: " + nonzero);
 			
 			//write distance
 			BufferedWriter out = new BufferedWriter(new FileWriter(new File(
