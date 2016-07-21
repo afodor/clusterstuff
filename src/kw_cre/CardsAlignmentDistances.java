@@ -18,8 +18,8 @@ public class CardsAlignmentDistances {
 	public static String DIR = "/nobackup/afodor_research/kwinglee/cre/chs_v_cards/betaLactamaseAlignments/";
 	
 	public static void main(String[] args) throws Exception {
-		//String[] betalacs = new String[]{"KPC", "LEN", "OKP", "OXA", "SHV", "TEM"};//genes to analyze
-		String[] betalacs = new String[]{"test"};
+		String[] betalacs = new String[]{"KPC", "LEN", "OKP", "OXA", "SHV", "TEM"};//genes to analyze
+		//String[] betalacs = new String[]{"test"};
 		
 		for(String bl : betalacs) {
 			HashMap<String, String> seqs = new HashMap<String, String>();//map of gene to aligned sequence
