@@ -74,12 +74,10 @@ public class CardsAlignmentDistances {
 							}
 						}
 						dist[i][j] = diff;
-						if(diff != 0 && !nonzero) {//indicate there are differences
-							nonzero = true; // indicate have written a nonzero diff
-							System.out.println(bl);
-						}
+						nonzero = nonzero || diff != 0;
 					}
 				}
+				System.out.println(bl + "had nonzero: " + nonzero);
 			}
 			
 			//write distance
