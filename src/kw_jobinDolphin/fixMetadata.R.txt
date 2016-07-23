@@ -65,6 +65,23 @@ for(w in water) {
 }
 
 
+##also get raw counts for diversity analyses
+table = read.table(paste(aotudir, "dolphinAbundantOTUtable_taxaAsCol.txt", sep=""),
+                   sep="\t", header=T, colClasses=c("character", rep("numeric", 28972)), comment.char="")
+table$sampleID = gsub("-", "", table$sampleID) #remove dashes in water sample
+##add number of reads(missing in this file)
+numReads = rowSums(table[,-1])
+table = cbind(sampleID=table$sampleID, numReads, table[,-1])
+table$sampleID = as.character(table$sampleID)
+counts = fixSamples(table)
+print(ncol(counts)-1) #28973
+mrg = merge(metadata, counts, by="sampleID")
+##filter by number of reads
+mrg = mrg[mrg$numReads > 20,]
+write.table(mrg, paste("dolphin_OTU_counts.txt", sep=""),
+            sep = "\t", row.names = F, col.names = T, quote = F)
+
+
 ####RDP
 taxaLevels = c("phylum", "class", "order", "family", "genus")
 for(t in taxaLevels) {
@@ -79,6 +96,9 @@ for(t in taxaLevels) {
         counts = fixSamples(counts)
         print(ncol(counts)-1)
         mrg = merge(metadata, counts, by="sampleID")
+        if(w=="") {
+          print(paste("nrow", nrow(mrg)))
+        }
         write.table(mrg, paste("dolphin_", t, "_", n, w, ".txt", sep=""),
                     sep = "\t", row.names = F, col.names = T, quote = F)
       }
@@ -86,6 +106,33 @@ for(t in taxaLevels) {
     }
   }
 }
+
+##also get raw counts for diversity analyses
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+for(t in taxaLevels) {
+  print(t)
+  fileName = paste(rdpdir, "dolphin_", t, "_taxaAsCol.txt", sep="")
+  table = read.table(fileName, sep="\t", header=T, comment.char="")
+  nc = ncol(table)
+  table = read.table(fileName, sep="\t", header=T, comment.char="", 
+                     colClasses=c(rep("character", 3), rep("numeric", nc-3)))
+  table$sampleID = gsub("-", "", table$sampleID) #remove dashes in water sample
+  table = table[table$read=="R1",] #forward read only
+  
+  ##add number of reads(missing in this file) and remove file name/read
+  numReads = rowSums(table[,-(1:3)])
+  table = cbind(sampleID=table$sampleID, numReads, table[,-(1:3)])
+  table$sampleID = as.character(table$sampleID)
+  
+  
+  counts = fixSamples(table)
+  print(ncol(counts)-1)
+  mrg = merge(metadata, counts, by="sampleID")
+  print(paste("nrow", nrow(mrg)))
+  write.table(mrg, paste("dolphin_", t, "_counts.txt", sep=""),
+              sep = "\t", row.names = F, col.names = T, quote = F)
+}
+
 
 ##number columns
 # taxaLevels = c("phylum", "class", "order", "family", "genus", "OTU")
