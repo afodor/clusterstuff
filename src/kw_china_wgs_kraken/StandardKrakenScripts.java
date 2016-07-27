@@ -11,7 +11,7 @@ import java.io.IOException;
 
 public class StandardKrakenScripts {
 	public static String KRAKEN_DIR = "/nobackup/afodor_research/kwinglee/software/kraken/";
-	public static String DB = KRAKEN_DIR + "krakenStdDB";
+	public static String DB = KRAKEN_DIR + "krakenStandardDB";
 	public static String FASTA_DIR = "/nobackup/afodor_research/kwinglee/china/wgs/fastas/";
 	public static String SCRIPT_DIR = "/nobackup/afodor_research/kwinglee/china/wgs/krakenScripts/";
 	public static String OUT_DIR = "/nobackup/afodor_research/kwinglee/china/wgs/stdkrakenResults/";
@@ -20,7 +20,7 @@ public class StandardKrakenScripts {
 		//set up script to run everything
 		BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 				SCRIPT_DIR + "runStandardKraken")));
-		script.write("#PBS -l walltime=400:00:00\n");
+		script.write("#PBS -l walltime=600:00:00\n");
 		String[] fastas = new File(FASTA_DIR).list();
 		for(String fa : fastas) {
 			if(fa.endsWith(".fa")) {
