@@ -45,6 +45,8 @@ public class GetBestBlastHits {
 								double p = Double.parseDouble(bestBit.split(";")[1]);
 								if(pid > p) {
 									bitScore.put(gene, value);
+								} else if(pid == p) {
+									bitScore.put(gene, bestBit + "," + cards);
 								}
 							}
 							
@@ -57,6 +59,8 @@ public class GetBestBlastHits {
 								b = Double.parseDouble(bestPid.split(";")[0]);
 								if(bit > b) {
 									pID.put(gene, value);
+								} else if(bit == b) {
+									pID.put(gene, bestPid + "," + cards);
 								}
 							}
 						} else {
@@ -72,6 +76,7 @@ public class GetBestBlastHits {
 		////look specifically at the beta lactamase genes
 		String bldir = DIR + "betaLactamaseAlignments/";
 		String[] blList = new String[]{"KPC", "LEN", "OKP", "OXA", "SHV", "TEM"};
+		ArrayList<String> seenGenes = new ArrayList<String>();
 		
 		for(String bl : blList) {
 			//get list of genes for that betalactamase
@@ -80,7 +85,13 @@ public class GetBestBlastHits {
 					bldir + bl + ".fasta")));
 			for(String line = fasta.readLine(); line != null; line = fasta.readLine()) {
 				if(line.startsWith(">")) {
-					genes.add(line.replace(">", ""));
+					String gene = line.replace(">", ""); 
+					genes.add(gene);
+					if(seenGenes.contains(gene)) {
+						System.out.println(bl + "\t" + gene);
+					} else {
+						seenGenes.add(gene);
+					}
 				}
 			}
 			fasta.close();
