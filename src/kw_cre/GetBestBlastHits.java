@@ -33,7 +33,8 @@ public class GetBestBlastHits {
 						String cards = sp[1];
 						double pid = Double.parseDouble(sp[2]);//percent identity
 						double bit = Double.parseDouble(sp[11]);//bit score
-						String value = bit + ";" + pid + ";" + cards;
+						String len = sp[3];
+						String value = bit + ";" + pid + ";" + len + ";" + cards;
 						if(bitScore.containsKey(gene)) {
 							//see if best bit score
 							String bestBit = bitScore.get(gene);
@@ -87,19 +88,19 @@ public class GetBestBlastHits {
 			//print best hit (checking that the best percent identity and bit score are the same)
 			BufferedWriter out = new BufferedWriter(new FileWriter(new File(
 					DIR + "bestBlastHit_" + bl + ".txt")));
-			out.write("gene\tbestCardsHit\tbitScore\tpercentID\n");
+			out.write("gene\tbestCardsHit\tbitScore\tpercentID\tlength\n");
 			BufferedWriter alt = new BufferedWriter(new FileWriter(new File(
 					DIR + "bestBlastHit_" + bl + "_diffBestPID.txt")));
-			alt.write("gene\tbestCardsHit\tbitScore\tpercentID\n");
+			alt.write("gene\tbestCardsHit\tbitScore\tpercentID\tlength\n");
 			for(String g : genes) {
 				if(bitScore.containsKey(g)) {
 					String value = bitScore.get(g);
 					String[] sp = value.split(";");
-					out.write(g + "\t" + sp[2] + "\t" + sp[0] + "\t" + sp[1] + "\n");
+					out.write(g + "\t" + sp[3] + "\t" + sp[0] + "\t" + sp[1] + "\t" + sp[2] + "\n");
 					if(!value.equals(pID.get(g))) {
 						value = pID.get(g);
 						sp = value.split(";");
-						alt.write(g + "\t" + sp[2] + "\t" + sp[0] + "\t" + sp[1] + "\n");
+						alt.write(g + "\t" + sp[3] + "\t" + sp[0] + "\t" + sp[1] + "\t" + sp[2] + "\n");
 						//System.out.println(g + "\t" + pID.get(g));
 					}
 				} else {
