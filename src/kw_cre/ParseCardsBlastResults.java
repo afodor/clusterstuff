@@ -74,7 +74,8 @@ public class ParseCardsBlastResults {
 							Double.parseDouble(sp[8])) / cardsLengths.get(cards);//cards length
 					if(sp[0].equals("carolina_klebsiella_pneumoniae_chs_74.0_AF30_05581") ||
 							sp[0].equals("carolina_klebsiella_pneumoniae_chs_54.0_AF10_05605")) {
-						System.out.println(line + "\t" + (pid > PID_CUT) + "\t" + (len > LEN_CUT));
+						System.out.println(line + "\t" + (pid > PID_CUT) + "\t" + (len > LEN_CUT) +
+								"\t" + len);
 					}
 					if(pid > PID_CUT && len > LEN_CUT) {
 						numHits++;
