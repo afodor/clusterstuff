@@ -88,19 +88,26 @@ public class GetBestBlastHits {
 			BufferedWriter out = new BufferedWriter(new FileWriter(new File(
 					DIR + "bestBlastHit_" + bl + ".txt")));
 			out.write("gene\tbestCardsHit\tbitScore\tpercentID\n");
+			BufferedWriter alt = new BufferedWriter(new FileWriter(new File(
+					DIR + "bestBlastHit_" + bl + "_diffBestPID.txt")));
+			alt.write("gene\tbestCardsHit\tbitScore\tpercentID\n");
 			for(String g : genes) {
 				if(bitScore.containsKey(g)) {
 					String value = bitScore.get(g);
-					if(!value.equals(pID.get(g))) {
-						System.out.println(g + "\t" + pID.get(g));
-					}
 					String[] sp = value.split(";");
 					out.write(g + "\t" + sp[2] + "\t" + sp[0] + "\t" + sp[1] + "\n");
+					if(!value.equals(pID.get(g))) {
+						value = pID.get(g);
+						sp = value.split(";");
+						alt.write(g + "\t" + sp[2] + "\t" + sp[0] + "\t" + sp[1] + "\n");
+						//System.out.println(g + "\t" + pID.get(g));
+					}
 				} else {
 					System.err.println(g + " is missing from files");
 				}
 			}
 			out.close();
+			alt.close();
 		}
 	}
 }
