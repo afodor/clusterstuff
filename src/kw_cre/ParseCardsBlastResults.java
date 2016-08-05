@@ -70,13 +70,13 @@ public class ParseCardsBlastResults {
 					String[] sp = line.split("\t");
 					String cards = sp[1];
 					double pid = Double.parseDouble(sp[2]);//percent identity
-					double len = 100.0 * (Double.parseDouble(sp[9]) - 
+					double len = 100.0 * Math.abs(Double.parseDouble(sp[9]) - 
 							Double.parseDouble(sp[8])) / cardsLengths.get(cards);//cards length
-					if(sp[0].equals("carolina_klebsiella_pneumoniae_chs_74.0_AF30_05581") ||
+					/*if(sp[0].equals("carolina_klebsiella_pneumoniae_chs_74.0_AF30_05581") ||
 							sp[0].equals("carolina_klebsiella_pneumoniae_chs_54.0_AF10_05605")) {
 						System.out.println(line + "\t" + (pid > PID_CUT) + "\t" + (len > LEN_CUT) +
 								"\t" + len);
-					}
+					}*/
 					if(pid > PID_CUT && len > LEN_CUT) {
 						numHits++;
 						if(!hits.containsKey(cards)) {
@@ -110,7 +110,7 @@ public class ParseCardsBlastResults {
 					}
 				}
 			}
-			//System.out.println(samp + " " + numHits + " gene hits");
+			System.out.println(samp + " " + numHits + " gene hits");
 			//genomeHits.put(samp, new Integer(numHits));
 			br.close();
 		}
