@@ -18,7 +18,7 @@ public class AlignSelectCardsHitsSHV {
 	public static String FASTA_DIR = "/nobackup/afodor_research/kwinglee/cre/rbh/geneFastas/";
 
 	public static void main(String[] args) throws Exception {
-		String[] files = new String[]{"groupPos4A", "groupPos4C", "groupPos4Aother"};//files to analyze
+		String[] files = new String[]{"groupPos4A", "groupPos4C", "groupPos4other"};//files to analyze
 
 		String outDir = DIR + "betaLactamaseAlignments/";
 
