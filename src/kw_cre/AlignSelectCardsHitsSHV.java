@@ -19,7 +19,8 @@ public class AlignSelectCardsHitsSHV {
 
 	public static void main(String[] args) throws Exception {
 		String[] files = new String[]{"groupPos4A", "groupPos4C", 
-				"groupPos4other", "groupPos4otherPlusLen", "groupAllPlusLen"};//files to analyze
+				"groupPos4other", "groupPos4otherPlusLen", "groupAllPlusLen",
+				"groupAllNoTem", "groupAllNoTemPlusLen"};//files to analyze
 
 		String outDir = DIR + "betaLactamaseAlignments/";
 
