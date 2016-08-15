@@ -20,7 +20,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class MergeKrakenOutput {
-	public static String DIR = "/nobackup/afodor_research/kwinglee/china/wgs/minikrakenResults/";
+	//public static String DIR = "/nobackup/afodor_research/kwinglee/china/wgs/minikrakenResults/";
+	public static String DIR = "/nobackup/afodor_research/kwinglee/china/wgs/stdkrakenResults/";
 	public static String HGDIR= "/nobackup/afodor_research/kwinglee/china/wgs/alignToHG38/";
 	public static int NUM_SAMP = 40;//number of samples
 
@@ -45,7 +46,8 @@ public class MergeKrakenOutput {
 		for(int i = 0; i < tables.size(); i++) {
 			BufferedReader br = new BufferedReader(new FileReader(
 					new File(DIR + tables.get(i))));
-			String sample = tables.get(i).replace("minikrakenSeqs_", "").replace("_mpa", "");
+			//String sample = tables.get(i).replace("minikrakenSeqs_", "").replace("_mpa", "");
+			String sample = tables.get(i).replace("stdkrakenSeqs_", "").replace("_mpa", "");
 			Set<String> human = getHumanReads(sample);
 			int numHum = 0;//number human reads seen
 			String line = br.readLine();
@@ -76,11 +78,13 @@ public class MergeKrakenOutput {
 		ArrayList<String> keys = new ArrayList<String>(baseMap.keySet());
 		Collections.sort(keys);
 		BufferedWriter out = new BufferedWriter(new FileWriter(
-				new File(DIR + "minikraken_merged.txt")));
+				//new File(DIR + "minikraken_merged.txt")));
+				new File(DIR + "stdkraken_merged.txt")));
 		//write header
 		out.write("taxonomy");
 		for(String t: tables) {
-			String sample = t.replace("minikrakenSeqs_", "").replace("_mpa", "");
+			//String sample = t.replace("minikrakenSeqs_", "").replace("_mpa", "");
+			String sample = t.replace("stdkrakenSeqs_", "").replace("_mpa", "");
 			out.write("\t" + sample);
 		}
 		out.write("\n");
@@ -165,12 +169,14 @@ public class MergeKrakenOutput {
 			String level, 
 			HashMap<String, Integer[]> map) throws IOException {
 		BufferedWriter out = new BufferedWriter(new FileWriter(
-				new File(DIR + "minikraken_merged_" + level + ".txt")));
-
+				//new File(DIR + "minikraken_merged_" + level + ".txt")));
+				new File(DIR + "stdkraken_merged_" + level + ".txt")));
+		
 		//write header
 		out.write("taxa\ttaxonomy");
 		for(String t: tables) {
-			String sample = t.replace("minikrakenSeqs_", "").replace("_mpa", "");
+			//String sample = t.replace("minikrakenSeqs_", "").replace("_mpa", "");
+			String sample = t.replace("stdkrakenSeqs_", "").replace("_mpa", "");
 			out.write("\t" + sample);
 		}
 		out.write("\n");
