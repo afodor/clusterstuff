@@ -38,6 +38,7 @@ public class ParseCardsAlignmentResults {
 		
 		//get number of reads in each file
 		double[] totReads = new double[NUM_SAMPS];
+		double[] totNonHumanReads = new double[NUM_SAMPS];
 		for(int i = 0; i < NUM_SAMPS; i++) {
 			String sample = samples[i];
 			BufferedReader fa = new BufferedReader(new FileReader(new File(
@@ -62,6 +63,7 @@ public class ParseCardsAlignmentResults {
 			String samp = samples[i];
 			//get set of reads that matched human genome
 			HashSet<String> humanReads = getHumanReads(samp);
+			totNonHumanReads[i] = totReads[i] - humanReads.size();
 			//get reads that mapped to cards protein homolog
 			BufferedReader sam = new BufferedReader(new FileReader(new File(
 					alignDir + "pro_homolog_v_" + samp + ".mapped.sam")));
@@ -122,7 +124,7 @@ public class ParseCardsAlignmentResults {
 		for(int i = 0; i < NUM_SAMPS; i++) {
 			out.write(samples[i] + "\t" + totReads[i] + "\t" +
 						+ (numHits[i] / totReads[i]) + "\t" + 
-						(numNonHumanHits[i] / totReads[i]));
+						(numNonHumanHits[i] / totNonHumanReads[i]));
 			if(numHits[i] != numNonHumanHits[i]) {
 				System.err.println("human hits mapped in " + samples[i] + 
 						" " + (numHits[i] - numNonHumanHits[i]));
@@ -131,7 +133,7 @@ public class ParseCardsAlignmentResults {
 				//out.write("\t" + geneCounts.get(g)[i]);
 				out.write("\t" + (geneCounts.get(g)[i] / totReads[i]) + "\t");
 				if(nonHumGeneCounts.containsKey(g)) {
-					out.write(String.valueOf(nonHumGeneCounts.get(g)[i] / totReads[i]));
+					out.write(String.valueOf(nonHumGeneCounts.get(g)[i] / totNonHumanReads[i]));
 				} else {
 					out.write("0");
 				}
