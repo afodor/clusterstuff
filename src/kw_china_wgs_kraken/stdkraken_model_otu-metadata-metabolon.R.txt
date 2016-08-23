@@ -21,15 +21,16 @@ names(metabolon)[2] = "ruralUrban"
 ##table = table to compare, splitCol = split point between datasets (last column in OTU dataset)
 ##name = name of output file
 runComparisons <- function(table, splitCol, name) {
-  namesOTU <- vector()
-  namesOther <- vector()
-  r <- vector()
-  pValues <- vector()
-  kendallP <- vector()
+  length = (splitCol-4) * (ncol(table)-splitCol)
+  namesOTU <- rep(NA, length)
+  namesOther <- rep(NA, length)
+  r <- rep(NA, length)
+  pValues <- rep(NA, length)
+  kendallP <- rep(NA, length)
   
   index <- 1
   
-  pdf(paste("stdkraken_model_plots_", name, ".pdf",sep=""))
+  pdf(paste("stdkraken_model_plots_prealloc_", name, ".pdf",sep=""))
   
   for( i in 4:splitCol )
   {
@@ -66,11 +67,12 @@ runComparisons <- function(table, splitCol, name) {
   
   dev.off()
   dFrame <- data.frame(namesOTU, namesOther,kendallP, pLM=pValues, r) 
+  dFrame <- dFrame[1:(index-1),]
   dFrame <- dFrame [order(dFrame$pLM),]
   dFrame$adjKendallP <-  p.adjust(dFrame$kendallP, method = "BH")
   dFrame$adjLMp<-  p.adjust(dFrame$pLM, method = "BH")
   
-  write.table( file= paste("stdkraken_model_pValues_", name, ".txt", sep=""), dFrame, row.names=FALSE, sep="\t")
+  write.table( file= paste("stdkraken_model_pValues_prealloc_", name, ".txt", sep=""), dFrame, row.names=FALSE, sep="\t")
 }
 
 
