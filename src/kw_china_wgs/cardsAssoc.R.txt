@@ -79,12 +79,15 @@ assocPropReads <- function(table, name, desc=NA) {
 assocGenes <- function(table, name, desc=NA) {
   mrg = merge(cards, table, by="sampleID")
   
-  namesCards = vector()
-  namesOther = vector()
-  r = vector()
-  pValues = vector()
-  kendallP = vector()
-  description = vector()
+  length = (ncards-2-start) * (ncol(mrg)-ncards)
+  namesCards = rep(NA, length)
+  namesOther = rep(NA, length)
+  r = rep(NA, length)
+  pValues = rep(NA, length)
+  kendallP = rep(NA, length)
+  if(!is.na(desc)) {
+    description = rep(NA, length)
+  }
   
   index = 1
   
@@ -125,6 +128,7 @@ assocGenes <- function(table, name, desc=NA) {
   } else {
     dFrame = data.frame(namesCards, namesOther, kendallP, pLM=pValues, r) 
   }
+  dFrame = dFrame[1:(index-1),]
   dFrame = dFrame [order(dFrame$pLM),]
   dFrame$adjKendallP =  p.adjust(dFrame$kendallP, method = "BH")
   dFrame$adjLMp=  p.adjust(dFrame$pLM, method = "BH")
@@ -134,8 +138,19 @@ assocGenes <- function(table, name, desc=NA) {
 }
 
 #####16S
+##get OTU taxonomy for the given OTU name
+taxonomy = read.table("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\China\\abundantOTU.chinaForward.taxonomy.txt", header=F, colClasses="character", sep="\t")
+##function that returns full taxonomy for the given name in the given level
+getOTUTaxonomy <- function(name) {
+  n = sub("X", "", name)
+  n = paste("Consensus", n, sep="")
+  r = taxonomy$V1==n
+  return(paste("p_", taxonomy$V6[r], ";c_", taxonomy$V9[r], ";o_", taxonomy$V12[r], ";f_", taxonomy$V15[r], ";g_", taxonomy$V18[r], ";", n, sep=""))
+}
+
 datadir = "C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\China\\rdp\\"
-taxaLevels = c("phylum","class","order","family","genus", "otu")
+# taxaLevels = c("phylum","class","order","family","genus", "otu")
+taxaLevels = "otu"
 for(taxa in taxaLevels) {
   print(taxa)
   inFileName = paste(datadir, taxa,  "_taxaAsColumnsLogNorm_WithMetadata.txt", sep ="")
@@ -176,12 +191,27 @@ for(taxa in taxaLevels) {
   keep = sapply(1:ncol(table), filter)
   table = table[,keep]
   
+  ##get description for OTU
+  if(taxa=="otu") {
+    id = names(table)[-1]
+    names = sapply(id, getOTUTaxonomy)
+    desc = data.frame(sampleID=id, NAME=names, stringsAsFactors = F)
+  }
+  
   ##association to proportion of reads
   name = paste("16S_", taxa, sep="")
-  assocPropReads(table, name)
+  if(taxa=="otu") {
+    assocPropReads(table, name, desc)
+  } else {
+    assocPropReads(table, name)
+  }
   
   ##association to individual genes
-  assocGenes(table, name)
+  if(taxa=="otu") {
+    assocGenes(table, name, desc)
+  } else {
+    assocGenes(table, name)
+  }
 }
 
 #####minikraken
