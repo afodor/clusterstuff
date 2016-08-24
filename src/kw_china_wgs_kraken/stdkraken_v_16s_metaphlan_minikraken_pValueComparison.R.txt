@@ -79,7 +79,7 @@ for(taxa in taxaLevels) {
   print(taxa)
   
   ##get stdkraken results
-  krak.table = read.table(paste("standardKraken\\stdkraken_model_pValues_metabolon_v_", taxa, ".txt", sep=""),
+  krak.table = read.table(paste("standardKraken\\stdkraken_model_pValues_prealloc_metabolon_v_", taxa, ".txt", sep=""),
                           header = T, sep="\t", colClasses = c("character", "character", rep("numeric", 5)))
   krak.table$pLM = log10(krak.table$pLM)
   krak.table = krak.table[,c(1, 2, 4)] #"namesOTU"   "namesOther" "pLM" 
@@ -113,7 +113,7 @@ for(taxa in taxaLevels) {
   print(taxa)
   
   ##get stdkraken results
-  krak.table = read.table(paste("standardKraken\\stdkraken_model_pValues_metadata_v_", taxa, ".txt", sep=""),
+  krak.table = read.table(paste("standardKraken\\stdkraken_model_pValues_prealloc_metadata_v_", taxa, ".txt", sep=""),
                           header = T, sep="\t", colClasses = c("character", "character", rep("numeric", 5)))
   krak.table$pLM = log10(krak.table$pLM)
   krak.table = krak.table[,c(1, 2, 4)] #"namesOTU"   "namesOther" "pLM" 
@@ -198,7 +198,7 @@ for(taxa in taxaLevels) {
   print(taxa)
   
   ##get stdkraken results
-  krak.table = read.table(paste("standardKraken\\stdkraken_model_pValues_metabolon_v_", taxa, ".txt", sep=""),
+  krak.table = read.table(paste("standardKraken\\stdkraken_model_pValues_prealloc_metabolon_v_", taxa, ".txt", sep=""),
                           header = T, sep="\t", colClasses = c("character", "character", rep("numeric", 5)))
   krak.table$pLM = log10(krak.table$pLM)
   krak.table = krak.table[,c(1, 2, 4)] #"namesOTU"   "namesOther" "pLM" 
@@ -241,7 +241,7 @@ for(taxa in taxaLevels) {
   print(taxa)
   
   ##get stdkraken results
-  krak.table = read.table(paste("standardKraken\\stdkraken_model_pValues_metadata_v_", taxa, ".txt", sep=""),
+  krak.table = read.table(paste("standardKraken\\stdkraken_model_pValues_prealloc_metadata_v_", taxa, ".txt", sep=""),
                           header = T, sep="\t", colClasses = c("character", "character", rep("numeric", 5)))
   krak.table$pLM = log10(krak.table$pLM)
   krak.table = krak.table[,c(1, 2, 4)] #"namesOTU"   "namesOther" "pLM" 
@@ -327,7 +327,7 @@ for(taxa in taxaLevels) {
   print(taxa)
   
   ##get stdkraken results
-  krak.table = read.table(paste("standardKraken\\stdkraken_model_pValues_metabolon_v_", taxa, ".txt", sep=""),
+  krak.table = read.table(paste("standardKraken\\stdkraken_model_pValues_prealloc_metabolon_v_", taxa, ".txt", sep=""),
                           header = T, sep="\t", colClasses = c("character", "character", rep("numeric", 5)))
   krak.table$pLM = log10(krak.table$pLM)
   krak.table = krak.table[,c(1, 2, 4)] #"namesOTU"   "namesOther" "pLM" 
@@ -361,7 +361,7 @@ for(taxa in taxaLevels) {
   print(taxa)
   
   ##get stdkraken results
-  krak.table = read.table(paste("standardKraken\\stdkraken_model_pValues_metadata_v_", taxa, ".txt", sep=""),
+  krak.table = read.table(paste("standardKraken\\stdkraken_model_pValues_prealloc_metadata_v_", taxa, ".txt", sep=""),
                           header = T, sep="\t", colClasses = c("character", "character", rep("numeric", 5)))
   krak.table$pLM = log10(krak.table$pLM)
   krak.table = krak.table[,c(1, 2, 4)] #"namesOTU"   "namesOther" "pLM" 
