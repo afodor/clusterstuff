@@ -99,12 +99,14 @@ public class GetBestBlastHits_nonBetaLactamases {
 			for(String m : matches) {
 				String[] sp = m.split(";");
 				for(String s : sp) {
-					String[] bit = bitScore.get(s).split(";");
-					
-					out.write(s + "\t" + bit[3] + "\t" + bit[0] + "\t" 
-							+ bit[1] + "\t" + bit[2] + "\t" +
-							bit[3].contains(card) + "\n");
-					
+					if(!s.equals("NA")) {
+						String[] bit = bitScore.get(s).split(";");
+						
+						out.write(s + "\t" + bit[3] + "\t" + bit[0] + "\t" 
+								+ bit[1] + "\t" + bit[2] + "\t" +
+								bit[3].contains(card) + "\n");
+						
+					}
 				}
 			}
 			out.close();
