@@ -81,7 +81,7 @@ for(taxa in taxaLevels) {
   if(nc > 13) {
     w=1000
   }
-  jpeg(paste("gaBarPlot_withControls_", taxa, "_", cutoff, ".jpeg", sep=""), width=w, height=500)
+  jpeg(paste("gaBarPlot_withControls_", taxa, "_", cutoff, "_readCutoff.jpeg", sep=""), width=w, height=500)
   print(plot)
   dev.off()
   
@@ -108,7 +108,7 @@ for(taxa in taxaLevels) {
   if(nc > 13) {
     w=900
   }
-  jpeg(paste("gaBarPlot_", taxa, "_", cutoff, ".jpeg", sep=""), width=w, height=500)
+  jpeg(paste("gaBarPlot_", taxa, "_", cutoff, "_readCutoff.jpeg", sep=""), width=w, height=500)
   print(plot)
   dev.off()
 }

@@ -14,12 +14,15 @@ pVal = data.frame(level=taxaLevels,
                   pShannonGADeliveryIntn = rep(NA, length(taxaLevels)),
                   pInvSimpsonGA = rep(NA, length(taxaLevels)),
                   pInvSimpsonDelivery = rep(NA, length(taxaLevels)),
-                  pInvSimpsonGADeliveryIntn = rep(NA, length(taxaLevels)))
+                  pInvSimpsonGADeliveryIntn = rep(NA, length(taxaLevels)),
+                  pRichGA = rep(NA, length(taxaLevels)),
+                  pRichDelivery = rep(NA, length(taxaLevels)),
+                  pRichGADeliveryIntn = rep(NA, length(taxaLevels)))
 
-pdf("gaDiversity.pdf", height=6, width=9)
+pdf("gaDiversity_readCutoff.pdf", height=9, width=9)
 for(taxa in taxaLevels) {
   print(taxa)
-  fileName = paste("ga_taxaAsCol_relAbun_with_metadata_and_controls_readCutoff_", taxa, ".txt", sep="")
+  fileName = paste("ga_taxaAsCol_relAbun_with_metadata_readCutoff_", taxa, ".txt", sep="")
   table <-read.table(fileName,header=TRUE,sep="\t")
   numCols <- ncol(table)
   table <-read.table(fileName,header=TRUE,sep="\t",
@@ -33,7 +36,7 @@ for(taxa in taxaLevels) {
   row = pVal$level == taxa
   
   ###shannon
-  par(mfrow=c(2,3), oma=c(.5,.5,5,.5), mar=c(4.5,4,1,1))
+  par(mfrow=c(3,3), oma=c(.5,.5,6,.5), mar=c(4.5,4,1,1))
   div = diversity(table[,-(1:10),], index="shannon")
   intnModel = lm(div~ga*del)
   pVal$pShannonGA[row] = anova(intnModel)$"Pr(>F)"[1]
@@ -57,13 +60,31 @@ for(taxa in taxaLevels) {
   boxplot(div~del, xlab="Mode of Delivery", ylab="Inverse Simpson Index")
   points(div~del, col=colors, pch=shapes)
   
+  ###richness
+  counts = table[,-(1:10)]
+  counts = counts * table$numReads
+  div = rarefy(counts, sample=min(table$numReads)-1)
+  print(min(table$numReads)-1)
+  intnModel = lm(div~ga*del)
+  pVal$pRichGA[row] = anova(intnModel)$"Pr(>F)"[1]
+  pVal$pRichDelivery[row] = anova(intnModel)$"Pr(>F)"[2]
+  pVal$pRichGADeliveryIntn[row] = anova(intnModel)$"Pr(>F)"[3]
+  plot(x=ga, y=div, xlab="Gestational Age (days)", ylab="Richness", col=colors, pch=shapes)
+  boxplot(div~term, xlab="Term vs. pre-term", ylab="Richness")
+  points(div~term, col=colors, pch=shapes)
+  boxplot(div~del, xlab="Mode of Delivery", ylab="Richness")
+  points(div~del, col=colors, pch=shapes)
+  
   ###add title to plots
   graphMain = paste(taxa, "\nShannon: pGA=", format(pVal$pShannonGA[row], digits=2), "; pDelivery=", 
                     format(pVal$pShannonDelivery[row], digits=2),
                     "; pIntn=", format(pVal$pShannonGADeliveryIntn[row], digits=2),
                     "\nInverse Simspon: pGA=",format(pVal$pInvSimpsonGA[row],  digits=2),
                     "; pDelivery=", format(pVal$pInvSimpsonDelivery[row], digits=2),
-                    "; pIntn=", format(pVal$pInvSimpsonGADeliveryIntn[row], digits=2), sep="")
+                    "; pIntn=", format(pVal$pInvSimpsonGADeliveryIntn[row], digits=2), 
+                    "\nRichness: pGA=", format(pVal$pRichGA[row],  digits=2),
+                    "; pDelivery=", format(pVal$pRichDelivery[row], digits=2),
+                    "; pIntn=", format(pVal$pRichGADeliveryIntn[row], digits=2), sep="")
   par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
   plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
   legend("top", horiz=T, legend=graphMain, cex=1.2, bty="n")
@@ -77,4 +98,7 @@ pVal$pAdjShannonGADeliveryIntn = p.adjust(pVal$pShannonGADeliveryIntn, method="B
 pVal$pAdjInvSimpsonGA = p.adjust(pVal$pInvSimpsonGA, method="BH")
 pVal$pAdjInvSimpsonDelivery = p.adjust(pVal$pInvSimpsonDelivery, method="BH")
 pVal$pAdjInvSimpsonGADeliveryIntn = p.adjust(pVal$pInvSimpsonGADeliveryIntn, method="BH")
-write.table(pVal, "gaDiversity_pValues.txt", sep="\t", row.names = F, col.names = T, quote=F)
+pVal$pAdjRichGA = p.adjust(pVal$pRichGA, method="BH")
+pVal$pAdjRichDelivery = p.adjust(pVal$pRichDelivery, method="BH")
+pVal$pAdjRichGADeliveryIntn = p.adjust(pVal$pRichGADeliveryIntn, method="BH")
+write.table(pVal, "gaDiversity_pValues_readCutoff.txt", sep="\t", row.names = F, col.names = T, quote=F)
