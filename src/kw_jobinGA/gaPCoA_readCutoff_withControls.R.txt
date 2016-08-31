@@ -1,0 +1,69 @@
+##draw pcoa of gastric aspirate samples, run2_r1
+##color by group (gestational age), shape by delivery mode
+##use updated normalized data
+##write pcoa axes
+##run on data with samples with reads above cutoff
+##8/30/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\GA-stools\\rdpResults\\gastricAspirate")
+
+library("vegan")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+##function that returns colors by group
+##blue = pre-term, red = term
+getColors <- function(group) {
+  colors = ifelse(group=="term", "red", "blue")
+  colors[is.na(group)] = "black"
+  return(colors)
+}
+
+##function that gets data for given taxa, plots pcoa (including sample names in lab=T) and returns pcoa axes
+drawPcoa <- function(taxa, lab) {
+  print(taxa)
+  fileName = paste("ga_taxaAsCol_logNorm_with_metadata_and_controls_readCutoff_", taxa, ".txt", sep="")
+  table <-read.table(fileName,header=TRUE,sep="\t")
+  numCols <- ncol(table)
+  table <-read.table(fileName,header=TRUE,sep="\t",
+                     colClasses=c("character", "character", rep("numeric", 3), "character", rep("numeric", numCols-6)))
+  
+  colors = getColors(table$term)
+  shapes = ifelse(table$delivery==0, 15, 17)
+  shapes[is.na(table$delivery)] = 18
+  
+  ##pcoa using vegan capscale
+  par(mar=c(4,4,4,8), xpd=T)
+  pcoa <- capscale(table[,-(1:10)]~1,distance="bray")
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], xlab="MDS1", ylab="MDS2", main=taxa, col=colors, pch=shapes)
+  
+  ##legend
+  legend("topright", inset=c(-.27,0),
+         legend=c("Pre-term", "Term", "Control", "vaginal delivery", "C-section"),
+         col=c("blue", "red", "black", "gray", "gray"),
+         pch=c(rep(16, 3), 15, 17))
+  
+  ##draw names in lab is true
+  if(lab) {
+    offset = 0.015
+    text(x=pcoa$CA$u[,1]+offset, y=pcoa$CA$u[,2]+offset, labels=sub("G", "", table$id), col=colors)
+  }
+  
+  ##return pcoa axes with metadata
+  return(cbind(table[,1:10], pcoa$CA$u))
+}
+
+##no names on plot, write out results
+pdf("pcoaGastricAspirate_readCutoff_withControls.pdf", width=8)
+for(taxa in taxaLevels) {
+  pcoa = drawPcoa(taxa, F)
+}
+dev.off()
+
+##names on plot
+pdf("pcoaGastricAspirate_readCutoff_withSampleNames_withControls.pdf", width=8)
+for(taxa in taxaLevels) {
+  pcoa = drawPcoa(taxa, T)
+}
+dev.off()

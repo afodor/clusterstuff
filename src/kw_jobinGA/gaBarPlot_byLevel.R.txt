@@ -1,0 +1,114 @@
+##stacked bar chart of gastric aspirate data
+##8/31/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\GA-stools\\rdpResults\\gastricAspirate")
+
+library(reshape2)
+library(ggplot2)
+
+cutoff = 0.001 #cutoff of ave rel abun to include in figure
+print(cutoff)
+
+##25 color palette
+c25 <- c("dodgerblue2","#E31A1C", # red
+         "green4",
+         "#6A3D9A", # purple
+         "#FF7F00", # orange
+         "black","gold1",
+         "skyblue2","#FB9A99", # lt pink
+         "palegreen2",
+         "#CAB2D6", # lt purple
+         "#FDBF6F", # lt orange
+         "gray70", "khaki2",
+         "maroon","orchid1","deeppink1","blue1","steelblue4",
+         "darkturquoise","green1","yellow4","yellow3",
+         "darkorange4","brown") #from http://stackoverflow.com/questions/9563711/r-color-palettes-for-many-data-classes
+
+
+taxaLevels = c("phylum", "class", "order", "family")#, "genus")
+
+for(taxa in taxaLevels) {
+  print(taxa)
+  fileName = paste("ga_taxaAsCol_relAbun_with_metadata_and_controls_readCutoff_", taxa, ".txt", sep="")
+  table <-read.table(fileName,header=TRUE,sep="\t")
+  numCols <- ncol(table)
+  table <-read.table(fileName,header=TRUE,sep="\t",
+                     colClasses=c("character", "character", rep("numeric", 3), "character", rep("numeric", numCols-6)))
+  rel.abun = table[,-(1:10)]
+  # rowSums(table[,-(1:10)])
+  print(ncol(table)-10)
+  
+  ##sort by average relative abundance
+  means = colMeans(rel.abun[-(10:12),]) #don't include controls; but this doesn't change the number that pass cutoff
+  ra = rel.abun[,order(means, decreasing=T)]
+  cut = ra[,colMeans(ra) > cutoff]
+  nc = ncol(cut)
+  print(nc)
+  rowSums(cut)
+  
+  ##add metadata 
+  relMeta = cbind(sampleID=table[,1], cut)
+  
+  ##get order by age for x-axis
+  df = data.frame(sampleID=table$id, ga=table$ga.totdays, delivery=table$delivery, term=table$term)
+  df = df[order(df$ga, na.last=T),]
+  ##x-axis color red for term, blue pre-term vaginal, light blue pre-term c-section, black control
+  xcol = ifelse(df$term=="term", "red", "blue")
+  xcol[is.na(df$term)] = "black"
+  xcol[df$delivery==1] = "steelblue1"
+
+  ##make plot with controls
+  relMelt = melt(relMeta, id.vars="sampleID")
+  relMelt$sampleID = factor(relMelt$sampleID, levels=df$sampleID)
+  colors = c25[1:nc]
+  plot = ggplot(relMelt, aes(x=sampleID, y=value, fill=variable)) + 
+    geom_bar(stat="identity") + 
+    scale_fill_manual(values=colors, guide=guide_legend(title=taxa)) +
+    ylim(0,1) +
+    # ggtitle(taxa) +
+    labs(x="", y = "relative abundance") +
+    theme(axis.text.x = element_text(angle=90, hjust=1, vjust=.5, size=18, colour=xcol),
+          plot.title = element_text(size=30),
+          axis.text.y = element_text(size=20),
+          axis.title = element_text(size=20),
+          legend.title=element_text(size=22), 
+          legend.text=element_text(size=22), 
+          legend.key.height=unit(30, "points"), 
+          legend.key.width=unit(20, "points"))
+  
+  w=700
+  if(nc > 13) {
+    w=1000
+  }
+  jpeg(paste("gaBarPlot_withControls_", taxa, "_", cutoff, ".jpeg", sep=""), width=w, height=500)
+  print(plot)
+  dev.off()
+  
+  ##make plot without controls
+  relMelt = melt(relMeta[-(10:12),], id.vars="sampleID")
+  relMelt$sampleID = factor(relMelt$sampleID, levels=df$sampleID)
+  colors = c25[1:nc]
+  plot = ggplot(relMelt, aes(x=sampleID, y=value, fill=variable)) + 
+    geom_bar(stat="identity") + 
+    scale_fill_manual(values=colors, guide=guide_legend(title=taxa)) +
+    ylim(0,1) +
+    # ggtitle(taxa) +
+    labs(x="", y = "relative abundance") +
+    theme(axis.text.x = element_text(angle=90, hjust=1, vjust=.5, size=18, colour=xcol),
+          plot.title = element_text(size=30),
+          axis.text.y = element_text(size=20),
+          axis.title = element_text(size=20),
+          legend.title=element_text(size=22), 
+          legend.text=element_text(size=22), 
+          legend.key.height=unit(30, "points"), 
+          legend.key.width=unit(20, "points"))
+  
+  w=600
+  if(nc > 13) {
+    w=900
+  }
+  jpeg(paste("gaBarPlot_", taxa, "_", cutoff, ".jpeg", sep=""), width=w, height=500)
+  print(plot)
+  dev.off()
+}

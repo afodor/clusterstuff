@@ -1,0 +1,90 @@
+##linear model for gastric aspirate data
+##run on data with samples with read cutoff
+##model gestational age * delivery
+##8/31/16
+
+rm(list=ls())
+
+library("pscl")
+library("lmtest")
+library("nlme")
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\GA-stools\\rdpResults\\gastricAspirate")
+
+taxaLevels <- c("phylum","class","order","family","genus")
+
+for(taxa in taxaLevels) {
+  print(taxa)
+  fileName = paste("ga_taxaAsCol_logNorm_with_metadata_readCutoff_", taxa, ".txt", sep="")
+  myT = read.table(fileName,header=TRUE,sep="\t")
+  numCols = ncol(myT)
+  myT = read.table(fileName,header=TRUE,sep="\t",colClasses=c("character", "character", rep("numeric", numCols-2)))
+  
+  ##set up output
+  names = vector()
+  meanPreTerm = vector()
+  meanTerm = vector()
+  pGA = vector()
+  pDelivery = vector()
+  pGADeliveryIntn = vector()
+  index = 1
+  
+  ####get p-values
+  for(i in 11:numCols) {
+    if(sum(myT[,i] != 0 ) > nrow(myT) / 4 ) {
+      bug <- myT[,i]
+      ga <- myT$ga.totdays
+      delivery <- factor(myT$delivery)
+      term <- factor(myT$term)
+      
+      names[index] = names(myT)[i]
+      meanPreTerm[index] = mean(bug[term=="pre-term"])
+      meanTerm[index] = mean(bug[term=="term"])
+      
+      ##interaction
+      intnModel <- lm(bug~ga*delivery)
+      pGA[index] <- anova(intnModel)$"Pr(>F)"[1]
+      pDelivery[index] <- anova(intnModel)$"Pr(>F)"[2]
+      pGADeliveryIntn[index] <- anova(intnModel)$"Pr(>F)"[3]
+      
+      index=index+1
+    }
+    
+  }
+  
+  df <- data.frame(names, meanPreTerm, meanTerm, pGA, pDelivery, pGADeliveryIntn)
+  df$pAdjGA <- p.adjust(df$pGA, method="BH")
+  df$pAdjDelivery <- p.adjust(df$pDelivery, method="BH")
+  df$pAdjGADeliveryIntn <- p.adjust(df$pGADeliveryIntn, method="BH")
+  df <- df[order(df$pGA),]
+  write.table(df, file=paste("GAotuModel_pValues_readCutoff_", taxa, ".txt",sep=""), sep="\t",row.names=FALSE, col.names=T, quote=F)
+  
+  #####plot
+  pdf(paste("GAotuModel_boxplots_readCutoff_", taxa, ".pdf", sep=""), width=12, height=4)
+  for(i in 1:nrow(df)) {
+    bug = myT[,names(myT)==df$names[i]]
+    ga = myT$ga.totdays
+    term = factor(myT$term)
+    del = factor(myT$delivery)
+    
+    graphMain =  paste(df$names[i], ": pAdjGA=", format(df$pAdjGA[i], digits=3), "\n",
+                       " pAdjDelivery= " , format(df$pAdjDelivery[i], digits=3),
+                       "; pAdjGADeliveryIntn= ", format(df$pAdjGADeliveryIntn[i], digits=3), 
+                       sep="")
+    
+    ##plots
+    colors = ifelse(term=="term", "red", "blue")
+    shapes = ifelse(myT$delivery==0, 15, 17)
+    par(mfrow=c(1,3), oma=c(.5,.5,5,.5), mar=c(4.5,4,1,1))
+    plot(x=ga, y=bug, xlab="Gestational Age (days)", ylab="relative abundance", col=colors, pch=shapes)
+    boxplot(bug~term, xlab="Term vs. pre-term", ylab="relative abundance")
+    points(bug~term, col=colors, pch=shapes)
+    boxplot(bug~del, xlab="Mode of Delivery", ylab="relative abundance")
+    points(bug~del, col=colors, pch=shapes)
+    ##label
+    par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+    plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+    legend("top", horiz=T, legend=graphMain, cex=1.2, bty="n")
+  }
+  dev.off()
+}
