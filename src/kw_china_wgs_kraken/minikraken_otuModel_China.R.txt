@@ -27,6 +27,7 @@ for(taxa in taxaLevels)
   meanUrban <- vector()
   meanRural <- vector()
   pValuesUrbanRuralWilcox <- vector()
+  r.squared <- vector()
   index <- 1
   pdf( paste("minikraken_otuModel_boxplots_", taxa, ".pdf", sep=""))
   
@@ -41,8 +42,17 @@ for(taxa in taxaLevels)
       urbanRural <- factor(table$ruralUrban)
       
       ##linear model
-      pValuesUrbanRural[index] <- anova(lm(bug~urbanRural))$`Pr(>F)`[1]
+      model = lm(bug~urbanRural)
+      pValuesUrbanRural[index] <- anova(model)$`Pr(>F)`[1]
+      r.squared[index] = summary(model)$r.squared
       names[index] = names(table)[i]
+      
+      ##my r-squared implementated
+#       fit = fitted(model)
+#       ave = mean(bug)
+#       num = (bug - fit)^2
+#       denom = (bug - ave)^2
+#       rSquared = 1 - sum(num)/sum(denom) #same as from model
       
       ##non parametric test
       pValuesUrbanRuralWilcox[index] = wilcox.test(bug~urbanRural, exact=F)$p.value
@@ -61,6 +71,7 @@ for(taxa in taxaLevels)
   dFrame$UrbanToRural <- meanUrban / meanRural
   dFrame$adjustedPurbanRural <- p.adjust( dFrame$pValuesUrbanRural, method = "BH" )
   dFrame$adjustedPurbanRuralWilcox <- p.adjust(dFrame$pValuesUrbanRuralWilcox, method="BH")
+  dFrame$r.squared = r.squared
   dFrame <- dFrame [order(dFrame$pValuesUrbanRural),]
   write.table(dFrame, file=paste("minikraken_otuModel_pValues_", taxa, ".txt", sep=""), sep="\t",row.names=FALSE)
   dev.off()
