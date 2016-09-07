@@ -246,7 +246,7 @@ datadir = "C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\China\\humann\
 levels = c("module", "pathway")
 for(lev in levels) {
   print(lev)
-  file = paste(datadir, "humann_keggAsCol_log_", lev, ".txt", sep="")
+  file = paste(datadir, "humann_keggAsCol_withRurUrb_", lev, ".txt", sep="")
   table = read.table(file, header=T, sep="\t")
   ncol = ncol(table)
   table = read.table(file, header=T, sep="\t", colClasses=c(rep("character", 2), rep("numeric", ncol-2)))
