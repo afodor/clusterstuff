@@ -1,0 +1,96 @@
+##find correlations between humann (unlogged) and minikraken
+##9/8/16
+
+rm(list=ls())
+library(Kendall)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\China\\WGS")
+
+humdir = "C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\China\\humann\\"
+krakdir = "C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\China\\minikraken\\"
+
+humlevels = c("module", "pathway")
+kraklevels = c("domain", "phylum", "class", "order", "family", "genus", "species")
+
+runComparisons <- function(table, splitCol, name, desc) {
+  len = (splitCol-2) * (ncol(table)-splitCol)
+  namesKEGG = rep(NA, len)
+  description = rep(NA, len)
+  namesMinikraken = rep(NA, len)
+  r = rep(NA, len)
+  pValues = rep(NA, len)
+  kendallP = rep(NA, len)
+  
+  index = 1
+  
+  pdf(paste("assoc_plots_", name, ".pdf",sep=""))
+  
+  for(i in 3:splitCol) {
+    if(sum(table[,i] >0 ) > nrow(table) /4) {
+      for (j in (splitCol+1):ncol(table)) {
+        if(sum(table[,j] >0 ) > nrow(table) /4) {
+          namesKEGG[index] <- names(table)[i]
+          namesMinikraken[index] <- names(table)[j]
+          description[index] <- desc$NAME[desc$sampleID==namesKEGG[index]]
+          
+          r[index] <- cor( table[,i], table[,j], method="spearman")
+          aLm <- lm(table[,i] ~ table[,j])
+          pValues[index] <- anova(aLm)$"Pr(>F)"[1]
+          kendallP[index] <- Kendall(table[,i], table[,j])$sl[1]
+          
+          if(pValues[index] < 0.05 ) { 
+            myText <- paste(namesKEGG[index], " vs. " ,namesMinikraken[index] ,"\n", "p=" ,  
+                            format(	pValues[index] , digits=3), "r=", 
+                            format( r[index], digits=3), "kendall p=" , 
+                            format( kendallP[index], digits=3)) 
+            plot(table[,j],table[,i] , main=myText, pch=16, xlab=namesMinikraken[index], ylab=namesKEGG[index],
+                 col = ifelse(table$ruralUrban == "rural", "blue", "red"))
+            abline(aLm)
+          }
+          
+          index <- index + 1
+        }
+      }
+    }
+  }
+  
+  dev.off()
+  dFrame <- data.frame(namesKEGG, description, namesMinikraken,kendallP, pLM=pValues, spearman=r) 
+  dFrame <- dFrame[1:(index-1),]
+  dFrame <- dFrame [order(dFrame$pLM),]
+  dFrame$adjKendallP <-  p.adjust(dFrame$kendallP, method = "BH")
+  dFrame$adjLMp<-  p.adjust(dFrame$pLM, method = "BH")
+  
+  write.table( file= paste("assoc_pValues_", name, ".txt", sep=""), dFrame, row.names=FALSE, sep="\t")
+}
+
+for(h in humlevels) {
+  print(h)
+  ##get table and description
+  file = paste(humdir, "humann_keggAsCol_withRurUrb_", h, ".txt", sep="")
+  humtable = read.table(file, header=T, sep="\t")
+  hncol = ncol(humtable)
+  humtable = read.table(file, header=T, sep="\t", colClasses=c(rep("character", 2), rep("numeric", hncol-2)))
+  
+  desc = read.table(paste(humdir, "humann_keggAsRow_", h, ".txt", sep=""), sep="\t", quote="", 
+                    header=T, stringsAsFactors = F)
+  
+  ##remove unneeded columns
+  humtable = humtable[,-(3:6)]
+  hncol = ncol(humtable)
+  
+  for(k in kraklevels) {
+    print(paste(" ", k))
+    ##get table and description
+    file = paste(krakdir, "minikraken_merged_taxaAsCol_logNorm_", k, ".txt", sep="")
+    kraktable = read.table(file, header=T, sep="\t")
+    kncol = ncol(kraktable)
+    kraktable = read.table(file, header=T, sep="\t", 
+                       colClasses=c("character", "numeric", "character", rep("numeric", kncol-3)))
+    ##remove unneeded columns
+    kraktable = kraktable[,-2]
+    
+    mrg = merge(humtable, kraktable, by=c("sampleID", "ruralUrban"))
+    runComparisons(mrg, hncol, paste("humann_unlog_", h, "_v_minikraken_", k, sep=""), desc)
+  }
+}
