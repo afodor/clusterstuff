@@ -1,0 +1,84 @@
+##find associations between cytokine and gastric aspirate data (using read cutoff)
+##9/8/16
+
+rm(list=ls())
+library(Kendall)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\GA-stools\\rdpResults\\gastricAspirate")
+
+cytokines = read.table("deidentified demographics - with cytokine.txt", header=T, sep="\t")
+cyt.col = 8:18 #the columns containing cytokines
+##convert to numeric, using the maximum value for values above the max
+for(c in cyt.col) {
+  cytokines[,c] = as.numeric(sub(">", "", sub("?", "", as.character(cytokines[,c]), fixed=T), fixed=T))
+}
+cytokines = cytokines[,c(1,cyt.col)]
+##get id same as microbiome tables
+cytokines$PID = paste("G", cytokines$PID, sep="")
+names(cytokines)[1] = "id"
+
+taxaLevels <- c("phylum","class","order","family","genus")
+
+for(taxa in taxaLevels) {
+  print(taxa)
+  fileName = paste("ga_taxaAsCol_logNorm_with_metadata_readCutoff_", taxa, ".txt", sep="")
+  table = read.table(fileName,header=TRUE,sep="\t")
+  numCols = ncol(table)
+  table = read.table(fileName,header=TRUE,sep="\t",colClasses=c("character", "character", rep("numeric", numCols-2)))
+  
+  mrg = merge(cytokines, table, by="id")
+  
+  ####get p-values
+  len = 10 * (ncol(mrg)-22) #number cytokines * number taxa
+  namesCytokine = rep(NA, len)
+  namesTaxa = rep(NA, len)
+  r = rep(NA, len)
+  pLM = rep(NA, len)
+  pKendall = rep(NA, len)
+  index = 1
+  
+  for(c in 2:12) { #cytokines
+    cyt = mrg[,c]
+    for(t in 22:ncol(mrg)) { #taxa
+      if(sum(mrg[,t] >0 ) > nrow(mrg) /4) {
+        bug = mrg[,t]
+        
+        namesCytokine[index] = names(mrg)[c]
+        namesTaxa[index] = names(mrg)[t]
+        
+        r[index] = cor(cyt, bug, method="spearman")
+        aLm = lm(cyt ~ bug)
+        pLM[index] = anova(aLm)$"Pr(>F)"[1]
+        pKendall[index] = Kendall(cyt, bug)$sl[1]
+        
+        index = index + 1
+      }
+    }
+  }
+  df = data.frame(cytokine=namesCytokine, taxa=namesTaxa, spearman = r, pLM, pKendall, stringsAsFactors = F)
+  df = df[1:(index-1),]
+  df = df[order(df$pLM),]
+  df$pAdjLM = p.adjust(df$pLM, method="BH")
+  df$pAdjKendall = p.adjust(df$pKendall, method="BH")
+  df$cytokine = sub(".", "-", df$cytokine, fixed=T)
+  write.table(df, paste("ga_cytokine_v_", taxa, "_readCutoff_pValues.txt", sep=""),
+              sep="\t", row.names = F, col.names = T, quote = F)
+  
+  ###plot
+  colors = ifelse(mrg$term=="term", "red", "blue")
+  shapes = ifelse(mrg$delivery==0, 15, 17)
+  pdf(paste("ga_cytokine_v_", taxa, "_readCutoff_plots.pdf", sep=""))
+  for(r in 1:nrow(df)) {
+    cyt = mrg[,names(mrg)==sub("-", ".", df$cytokine[r], fixed=T)]
+    bug = mrg[,names(mrg)==df$taxa[r]]
+    
+    title = paste(df$cytokine[r], " vs. ", df$taxa[r], "\nlinear model pAdj=",
+                  format(df$pAdjLM[r], digits=3), "; Kendall pAdj=",
+                  format(df$pAdjKendall[r], digits=3), "; spearman=",
+                  format(df$spearman[r], digits=3), sep="")
+    
+    plot(cyt ~ bug, xlab=df$taxa[r], ylab=df$cytokine[r], col=colors, pch=shapes, main=title)
+    abline(lm(cyt ~ bug))
+  }
+  dev.off()
+}
