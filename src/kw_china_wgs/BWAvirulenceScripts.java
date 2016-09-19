@@ -46,8 +46,9 @@ public class BWAvirulenceScripts {
 	 * adds the script to runall
 	 */
 	public static void writeScript(String name, String db, File fa) throws IOException {
+		String sname = "runAlignToVir_" + name;
 		BufferedWriter script = new BufferedWriter(new FileWriter(new File(
-				SCRIPT_DIR + "runAlignToVir_")));				
+				SCRIPT_DIR + sname)));				
 
 		//load needed modules
 		//script.write("#PBS -l walltime=400:00:00\n");
@@ -63,7 +64,7 @@ public class BWAvirulenceScripts {
 		script.close();
 		
 		//add to run all
-		RUNALL.write("qsub -q \"copperhead\" runAlignToVir_VFDBfull_" + name + "\n");
+		RUNALL.write("qsub -q \"copperhead\" " + sname + "\n");
 		
 	}
 
