@@ -1,0 +1,98 @@
+##model the proprotion of reads that mapped to virulence databases
+##9/20/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\China\\WGS")
+
+databases = c("VFDBcore", "VFDBfull", "MvirDB")
+ncols = c(9349, 9047, 24607)
+
+for(d in 1:length(databases)) {
+  db = databases[d]
+  print(db)
+  fname = paste(db, "_results.txt", sep="")
+#   table = read.table(fname, header=T, sep="\t", quote="")
+#   nc = ncol(table)
+#   print(nc)
+  table = read.table(fname, header=T, sep="\t", quote="", colClasses=c("character", rep("numeric", ncols[d]-1)))
+  
+  start = 5
+  names(table)[1] = "sampleID"
+  
+  ##add metadata
+  meta = read.table("..\\rdp\\genus_taxaAsColumns_relAbunFwd.txt", sep="\t", header=T,
+                    colClasses=c(rep("character", 3), rep("numeric", 347)))
+  meta = meta[meta$timepoint=="first_A",1:2]
+  meta$sampleID = gsub("_1", "", meta$sampleID)
+  table = merge(meta, table, by="sampleID")
+  
+  ##run models
+  pValuesUrbanRural <- rep(NA, ncols[d]-1)
+  mean <- rep(NA, ncols[d]-1)
+  meanUrban <- rep(NA, ncols[d]-1)
+  meanRural <- rep(NA, ncols[d]-1)
+  pValuesUrbanRuralWilcox <- rep(NA, ncols[d]-1)
+  names <- rep(NA, ncols[d]-1)
+  index <- 1
+  pdf(paste("virulence_", db, "_boxplots.pdf", sep=""))
+  
+  for(i in start:ncol(table)) {
+    if(!grepl("human", names(table)[i]) && !grepl("Human", names(table)[i]) && 
+       sum(table[,i] != 0) > nrow(table) / 4) {
+      
+      reads <- table[,i]
+      mean[index] <- mean(reads)
+      meanUrban[index] <- mean(reads[table$ruralUrban=="urban"])
+      meanRural[index] <- mean(reads[table$ruralUrban=="rural"])
+      urbanRural <- factor(table$ruralUrban)
+      names[index] = names(table)[i]
+      
+      ##linear model
+      # pValuesUrbanRural[index] <- anova(lm(reads~urbanRural))$`Pr(>F)`[1]
+      pValuesUrbanRural[index] <- t.test(reads~urbanRural)$p.value
+      
+      ##non parametric test
+      pValuesUrbanRuralWilcox[index] = wilcox.test(reads~urbanRural, exact=F)$p.value
+      #note, if don't give exact=F, get warning: cannot compute exact p-value with ties
+      
+      ##plot
+      graphMain =  paste(names[index],"\npRuralUrban= ", format(pValuesUrbanRural[index],digits=3), sep="")
+      boxplot(reads~urbanRural, main=graphMain, ylab="proportion of reads mapped", cex.main=1)
+      points(reads~urbanRural, pch=16, col=ifelse(urbanRural=="rural", "blue", "red"))
+      
+      index=index+1
+      
+    }
+  }
+  dev.off()
+  dFrame <- data.frame(names, mean, meanUrban, meanRural, pValuesUrbanRural, pValuesUrbanRuralWilcox)
+  dFrame <- dFrame[1:(index-1),]
+  dFrame$UrbanToRural <- dFrame$meanUrban / dFrame$meanRural
+  dFrame$adjustedPurbanRural <- p.adjust( dFrame$pValuesUrbanRural, method = "BH" )
+  dFrame$adjustedPurbanRuralWilcox <- p.adjust(dFrame$pValuesUrbanRuralWilcox, method="BH")
+  dFrame <- dFrame [order(dFrame$pValuesUrbanRural),]
+  write.table(dFrame, file=paste("virulence_", db, "_pValues.txt", sep=""), sep="\t",row.names=FALSE)
+  
+  ##draw proprotion of reads mapped only
+  pdf(paste("virulence_", db, "_propMapped.pdf", sep=""))
+  boxplot(table[,start]~urbanRural,
+          main=paste("proportion reads mapped to ", db, "\np = ", 
+                     format(pValuesUrbanRural[1],digits=3), "; pWilcox = ", 
+                     format(pValuesUrbanRuralWilcox[1],digits=3), sep=""), 
+          ylab="proportion of reads mapped", cex.main=1)
+  points(table[,start]~urbanRural, pch=16, col=ifelse(urbanRural=="rural", "blue", "red"))
+  dev.off()
+  
+  ##nonhuman
+  reads = table[,start+1]
+  p1 = t.test(reads~urbanRural)$p.value
+  p2 = wilcox.test(reads~urbanRural, exact=F)$p.value
+  pdf(paste("virulence_", db, "_propNonHumanMapped.pdf", sep=""))
+  boxplot(table[,start+1]~urbanRural,
+          main=paste("proportion non human reads mapped to ", db, "\np = ", 
+                     format(p1,digits=3), "; pWilcox = ", 
+                     format(p2,digits=3), sep=""), 
+          ylab="proportion of reads mapped", cex.main=1)
+  points(table[,start+1]~urbanRural, pch=16, col=ifelse(urbanRural=="rural", "blue", "red"))
+  dev.off()
+}
