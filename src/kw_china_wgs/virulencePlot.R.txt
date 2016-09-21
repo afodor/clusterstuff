@@ -1,0 +1,47 @@
+##volcano plot and p-value histogram of individual virulence genes for each database
+##9/21/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\China\\WGS")
+
+databases = c("VFDBcore", "VFDBfull", "MvirDB")
+
+for(db in databases) {
+  print(db)
+  table = read.table(paste("virulence_", db, "_pValues_withAnnot.txt", sep=""),
+                     sep="\t", quote="", header=T, 
+                     colClasses = c(rep("character",2 ), rep("numeric", 8)))
+  table = table[!grepl("proportion", table$names),]
+  print(nrow(table))
+  
+  ####volcano plot
+  urbanToRural = table$meanUrban / table$meanRural
+  ##contingency table
+  ctbl = cbind(hiUrban = c(sum(table$pValuesUrbanRural <= 0.05 & urbanToRural > 1),
+                           sum(table$pValuesUrbanRural > 0.05 & urbanToRural > 1)),
+               hiRural = c(sum(table$pValuesUrbanRural <= 0.05 & urbanToRural < 1),
+                           sum(table$pValuesUrbanRural > 0.05 & urbanToRural < 1)))
+  row.names(ctbl) = c("sig", "notSig")
+  print(ctbl)
+  ##chi square test
+  p = chisq.test(ctbl, simulate.p.value = T)$p.value
+  
+  ##volcano plot
+  colors = rep("black", nrow(table))
+  colors[table$meanUrban > table$meanRural & table$pValuesUrbanRural < 0.05] = "red"
+  colors[table$meanUrban > table$meanRural & table$pValuesUrbanRural > 0.05] = "pink"
+  colors[table$meanUrban < table$meanRural & table$pValuesUrbanRural < 0.05] = "blue"
+  colors[table$meanUrban < table$meanRural & table$pValuesUrbanRural > 0.05] = "lightblue"
+  pdf(paste("virulencePlot_volcano_", db, ".pdf", sep=""))
+  plot(x = log2(urbanToRural), y = -1*log10(table$pValuesUrbanRural),
+       xlab = "log2 urban/rural fold change", ylab= "-log10 adjusted p-values", pch=16,
+       main = paste(db, "\np =", format(p, digits = 2)), cex.lab=1.5, cex.main=1.5, col=colors, cex=.5)
+  abline(h=-log10(0.05), lty=3, col="gray")
+  abline(v=0, lty=3, col="gray")
+  dev.off()
+  
+  ##p-value histogram
+  pdf(paste("virulencePlot_pValHist_", db, ".pdf", sep=""))
+  hist(table$pValuesUrbanRural, main=db, xlab="urban/rural p-values")
+  dev.off()
+}

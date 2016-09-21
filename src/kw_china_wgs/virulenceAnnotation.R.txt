@@ -1,0 +1,54 @@
+##Annotate virulence outputs
+##9/21/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\China\\WGS")
+
+vannot = read.table("VFDB_headers.txt", header=F, sep="\t", quote="", stringsAsFactors = F)
+mannot = read.table("MvirDB_headers.txt", header=F, sep="\t", quote="", stringsAsFactors = F)
+
+####VFDB
+annotVFDB <- function(table) {
+  vToR = gsub("(", ".", gsub(")", ".", gsub(":", ".", vannot$V1)), fixed=T)#same format as R
+  names = table$names
+  annot = rep(NA, length(names))
+  for(i in 1:length(names)) {
+    row = grep(names[i], vToR)
+    if(length(row)==1) {
+      annot[i] = vannot$V1[row]
+    } else {
+      print(names[i])
+    }
+  }
+  table = cbind(names=table$names, annotation=annot, table[,-1])
+  return(table)
+}
+
+##core model
+table = read.table("virulence_VFDBcore_pValues.txt", sep="\t", header=T, stringsAsFactors = F)
+write.table(annotVFDB(table), "virulence_VFDBcore_pValues_withAnnot.txt", sep="\t", row.names = F,
+            col.names = T, quote = F)
+##full model
+table = read.table("virulence_VFDBfull_pValues.txt", sep="\t", header=T, stringsAsFactors = F)
+write.table(annotVFDB(table), "virulence_VFDBfull_pValues_withAnnot.txt", sep="\t", row.names = F,
+            col.names = T, quote = F)
+
+####MvirDB
+table = read.table("virulence_MvirDB_pValues.txt", sep="\t", header=T, stringsAsFactors = F)
+names = table$names
+mToR = gsub("|", ".", mannot$V1, fixed=T)
+annot = rep(NA, length(names))
+for(i in 1:length(names)) {
+  if(grepl("^X", names[i])) {
+    names[i] = sub("X", "", names[i])
+  }
+  row = grep(names[i], mToR)
+  if(length(row)==1) {
+    annot[i] = mannot$V1[row]
+  } else {
+    print(paste(i, names[i]))
+  }
+}
+table = cbind(names=table$names, annotation=annot, table[,-1])
+write.table(table, "virulence_MvirDB_pValues_withAnnot.txt", sep="\t", row.names = F,
+            col.names = T, quote = F)

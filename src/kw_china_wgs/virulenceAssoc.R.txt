@@ -7,7 +7,7 @@ setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\China\\WGS")
 library(Kendall)
 
 databases = c("VFDBcore", "VFDBfull", "MvirDB")
-ncols = c(9349, 9047, 24607)
+ncols = c(1059, 9047, 15263)
 start = 5
 
 ##for the given table, generates associations between the proportion of reads that aligned to the virulence database

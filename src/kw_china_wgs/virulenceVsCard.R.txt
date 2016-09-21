@@ -1,0 +1,46 @@
+##compare proprotion of reads aligned to card vs. virulence
+##9/21/16
+
+rm(list=ls())
+library(Kendall)
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\China\\WGS")
+
+card = read.table("pro_homolog_results.txt", header=T, sep="\t", quote="",
+                   colClasses=c("character", rep("numeric", 1411)))
+card = data.frame(sampleID = card$sample, cardProp = card$proportionReadsMapped)
+
+meta = read.table("..\\rdp\\genus_taxaAsColumns_relAbunFwd.txt", sep="\t", header=T,
+                  colClasses=c(rep("character", 3), rep("numeric", 347)))
+meta = meta[meta$timepoint=="first_A",1:2]
+meta$sampleID = gsub("_1", "", meta$sampleID)
+
+databases = c("VFDBcore", "VFDBfull", "MvirDB")
+ncols = c(1059, 9047, 15263)
+
+pdf("virulenceVsCard.pdf")
+for(d in 1:length(databases)) {
+  db = databases[d]
+  print(db)
+  fname = paste(db, "_results.txt", sep="")
+  vir = read.table(fname, header=T, sep="\t", quote="", colClasses=c("character", rep("numeric", ncols[d]-1)))
+  vir = data.frame(sampleID = vir$sample, virProp = vir$proportionReadsMapped)
+  mrg = merge(card, vir, by="sampleID")
+  mrg = merge(meta, mrg, by="sampleID")
+  
+  x = mrg$cardProp
+  y = mrg$virProp
+  
+  r = cor(x, y, method="spearman")
+  aLm = lm(y~x)
+  pValues = anova(aLm)$"Pr(>F)"[1]
+  kendallP = Kendall(x, y)$sl[1]
+  
+  plot(x, y, pch=16,
+       col = ifelse(mrg$ruralUrban=="rural", "blue", "red"),
+       xlab = "proportion of reads aligned to CARD",
+       ylab = "proportion of reads aligned to virulence database",
+       main = paste("CARD vs. ", db, "\nr=", format(r, digits = 3),
+                    ";pLM=", format(pValues, digits = 3), ";pKendall=",
+                    format(kendallP, digits = 3), sep=""))
+}
+dev.off()
