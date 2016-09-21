@@ -38,7 +38,6 @@ public class ParseVirulenceAlignmentResults {
 
 		//get number of reads in each file
 		double[] totReads = new double[NUM_SAMPS];
-		double[] totNonHumanReads = new double[NUM_SAMPS];
 		for(int i = 0; i < NUM_SAMPS; i++) {
 			String sample = samples[i];
 			BufferedReader fa = new BufferedReader(new FileReader(new File(
@@ -50,18 +49,20 @@ public class ParseVirulenceAlignmentResults {
 			}
 			fa.close();
 		}
-
-		//get counts (all and non-human) for each gene
-		HashMap<String, Integer[]> geneCounts = new HashMap<String, Integer[]>();
-		HashMap<String, Integer[]> nonHumGeneCounts = new HashMap<String, Integer[]>();
-		int[] numHits = new int[NUM_SAMPS];
-		int[] numNonHumanHits = new int[NUM_SAMPS];
-
+		
 		//get number of hits (only focus on protein homolog results)
 		String alignDir = DIR + "alignToVirulenceDB/";
 		String[] databases = new String[]{"VFDBfull", "VFDBcore", "MvirDB"};
 		for(String db : databases) {
 			System.out.println(db);
+			
+			//get counts (all and non-human) for each gene
+			double[] totNonHumanReads = new double[NUM_SAMPS];
+			HashMap<String, Integer[]> geneCounts = new HashMap<String, Integer[]>();
+			HashMap<String, Integer[]> nonHumGeneCounts = new HashMap<String, Integer[]>();
+			int[] numHits = new int[NUM_SAMPS];
+			int[] numNonHumanHits = new int[NUM_SAMPS];
+
 			for(int i = 0; i < samples.length; i++) {
 				String samp = samples[i];
 				//get set of reads that matched human genome
