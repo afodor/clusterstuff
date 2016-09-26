@@ -75,6 +75,7 @@ for(i in 1:length(sig)) {
   meanAbun$stoolBFplusT[i] = mean(abun[lognorm$Sample.Type=="stool" & lognorm$Group..Associated.with.=="BF+T"])
 }
 meanAbun$genera = gsub("_", " ", gsub(".", " ", meanAbun$genera, fixed=T))
+meanAbun$genera[grep("Escherichia", meanAbun$genera)] = "Escherichia/Shigella"
 
 ##heatmap variables
 ylab = c("BF-bx", "BF+bx", "BF+NF", "BF+T")
