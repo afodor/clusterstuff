@@ -62,7 +62,8 @@ public class fastqToFasta {
 			}
 			fq.close();
 			fa.close();
-			System.out.println(sID + "\t" + r + "\t" + numReads + "\t" + numIndex);
+			System.out.println(sID + "\t" + r + "\t" + numReads + "\t" + numIndex
+					+ "\t" + (100.0 * numIndex / numReads));
 		}
 	}
 }
