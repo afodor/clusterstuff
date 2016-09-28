@@ -25,7 +25,7 @@ public class AlignToMouse {
 				BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 						SCRIPTDIR + "alignToMouse_" + name)));
 				//load needed modules
-				script.write("#PBS -l walltime=400:00:00\n");
+				script.write("#PBS -l walltime=100:00:00\n");
 				script.write("module load bwa\n");
 				script.write("module load samtools\n");
 				
