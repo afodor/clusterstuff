@@ -31,7 +31,7 @@ public class AlignToMouse {
 				
 				//align
 				script.write("bwa mem " + MM10 + 
-						" " + FQDIR + d + f + " > " +
+						" " + FQDIR + d + "/" + f + " > " +
 						OUTDIR + "mm10aln." + name + ".sam\n");//command to align file
 				//get mapped reads only
 				script.write("samtools view -h -S -F 4 " + OUTDIR + "mm10aln." + name + ".sam > " 
