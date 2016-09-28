@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 
 public class IndexMM10 {
 	public static void main(String[] args) throws IOException {
@@ -22,7 +21,8 @@ public class IndexMM10 {
 		Arrays.sort(files);
 		script.write("cat");
 		for(String f : files) {
-			if(f.endsWith(".fa") && !f.contains("_") && !f.contains("random")) {
+			if(f.startsWith("chr") && f.endsWith(".fa") 
+					&& !f.contains("_") && !f.contains("random")) {
 				script.write(" " + f);
 			}
 		}
