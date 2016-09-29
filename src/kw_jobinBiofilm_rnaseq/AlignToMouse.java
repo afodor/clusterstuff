@@ -26,6 +26,7 @@ public class AlignToMouse {
 						SCRIPTDIR + "alignToMouse_" + name)));
 				//load needed modules
 				script.write("#PBS -l walltime=200:00:00\n");
+				script.write("#PBS -l mem=6GB\n");
 				script.write("module load bwa\n");
 				script.write("module load samtools\n");
 				
