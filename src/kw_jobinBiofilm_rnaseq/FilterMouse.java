@@ -23,7 +23,6 @@ public class FilterMouse {
 		File[] files = new File(ALIGNDIR).listFiles();
 		for(File f : files) {
 			if(f.getName().endsWith(".mapped.sam")) {
-				int numMapped = 0;
 				int numReads = 0;
 				String fq = "";
 				String name = f.getName().replace(".mapped.sam", "").replace("mm10aln.", "");
@@ -34,17 +33,13 @@ public class FilterMouse {
 				for(String line = mouse.readLine(); line != null; line = mouse.readLine()) {
 					if(!line.startsWith("@")) {
 						mapped.add(line.split("\t")[0]);
-						numMapped++;
 					} else if(line.startsWith("@PG")) {//get file
 						String[] sp = line.split(" ");
 						fq = sp[sp.length-1];
 					}
 				}
 				mouse.close();
-				if(numMapped != mapped.size()) {
-					throw new Exception("Different number to filter: "
-							+ name + "\t" + numMapped + "\t" + mapped.size());
-				}
+				int numMapped = mapped.size();
 				
 				//filter fastq
 				int numLeft = 0;
