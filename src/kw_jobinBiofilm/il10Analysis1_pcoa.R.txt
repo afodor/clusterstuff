@@ -5,7 +5,8 @@ rm(list=ls())
 
 library(vegan)
 
-setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\paperRequests060216\\ApcIL10")
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\paperRequests093016")
+datadir = "C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\paperRequests060216\\ApcIL10\\"
 
 taxaLevels = c("phylum", "class", "order", "family", "genus", "qiimeClosedRef", "qiimeDeNovo")
 numNumeric = c(20, 27, 48, 107, 313, 2303, 10893) #number of numeric columns
@@ -40,7 +41,7 @@ getShape <- function(time) {
 
 ##function to draw PCoA
 drawPCoA <- function(table) {
-  par(mar=c(4,4,4,8), xpd=T)
+  par(mar=c(4.3,4.3,4,8), xpd=T)
   pcoa <- capscale(table[,-(1:15)]~1,distance="bray")
   
   colors = sapply(table$Group..Associated.with., getColor, USE.NAMES = F)
@@ -58,7 +59,8 @@ drawPCoA <- function(table) {
        xlab=paste("MDS1 (", format(var[[1]], digits=0), "%)", sep=""), 
        ylab=paste("MDS2 (", format(var[[2]], digits=0), "%)", sep=""),
        main=paste("ApcMin IL10 KO", taxa), 
-       col=colors, pch=shapes)
+       col=colors, pch=shapes,
+       cex=1.7, cex.axis=1.2, cex.lab=1.7)
   
   ##legend
   groups = c("BF-bx", "BF+bx", "BF+NF", "BF+T")
@@ -81,7 +83,7 @@ for(i in 1:length(taxaLevels)) {
   taxa = taxaLevels[i]
   print(taxa)
   nn = numNumeric[i]
-  name = paste("il10Stool_", taxa, "_logNorm.txt", sep="")
+  name = paste(datadir, "il10Stool_", taxa, "_logNorm.txt", sep="")
   table = read.table(name, sep="\t", header=T, comment.char="", na.strings="N/A", 
                      colClasses=c("numeric", rep("character", 3), "numeric", rep("character", 3),
                                   "numeric", "character", "character", "numeric", "character", "character", 
@@ -96,7 +98,7 @@ for(i in 1:length(taxaLevels)) {
   taxa = taxaLevels[i]
   print(taxa)
   nn = numNumeric[i]
-  name = paste("il10DC_", taxa, "_logNorm.txt", sep="")
+  name = paste(datadir, "il10DC_", taxa, "_logNorm.txt", sep="")
   table = read.table(name, sep="\t", header=T, comment.char="", na.strings="N/A", 
                      colClasses=c("numeric", rep("character", 3), "numeric", rep("character", 3),
                                   "numeric", "character", "character", "numeric", "character", "character", 
@@ -111,7 +113,7 @@ for(i in 1:length(taxaLevels)) {
   taxa = taxaLevels[i]
   print(taxa)
   nn = numNumeric[i]
-  name = paste("il10Stool_", taxa, "_logNorm_noInoc.txt", sep="")
+  name = paste(datadir, "il10Stool_", taxa, "_logNorm_noInoc.txt", sep="")
   table = read.table(name, sep="\t", header=T, comment.char="", na.strings="N/A", 
                      colClasses=c("numeric", rep("character", 3), "numeric", rep("character", 3),
                                   "numeric", "character", "character", "numeric", "character", "character", 
@@ -126,7 +128,7 @@ for(i in 1:length(taxaLevels)) {
   taxa = taxaLevels[i]
   print(taxa)
   nn = numNumeric[i]
-  name = paste("il10DC_", taxa, "_logNorm_noInoc.txt", sep="")
+  name = paste(datadir, "il10DC_", taxa, "_logNorm_noInoc.txt", sep="")
   table = read.table(name, sep="\t", header=T, comment.char="", na.strings="N/A", 
                      colClasses=c("numeric", rep("character", 3), "numeric", rep("character", 3),
                                   "numeric", "character", "character", "numeric", "character", "character", 

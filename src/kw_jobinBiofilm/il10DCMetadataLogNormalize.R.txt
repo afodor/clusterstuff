@@ -6,7 +6,7 @@
 ##log normalize
 ##RDP and QIIME results
 ##timepoints 0, 1, 12
-##6/7/16
+##6/14/16
 
 rm(list=ls())
 setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\paperRequests060216\\ApcIL10")
@@ -18,7 +18,7 @@ closedrefdir = "C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinColl
 metadata = read.table("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\DCMetadata.txt", sep="\t", header=T, comment.char="", colClasses=c("numeric", rep("character", 3), "numeric", rep("character", 9)))
 names(metadata)[1] = "sampleID"
 
-inocID = c(18, 27, 39, 77, 91)
+inocID = c(18, 27, 39, 77, 91, 119)
 inocMeta = read.table("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\StoolMetadata.txt", sep="\t", header=T, comment.char="")
 names(inocMeta)[1] = "sampleID"
 inocMeta = inocMeta[inocMeta$sampleID %in% inocID,]
