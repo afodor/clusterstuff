@@ -41,6 +41,10 @@ public class FilterMouse {
 					}
 				}
 				mouse.close();
+				if(numMapped != mapped.size()) {
+					throw new Exception("Different number to filter: "
+							+ name + "\t" + numMapped + "\t" + mapped.size());
+				}
 				
 				//filter fastq
 				int numLeft = 0;
@@ -54,11 +58,13 @@ public class FilterMouse {
 					String line3 = fastq.readLine();
 					String line4 = fastq.readLine();
 					
-					if(!mapped.contains(line1.replace("@", ""))) {
+					String[] sp = line1.split(" ");
+					if(!mapped.contains(sp[0].replace("@", ""))) {
 						out.write(line1 + "\n" + line2 + "\n" + 
 								line3 + "\n" + line4 + "\n");
 						numLeft++;
 					}
+					numReads++;
 				}
 				
 				fastq.close();
