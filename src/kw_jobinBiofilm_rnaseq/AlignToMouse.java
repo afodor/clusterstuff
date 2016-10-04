@@ -30,13 +30,13 @@ public class AlignToMouse {
 				script.write("module load bwa\n");
 				script.write("module load samtools\n");
 				
-				/*//align
+				//align
 				script.write("bwa mem " + MM10 + 
 						" " + FQDIR + d + "/" + f + " > " +
 						OUTDIR + "mm10aln." + name + ".sam\n");//command to align file
 				//get mapped reads only
 				script.write("samtools view -h -S -F 4 " + OUTDIR + "mm10aln." + name + ".sam > " 
-						+ OUTDIR + "mm10aln." + name + ".mapped.sam\n"); //get mapped reads; use -f 4 for unmapped*/
+						+ OUTDIR + "mm10aln." + name + ".mapped.sam\n"); //get mapped reads; use -f 4 for unmapped
 				//index
 				script.write("samtools index " + OUTDIR + "mm10aln." + name + ".sam\n");
 				//get stats
