@@ -1,5 +1,5 @@
 /*
- * align reads to mouse genome
+ * align reads to silva database (large and small subunit)
  */
 package kw_jobinBiofilm_rnaseq;
 
