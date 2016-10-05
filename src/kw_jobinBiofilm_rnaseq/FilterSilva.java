@@ -38,9 +38,7 @@ public class FilterSilva {
 				//filter fastq
 				int numLeft = 0;
 				BufferedReader fastq = new BufferedReader(
-						new InputStreamReader(new GZIPInputStream(
-								new FileInputStream(new File(
-										INDIR + name + ".fastq")))));
+						new FileReader(new File(INDIR + name + ".fastq")));
 				BufferedWriter fqout = new BufferedWriter(new FileWriter(new File(
 						OUTDIR + name + ".silvaFiltered.fastq")));
 				BufferedWriter faout = new BufferedWriter(new FileWriter(new File(
