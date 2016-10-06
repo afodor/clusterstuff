@@ -48,7 +48,7 @@ public class SplitFastaWriteBlastScript {
 						BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 								SCRIPT_DIR + scriptName)));
 						script.write("#PBS -l walltime=400:00:00\n");
-						script.write("#PBS -l mem=30GB\n");
+						//script.write("#PBS -l mem=30GB\n");
 						script.write("module load blast\n");
 						script.write("blastx -outfmt 6 -db " + DB + " -query " +
 								SPLIT_DIR + newFile + ".fa" + " -out " +
@@ -86,7 +86,7 @@ public class SplitFastaWriteBlastScript {
 				BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 						SCRIPT_DIR + scriptName)));
 				script.write("#PBS -l walltime=400:00:00\n");
-				script.write("#PBS -l mem=30GB\n");
+				//script.write("#PBS -l mem=30GB\n");
 				script.write("module load blast\n");
 				script.write("blastx -outfmt 6 -db " + DB + " -query " +
 						SPLIT_DIR + newFile + ".fa" + " -out " +
