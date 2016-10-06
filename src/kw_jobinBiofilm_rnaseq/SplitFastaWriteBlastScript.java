@@ -63,7 +63,7 @@ public class SplitFastaWriteBlastScript {
 							numJobs = 0;
 						}
 						numJobs++;
-						runAll.write("qsub -q \"copperhead\" " + scriptName + "\n");
+						runAll.write("qsub -q \"Cobra_batch\" " + scriptName + "\n");
 
 						//set up new fasta file
 						fasta.close();
@@ -93,7 +93,7 @@ public class SplitFastaWriteBlastScript {
 						BLAST_DIR + "kegg_" + newFile + ".txt\n");//blast command
 				script.close();
 				//add to run all
-				runAll.write("qsub -q \"copperhead\" " + scriptName + "\n");
+				runAll.write("qsub -q \"Cobra_batch\" " + scriptName + "\n");
 				
 			}
 		}
