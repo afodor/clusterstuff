@@ -5,23 +5,22 @@ rm(list=ls())
 
 library(vegan)
 
-setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\paperRequests060216\\apc")
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\paperRequests093016")
+datadir = "C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\paperRequests060216\\apc\\"
 
 taxaLevels = c("phylum", "class", "order", "family", "genus", "qiimeClosedRef", "qiimeDeNovo")
 numNumeric = c(20, 27, 48, 107, 313, 2303, 10893) #number of numeric columns
 
-##function to get color (based on group)
-getColor <- function(group) {
-  if(group == "BF-bx") {
-    return("deepskyblue") #close alts are dodgerblue and steelblue1
-  } else if(group == "BF+bx") {
-    return("orangered3") #close alts are tomato3 and firebrick
-  } else if(group == "BF+NF") {
-    return("turquoise4") #close alt is darkcyan
-  } else if(group == "BF+T") {
-    return("orchid4") #not as good alts plum4 and mediumpurple3
+##function to get color (based on time)
+getColor <- function(time) {
+  if(time == 0) {
+    return("black")
+  } else if(time == 1) {
+    return("red")
+  } else if(time == 12) {
+    return("blue")
   } else {
-    stop(paste("Bad group:", group))
+    stop(paste("Bad time:", time))
   }
 }
 
@@ -40,10 +39,10 @@ getShape <- function(time) {
 
 ##function to draw PCoA
 drawPCoA <- function(table, main) {
-  par(mar=c(4,4,4,8), xpd=T)
+  par(mar=c(4.2,4.5,4,7), xpd=T)
   pcoa <- capscale(table[,-(1:15)]~1,distance="bray")
   
-  colors = sapply(table$Group..Associated.with., getColor, USE.NAMES = F)
+  colors = sapply(table$Timepoint..weeks., getColor, USE.NAMES = F)
   shapes = sapply(table$Timepoint..weeks., getShape, USE.NAMES = F)
   
   ##get percent variance
@@ -58,29 +57,29 @@ drawPCoA <- function(table, main) {
        xlab=paste("MDS1 (", format(var[[1]], digits=0), "%)", sep=""), 
        ylab=paste("MDS2 (", format(var[[2]], digits=0), "%)", sep=""),
        main=main, 
-       col=colors, pch=shapes)
+       col=colors, pch=shapes,
+       cex=1.7, cex.axis=1.1, cex.lab=1.7)
   
   ##legend
-  groups = c("BF-bx", "BF+bx", "BF+NF", "BF+T")
   time = sort(unique(table$Timepoint..weeks.))
   timelab = paste("week", time)
   if(time[1] == 0) {
     timelab[1] = "inoculum"
   }
-  col = sapply(groups, getColor, USE.NAMES = F)
+  col = sapply(time, getColor, USE.NAMES = F)
   sh = sapply(time, getShape, USE.NAMES = F)
-  legend("topright", inset=c(-.4,0),
-         legend=c(groups, timelab),
-         col=c(col, rep("gray", length(time))),
-         pch=c(rep(18, length(groups)), sh))
+  legend("topright", inset=c(-.3,0),
+         legend=timelab,
+         col=col,
+         pch=sh)
 }
 
-pdf("apcAnalysis4__indiv_stool_pcoa.pdf", height = 4, width=10)
+pdf("apcAnalysis4_indiv_stool_pcoa.pdf", height = 5, width=13)
 for(i in 1:length(taxaLevels)) {
   taxa = taxaLevels[i]
   print(taxa)
   nn = numNumeric[i]
-  name = paste("apcStool_", taxa, "_logNorm_noInoc.txt", sep="")
+  name = paste(datadir, "apcStool_", taxa, "_logNorm_noInoc.txt", sep="")
   table = read.table(name, sep="\t", header=T, comment.char="", na.strings="N/A", 
                      colClasses=c("numeric", rep("character", 3), "numeric", rep("character", 3),
                                   "numeric", "character", "character", "numeric", "character", "character", 

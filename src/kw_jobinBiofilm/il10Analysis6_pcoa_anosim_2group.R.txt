@@ -5,7 +5,8 @@ rm(list=ls())
 
 library(vegan)
 
-setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\paperRequests060216\\ApcIL10")
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\paperRequests093016")
+datadir = "C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\paperRequests060216\\ApcIL10\\"
 
 taxaLevels = c("phylum", "class", "order", "family", "genus", "qiimeClosedRef", "qiimeDeNovo")
 numNumeric = c(20, 27, 48, 107, 313, 2303, 10893) #number of numeric columns
@@ -21,14 +22,25 @@ getColor <- function(group) {
   }
 }
 
+##function to return outline color
+getOutline <- function(group) {
+  if(group == "BF-") {
+    return("blue") 
+  } else if(group == "BF+") {
+    return("white") 
+  } else {
+    stop(paste("Bad group:", group))
+  }
+}
+
 ##function to get shape (based on time)
 getShape <- function(time) {
   if(time == 0) {
-    return(17)
+    return(24)
   } else if(time == 1) {
-    return(15)
+    return(22)
   } else if(time == 12) {
-    return(16)
+    return(21)
   } else {
     stop(paste("Bad time:", time))
   }
@@ -36,10 +48,11 @@ getShape <- function(time) {
 
 ##function to draw PCoA
 drawPCoA <- function(table, main) {
-  par(mar=c(4,4,4,8), xpd=T)
+  par(mar=c(4.2,4.5,4,7), xpd=T)
   pcoa <- capscale(table[,-(1:15)]~1,distance="bray")
   
   colors = sapply(table$Group..Associated.with., getColor, USE.NAMES = F)
+  outlines = sapply(table$Group..Associated.with., getOutline, USE.NAMES = F)
   shapes = sapply(table$Timepoint..weeks., getShape, USE.NAMES = F)
   
   ##get percent variance
@@ -54,7 +67,8 @@ drawPCoA <- function(table, main) {
        xlab=paste("MDS1 (", format(var[[1]], digits=0), "%)", sep=""), 
        ylab=paste("MDS2 (", format(var[[2]], digits=0), "%)", sep=""),
        main=main, 
-       col=colors, pch=shapes)
+       col=outlines, bg=colors, pch=shapes,
+       cex=1.7, cex.axis=1.1, cex.lab=1.7)
   
   ##legend
   groups = c("BF-", "BF+")
@@ -64,21 +78,27 @@ drawPCoA <- function(table, main) {
     timelab[1] = "inoculum"
   }
   col = sapply(groups, getColor, USE.NAMES = F)
+  ol = sapply(groups, getOutline, USE.NAMES = F)
+  ol[ol=="white"] = "black"
   sh = sapply(time, getShape, USE.NAMES = F)
   legend("topright", inset=c(-.27,0),
          legend=c(groups, timelab),
-         col=c(col, rep("gray", length(time))),
-         pch=c(rep(18, length(groups)), sh))
+         col=c(ol, rep("gray", length(time))),
+         pt.bg=c(col, rep("gray", length(time))),
+         pch=c(rep(23, length(groups)), sh),
+         cex=1.2)
 }
 
 ##stool
 res = data.frame(level=vector(), r=vector(), p=vector())
-pdf("il10Analysis6_pcoa_stool_2group.pdf")
+h=6.5
+w=6.7
+pdf("il10Analysis6_pcoa_stool_2group.pdf", height=h, width=w)
 for(i in 1:length(taxaLevels)) {
   taxa = taxaLevels[i]
   print(taxa)
   nn = numNumeric[i]
-  name = paste("il10Stool_", taxa, "_logNorm_noInoc.txt", sep="")
+  name = paste(datadir, "il10Stool_", taxa, "_logNorm_noInoc.txt", sep="")
   table = read.table(name, sep="\t", header=T, comment.char="", na.strings="N/A", 
                      colClasses=c("numeric", rep("character", 3), "numeric", rep("character", 3),
                                   "numeric", "character", "character", "numeric", "character", "character", 
@@ -98,12 +118,12 @@ write.table(res, "il10Analysis6_anosim_stool.txt", sep="\t", quote=F, row.names=
 
 ##DC from 2 groups
 res = data.frame(level=vector(), r=vector(), p=vector())
-pdf("il10Analysis6_pcoa_dc_2group.pdf")
+pdf("il10Analysis6_pcoa_dc_2group.pdf", height=h, width=w)
 for(i in 1:length(taxaLevels)) {
   taxa = taxaLevels[i]
   print(taxa)
   nn = numNumeric[i]
-  name = paste("il10DC_", taxa, "_logNorm_noInoc.txt", sep="")
+  name = paste(datadir, "il10DC_", taxa, "_logNorm_noInoc.txt", sep="")
   table = read.table(name, sep="\t", header=T, comment.char="", na.strings="N/A", 
                      colClasses=c("numeric", rep("character", 3), "numeric", rep("character", 3),
                                   "numeric", "character", "character", "numeric", "character", "character", 
