@@ -29,7 +29,7 @@ public class HisatAlignToMouse {
 				r1 = 1;
 				r2 = 0;
 			}
-			String name = fqs[r1].replace("_R1_001.fastq.gz", "");
+			String name = fqs[r1].replaceFirst("_S[1-6]_L001_R1_001.fastq.gz", "");
 			BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 					SCRIPTDIR + "hisatAlignToMouse_" + name)));
 			//load needed modules
