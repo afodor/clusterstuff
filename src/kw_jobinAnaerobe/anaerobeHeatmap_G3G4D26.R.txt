@@ -1,0 +1,73 @@
+##generate heatmap for groups 3 and 4 day 26 
+##significant genera + campy
+##10/11/16
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\C jejuni anaerobe v aerobe\\rdpResults")
+
+library(ggplot2)
+
+pTable = read.table("anaerobeStool_otuModel_pValues_genus_G3G4D26_withFoldChange.txt", header=T, sep="\t")
+sig = pTable[pTable$pAdjGroup < 0.05,]
+sig = rbind(sig, pTable[pTable$names=="Campylobacter",])
+sig = sig[order(sig$pGroup),]
+sig$names = gsub(".", " ", sig$names, fixed=T)
+
+# heatmap(cbind(sig$meanGroup3, sig$meanGroup4), Colv=NA, Rowv = NA,
+#         labRow = sig$names, labCol=c("Aero", "Anaero"))
+
+max = max(c(sig$meanGroup3, sig$meanGroup4))
+ySize = 15
+xSize = 15
+
+cols = rep("black", nrow(sig))
+cols[sig$names=="Campylobacter"] = "red"
+green = c("Clostridium XI", "Bifidobacterium", "Lactobacillus", "Butyricicoccus", "Roseburia")
+cols[sig$names %in% green] = "forestgreen"
+
+##for the given p-value, return the correct number of stars
+getStars <- function(pval) {
+  if(pval < 1e-5) {
+    return("*****")
+  } else if(pval >= 1e-5 && pval < 1e-4) {
+    return("****")
+  } else if(pval >= 1e-4 && pval < 0.001) {
+    return("***")
+  } else if(pval >= 0.001 && pval < 0.01) {
+    return("**")
+  } else if(pval >= 0.01 && pval < 0.05) {
+    return("*")
+  } else {
+    return("")
+  }
+}
+stars = sapply(sig$pAdjGroup, getStars)
+
+##stars as own column
+# df = data.frame(genera=rep(sig$names, 3), 
+#                 variable=c(rep("Aero", nrow(sig)), rep("Anaero", nrow(sig)), rep("", nrow(sig))), 
+#                 value=c(sig$meanGroup3, sig$meanGroup4, rep(0, nrow(sig))),
+#                 stars=c(rep("", nrow(sig)*2), stars))
+# df$genera = factor(df$genera, levels=as.character(sig$names))
+
+df = data.frame(genera=rep(sig$names, 2), 
+                variable=c(rep("Aero", nrow(sig)), rep("Anaero", nrow(sig))), 
+                value=c(sig$meanGroup3, sig$meanGroup4),
+                stars=c(rep("", nrow(sig)), stars))
+df$genera = factor(df$genera, levels=as.character(sig$names))
+tiff("anaerobeHeatmap_G3G4D26.tif", res=300, height=1500, width=2000)
+ggplot(df, aes(x=variable, y=genera, label=df$stars)) + 
+  geom_tile(aes(fill=value)) + 
+  scale_fill_gradient(low="white", high="darkgreen", limits=c(0, max), na.value="lightgray", name="mean log\nnormalized\nabundance") + 
+  scale_x_discrete(name="") +
+  scale_y_discrete(name="") +
+  # guides(fill=F) +
+  theme(axis.text.y=element_text(size=ySize, vjust=.5, hjust=1, colour="black"), 
+        axis.text.x=element_text(size=xSize, angle=90, vjust=.5, hjust=1, colour=cols),
+        panel.grid.major = element_blank(),
+        axis.line = element_blank(),
+        axis.ticks.y = element_blank()) + 
+  geom_text(angle=90, size=10, vjust=.6, hjust=.5) +
+  coord_flip()
+dev.off()

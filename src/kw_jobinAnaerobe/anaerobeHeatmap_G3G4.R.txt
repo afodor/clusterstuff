@@ -1,0 +1,85 @@
+##generate heatmap for groups 3 and 4, both days
+##significant genera + campy
+##10/11/16
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\C jejuni anaerobe v aerobe\\rdpResults")
+
+library(ggplot2)
+
+pTable = read.table("anaerobeStool_otuModel_pValues_genus_G3G4D26_withFoldChange.txt", header=T, sep="\t")
+sig = pTable[pTable$pAdjGroup < 0.05,]
+sig = rbind(sig, pTable[pTable$names=="Campylobacter",])
+sig = sig[order(sig$pGroup),]
+
+##get means
+abun = read.table("stool_genus_taxaAsCol_logNorm_G3G4.txt", header=T, sep="\t",
+                  colClasses=c(rep("character", 3), rep("numeric", 4), rep("character", 6), rep("numeric", 119)))
+g3d14 = rep(NA, nrow(sig))
+g3d26 = rep(NA, nrow(sig))
+g4d14 = rep(NA, nrow(sig))
+g4d26 = rep(NA, nrow(sig))
+for(i in 1:nrow(sig)) {
+  name = sig$names[i]
+  g3d14[i] = mean(abun[abun$Group==3 & abun$Timepoint..day==14, names(abun)==name])
+  g3d26[i] = mean(abun[abun$Group==3 & abun$Timepoint..day==26, names(abun)==name])
+  g4d14[i] = mean(abun[abun$Group==4 & abun$Timepoint..day==14, names(abun)==name])
+  g4d26[i] = mean(abun[abun$Group==4 & abun$Timepoint..day==26, names(abun)==name])
+}
+
+##fix names
+sig$names = gsub(".", " ", sig$names, fixed=T)
+
+max = max(g3d14, g3d26, g4d14, g4d26)
+ySize = 15
+xSize = 15
+
+cols = rep("black", nrow(sig))
+cols[sig$names=="Campylobacter"] = "red"
+green = c("Clostridium XI", "Bifidobacterium", "Lactobacillus", "Butyricicoccus", "Roseburia")
+cols[sig$names %in% green] = "forestgreen"
+
+##for the given p-value, return the correct number of stars
+getStars <- function(pval) {
+  if(pval < 1e-5) {
+    return("*****")
+  } else if(pval >= 1e-5 && pval < 1e-4) {
+    return("****")
+  } else if(pval >= 1e-4 && pval < 0.001) {
+    return("***")
+  } else if(pval >= 0.001 && pval < 0.01) {
+    return("**")
+  } else if(pval >= 0.01 && pval < 0.05) {
+    return("*")
+  } else {
+    return("")
+  }
+}
+stars = sapply(sig$pAdjGroup, getStars)
+
+df = data.frame(genera=rep(sig$names, 5), 
+                variable=c(rep("Aero D14", nrow(sig)), rep("Aero D26", nrow(sig)), 
+                           rep("Anaero D14", nrow(sig)), rep("Anaero D26", nrow(sig)),
+                           rep("", nrow(sig))), 
+                value=c(g3d14,g3d26, g4d14, g4d26, rep(0, nrow(sig))),
+                stars=c(rep("", nrow(sig)*4), stars))
+df$genera = factor(df$genera, levels=as.character(sig$names))
+# df$variable = factor(df$variable, levels=rev(c("Aero D14", "Aero D26", "Anaero D14", "Anaero D26", "")))
+df$variable = factor(df$variable, levels=rev(c("Aero D14", "Anaero D14", "Aero D26", "Anaero D26", "")))
+tiff("anaerobeHeatmap_G3G4.tif", res=300, height=1800, width=2100)
+ggplot(df, aes(x=variable, y=genera, label=df$stars)) + 
+  geom_tile(aes(fill=value)) + 
+  scale_fill_gradient(low="white", high="darkgreen", limits=c(0, max), na.value="lightgray", name="mean log\nnormalized\nabundance") + 
+  scale_x_discrete(name="") +
+  scale_y_discrete(name="") +
+  # guides(fill=F) +
+  theme(axis.text.y=element_text(size=ySize, vjust=.5, hjust=1, colour="black"), 
+        axis.text.x=element_text(size=xSize, angle=90, vjust=.5, hjust=1, colour=cols),
+        panel.grid.major = element_blank(),
+        axis.line = element_blank(),
+        axis.ticks.y = element_blank()) + 
+  geom_text(angle=90, size=9, vjust=.6, hjust=.5) +
+  coord_flip() +
+  geom_vline(xintercept=3.5)
+dev.off()

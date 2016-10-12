@@ -1,0 +1,64 @@
+##PCoA of anaerobe data
+##no controls, group 3 and 4, both days
+##color by group
+##10/11/16
+
+rm(list=ls())
+
+library(vegan)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\C jejuni anaerobe v aerobe\\rdpResults")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+pdf("anaerobePCoA_G3G4.pdf", width=8, height=7)
+for(taxa in taxaLevels) {
+  print(taxa)
+  fname = paste("stool_", taxa, "_taxaAsCol_logNorm_G3G4.txt", sep="")
+  table = read.table(fname, sep="\t", header=T)
+  nc = ncol(table)
+  cc = c(rep("character", 3), rep("numeric", 4), rep("character", 6), rep("numeric", nc-13))
+  table = read.table(fname, sep="\t", header=T, colClasses=cc)
+  
+  ##pcoa using vegan capscale
+  par(mar=c(4.5,4.5,4,10), xpd=T)
+  pcoa <- capscale(table[,-(1:14)]~1,distance="bray")
+  col = ifelse(table$Group==3, "blue", "red")
+  # ol = ifelse(table$Group==3, "lightblue", "pink")
+  ol = "white"
+  # shapes = ifelse(table$Timepoint..day==14, 16, 17)
+  shapes = ifelse(table$Timepoint..day==14, 21, 24)
+  
+  ##get percent variance
+  eig = eigenvals(pcoa)
+  if(any(eig<0)) {#need to check there are no negatives
+    warning(paste("NEGATIVE EIGENVALUES-percent variance is incorrect for ", taxa, sep=""))
+  }
+  # cumsum(eig/sum(eig))
+  var = eig/sum(eig)*100 
+  
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], 
+       xlab=paste("MDS1 (", format(var[[1]], digits=0), "%)", sep=""), 
+       ylab=paste("MDS2 (", format(var[[2]], digits=0), "%)", sep=""), 
+       main=taxa, 
+       col=ol, bg=col, pch=shapes, cex=2,
+       cex.axis=1.5, cex.lab=1.5)
+  
+  ##legends
+  legend("topright", inset=c(-.35,0),
+         legend=c("Aero", expression("Aero + "~italic("C. jejuni")),
+                  "Anaero", expression("Anaero + "~italic("C. jejuni"))),
+         col=c("blue", "blue", "red", "red"),
+         pch=c(16, 17, 16, 17))
+  times = sort(unique(table$Timepoint..day))
+  groups = sort(unique(table$Group))
+  sh = ifelse(times==14, 16, 17)
+  col = ifelse(groups==3, "blue", "red")
+  ol = ifelse(groups==3, "lightblue", "pink")
+  legend("topright", inset=c(-.27,.2),
+         legend=c(groups, paste("Day", times)),
+         col=c(col, rep("gray", length(times))),
+         pt.bg=c(ol, rep(NA, length(times))),
+         pch=c(rep(15, length(groups)), sh))
+}
+dev.off()
