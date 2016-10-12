@@ -1,0 +1,31 @@
+##generate supplemental table
+##10/12/16
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\C jejuni anaerobe v aerobe\\rdpResults")
+
+pTable = read.table("anaerobeStool_otuModel_pValues_genus_G3G4D26_withFoldChange.txt", header=T, sep="\t")
+
+##get means
+abun = read.table("stool_genus_taxaAsCol_logNorm_G3G4.txt", header=T, sep="\t",
+                  colClasses=c(rep("character", 3), rep("numeric", 4), rep("character", 6), rep("numeric", 119)))
+g3d14 = rep(NA, nrow(pTable))
+g3d26 = rep(NA, nrow(pTable))
+g4d14 = rep(NA, nrow(pTable))
+g4d26 = rep(NA, nrow(pTable))
+for(i in 1:nrow(pTable)) {
+  name = pTable$names[i]
+  g3d14[i] = mean(abun[abun$Group==3 & abun$Timepoint..day==14, names(abun)==name])
+  g3d26[i] = mean(abun[abun$Group==3 & abun$Timepoint..day==26, names(abun)==name])
+  g4d14[i] = mean(abun[abun$Group==4 & abun$Timepoint..day==14, names(abun)==name])
+  g4d26[i] = mean(abun[abun$Group==4 & abun$Timepoint..day==26, names(abun)==name])
+}
+
+##fix names
+pTable$names = gsub(".", " ", pTable$names, fixed=T)
+pTable$names[pTable$names=="Escherichia Shigella"] = "Escherichia/Shigella"
+
+results = data.frame(genera=pTable$names, g3d14, g3d26, g4d14, g4d26, 
+                     pGroup=pTable$pGroup, pAdjGroup=pTable$pAdjGroup)
+write.table(results, "anaerobeTable.txt", sep="\t", quote=F, row.names = F, col.names = T)

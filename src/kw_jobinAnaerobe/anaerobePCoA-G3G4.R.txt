@@ -9,9 +9,11 @@ library(vegan)
 
 setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\C jejuni anaerobe v aerobe\\rdpResults")
 
-taxaLevels = c("phylum", "class", "order", "family", "genus")
+# taxaLevels = c("phylum", "class", "order", "family", "genus")
+taxaLevels = "genus"
 
-pdf("anaerobePCoA_G3G4.pdf", width=8, height=7)
+# pdf("anaerobePCoA_G3G4.pdf", width=8, height=7)
+tiff("anaerobePCoA_G3G4.tif", res=300, height=2000, width=2400)
 for(taxa in taxaLevels) {
   print(taxa)
   fname = paste("stool_", taxa, "_taxaAsCol_logNorm_G3G4.txt", sep="")
@@ -55,7 +57,7 @@ for(taxa in taxaLevels) {
   sh = ifelse(times==14, 16, 17)
   col = ifelse(groups==3, "blue", "red")
   ol = ifelse(groups==3, "lightblue", "pink")
-  legend("topright", inset=c(-.27,.2),
+  legend("topright", inset=c(-.27,.21),
          legend=c(groups, paste("Day", times)),
          col=c(col, rep("gray", length(times))),
          pt.bg=c(ol, rep(NA, length(times))),
