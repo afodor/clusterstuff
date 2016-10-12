@@ -23,9 +23,15 @@ public class HisatAlignToMouse {
 		String[] dirs = new File(FQDIR).list();
 		for(String d : dirs) {
 			String[] fqs = new File(FQDIR + d).list();
-			String name = fqs[0].replace("_001.fastq.gz", "");
+			int r1 = 0;//index of read1
+			int r2 = 1;//index of read2
+			if(!fqs[r1].contains("_R1_")) {
+				r1 = 1;
+				r2 = 0;
+			}
+			String name = fqs[r1].replace("_R1_001.fastq.gz", "");
 			BufferedWriter script = new BufferedWriter(new FileWriter(new File(
-					SCRIPTDIR + "hsatAlignToMouse_" + name)));
+					SCRIPTDIR + "hisatAlignToMouse_" + name)));
 			//load needed modules
 			script.write("#PBS -l walltime=100:00:00\n");
 			script.write("#PBS -l mem=10GB\n");
@@ -33,12 +39,12 @@ public class HisatAlignToMouse {
 
 			//align
 			script.write(HISATDIR + "hisat2 -q -p " + NUM_THREADS + 
-					" -x " + REF + " -1 " + fqs[0] + " -2 " + fqs[1] +
-					" -S " + OUTDIR + name +".sam"
+					" -x " + REF + " -1 " + fqs[r1] + " -2 " + fqs[r2] +
+					" -S " + OUTDIR + name +".hisatMouse.sam"
 					+ "\n");
 
 			//add to run all
-			runAll.write("qsub -q \"copperhead\" hsatAlignToMouse_" + name + "\n");
+			runAll.write("qsub -q \"copperhead\" hisatAlignToMouse_" + name + "\n");
 
 			script.close();
 		}
