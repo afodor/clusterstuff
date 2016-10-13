@@ -123,11 +123,11 @@ public class DemultiplexToFaFq {
 			line = br.readLine();
 		}
 		br.close();
-		Iterator<String> itSet = pToSamp.keySet().iterator();
+		/*Iterator<String> itSet = pToSamp.keySet().iterator();
 		while(itSet.hasNext()) {
 			String p = itSet.next();
 			System.out.println(p + "\t" + pToSamp.get(p));
-		}
+		}*/
 		
 		//add extra "other" file for unmatched reads
 		BufferedWriter[] fas = {new BufferedWriter(new FileWriter(new File(DIR + File.separator + "fastas" + File.separator + "other_R1.fasta"))),
@@ -135,7 +135,7 @@ public class DemultiplexToFaFq {
 		sToFa.put("other", fas);
 		BufferedWriter[] fqs = {new BufferedWriter(new FileWriter(new File(DIR + File.separator + "fastqs" + File.separator + "other_R1.fastq"))),
 				new BufferedWriter(new FileWriter(new File(DIR + File.separator + "fastqs" + File.separator + "other_R2.fastq")))};
-		sToFa.put("other", fqs);
+		sToFq.put("other", fqs);
 		
 		//read fastq file
 		//convert each read to fast and determine the correct read
