@@ -119,7 +119,7 @@ public class DemultiplexToFaFq {
 			sToFq.put(samp, fqs);
 			BufferedWriter[] fas = {new BufferedWriter(new FileWriter(new File(DIR + File.separator + "fastas" + File.separator + samp + "_R1.fasta"))),
 					new BufferedWriter(new FileWriter(new File(DIR + File.separator + "fastas" + File.separator + samp + "_R2.fasta")))};
-			sToFq.put(samp, fas);
+			sToFa.put(samp, fas);
 			line = br.readLine();
 		}
 		br.close();
