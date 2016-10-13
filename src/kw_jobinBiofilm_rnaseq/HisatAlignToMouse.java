@@ -39,9 +39,9 @@ public class HisatAlignToMouse {
 
 			//align
 			script.write(HISATDIR + "hisat2 -q -p " + NUM_THREADS + 
-					" -x " + REF + " -1 " + fqs[r1] + " -2 " + fqs[r2] +
-					" -S " + OUTDIR + name +".hisatMouse.sam"
-					+ "\n");
+					" -x " + REF + " -1 " + FQDIR + d + File.separator + fqs[r1] + 
+					" -2 " + FQDIR + d + File.separator + fqs[r2] +
+					" -S " + OUTDIR + name +".hisatMouse.sam\n");
 
 			//add to run all
 			runAll.write("qsub -q \"copperhead\" hisatAlignToMouse_" + name + "\n");
