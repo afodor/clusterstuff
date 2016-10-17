@@ -58,6 +58,7 @@ getStars <- function(pval) {
 }
 stars = sapply(sig$pAdjGroup, getStars)
 
+##horizontal
 df = data.frame(genera=rep(sig$names, 5), 
                 variable=c(rep("Aero D14", nrow(sig)), rep("Aero D26", nrow(sig)), 
                            rep("Anaero D14", nrow(sig)), rep("Anaero D26", nrow(sig)),
@@ -82,4 +83,31 @@ ggplot(df, aes(x=variable, y=genera, label=df$stars)) +
   geom_text(angle=90, size=9, vjust=.6, hjust=.5) +
   coord_flip() +
   geom_vline(xintercept=3.5)
+dev.off()
+
+##vertical
+df = data.frame(genera=rep(sig$names, 5), 
+                variable=c(rep("Aero D14", nrow(sig)), rep("Aero D26", nrow(sig)), 
+                           rep("Anaero D14", nrow(sig)), rep("Anaero D26", nrow(sig)),
+                           rep("P", nrow(sig))), 
+                value=c(g3d14,g3d26, g4d14, g4d26, rep(0, nrow(sig))),
+                stars=c(rep("", nrow(sig)*4), stars))
+df$genera = factor(df$genera, levels=rev(as.character(sig$names)))
+df$variable = factor(df$variable, levels=c("Aero D14", "Anaero D14", "Aero D26", "Anaero D26", "P"))
+tiff("anaerobeHeatmap_G3G4_vertical.tif", res=300, height=2000, width=2000)
+ggplot(df, aes(x=variable, y=genera, label=df$stars)) + 
+  geom_tile(aes(fill=value)) + 
+  scale_fill_gradient(low="white", high="darkgreen", limits=c(0, max), na.value="lightgray", name="mean log\nnormalized\nabundance") + 
+  scale_x_discrete(name="") +
+  scale_y_discrete(name="") +
+  # guides(fill=F) +
+  theme(axis.text.y=element_text(size=ySize, vjust=.5, hjust=1, colour=rev(cols)), 
+        axis.text.x=element_text(size=xSize, angle=90, vjust=.5, hjust=1, colour="black"),
+        panel.grid.major = element_blank(),
+        axis.line = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.text=element_text(size=15),
+        legend.title=element_text(size=12)) + 
+  geom_text(size=8, vjust=.6, hjust=.5) +
+  geom_vline(xintercept=2.5)
 dev.off()
