@@ -1,0 +1,103 @@
+##add metadata and split files
+##histogram of number of reads
+##10/14/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\APC tumors\\rdpQiimeAnalysis")
+
+meta = read.table("..\\ApcTumorMetadata.txt", sep="\t", header=T, comment.char = "", stringsAsFactors = F)
+meta = meta[,c(3,9:26)]
+names(meta)[1] = "sampleID"
+apcAll = meta[1:87,]
+miceAll = apcAll[!grepl("water", apcAll$sampleID) & !grepl("PCR", apcAll$sampleID),]
+apc = miceAll[grepl("ApcMin", miceAll$Endpt.Genotype),]
+pancAll = meta[88:105,]
+panc = pancAll[!grepl("zymo", pancAll$sampleID) & !grepl("PCR", pancAll$sampleID) &
+                 !grepl("water", pancAll$sampleID),]
+pancCtrl = pancAll[!(pancAll$sampleID %in% panc$sampleID),]
+
+##RDP
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+pdf("RDP_apc_readHistogram.pdf", height=3, width=10)
+par(mfrow=c(1,3))
+for(taxa in taxaLevels) {
+  print(taxa)
+  table = read.table(paste("rdp_", taxa, ".txt", sep=""), sep="\t")
+  
+  ##transpose
+  write.table(t(table), paste("rdp_", taxa, "_taxaAsCol.txt", sep=""), sep="\t", row.names = F, col.names = F, quote = F)
+  table = read.table(paste("rdp_", taxa, "_taxaAsCol.txt", sep=""), sep="\t", header=T, stringsAsFactors = F)
+  
+  ##fix control names
+  table$sampleID = gsub("_", " ", table$sampleID)
+  table$sampleID = sub("water ext", "(water ext.)", table$sampleID)
+  
+  ##add number of reads
+  numReads = rowSums(table[,-(1:3)])
+  table = data.frame(table[,1:3], numReads, table[,4:ncol(table)], stringsAsFactors = F)
+  
+  ##add metadata and split, write tables
+  write.table(merge(apcAll, table, by="sampleID"), paste("allMiceWithCtrls_", taxa, "_taxaAsColWithMeta.txt", sep=""),
+              row.names = F, col.names = T, quote = F, sep="\t")
+  apcTab = merge(apc, table, by="sampleID")
+  write.table(apcTab, paste("apc_", taxa, "_taxaAsColWithMeta.txt", sep=""),
+              row.names = F, col.names = T, quote = F, sep="\t")
+  write.table(merge(panc, table, by="sampleID"), paste("pancBiopsy_", taxa, "_taxaAsColWithMeta.txt", sep=""),
+              row.names = F, col.names = T, quote = F, sep="\t")
+  write.table(merge(pancCtrl, table, by="sampleID"), paste("ctrlsForPanc_", taxa, "_taxaAsColWithMeta.txt", sep=""),
+              row.names = F, col.names = T, quote = F, sep="\t")
+  
+  ##histogram
+  hist(apcTab$numReads[apcTab$read=="R1"], main=paste(taxa, ": R1", sep=""), xlab="number of reads in ApcMin samples")
+  hist(apcTab$numReads[apcTab$read=="R2"], main=paste(taxa, ": R2", sep=""), xlab="number of reads in ApcMin samples")
+  hist(apcTab$numReads[apcTab$read=="stitch"], main=paste(taxa, ": stitched reads", sep=""), xlab="number of reads in ApcMin samples")
+  print(min(apcTab$numReads))
+}
+dev.off()
+
+####QIIME
+pdf("qiime_apc_readHistogram.pdf", height=3, width=4)
+# fileNames = c("apcTumor_de_novo_otu_chimeraFiltered_L6.txt", "apcTumor_close_ref_otu_L6.txt")
+fileNames = c("apcTumor_de_novo_otu_chimeraFiltered.txt", "apcTumor_close_ref_otu.txt")
+outNames = c("qiimeDeNovo", "qiimeClosedRef")
+for(i in 1:length(fileNames)) {
+  print(fileNames[i])
+  table = read.table(fileNames[i], sep="\t", header=T, skip=1, comment.char = "")
+  
+  ##replace OTU ID with taxonomy
+  table[,1] = table[,ncol(table)]
+  table = table[,-ncol(table)]
+  names(table)[1] = "sampleID"
+  
+  ##filter otus absent in > 1/4 samples (de novo table is >30000 otus)
+  getNumZeroes<-function(row) {return(sum(table[row,]==0))}
+  numZeroes = sapply(1:nrow(table), getNumZeroes)
+  keep = numZeroes < (ncol(table)-1)/4
+  print(nrow(table)-1)
+  print(sum(keep))
+  table = table[keep,]
+  
+  ##transpose
+  write.table(t(table), paste("qiime_", outNames[i], "_taxaAsColFiltered.txt", sep=""), sep="\t", row.names = T, col.names = F, quote = F)
+  table = read.table(paste("qiime_", outNames[i], "_taxaAsColFiltered.txt", sep=""), sep="\t", header=T, stringsAsFactors = F)
+  
+  ##fix sample IDs
+  table$sampleID = sub("X", "", table$sampleID)
+  
+  ##add number of reads, fileName and read number so same as RDP tables
+  numReads = rowSums(table[,-1])
+  table = data.frame(sampleID=table[,1], 
+                     fileName=rep(NA, nrow(table)),
+                     read = rep("stitch", nrow(table)),
+                     numReads, table[,2:ncol(table)], stringsAsFactors = F)
+  
+  ##add metadata and split, write tables
+  apcTab = merge(apc, table, by="sampleID")
+  write.table(apcTab, paste("apc_", outNames[i], "_taxaAsColWithMeta.txt", sep=""),
+              row.names = F, col.names = T, quote = F, sep="\t")
+  
+  ##histogram
+  hist(apcTab$numReads, main=outNames[i], xlab="number of reads in ApcMin samples")
+  print(min(apcTab$numReads))
+}
+dev.off()

@@ -1,0 +1,39 @@
+##histogram of p-values from linear model of each variable separate
+##10/17/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\APC tumors\\rdpQiimeAnalysis")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus", "qiimeDeNovo", "qiimeClosedRef")
+
+pdf("apcTumorOTUmodel_separatedVariables_pValueHistogram.pdf", height=9, width=15)
+for(taxa in taxaLevels) {
+  print(taxa)
+  table = read.table(paste("apcTumorOTUmodel_separatedVariables_pValues_", taxa, ".txt", sep=""), sep="\t",
+                     header=T, stringsAsFactors = F)
+  
+  par(mfrow=c(3,3), oma=c(.5,.5,2,.5), mar=c(4.8,4,1,1))
+  hist(table$pColonTumorNumber, xlab="p-values", main="Colon Tumor Number")
+  hist(table$pCecum, xlab="p-values", main="Cecum Tumor Number")
+  hist(table$pSmallIntestine, xlab="p-values", main="Small Intestine Tumor Number")
+  hist(table$pCombinedInflammationScore, xlab="p-values", main="Combined Inflammation Score")
+  hist(table$pProximal, xlab="p-values", main="Proximal Inflammation Score")
+  hist(table$pDistal, xlab="p-values", main="Distal Inflammation Score")
+  hist(table$pAge, xlab="p-values", main="End Age")
+  hist(table$pCage, xlab="p-values", main="Cage")
+  
+  ##add title
+  par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+  plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+  legend("top", horiz=T, legend=taxa, cex=1.1, bty="n")
+}
+dev.off()
+
+##also look at correlations between variables
+meta = table = read.table("apc_phylum_logNorm.txt", sep="\t", header=T, stringsAsFactors = F)
+meta = meta[,c(4:9,16)]
+meta$Small.intestine = as.numeric(gsub("?", "", meta$Small.intestine, fixed=T))
+pdf("variableCorrelations.pdf", height=9, width=9)
+pairs(meta)
+dev.off()
+write.table(cor(meta, method="spearman"), "variableCorrelations_spearman.txt", sep="\t", quote=F, col.names = NA)

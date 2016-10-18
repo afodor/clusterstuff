@@ -1,0 +1,26 @@
+##get diversity values for ApcMin IL10 KO samples
+##10/18/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\APC tumors\\rdpQiimeAnalysis")
+
+library(vegan)
+
+taxaLevels = c("phylum", "class", "order", "family", "genus", "qiimeDeNovo", "qiimeClosedRef")
+
+for(taxa in taxaLevels) {
+  print(taxa)
+  table = read.table(paste("apc_", taxa, "_taxaAsColWithMeta.txt", sep=""), sep="\t", header=T, stringsAsFactors = F)
+  
+  minReads = min(table$numReads)
+  print(paste("Number taxa:", ncol(table)-22))
+  print(paste("Min reads for rarefaction:", minReads))
+  
+  shannon = diversity(table[,-(1:22)], index="shannon")
+  inverseSimpson = diversity(table[,-(1:22)], index="invsimpson")
+  richness = rarefy(table[,-(1:22)], minReads)
+  evenness = shannon/log(richness)
+  write.table(data.frame(table[,1:22], shannon, inverseSimpson, richness, evenness),
+              paste("apcTumorDiversity_", taxa, ".txt", sep=""),
+              sep="\t", row.names = F, col.names = T, quote = F)
+}

@@ -1,0 +1,158 @@
+##diversity model for each variable separately
+##10/18/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\APC tumors\\rdpQiimeAnalysis")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus", "qiimeDeNovo", "qiimeClosedRef")
+
+for(taxa in taxaLevels) {
+  print(taxa)
+  table = read.table(paste("apcTumorDiversity_", taxa, ".txt", sep=""), sep="\t", header=T, stringsAsFactors = F)
+  
+  ##fix question marks in some of the data
+  table$Small.intestine = as.numeric(gsub("?", "", table$Small.intestine, fixed=T))
+  
+  ##set up output
+  names = rep(NA, nrow(table))
+  pColonTumorNumber = rep(NA, nrow(table))
+  pCecum = rep(NA, nrow(table))
+  pSmallIntestine = rep(NA, nrow(table))
+  pProximal = rep(NA, nrow(table))
+  pDistal = rep(NA, nrow(table))
+  pCombinedInflammationScore = rep(NA, nrow(table))
+  pAge = rep(NA, nrow(table))
+  pCage = rep(NA, nrow(table))
+  
+  spearmanColonTumorNumber = rep(NA, nrow(table))
+  spearmanCecum = rep(NA, nrow(table))
+  spearmanSmallIntestine = rep(NA, nrow(table))
+  spearmanProximal = rep(NA, nrow(table))
+  spearmanDistal = rep(NA, nrow(table))
+  spearmanCombinedInflammationScore = rep(NA, nrow(table))
+  spearmanAge = rep(NA, nrow(table))
+  index = 1
+  
+  ##get p-values and spearman correlation
+  for(i in 23:ncol(table)) {
+    if(sum(table[,i] != 0 ) > nrow(table) / 4 ) {
+      names[index] = names(table)[i]
+      bug = table[,i]
+      
+      pColonTumorNumber[index] = anova(lm(bug~table$Colon))$`Pr(>F)`[1]
+      pCecum[index] = anova(lm(bug~table$Cecum))$`Pr(>F)`[1]
+      pSmallIntestine[index] = anova(lm(bug~table$Small.intestine))$`Pr(>F)`[1]
+      pProximal[index] = anova(lm(bug~table$Proximal))$`Pr(>F)`[1]
+      pDistal[index] = anova(lm(bug~table$Distal))$`Pr(>F)`[1]
+      pCombinedInflammationScore[index] = anova(lm(bug~table$Combined..proximal...distal.))$`Pr(>F)`[1]
+      pAge[index] = anova(lm(bug~table$End.Age..Weeks.))$`Pr(>F)`[1]
+      pCage[index] = anova(lm(bug~factor(table$Cage)))$`Pr(>F)`[1]
+      
+      spearmanColonTumorNumber[index] = cor(x=table$Colon, y=bug, method="spearman")
+      spearmanCecum[index] = cor(x=table$Cecum, y=bug, method="spearman")
+      spearmanSmallIntestine[index] = cor(x=table$Small.intestine, y=bug, method="spearman")
+      spearmanProximal[index] = cor(x=table$Proximal, y=bug, method="spearman")
+      spearmanDistal[index] = cor(x=table$Distal, y=bug, method="spearman")
+      spearmanCombinedInflammationScore[index] = cor(x=table$Combined..proximal...distal., y=bug, method="spearman")
+      spearmanAge[index] = cor(x=table$End.Age..Weeks., y=bug, method="spearman")
+      
+      index = index + 1
+    }
+  }
+  ##adjust p
+  df = data.frame(names, 
+                  pColonTumorNumber, pCombinedInflammationScore, pAge, pCage, pCecum, pSmallIntestine,
+                  pProximal, pDistal,
+                  spearmanColonTumorNumber, spearmanCombinedInflammationScore, spearmanAge, 
+                  spearmanCecum, spearmanSmallIntestine, spearmanProximal, spearmanDistal)
+  df = df[1:(index-1),]
+  df$pAdjColonTumorNumber = p.adjust(df$pColonTumorNumber, method="BH")
+  df$pAdjCombinedInflammationScore = p.adjust(df$pCombinedInflammationScore, method="BH")
+  df$pAdjAge = p.adjust(df$pAge, method="BH")
+  df$pAdjCage = p.adjust(df$pCage, method="BH")
+  df$pAdjCecum = p.adjust(df$pCecum, method="BH")
+  df$pAdjSmallIntestine = p.adjust(df$pSmallIntestine, method="BH")
+  df$pAdjProximal = p.adjust(df$pProximal, method="BH")
+  df$pAdjDistal = p.adjust(df$pDistal, method="BH")
+  write.table(df, paste("apcTumorDiversityModel_separatedVariables_pValues_", taxa, ".txt", sep=""),
+              row.names = F, col.names = T, quote = F, sep="\t")
+  
+  ##plot
+  pdf(paste("apcTumorDiversityModel_separatedVariables_plots_", taxa, ".pdf", sep=""),
+      height=9, width=9)
+  for(r in 1:nrow(df)) {
+    name = df$names[r]
+    bug = table[,names(table)==name]
+    
+    ##color by colon number
+    colors = colorRampPalette(c("blue", "red"))
+    col = colors(max(table$Colon))[as.numeric(cut(table$Colon, breaks=max(table$Colon)))]
+    ##shape by inflammation score
+    sh = rep(NA, nrow(table))
+    sh[table$Combined..proximal...distal. < 1] = 15
+    sh[table$Combined..proximal...distal. >= 1 & table$Combined..proximal...distal. < 2] = 16
+    sh[table$Combined..proximal...distal. >= 2 & table$Combined..proximal...distal. < 3] = 17
+    sh[table$Combined..proximal...distal. >= 3 & table$Combined..proximal...distal. < 4] = 18
+    
+    par(mfrow=c(3,3), oma=c(.5,.5,2,.5), mar=c(4.8,4,1,1))
+    ##plot tumor numbers
+    plot(x=table$Colon, y=bug, 
+         main=paste("p = ", format(df$pColonTumorNumber[r], digits = 3),
+                    "; r = ", format(df$spearmanColonTumorNumber[r], digits = 3)), 
+         xlab="Colon Tumor Number",
+         ylab="log relative abundance",
+         col=col, pch=sh)
+    plot(x=table$Cecum, y=bug, 
+         main=paste("p =", format(df$pCecum[r], digits = 3),
+                    "; r = ", format(df$spearmanCecum[r], digits = 3)), 
+         xlab="Cecum Tumor Number",
+         ylab="log relative abundance",
+         col=col, pch=sh)
+    plot(x=table$Small.intestine, y=bug, 
+         main=paste("p =", format(df$pSmallIntestine[r], digits = 3),
+                    "; r = ", format(df$spearmanSmallIntestine[r], digits = 3)), 
+         xlab="Small Intestine Tumor Number",
+         ylab="log relative abundance",
+         col=col, pch=sh)
+    
+    ##plot inflammation scores
+    plot(x=table$Combined..proximal...distal., y=bug, 
+         main=paste("p =", format(df$pCombinedInflammationScore[r], digits = 3),
+                    "; r = ", format(df$spearmanCombinedInflammationScore[r], digits = 3)), 
+         xlab="Combined Inflammation Score",
+         ylab="log relative abundance",
+         col=col, pch=sh)
+    plot(x=table$Proximal, y=bug, 
+         main=paste("p =", format(df$pProximal[r], digits = 3),
+                    "; r = ", format(df$spearmanProximal[r], digits = 3)), 
+         xlab="Proximal Inflammation Score",
+         ylab="log relative abundance",
+         col=col, pch=sh)
+    plot(x=table$Distal, y=bug, 
+         main=paste("p =", format(df$pDistal[r], digits = 3),
+                    "; r = ", format(df$spearmanDistal[r], digits = 3)), 
+         xlab="Distal Inflammation Score",
+         ylab="log relative abundance",
+         col=col, pch=sh)
+    
+    ##age and cage
+    plot(x=table$End.Age..Weeks., y=bug, 
+         main=paste("p =", format(df$pAge[r], digits = 3),
+                    "; r = ", format(df$spearmanAge[r], digits = 3)), 
+         xlab="End Age (Weeks)",
+         ylab="log relative abundance",
+         col=col, pch=sh)
+    boxplot(bug~factor(table$Cage), 
+         main=paste("p =", format(df$pCage[r], digits = 3)), 
+         xlab="Cage",
+         ylab="log relative abundance",
+         las=2)
+    points(bug~factor(table$Cage), col=col, pch=sh)
+    
+    ##add title
+    par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+    plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+    legend("top", horiz=T, legend=name, cex=1.5, bty="n")
+  }
+  dev.off()
+}

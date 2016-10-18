@@ -1,0 +1,63 @@
+##PCoA of ApcMin mice
+##color by tumor number, shape by inflammation score
+##10/17/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\APC tumors\\rdpQiimeAnalysis")
+
+library(vegan)
+
+taxaLevels = c("phylum", "class", "order", "family", "genus", "qiimeDeNovo", "qiimeClosedRef")
+
+pdf("apcTumorPCoA.pdf", height=7, width=9)
+for(taxa in taxaLevels) {
+  print(taxa)
+  table = read.table(paste("apc_", taxa, "_logNorm.txt", sep=""), sep="\t", header=T, stringsAsFactors = F)
+  
+  ##pcoa using vegan capscale
+  par(mar=c(4,4,4,12), xpd=T)
+  pcoa <- capscale(table[,-(1:22)]~1,distance="bray")
+  
+  ##get percent variance
+  eig = eigenvals(pcoa)
+  if(any(eig<0)) {#need to check there are no negatives
+    warning(paste("NEGATIVE EIGENVALUES-percent variance is incorrect for ", taxa, sep=""))
+  }
+  var = eig/sum(eig)*100
+  
+  ##color by colon number
+  colors = colorRampPalette(c("blue", "red"))
+  # colors = colorRampPalette(c("lightblue", "blue"))
+  col = colors(max(table$Colon))[as.numeric(cut(table$Colon, breaks=max(table$Colon)))]
+  ##shape by inflammation score
+  sh = rep(NA, nrow(table))
+  sh[table$Combined..proximal...distal. < 1] = 15
+  sh[table$Combined..proximal...distal. >= 1 & table$Combined..proximal...distal. < 2] = 16
+  sh[table$Combined..proximal...distal. >= 2 & table$Combined..proximal...distal. < 3] = 17
+  sh[table$Combined..proximal...distal. >= 3 & table$Combined..proximal...distal. < 4] = 18
+  
+  ##plot
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], 
+       xlab=paste("MDS1 (", format(var[[1]], digits=0), "%)", sep=""), 
+       ylab=paste("MDS2 (", format(var[[2]], digits=0), "%)", sep=""),
+       main=taxa, col=col, pch=sh)
+  
+  ##legend
+  legend("topright", inset=c(-.34,0),
+         title="Combined Inflammation Score",
+         legend=c("<1", "<2", "<3", "<4"),
+         col="grey",
+         pch=15:18,
+         cex=.8)
+  legend("topright", inset=c(-.3, .2),
+         title="Colon Tumor Number",
+         legend=c(1:22),
+         col=colors(22),
+         pch=16,
+         cex=.8)
+  
+  ##write table
+  write.table(cbind(table[,1:22], pcoa$CA$u), paste("pcoaCorrected_", taxa, ".txt", sep=""), sep="\t",
+              row.names=F, col.names=T, quote=F)
+}
+dev.off()

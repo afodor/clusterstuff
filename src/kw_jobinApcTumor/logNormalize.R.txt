@@ -1,0 +1,81 @@
+##get log normalized tables or relative abudance tables
+##10/14/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\APC tumors\\rdpQiimeAnalysis")
+
+start = 23 #first taxa after metadata
+
+##returns a log normalized version of the table
+logNormalize <- function(tab) {
+  lognorm = tab
+  nc = ncol(lognorm)
+  n = rowSums(tab[,start:nc]) #number of reads in each sample
+  sumX = sum(n) #total number of reads in all samples 
+  N = nrow(tab) #total number of samples
+  for(col in start:nc) {
+    for(row in 1:N) {
+      lognorm[row, col] = log10(tab[row, col]/n[row] * sumX/N + 1)
+    }
+  }
+  return(lognorm)
+}
+
+##returns a relative abundance version of the given table tab
+relAbundance <- function(tab) {
+  lognorm = tab
+  nc = ncol(lognorm)
+  n = rowSums(tab[,start:nc]) #number of reads in each sample
+  N = nrow(tab) #total number of samples
+  for(col in start:nc) {
+    for(row in 1:N) {
+      lognorm[row, col] = tab[row, col]/n[row]
+    }
+  }
+  return(lognorm)
+}
+
+##RDP
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+for(taxa in taxaLevels) {
+  print(taxa)
+  
+  ##all mouse samples for PCoA (log normalize), all reads
+  table = read.table(paste("allMiceWithCtrls_", taxa, "_taxaAsColWithMeta.txt", sep=""),
+                     sep="\t", header=T, stringsAsFactors = F)
+  write.table(logNormalize(table), paste("allMiceWithCtrls_", taxa, "_logNorm.txt", sep=""),
+              sep="\t", row.names = F, col.names = T, quote = F)
+  
+  ##log normalize stitched reads of ApcMin samples
+  table = read.table(paste("apc_", taxa, "_taxaAsColWithMeta.txt", sep=""),
+                     sep="\t", header=T, stringsAsFactors = F)
+  table = table[table$read=="stitch",]
+  write.table(logNormalize(table), paste("apc_", taxa, "_logNorm.txt", sep=""),
+              sep="\t", row.names = F, col.names = T, quote = F)
+  
+  ##log normalize and relative abundance of stitched reads of pancreas samples
+  table = read.table(paste("pancBiopsy_", taxa, "_taxaAsColWithMeta.txt", sep=""),
+                     sep="\t", header=T, stringsAsFactors = F, comment.char = "")
+  table = table[table$read=="stitch",]
+  write.table(logNormalize(table), paste("pancBiopsy_", taxa, "_logNorm.txt", sep=""),
+              sep="\t", row.names = F, col.names = T, quote = F)
+  write.table(relAbundance(table), paste("pancBiopsy_", taxa, "_relAbun.txt", sep=""),
+              sep="\t", row.names = F, col.names = T, quote = F)
+  
+  ##relative abundance of pancreas controls
+  table = read.table(paste("ctrlsForPanc_", taxa, "_taxaAsColWithMeta.txt", sep=""),
+                     sep="\t", header=T, stringsAsFactors = F, comment.char = "")
+  write.table(relAbundance(table), paste("ctrlsForPanc_", taxa, "_relAbun.txt", sep=""),
+              sep="\t", row.names = F, col.names = T, quote = F)
+}
+
+##QIIME
+levels = c("qiimeDeNovo", "qiimeClosedRef")
+for(lev in levels) {
+  print(lev)
+  table = read.table(paste("apc_", lev, "_taxaAsColWithMeta.txt", sep=""),
+                     sep="\t", header=T, stringsAsFactors = F)
+  write.table(logNormalize(table), paste("apc_", lev, "_logNorm.txt", sep=""),
+              sep="\t", row.names = F, col.names = T, quote = F)
+  
+}
