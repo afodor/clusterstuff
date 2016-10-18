@@ -22,7 +22,7 @@ public class CreateRDPQSub
 		List<File> allShFiles = new ArrayList<File>();
 		
 		for(String s : files)
-			if( s.endsWith("fasta"))
+			if( s.endsWith("fas"))
 		{
 			countNum++;
 			File fastaFile = new File(FASTA_DIR.getAbsolutePath() + File.separator + s);
