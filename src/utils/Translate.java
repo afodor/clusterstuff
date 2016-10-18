@@ -517,7 +517,7 @@ public class Translate
 	
 	public static void main(String[] args) throws Exception
 	{
-		System.out.println( Translate.reverseTranscribe("GATCGGCGAGAAGCCGCGACGCGGTCCGGG") );
+		System.out.println( Translate.reverseTranscribe("GGCGCGATTTCCCTGAGAGAAACTGGATTA") );
 	}
 	
 	/*

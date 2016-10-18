@@ -1,4 +1,4 @@
-package goranLabRatData;
+package mambaClassDemo;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -10,9 +10,9 @@ public class CreateRDPQSub
 {
 	private static int countNum =0 ;
 
-	public static final File FASTA_DIR = new File("/nobackup/afodor_research/goranLabRatData/1-FlashContigs");
+	public static final File FASTA_DIR = new File("/users/afodor/someData/fasta");
 	public static final File RDP_OUT_DIR = new File( "/nobackup/afodor_research/goranLabRatData/rdpOut");
-	public static final File RDP_RUN_DIR = new File("/nobackup/afodor_research/goranLabRatData/rdpRun");
+	public static final File RDP_RUN_DIR = new File("/users/afodor/someData/rdpRun");
 	
 	public static final String RDP_SUFFIX = "toRDP.txt";
 	
@@ -53,8 +53,7 @@ public class CreateRDPQSub
 		for(File f : allShFiles)
 		{
 			x++;
-			writer.write("qsub -q \"viper\" -N \"CountJob" 
-					+ x + "\" " + f.getAbsolutePath() +  "\n"  );
+			writer.write("qsub "+ f.getAbsolutePath() +  "\n"  );
 		}
 		
 		writer.flush();  writer.close();
