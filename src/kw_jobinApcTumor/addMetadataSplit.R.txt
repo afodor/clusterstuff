@@ -69,6 +69,9 @@ for(i in 1:length(fileNames)) {
   table = table[,-ncol(table)]
   names(table)[1] = "sampleID"
   
+  ##transpose full table
+  write.table(t(table), paste("qiime_", outNames[i], "_taxaAsCol.txt", sep=""), sep="\t", row.names = T, col.names = F, quote = F)
+  
   ##filter otus absent in > 1/4 samples (de novo table is >30000 otus)
   getNumZeroes<-function(row) {return(sum(table[row,]==0))}
   numZeroes = sapply(1:nrow(table), getNumZeroes)

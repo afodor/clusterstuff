@@ -100,19 +100,19 @@ for(taxa in taxaLevels) {
          main=paste("p = ", format(df$pColonTumorNumber[r], digits = 3),
                     "; r = ", format(df$spearmanColonTumorNumber[r], digits = 3)), 
          xlab="Colon Tumor Number",
-         ylab="log relative abundance",
+         ylab="MDS",
          col=col, pch=sh)
     plot(x=table$Cecum, y=bug, 
          main=paste("p =", format(df$pCecum[r], digits = 3),
                     "; r = ", format(df$spearmanCecum[r], digits = 3)), 
          xlab="Cecum Tumor Number",
-         ylab="log relative abundance",
+         ylab="MDS",
          col=col, pch=sh)
     plot(x=table$Small.intestine, y=bug, 
          main=paste("p =", format(df$pSmallIntestine[r], digits = 3),
                     "; r = ", format(df$spearmanSmallIntestine[r], digits = 3)), 
          xlab="Small Intestine Tumor Number",
-         ylab="log relative abundance",
+         ylab="MDS",
          col=col, pch=sh)
     
     ##plot inflammation scores
@@ -120,19 +120,19 @@ for(taxa in taxaLevels) {
          main=paste("p =", format(df$pCombinedInflammationScore[r], digits = 3),
                     "; r = ", format(df$spearmanCombinedInflammationScore[r], digits = 3)), 
          xlab="Combined Inflammation Score",
-         ylab="log relative abundance",
+         ylab="MDS",
          col=col, pch=sh)
     plot(x=table$Proximal, y=bug, 
          main=paste("p =", format(df$pProximal[r], digits = 3),
                     "; r = ", format(df$spearmanProximal[r], digits = 3)), 
          xlab="Proximal Inflammation Score",
-         ylab="log relative abundance",
+         ylab="MDS",
          col=col, pch=sh)
     plot(x=table$Distal, y=bug, 
          main=paste("p =", format(df$pDistal[r], digits = 3),
                     "; r = ", format(df$spearmanDistal[r], digits = 3)), 
          xlab="Distal Inflammation Score",
-         ylab="log relative abundance",
+         ylab="MDS",
          col=col, pch=sh)
     
     ##age and cage
@@ -140,12 +140,12 @@ for(taxa in taxaLevels) {
          main=paste("p =", format(df$pAge[r], digits = 3),
                     "; r = ", format(df$spearmanAge[r], digits = 3)), 
          xlab="End Age (Weeks)",
-         ylab="log relative abundance",
+         ylab="MDS",
          col=col, pch=sh)
     boxplot(bug~factor(table$Cage), 
          main=paste("p =", format(df$pCage[r], digits = 3)), 
          xlab="Cage",
-         ylab="log relative abundance",
+         ylab="MDS",
          las=2)
     points(bug~factor(table$Cage), col=col, pch=sh)
     

@@ -4,11 +4,18 @@
 rm(list=ls())
 setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\APC tumors\\rdpQiimeAnalysis")
 
-taxaLevels = c("phylum", "class", "order", "family", "genus", "qiimeDeNovo", "qiimeClosedRef")
+taxaLevels = c("phylum", "class", "order", "family", "genus", "qiimeDeNovo", "qiimeClosedRef",
+               "qiimeDeNovo_fullTable", "qiimeClosedRef_fullTable")
 
 for(taxa in taxaLevels) {
   print(taxa)
   table = read.table(paste("apcTumorDiversity_", taxa, ".txt", sep=""), sep="\t", header=T, stringsAsFactors = F)
+  
+  if(grepl("fullTable", taxa)) {
+    meta = read.table(paste("apcTumorDiversity_", sub("_fullTable", "", taxa), ".txt", sep=""), sep="\t", header=T, stringsAsFactors = F)
+    meta = meta[,1:21]
+    table = merge(meta, table, by="sampleID")
+  }
   
   ##fix question marks in some of the data
   table$Small.intestine = as.numeric(gsub("?", "", table$Small.intestine, fixed=T))
@@ -100,19 +107,19 @@ for(taxa in taxaLevels) {
          main=paste("p = ", format(df$pColonTumorNumber[r], digits = 3),
                     "; r = ", format(df$spearmanColonTumorNumber[r], digits = 3)), 
          xlab="Colon Tumor Number",
-         ylab="log relative abundance",
+         ylab="",
          col=col, pch=sh)
     plot(x=table$Cecum, y=bug, 
          main=paste("p =", format(df$pCecum[r], digits = 3),
                     "; r = ", format(df$spearmanCecum[r], digits = 3)), 
          xlab="Cecum Tumor Number",
-         ylab="log relative abundance",
+         ylab="",
          col=col, pch=sh)
     plot(x=table$Small.intestine, y=bug, 
          main=paste("p =", format(df$pSmallIntestine[r], digits = 3),
                     "; r = ", format(df$spearmanSmallIntestine[r], digits = 3)), 
          xlab="Small Intestine Tumor Number",
-         ylab="log relative abundance",
+         ylab="",
          col=col, pch=sh)
     
     ##plot inflammation scores
@@ -120,19 +127,19 @@ for(taxa in taxaLevels) {
          main=paste("p =", format(df$pCombinedInflammationScore[r], digits = 3),
                     "; r = ", format(df$spearmanCombinedInflammationScore[r], digits = 3)), 
          xlab="Combined Inflammation Score",
-         ylab="log relative abundance",
+         ylab="",
          col=col, pch=sh)
     plot(x=table$Proximal, y=bug, 
          main=paste("p =", format(df$pProximal[r], digits = 3),
                     "; r = ", format(df$spearmanProximal[r], digits = 3)), 
          xlab="Proximal Inflammation Score",
-         ylab="log relative abundance",
+         ylab="",
          col=col, pch=sh)
     plot(x=table$Distal, y=bug, 
          main=paste("p =", format(df$pDistal[r], digits = 3),
                     "; r = ", format(df$spearmanDistal[r], digits = 3)), 
          xlab="Distal Inflammation Score",
-         ylab="log relative abundance",
+         ylab="",
          col=col, pch=sh)
     
     ##age and cage
@@ -140,12 +147,12 @@ for(taxa in taxaLevels) {
          main=paste("p =", format(df$pAge[r], digits = 3),
                     "; r = ", format(df$spearmanAge[r], digits = 3)), 
          xlab="End Age (Weeks)",
-         ylab="log relative abundance",
+         ylab="",
          col=col, pch=sh)
     boxplot(bug~factor(table$Cage), 
          main=paste("p =", format(df$pCage[r], digits = 3)), 
          xlab="Cage",
-         ylab="log relative abundance",
+         ylab="",
          las=2)
     points(bug~factor(table$Cage), col=col, pch=sh)
     
