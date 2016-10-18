@@ -57,7 +57,6 @@ public class CreateRDPQSub
 		}
 		
 		writer.flush();  writer.close();
-		
 	}
 	
 }
