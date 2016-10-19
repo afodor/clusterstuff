@@ -1,0 +1,41 @@
+##make 3d plot of MDS1 vs combined inflammation vs colon tumor number
+##10/19/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\APC tumors\\rdpQiimeAnalysis")
+
+library(scatterplot3d)
+
+taxaLevels = c("phylum", "class", "order", "family", "genus", "qiimeDeNovo", "qiimeClosedRef")
+
+pdf("apcTumor_3dplot.pdf")
+for(taxa in taxaLevels) {
+  print(taxa)
+  table = read.table(paste("pcoaCorrected_", taxa, ".txt", sep=""), sep="\t", header=T, stringsAsFactors = F)
+  
+  ##color by colon number
+  colors = colorRampPalette(c("blue", "red"))
+  col = colors(max(table$Colon))[as.numeric(cut(table$Colon, breaks=max(table$Colon)))]
+  ##shape by inflammation score
+  sh = rep(NA, nrow(table))
+  sh[table$Combined..proximal...distal. < 1] = 15
+  sh[table$Combined..proximal...distal. >= 1 & table$Combined..proximal...distal. < 2] = 16
+  sh[table$Combined..proximal...distal. >= 2 & table$Combined..proximal...distal. < 3] = 17
+  sh[table$Combined..proximal...distal. >= 3 & table$Combined..proximal...distal. < 4] = 18
+  
+#   scatterplot3d(x=table$MDS1, y=table$Colon, z=table$Combined..proximal...distal.,
+#                 color=col, pch=sh, main=taxa,
+#                 xlab="MDS1", ylab="Colon Tumor Counts", zlab="Combined Inflammation Score",
+#                 grid=F)
+  scatterplot3d(x=table$MDS1, y=table$Colon, z=table$Combined..proximal...distal.,
+                color=col, pch=sh, main=taxa,
+                xlab="MDS1", ylab="", zlab="Combined Inflammation Score",
+                grid=F)
+  ##y label is parallel to z axis in default -> see http://stackoverflow.com/questions/20637484/change-ylab-position-in-r-scatterplot3d
+  dims <- par("usr")
+  x <- dims[1]+ 0.9*diff(dims[1:2])
+  # y <- dims[3]+ 0.08*diff(dims[3:4])
+  y = dims[3] +1
+  text(x,y,"Colon Tumor Counts",srt=ifelse(taxa=="genus", 50, 55))
+}
+dev.off()
