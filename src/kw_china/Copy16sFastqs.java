@@ -14,7 +14,7 @@ import java.util.Arrays;
 
 public class Copy16sFastqs {
 	public static final String SEQDIR = "/nobackup/afodor_research/ChinaSequences/";
-	public static final String NEWDIR = "/nobackup/afodor_research/kwinglee/china/fastqs_16s";
+	public static final String NEWDIR = "/nobackup/afodor_research/kwinglee/china/fastqs_16s/";
 	
 	public static void main(String[] args) throws IOException {
 		BufferedWriter script = new BufferedWriter(new FileWriter(new File(
