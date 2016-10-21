@@ -26,7 +26,7 @@ public class Copy16sFastqs {
 			String path = SEQDIR + time + "/microbiome/";
 			String[] subdirs = new File(path).list();
 			for(String sub : subdirs) {
-				path = path + sub + "/Clean/";
+				path = SEQDIR + time + "/microbiome/" + sub + "/Clean/";
 				String[] sampleDirs = new File(path).list();
 				for(String sample : sampleDirs) {
 					String[] fqs = new File(path + sample).list();
