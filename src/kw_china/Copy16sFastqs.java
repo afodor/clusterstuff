@@ -37,9 +37,9 @@ public class Copy16sFastqs {
 						System.err.println("\t" + fqs[0] + "\t\n" + fqs[1]);
 					}
 					String newName = time + "_" + sample;
-					script.write("cp " + path + sample + fqs[0] +
+					script.write("cp " + path + sample + File.separator + fqs[0] +
 							" " + newName + "_1.fq.gz\n");
-					script.write("cp " + path + sample + fqs[1] +
+					script.write("cp " + path + sample + File.separator + fqs[1] +
 							" " + newName + "_2.fq.gz\n");
 					fileList.write(newName + "_1.fq.gz\n" + newName + "_2.fq.gz\n");
 				}
