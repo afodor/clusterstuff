@@ -31,6 +31,7 @@ for(taxa in taxaLevels) {
   ##fix control names
   table$sampleID = gsub("_", " ", table$sampleID)
   table$sampleID = sub("water ext", "(water ext.)", table$sampleID)
+  table$sampleID = sub("panc", "panc.", table$sampleID)
   
   ##add number of reads
   numReads = rowSums(table[,-(1:3)])

@@ -53,13 +53,27 @@ for(taxa in taxaLevels) {
   write.table(logNormalize(table), paste("apc_", taxa, "_logNorm.txt", sep=""),
               sep="\t", row.names = F, col.names = T, quote = F)
   
-  ##log normalize and relative abundance of stitched reads of pancreas samples
+  ##log normalize and relative abundance of stitched reads of pancreas/biopsy samples
   table = read.table(paste("pancBiopsy_", taxa, "_taxaAsColWithMeta.txt", sep=""),
                      sep="\t", header=T, stringsAsFactors = F, comment.char = "")
   table = table[table$read=="stitch",]
-  write.table(logNormalize(table), paste("pancBiopsy_", taxa, "_logNorm.txt", sep=""),
+#   write.table(logNormalize(table), paste("pancBiopsy_", taxa, "_logNorm.txt", sep=""),
+#               sep="\t", row.names = F, col.names = T, quote = F)
+#   write.table(relAbundance(table), paste("pancBiopsy_", taxa, "_relAbun.txt", sep=""),
+#               sep="\t", row.names = F, col.names = T, quote = F)
+  
+  ##split pancreas and biopsy into separate experiments
+  panc = table[grepl("panc", table$sampleID),]
+  biop = table[grepl("biopsy", table$sampleID),]
+  ##log normalize and relative abundance pancreas
+  write.table(logNormalize(panc), paste("panc_", taxa, "_logNorm.txt", sep=""),
               sep="\t", row.names = F, col.names = T, quote = F)
-  write.table(relAbundance(table), paste("pancBiopsy_", taxa, "_relAbun.txt", sep=""),
+  write.table(relAbundance(panc), paste("panc_", taxa, "_relAbun.txt", sep=""),
+              sep="\t", row.names = F, col.names = T, quote = F)
+  ##log normalize and relative abundance biopsy
+  write.table(logNormalize(biop), paste("humanBiopsy_", taxa, "_logNorm.txt", sep=""),
+              sep="\t", row.names = F, col.names = T, quote = F)
+  write.table(relAbundance(biop), paste("humanBiopsy_", taxa, "_relAbun.txt", sep=""),
               sep="\t", row.names = F, col.names = T, quote = F)
   
   ##relative abundance of pancreas controls

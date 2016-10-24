@@ -1,0 +1,41 @@
+##look at inflamation score and tumor number with cage effects
+##10/21/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\APC tumors\\rdpQiimeAnalysis")
+
+table = read.table("apc_phylum_logNorm.txt", sep="\t", header=T, stringsAsFactors = F)
+##fix question marks in some of the data
+table$Small.intestine = as.numeric(gsub("?", "", table$Small.intestine, fixed=T))
+
+cage = factor(table$Cage)##color by colon number
+colors = colorRampPalette(c("blue", "red"))
+col = colors(max(table$Colon))[as.numeric(cut(table$Colon, breaks=max(table$Colon)))]
+##shape by inflammation score
+sh = rep(NA, nrow(table))
+sh[table$Combined..proximal...distal. < 1] = 15
+sh[table$Combined..proximal...distal. >= 1 & table$Combined..proximal...distal. < 2] = 16
+sh[table$Combined..proximal...distal. >= 2 & table$Combined..proximal...distal. < 3] = 17
+sh[table$Combined..proximal...distal. >= 3 & table$Combined..proximal...distal. < 4] = 18
+
+names = vector()
+pValues = vector()
+index = 1
+pdf("apcInflammationTumor_vs_cage.pdf")
+for(c in c(4:9, 16)) {
+  data = table[,c]
+  names[index] = names(table)[c]
+  pValues[index] = anova(lm(data~cage))$`Pr(>F)`[1]
+  
+  boxplot(data~cage, 
+          main=paste("p =", format(pValues[index], digits = 3)), 
+          xlab="Cage",
+          ylab=names[index],
+          las=2)
+  points(data~cage, col=col, pch=sh)
+  
+  index = index + 1
+}
+dev.off()
+write.table(data.frame(variable=names, pCage=pValues), "apcInflammationTumor_vs_cage.txt", sep="\t",
+            quote = F, col.names = T, row.names = F)
