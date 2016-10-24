@@ -40,7 +40,7 @@ public class MergeBlastResults {
 			String fileName = "kegg_" + samp + ".txt";
 			BufferedWriter out = new BufferedWriter(new FileWriter(new File(
 					OUTDIR + fileName)));
-			script.write("ln -s " + OUTDIR + fileName + HUMINPUTDIR + ".\n");
+			script.write("ln -s " + OUTDIR + fileName + " " + HUMINPUTDIR + ".\n");
 			String[] reads = new String[]{"_R1", "_R2"};
 			for(String read : reads) {
 				int split = 0;
