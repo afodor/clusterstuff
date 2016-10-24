@@ -24,7 +24,7 @@ public class MergeBlastResults {
 		int numSamps = 0;
 		for(String fa : fas) {
 			if(fa.endsWith(".fasta") && fa.contains("_R1")) {
-				samples[numSamps] = fa.replace(".mouseFiltered.silvaFiltered.fasta", "");
+				samples[numSamps] = fa.replace("_R1.mouseFiltered.silvaFiltered.fasta", "");
 				numSamps++;
 			}
 		}
