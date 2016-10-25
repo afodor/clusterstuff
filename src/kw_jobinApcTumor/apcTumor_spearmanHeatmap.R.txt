@@ -57,3 +57,11 @@ plot <- ggplot(df.m, aes(x=variable, y=genera)) +
 tiff("apcTumor_spearmanHeatmap.tif", res=300, height=2000, width=2200)
 plot
 dev.off()
+
+##make supplemental table
+rTable = rTable[,c(1, 10, 11)]
+mrg = merge(rTable, pTable, by="names")
+mrg$names = sub(".", " ", mrg$names, fixed = T)
+mrg$names = gsub("_", " ", mrg$names, fixed = T)
+mrg$names[grepl("Shig", mrg$names)] = "Escherichia/Shigella"
+write.table(mrg, "apcTumorOTUmodel_suppTable_genus.txt", sep="\t", row.names = F, col.names = T, quote = F)
