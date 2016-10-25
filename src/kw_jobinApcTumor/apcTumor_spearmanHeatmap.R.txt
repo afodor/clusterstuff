@@ -1,0 +1,59 @@
+##heatmap of spearman correlation of significant genera
+##10/24/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\APC tumors\\rdpQiimeAnalysis")
+
+library(ggplot2)
+library(reshape2)
+
+####get the significant genera
+pTable = read.table("apcTumorOTUmodel_modelWithCage_pValues_genus.txt", sep="\t",
+                   header=T, stringsAsFactors = F)
+sig = pTable[pTable$pAdjColonTumorNumber<0.05 | pTable$pAdjCombinedInflammationScore<0.05,]
+##color genera as red if sig for colon and inflammation, blue colon only, black inflammation only
+genusColors = rep(NA, nrow(sig))
+genusColors[sig$pAdjColonTumorNumber<0.05] = "purple"
+genusColors[sig$pAdjCombinedInflammationScore<0.05] = "black"
+genusColors[sig$pAdjColonTumorNumber<0.05 & sig$pAdjCombinedInflammationScore<0.05] = "blue"
+sigDF = data.frame(sig=sig$names, genusColors, stringsAsFactors = F)
+sigDF = sigDF[order(sigDF$sig),]
+genera = sigDF$sig
+genusColors = sigDF$genusColors
+
+####get the spearman values
+rTable = read.table("apcTumorOTUmodel_separatedVariables_pValues_genus.txt", sep="\t",
+                    header=T, stringsAsFactors = F)
+getColonSpearman <- function(genus) {
+  return(rTable$spearmanColonTumorNumber[rTable$names==genus])
+}
+getInflSpearman <- function(genus) {
+  return(rTable$spearmanCombinedInflammationScore[rTable$names==genus])
+}
+spear = data.frame(genera,
+                   spearmanColon = sapply(genera, getColonSpearman, USE.NAMES = F),
+                   spearmanInflammation = sapply(genera, getInflSpearman, USE.NAMES = F))
+names(spear) = c("genera", "Colon\nTumor\nNumber", "Combined\nInflammation\nScore")
+spear$genera = gsub(".", " ", spear$genera, fixed = T)
+spear$genera = gsub("_", " ", spear$genera, fixed = T)
+
+####draw plot
+df.m <- melt(spear, id.vars="genera")
+df.m$genera = factor(df.m$genera, levels = rev(spear$genera))
+plot <- ggplot(df.m, aes(x=variable, y=genera)) + 
+  geom_tile(aes(fill=value)) + 
+  scale_fill_gradientn(colours=c("red", "white", "darkgreen"), name="Spearman\nCorrelation") + 
+  scale_x_discrete(name="") +
+  scale_y_discrete(name="") +
+  theme(axis.text.y=element_text(colour=rev(genusColors), size=15, face="italic"), 
+        axis.text.x=element_text(size=15, colour="black"),
+        panel.grid.major = element_blank(),
+        axis.line = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.title=element_text(size=15), 
+        legend.text=element_text(size=15), 
+        legend.key.height=unit(30, "points"), 
+        legend.key.width=unit(20, "points"))
+tiff("apcTumor_spearmanHeatmap.tif", res=300, height=2000, width=2200)
+plot
+dev.off()
