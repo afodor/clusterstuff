@@ -1,0 +1,54 @@
+##make supplemental table with SRA accession number and other sequencing stats
+##10/27/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\APC tumors\\rdpQiimeAnalysis")
+
+#####get accession number
+sra = read.table("..\\SRA submission\\apc_srametadata.txt-processed-ok.tsv", header=T, sep="\t")
+sra = data.frame(sampleID = sra$sample_name,
+                 sraAccession = as.character(sra$accession),
+                 stringsAsFactors = F)
+samples = as.character(sra$sampleID)
+
+#####get number of reads
+readTable = read.table("numberReads.txt", stringsAsFactors = F)
+##check fwd and rev have same number of reads
+r1 = readTable[grepl("_R1", readTable$V2),]
+r2 = readTable[grepl("_R2", readTable$V2),]
+names(r1) = c("numberReads", "sampleID")
+names(r2) = c("numberReadsRev", "sampleID")
+r1$sampleID = sub("_R1.fasta", "", r1$sampleID)
+r2$sampleID = sub("_R2.fasta", "", r1$sampleID)
+mrg = merge(r1, r2, by="sampleID")
+any(mrg$numberReads!=mrg$numberReadsRev) #false -> pass
+##fix sample ids
+r1 = r1[r1$sampleID %in% samples,]
+readTable = data.frame(sampleID = as.numeric(r1$sampleID),
+                       numberReads = r1$numberReads,
+                       stringsAsFactors = F)
+
+#####get metadata
+meta = read.table("apc_phylum_logNorm.txt", sep="\t", header=T, stringsAsFactors = F)
+meta = data.frame(sampleID = as.numeric(meta$sampleID),
+                  cage = meta$Cage,
+                  colonTumorNumber = meta$Colon,
+                  combinedInflammationScore = meta$Combined..proximal...distal.,
+                  stringsAsFactors = F)
+
+#####merge
+all = merge(sra, readTable, by="sampleID")
+all = merge(all, meta, by="sampleID")
+all = all[order(all$sampleID),]
+
+#####add average and sd
+avg = c("Average", rep("", ncol(all)-1))
+sd = c("Standard deviation", rep("", ncol(all)-1))
+for(i in c(3,5,6)) {
+  avg[i] = mean(all[,i], na.rm=T)
+  sd[i] = sd(all[,i], na.rm=T)
+}
+all = rbind(all, avg, sd)
+
+#####write
+write.table(all, "apcSeqInfo.txt", row.names=F, col.names=T, quote=F, sep="\t")
