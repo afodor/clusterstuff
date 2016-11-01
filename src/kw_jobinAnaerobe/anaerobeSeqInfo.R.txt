@@ -1,0 +1,40 @@
+##Generate supplemental table of accession numbers, number of reads, and metadata for each sample
+##10/31/16
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\C jejuni anaerobe v aerobe\\rdpResults")
+
+##get metadata
+meta = read.table("stool_phylum_taxaAsCol_logNorm_G3G4.txt", header=T, sep="\t", stringsAsFactors = F)
+meta = meta[,c(1,2,3,5,6,8,7)]
+##fix misspelled anaerobic
+meta$Sample.name = sub("anearobic", "anaerobic", meta$Sample.name)
+meta$Mouse = sub("anearobic", "anaerobic", meta$Mouse)
+meta$Group = ifelse(meta$Group==3, "aerobic", "anaerobic")
+
+##get accession numbers
+acc = read.table("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\C jejuni anaerobe v aerobe\\SRA submission\\campy_srametadata.txt-processed-ok.tsv",
+                 header=T, sep="\t", stringsAsFactors = F)
+acc = acc[,c(4,1)]
+names(acc)[1] = "Sample.name"
+
+##get number of reads
+reads = read.table("..\\numberReads.txt", stringsAsFactors = F)
+##check forward and reverse the same numbers
+r1 = reads[grepl("R1", reads$V2),c(2,1)]
+names(r1) = c("sampleID", "numberReads")
+r1$sampleID = sub("_R1.fasta", "", r1$sampleID)
+r2 = reads[grepl("R2", reads$V2),c(2,1)]
+names(r2) = c("sampleID", "R2")
+r2$sampleID = sub("_R2.fasta", "", r2$sampleID)
+mrg = merge(r1, r2, by="sampleID")
+any(mrg$numberReads!=mrg$R2) #false -> pass
+
+##merge
+mrg = merge(r1, meta, by="sampleID")
+mrg = merge(acc, mrg, by="Sample.name")
+mrg = mrg[,-3] #remove sampleID
+
+##write table
+write.table(mrg, "anaerobeSeqInfo.txt", sep="\t", quote = F, col.names = T, row.names = F)
