@@ -149,8 +149,7 @@ getOTUTaxonomy <- function(name) {
 }
 
 datadir = "C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\China\\rdp\\"
-# taxaLevels = c("phylum","class","order","family","genus", "otu")
-taxaLevels = "otu"
+taxaLevels = c("phylum","class","order","family","genus", "otu")
 for(taxa in taxaLevels) {
   print(taxa)
   inFileName = paste(datadir, taxa,  "_taxaAsColumnsLogNorm_WithMetadata.txt", sep ="")
@@ -285,11 +284,13 @@ assocPropReads(metadata, name)
 assocGenes(metadata, name)
 
 #####metabolon
-metabolon = read.table(paste(datadir, "metadata_cleaned11-2015.txt", sep=""), 
-                      header=T, sep="\t", colClasses=c("numeric", "character", rep("numeric", 55)))
+metabolon = read.table(paste(datadir, "MetabolonScaledImpData-transpose.txt", sep=""), 
+                       header=T, sep="\t", colClasses=c("numeric", "character", rep("numeric", 337)))
+
 ##remove ruralUrban
 metabolon = metabolon[,-2]
 ##fix sampleIDs
+names(metabolon)[1] = "sampleID"
 metabolon$sampleID[metabolon$sampleID > 80 & metabolon$sampleID < 100] = 
   paste("0", metabolon$sampleID[metabolon$sampleID > 80 & metabolon$sampleID < 100], sep="")
 metabolon$sampleID = paste(metabolon$sampleID, "A", sep="")
