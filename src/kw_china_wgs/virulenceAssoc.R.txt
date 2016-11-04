@@ -299,11 +299,13 @@ for(d in 1:length(databases)) {
   
   #####metabolon
   print(" metabolon")
-  metabolon = read.table(paste(datadir, "metadata_cleaned11-2015.txt", sep=""), 
-                         header=T, sep="\t", colClasses=c("numeric", "character", rep("numeric", 55)))
+  metabolon = read.table(paste(datadir, "MetabolonScaledImpData-transpose.txt", sep=""), 
+                         header=T, sep="\t", colClasses=c("numeric", "character", rep("numeric", 337)))
+  
   ##remove ruralUrban
   metabolon = metabolon[,-2]
   ##fix sampleIDs
+  names(metabolon)[1] = "sampleID"
   metabolon$sampleID[metabolon$sampleID > 80 & metabolon$sampleID < 100] = 
     paste("0", metabolon$sampleID[metabolon$sampleID > 80 & metabolon$sampleID < 100], sep="")
   metabolon$sampleID = paste(metabolon$sampleID, "A", sep="")
