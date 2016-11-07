@@ -25,7 +25,7 @@ public class CufflinksScripts {
 				String scriptName = "cufflinks_" + s.replace(".hisatMouse.sam", ""); 
 				BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 						SCRIPTDIR + scriptName)));
-				script.write(CUFF + " –-GTF-guide " + GFF + " --output-dir " + OUTDIR + " " + HISATDIR + s + "\n");
+				script.write(CUFF + " --GTF-guide " + GFF + " --output-dir " + OUTDIR + " " + HISATDIR + s + "\n");
 				script.close();
 				
 				runAll.write("qsub -q \"copperhead\" " + scriptName + "\n");
