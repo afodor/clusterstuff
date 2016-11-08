@@ -25,6 +25,7 @@ public class CufflinksScripts {
 				String scriptName = "cufflinks_" + s.replace(".hisatMouse.sam", ""); 
 				BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 						SCRIPTDIR + scriptName)));
+				script.write("sort -k 3,3 -k 4,4n " + HISATDIR + s + " > " + HISATDIR + s + ".sorted\n");
 				script.write(CUFF + " --GTF-guide " + GFF + " --output-dir " + OUTDIR + " " + HISATDIR + s + "\n");
 				script.close();
 				
