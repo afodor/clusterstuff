@@ -26,6 +26,8 @@ public class CufflinksScripts {
 				BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 						SCRIPTDIR + scriptName)));
 				//script.write("sort -k 3,3 -k 4,4n " + HISATDIR + s + " > " + HISATDIR + s + ".sorted\n");
+				script.write("module load samtools\n");
+				script.write("samtools sort -o " + HISATDIR + s + ".sorted" + HISATDIR + s + "\n");
 				script.write(CUFF + " --GTF-guide " + GFF + " --output-dir " + OUTDIR + " " + HISATDIR + s + ".sorted\n");
 				script.close();
 				
