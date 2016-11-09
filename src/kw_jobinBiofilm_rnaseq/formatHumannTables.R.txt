@@ -1,0 +1,64 @@
+##format and log and add metadata to humann output
+##11/8/16
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\RNAseq\\microbe - humann")
+
+humNames = c("mpm", "mpt", "01b-hit-keg-cat.txt")
+names = c("module", "pathway", "genes")
+
+for(i in 1:length(humNames)) {
+  print(humNames[i])
+  fileName = ifelse(grepl("01", humNames[i]), humNames[i], paste("04b-hit-keg-", humNames[i], "-cop-nul-nve-nve.txt", sep=""))
+  table = read.table(fileName, sep="\t", 
+                     stringsAsFactors = F, quote = "") 
+  
+  ##fix sample names
+  table[1,1] = "sampleID" #ID causes errors in Excel
+  table[1,] = gsub("kegg_", "", gsub(".hit.keg.mp[t|m].cop.nul.nve.nve", "", table[1,]))
+  table[1,] = gsub("kegg_", "", gsub("-hit-keg-cat", "", table[1,])) #gene table
+  table[1,] = gsub("-bc", "_bc", gsub("-L001", "_L001", gsub("_S[1-9]_L001", "", table[1,])))
+  
+  ##remove empty rows
+  if(table$V1[15] != "InverseSimpson") {
+    print(paste("check rows:", humNames[i]))
+  }
+  table = table[-(2:14),]
+  
+  ##write so can open in Excel, and transpose
+  write.table(table, paste("humann_keggAsRow_", names[i], ".txt", sep=""), sep="\t", row.names = F, 
+              col.names = F, quote=F)
+  trans = t(table)
+  write.table(t(table), paste("humann_keggAsCol_allWithName_", names[i], ".txt", sep=""), sep="\t", row.names = F, 
+              col.names = F, quote=F)
+  write.table(trans[-2,], paste("humann_keggAsCol_", names[i], ".txt", sep=""), sep="\t", row.names = F, 
+              col.names = F, quote=F) #second row with descriptions will get in the way later
+  
+  ##add metadata
+  nr = nrow(table)
+  table = read.table(paste("humann_keggAsCol_", names[i], ".txt", sep=""), sep="\t", header=T,
+                     colClasses = c("character", rep("numeric", nr-1)))
+  meta = read.table("..\\Jobin.9.20.16.RNA-seq test run sample sheet.txt", sep="\t", header=T, stringsAsFactors = F)
+  names(meta)[2] = "sampleID"
+  table = merge(meta, table, by="sampleID")
+  write.table(table, paste("humann_keggAsCol_withMeta_allkegg_", names[i], ".txt", sep=""), 
+              sep="\t", row.names = F, col.names = T, quote=F)
+  print(ncol(table))
+  
+  ##remove all columns that are all 0
+  table = table[,c(rep(T, 13), colSums(table[,-(1:13)]) > 0)]
+  print(ncol(table))
+  write.table(table, paste("humann_keggAsCol_withMeta_", names[i], ".txt", sep=""), 
+              sep="\t", row.names = F, col.names = T, quote=F)
+  
+  ##log
+  count = 0.00001
+  for(c in 18:ncol(table)) {
+    for(r in 1:nrow(table)) {
+      table[r,c] = log10(table[r,c] + count) + -log10(count)
+    }
+  }
+  write.table(table, paste("humann_keggAsCol_log_", names[i], ".txt", sep=""), 
+              sep="\t", row.names = F, col.names = T, quote=F)
+}
