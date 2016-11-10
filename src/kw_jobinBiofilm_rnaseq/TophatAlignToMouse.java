@@ -42,7 +42,7 @@ public class TophatAlignToMouse {
 
 			//align
 			script.write(TOPHAT + " -o " + OUTDIR + " -p " + NUM_THREADS +
-					" " + FQDIR + d + File.separator + fqs[r1] + 
+					" " + REF + " " + FQDIR + d + File.separator + fqs[r1] + 
 					" " + FQDIR + d + File.separator + fqs[r2] + "\n");
 
 			//add to run all
