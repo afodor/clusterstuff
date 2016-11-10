@@ -13,7 +13,7 @@ public class TophatAlignToMouse {
 	public static String FQDIR = "/nobackup/afodor_research/kwinglee/jobin/biofilm/RNAseqTestRunFastqs/";
 	public static String SCRIPTDIR = "/projects/afodor_research/kwinglee/scripts/jobin/biofilmRNAseq/";
 	public static String OUTDIR = "/nobackup/afodor_research/kwinglee/jobin/biofilm/rnaseq/tophatAlignToMouse/";
-	public static String TOPHAT = "nobackup/afodor_research/kwinglee/software/tophat-2.1.1.Linux_x86_64/tophat2";
+	public static String TOPHAT = "/nobackup/afodor_research/kwinglee/software/tophat-2.1.1.Linux_x86_64/tophat2";
 	public static String REF = "/nobackup/afodor_research/kwinglee/mouseGRCm38/mouseGRCm38bowtie";
 	public static int NUM_THREADS = 2;
 
@@ -38,7 +38,7 @@ public class TophatAlignToMouse {
 			script.write("#PBS -l procs=" + NUM_THREADS + "\n");*/
 			
 			//load needed modules
-			script.write("	module load bowtie2\n");
+			script.write("module load bowtie2\n");
 
 			//align
 			script.write(TOPHAT + " -o " + OUTDIR + " -p " + NUM_THREADS +
