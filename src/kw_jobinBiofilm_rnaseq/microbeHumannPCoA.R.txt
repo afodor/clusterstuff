@@ -20,17 +20,23 @@ drawPCoA <- function(table) {
   }
   var = eig/sum(eig)*100 
   
+  ##color by genotype
   colors = rep("blue", nrow(table)) #ApcMin
   colors[grepl("IL10", table$Genotype)] = "red"
+  ##shape by cage
+  shapes = rep(15, nrow(table)) #cage 1
+  shapes[table$Cage.Number==2] = 16
+  shapes[table$Cage.Number==3] = 17
   
   par(mar=c(4, 4, 4, 8.5), xpd=T)
   plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], 
        xlab=paste("MDS1 (", format(var[[1]], digits=0), "%)", sep=""), 
        ylab=paste("MDS2 (", format(var[[2]], digits=0), "%)", sep=""), 
-       main=lev, col=colors, pch=16)
+       main=lev, col=colors, pch=shapes)
   legend("topright", inset=c(-.4, 0),
-         legend=c("ApcMin", "ApcMin IL10 KO"),
-         col=c("blue", "red"), pch=16)
+         legend=c("ApcMin", "ApcMin IL10 KO", paste("Cage", 1:3)),
+         col=c("blue", "red", rep("grey", 3)), 
+         pch=c(18,18,15:17))
   
   ##write axes
   return(cbind(table[,1:13], pcoa$CA$u))

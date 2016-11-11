@@ -1,0 +1,99 @@
+##model logged kegg abundances vs. genotype or cage
+##11/10/16
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\RNAseq\\microbe - humann")
+
+levels = c("module", "pathway", "genes")
+
+for(lev in levels) {
+  print(lev)
+  table = read.table(paste("humann_keggAsCol_log_", lev, ".txt", sep=""), 
+                     sep="\t", header=T, stringsAsFactors = F)
+  desc = read.table(paste("humann_keggAsRow_", lev, ".txt", sep=""), 
+                     sep="\t", header=T, stringsAsFactors = F, quote="")
+  desc = desc[,1:2]
+  
+  
+  genotype = factor(table$Genotype)
+  cage = factor(table$Cage.Number)
+  
+  length = ncol(table)-17
+  names = rep(NA, length)
+  description = rep(NA, length)
+  pGenotype = rep(NA, length)
+  pCage = rep(NA, length)
+  index = 1
+  
+  ##get p-values
+  for(i in 18:ncol(table)) {
+    if(sum(table[,i] != 0) > nrow(table) / 4) {
+      kegg = names(table)[i]
+      names[index] = kegg
+      description[index] = desc$NAME[desc$sampleID==kegg]
+      
+      abun = table[,i]
+      pGenotype[index] = anova(lm(abun~genotype))$`Pr(>F)`[1]
+      pCage[index] = anova(lm(abun~cage))$`Pr(>F)`[1]
+      
+      index = index + 1
+    }
+  }
+  results = data.frame(names, description, pGenotype, pCage)
+  results = results[1:(index-1),]
+  results$pAdjGenotype = p.adjust(results$pGenotype, method="BH")
+  results$pAdjCage = p.adjust(results$pCage, method="BH")
+  results = results[order(results$pGenotype),]
+  write.table(results, paste("microbeHumann_logKeggModel_pValues_", lev, ".txt", sep=""),
+              sep="\t", row.names = F, col.names = T, quote = F)
+  
+  ##plot
+  pdf(paste("microbeHumann_logKeggModel_plots_", lev, ".pdf", sep=""), height=5, width=8)
+  ##color by genotype
+  colors = rep("blue", nrow(table)) #ApcMin
+  colors[grepl("IL10", table$Genotype)] = "red"
+  ##shape by cage
+  shapes = rep(15, nrow(table)) #cage 1
+  shapes[table$Cage.Number==2] = 16
+  shapes[table$Cage.Number==3] = 17
+  for(i in 1:nrow(results)) {
+    kegg = as.character(results$names[i])
+    col = names(table)==kegg
+    abun = table[,col]
+    
+    par(mfrow=c(1,2), oma=c(0,0,2,0), mar=c(4, 4, 4, 1))
+    ##plot genotype
+    boxplot(abun~genotype, main=paste("pAdjGenotype =", format(results$pAdjGenotype[i], digits = 3)),
+            xlab = "genotype", ylab="abundance")
+    points(x=genotype, y=abun, col=colors, pch=shapes)
+    
+    ##plot cage
+    boxplot(abun~cage, main=paste("pAdjCage =", format(results$pAdjCage[i], digits = 3)),
+            xlab = "cage", ylab="abundance")
+    points(x=cage, y=abun, col=colors, pch=shapes)
+    
+    ##add title
+    par(oma=c(0,0,0,0), mar=c(0,0,2,0), new=T, xpd=T, fig=c(0,1,0,1))
+    plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+    title(main=kegg)
+  }
+  dev.off()
+}
+
+##p-value histogram
+pdf("microbeHumann_logKeggModel_pValueHistogram.pdf", height=5, width=9)
+for(lev in levels) {
+  print(lev)
+  table = read.table(paste("microbeHumann_keggModel_pValues_", lev, ".txt", sep=""),
+                     header=T, sep="\t", quote="")
+  ##histograms
+  par(mfrow=c(1,2), oma=c(0,0,2,0), mar=c(4, 4, 4, 1))
+  hist(table$pGenotype, main="Genotype", xlab="p-values")
+  hist(table$pCage, main="Cage", xlab="p-values")
+  ##add title
+  par(oma=c(0,0,0,0), mar=c(0,0,2,0), new=T, xpd=T, fig=c(0,1,0,1))
+  plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+  title(main=lev)
+}
+dev.off()

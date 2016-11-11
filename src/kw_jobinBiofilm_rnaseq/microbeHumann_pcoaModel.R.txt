@@ -1,0 +1,78 @@
+##model unlogged/logged PCoA axes vs. genotype or cage
+##11/10/16
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\RNAseq\\microbe - humann")
+
+levels = c("module", "pathway", "genes")
+
+##runs the analysis on the given table; outputs files with outName in the suffix
+runAnalysis <- function(table, outName) {
+  genotype = factor(table$Genotype)
+  cage = factor(table$Cage.Number)
+  
+  length = ncol(table)-13
+  names = rep(NA, length)
+  pGenotype = rep(NA, length)
+  pCage = rep(NA, length)
+  index = 1
+  
+  pdf(paste("microbeHumann_pcoaModel_plots_", outName, "_", lev, ".pdf", sep=""), height=5, width=8)
+  ##color by genotype
+  colors = rep("blue", nrow(table)) #ApcMin
+  colors[grepl("IL10", table$Genotype)] = "red"
+  ##shape by cage
+  shapes = rep(15, nrow(table)) #cage 1
+  shapes[table$Cage.Number==2] = 16
+  shapes[table$Cage.Number==3] = 17
+  for(i in 14:ncol(table)) {
+    names[index] = names(table)[i]
+    
+    ##get p-values
+    mds = table[,i]
+    pGenotype[index] = anova(lm(mds~genotype))$`Pr(>F)`[1]
+    pCage[index] = anova(lm(mds~cage))$`Pr(>F)`[1]
+    
+    par(mfrow=c(1,2), oma=c(0,0,2,0), mar=c(4, 4, 4, 1))
+    ##plot genotype
+    boxplot(mds~genotype, main=paste("pGenotype =", format(pGenotype[index], digits = 3)),
+            xlab = "genotype", ylab="abundance")
+    points(x=genotype, y=mds, col=colors, pch=shapes)
+    
+    ##plot cage
+    boxplot(mds~cage, main=paste("pCage =", format(pCage[index], digits = 3)),
+            xlab = "cage", ylab="abundance")
+    points(x=cage, y=mds, col=colors, pch=shapes)
+    
+    ##add title
+    par(oma=c(0,0,0,0), mar=c(0,0,2,0), new=T, xpd=T, fig=c(0,1,0,1))
+    plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+    title(main=names[index])
+    
+    index = index + 1
+  }
+  dev.off()
+  results = data.frame(names, pGenotype, pCage)
+  results = results[1:(index-1),]
+  results$pAdjGenotype = p.adjust(results$pGenotype, method="BH")
+  results$pAdjCage = p.adjust(results$pCage, method="BH")
+  write.table(results, paste("microbeHumann_pcoaModel_pValues_", outName, "_", lev, ".txt", sep=""),
+              sep="\t", row.names = F, col.names = T, quote = F)
+}
+
+##unlogged
+for(lev in levels) {
+  print(lev)
+  table = read.table(paste("pcoaCorrected_", lev, ".txt", sep=""), 
+                     sep="\t", header=T, stringsAsFactors = F)
+  runAnalysis(table, "unlog")
+}
+
+##logged
+for(lev in levels) {
+  print(lev)
+  table = read.table(paste("pcoaCorrected_log_", lev, ".txt", sep=""), 
+                     sep="\t", header=T, stringsAsFactors = F)
+  runAnalysis(table, "log")
+}
