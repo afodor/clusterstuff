@@ -22,16 +22,19 @@ public class CufflinksScripts {
 				SCRIPTDIR + "runCufflinks.sh")));
 		for(String s : sams) {
 			if(s.endsWith(".sam")) {
-				String scriptName = "cufflinks_" + s.replace(".hisatMouse.sam", ""); 
+				String name = s.replace(".hisatMouse.sam", "");
+				String scriptName = "cufflinks_" + name; 
 				BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 						SCRIPTDIR + scriptName)));
-				script.write("#PBS -l mem=4GB\n");
+				/*script.write("#PBS -l mem=4GB\n");
+				script.write("#PBS -l walltime=50:00:00\n");*/
 				//script.write("module load samtools\n");
 				//script.write("samtools sort -o " + HISATDIR + s + ".sorted " + HISATDIR + s + "\n");
-				script.write(CUFF + " --GTF-guide " + GFF + " --output-dir " + OUTDIR + " " + HISATDIR + s + ".sorted\n");
+				script.write(CUFF + " --GTF-guide " + GFF + " --output-dir " + OUTDIR + "hisat_" + name + " " + HISATDIR + s + ".sorted\n");
 				script.close();
 				
-				runAll.write("qsub -q \"copperhead\" " + scriptName + "\n");
+				//runAll.write("qsub -q \"copperhead\" " + scriptName + "\n");
+				runAll.write("qsub -q \"Cobra\" " + scriptName + "\n");
 			}
 		}
 		runAll.close();
