@@ -58,7 +58,7 @@ public class GetReadTable {
 		files = new File(allDir).listFiles();
 		for(File f : files) {
 			if(f.getName().endsWith("_R1.fasta")) {
-				String name = f.getName().replace("_R1.fasta", "");
+				String name = f.getName().replace("_R1.fasta", "").replace("_", "-");
 				int r1 = getNumFastaReads(f);
 				int r2 = getNumFastaReads(new File(f.getAbsolutePath().replace("_R1", "_R2")));
 
