@@ -47,7 +47,7 @@ public class CuffDiffNormScripts {
 				SCRIPTDIR + "cuffnorm_tophat")));
 		norm.write("PATH=$PATH:" + CUFFDIR + "\n");
 		norm.write("cuffnorm -o " + OUTDIR + "cuffnorm_tophat" 
-				+ " -L ApcMinIL10KO, ApcMin -p 2 –library-norm-method classic-fpkm " + 
+				+ " -L ApcMinIL10KO, ApcMin -p 2 -library-norm-method classic-fpkm " + 
 				GFFMERGE + " " + il10 + " " + apc + "\n");
 		norm.close();
 	}
