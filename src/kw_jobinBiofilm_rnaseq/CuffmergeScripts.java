@@ -28,9 +28,9 @@ public class CuffmergeScripts {
 		File[] files = new File(CUFFDIR).listFiles();
 		for(File f : files) {
 			if(f.getName().startsWith("hisat_RNA") && f.isDirectory()) {
-				hisat.write(f.getAbsolutePath() + File.separator + "transcripts.gtf");
+				hisat.write(f.getAbsolutePath() + File.separator + "transcripts.gtf\n");
 			} else if(f.getName().startsWith("tophat_RNA") && f.isDirectory()) {
-				tophat.write(f.getAbsolutePath() + File.separator + "transcripts.gtf");
+				tophat.write(f.getAbsolutePath() + File.separator + "transcripts.gtf\n");
 			}
 		}
 		hisat.close();
@@ -47,7 +47,7 @@ public class CuffmergeScripts {
 		BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 				SCRIPTDIR + scriptName)));
 		script.write(CUFFMERGE + " -o " + CUFFDIR + scriptName + " -g " + MOUSEGFF
-				+ " -p 2 -s " + MOUSEFA + " " + gtfList);
+				+ " -p 2 -s " + MOUSEFA + " " + gtfList + "\n");
 		script.close();
 	}
 }
