@@ -11,7 +11,7 @@ import java.io.IOException;
 public class CuffmergeScripts {
 	public static String SCRIPTDIR = "/projects/afodor_research/kwinglee/scripts/jobin/biofilmRNAseq/cuffScripts/";
 	public static String CUFFDIR = "/nobackup/afodor_research/kwinglee/jobin/biofilm/rnaseq/cufflinksMouseResults/";
-	public static String CUFFMERGE = "/nobackup/afodor_research/kwinglee/software/cufflinks-2.2.1.Linux_x86_64/cuffmerge";
+	//public static String CUFFMERGE = "/nobackup/afodor_research/kwinglee/software/cufflinks-2.2.1.Linux_x86_64/cuffmerge";
 	public static String MOUSEDIR = "/nobackup/afodor_research/kwinglee/mouseGRCm38/";
 	public static String MOUSEGFF = MOUSEDIR + "GCF_000001635.25_GRCm38.p5_genomic.gff";
 	public static String MOUSEFA = MOUSEDIR + "GCF_000001635.25_GRCm38.p5_genomic.fna";
@@ -46,7 +46,8 @@ public class CuffmergeScripts {
 	private static void makeScript(String scriptName, String gtfList) throws IOException {
 		BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 				SCRIPTDIR + scriptName)));
-		script.write(CUFFMERGE + " -o " + CUFFDIR + scriptName + " -g " + MOUSEGFF
+		script.write("PATH=$PATH:/nobackup/afodor_research/kwinglee/software/cufflinks-2.2.1.Linux_x86_64\n");
+		script.write("cuffmerge -o " + CUFFDIR + scriptName + " -g " + MOUSEGFF
 				+ " -p 2 -s " + MOUSEFA + " " + gtfList + "\n");
 		script.close();
 	}
