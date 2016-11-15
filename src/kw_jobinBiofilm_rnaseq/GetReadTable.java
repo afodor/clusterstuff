@@ -23,7 +23,7 @@ public class GetReadTable {
 		File[] files = new File(silvaDir).listFiles();
 		for(File f : files) {
 			if(f.getName().endsWith("_R1.mouseFiltered.silvaFiltered.fasta")) {
-				String name = f.getName().replace("_R1.mouseFiltered.silvaFiltered.fasta", "");
+				String name = f.getName().replace("_R1.mouseFiltered.silvaFiltered.fasta", "").replaceAll("_S[1-9]_L001", "");
 				int r1 = getNumFastaReads(f);
 				int r2 = getNumFastaReads(new File(f.getAbsolutePath().replace("_R1", "_R2")));
 
@@ -38,7 +38,7 @@ public class GetReadTable {
 		files = new File(mouseDir).listFiles();
 		for(File f : files) {
 			if(f.getName().endsWith("_R1.mouseFiltered.fastq")) {
-				String name = f.getName().replace("_R1.mouseFiltered.fastq", "");
+				String name = f.getName().replace("_R1.mouseFiltered.fastq", "").replaceAll("_S[1-9]_L001", "");
 				int r1 = getNumFastqReads(f);
 				int r2 = getNumFastqReads(new File(f.getAbsolutePath().replace("_R1", "_R2")));
 
