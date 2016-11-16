@@ -62,7 +62,7 @@ public class CuffDiffNormScripts {
 			} else if(name.contains("M937")) { //cage2
 				cage2 += f.getAbsolutePath() + File.separator + "accepted_hits.bam,";
 			} else if(name.contains("M317") || name.contains("M426")) { //cage3
-				cage2 += f.getAbsolutePath() + File.separator + "accepted_hits.bam,";
+				cage3 += f.getAbsolutePath() + File.separator + "accepted_hits.bam,";
 			} else {
 				throw new Exception("Invalid name: " + name);
 			}
