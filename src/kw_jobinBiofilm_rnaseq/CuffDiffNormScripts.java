@@ -30,15 +30,15 @@ public class CuffDiffNormScripts {
 				throw new Exception("Invalid name: " + name);
 			}
 		}
-		il10.replaceAll(",$", "");
-		apc.replaceAll(",$", "");
+		il10 = il10.replaceAll(",$", "");
+		apc = apc.replaceAll(",$", "");
 		
 		//cuffdiff
 		BufferedWriter diff = new BufferedWriter(new FileWriter(new File(
 				SCRIPTDIR + "cuffdiff_tophat")));
 		diff.write("PATH=$PATH:" + CUFFDIR + "\n");
 		diff.write("cuffdiff -o " + OUTDIR + "cuffdiff_tophat" 
-				+ " -L ApcMinIL10KO, ApcMin -p 2 " + GFFMERGE + " " +
+				+ " -L ApcMinIL10KO,ApcMin -p 2 " + GFFMERGE + " " +
 				il10 + " " + apc + "\n");
 		diff.close();
 		
@@ -47,7 +47,7 @@ public class CuffDiffNormScripts {
 				SCRIPTDIR + "cuffnorm_tophat")));
 		norm.write("PATH=$PATH:" + CUFFDIR + "\n");
 		norm.write("cuffnorm -o " + OUTDIR + "cuffnorm_tophat" 
-				+ " -L ApcMinIL10KO, ApcMin -p 2 -library-norm-method classic-fpkm " + 
+				+ " -L ApcMinIL10KO,ApcMin -p 2 -library-norm-method classic-fpkm " + 
 				GFFMERGE + " " + il10 + " " + apc + "\n");
 		norm.close();
 	}
