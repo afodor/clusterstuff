@@ -50,6 +50,30 @@ public class CuffDiffNormScripts {
 				+ " -L ApcMinIL10KO,ApcMin -p 2 -library-norm-method classic-fpkm " + 
 				GFFMERGE + " " + il10 + " " + apc + "\n");
 		norm.close();
+		
+		//cuffdiff for cages
+		String cage1 = "";
+		String cage2 = "";
+		String cage3 = "";
+		for(File f : files) {
+			String name = f.getName();
+			if(name.contains("M115") || name.contains("M527") || name.contains("M635")) {//cage1
+				cage1 += f.getAbsolutePath() + File.separator + "accepted_hits.bam,";
+			} else if(name.contains("M937")) { //cage2
+				cage2 += f.getAbsolutePath() + File.separator + "accepted_hits.bam,";
+			} else if(name.contains("M317") || name.contains("M426")) { //cage3
+				cage2 += f.getAbsolutePath() + File.separator + "accepted_hits.bam,";
+			} else {
+				throw new Exception("Invalid name: " + name);
+			}
+		}
+		BufferedWriter cage = new BufferedWriter(new FileWriter(new File(
+				SCRIPTDIR + "cuffdiff_tophat_cage")));
+		cage.write("PATH=$PATH:" + CUFFDIR + "\n");
+		cage.write("cuffdiff -o " + OUTDIR + "cuffdiff_tophat" 
+				+ " -L cage1,cage2,cage3 -p 2 " + GFFMERGE + " " +
+				cage1 + " " + cage2 + " " + cage3 + "\n");
+		cage.close();
 	}
 
 }
