@@ -67,10 +67,13 @@ public class CuffDiffNormScripts {
 				throw new Exception("Invalid name: " + name);
 			}
 		}
+		cage1 = cage1.replaceAll(",$", "");
+		cage2 = cage2.replaceAll(",$", "");
+		cage3 = cage3.replaceAll(",$", "");
 		BufferedWriter cage = new BufferedWriter(new FileWriter(new File(
 				SCRIPTDIR + "cuffdiff_tophat_cage")));
 		cage.write("PATH=$PATH:" + CUFFDIR + "\n");
-		cage.write("cuffdiff -o " + OUTDIR + "cuffdiff_tophat" 
+		cage.write("cuffdiff -o " + OUTDIR + "cuffdiff_tophat_cage" 
 				+ " -L cage1,cage2,cage3 -p 2 " + GFFMERGE + " " +
 				cage1 + " " + cage2 + " " + cage3 + "\n");
 		cage.close();
