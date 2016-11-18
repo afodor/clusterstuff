@@ -61,7 +61,7 @@ public class CuffDiffNormScripts {
 		BufferedWriter norm2 = new BufferedWriter(new FileWriter(new File(
 				SCRIPTDIR + "cuffnorm_tophat_indiv")));
 		norm2.write("PATH=$PATH:" + CUFFDIR + "\n");
-		norm2.write("cuffnorm -o " + OUTDIR + "cuffnorm_tophat" 
+		norm2.write("cuffnorm -o " + OUTDIR + "cuffnorm_tophat_indiv" 
 				+ " -L " + indLab + " -p 4 -library-norm-method classic-fpkm " + 
 				GFFMERGE + " " + indiv + "\n");
 		norm2.close();
