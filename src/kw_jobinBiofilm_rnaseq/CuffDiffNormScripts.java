@@ -31,7 +31,7 @@ public class CuffDiffNormScripts {
 			} else {
 				throw new Exception("Invalid name: " + name);
 			}
-			indiv += f.getAbsolutePath() + File.separator + "accepted_hits.bam";
+			indiv += f.getAbsolutePath() + File.separator + "accepted_hits.bam ";
 			indLab += name + ",";
 		}
 		il10 = il10.replaceAll(",$", "");
@@ -59,7 +59,7 @@ public class CuffDiffNormScripts {
 		
 		//cuffnorm separated
 		BufferedWriter norm2 = new BufferedWriter(new FileWriter(new File(
-				SCRIPTDIR + "cuffnorm_tophat")));
+				SCRIPTDIR + "cuffnorm_tophat_indiv")));
 		norm2.write("PATH=$PATH:" + CUFFDIR + "\n");
 		norm2.write("cuffnorm -o " + OUTDIR + "cuffnorm_tophat" 
 				+ " -L " + indLab + " -p 4 -library-norm-method classic-fpkm " + 
