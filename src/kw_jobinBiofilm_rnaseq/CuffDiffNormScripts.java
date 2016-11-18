@@ -20,6 +20,8 @@ public class CuffDiffNormScripts {
 		File[] files = new File(BASEDIR + "tophatAlignToMouse/").listFiles();
 		String il10 = "";
 		String apc = "";
+		String indiv = "";
+		String indLab = "";
 		for(File f : files) {
 			String name = f.getName();
 			if(name.contains("M115") || name.contains("M317") || name.contains("M426")) {//il10
@@ -29,9 +31,13 @@ public class CuffDiffNormScripts {
 			} else {
 				throw new Exception("Invalid name: " + name);
 			}
+			indiv += f.getAbsolutePath() + File.separator + "accepted_hits.bam";
+			indLab += name + ",";
 		}
 		il10 = il10.replaceAll(",$", "");
 		apc = apc.replaceAll(",$", "");
+		indiv = indiv.replaceAll(" $", "");
+		indLab = indLab.replaceAll(",$", "");
 		
 		//cuffdiff
 		BufferedWriter diff = new BufferedWriter(new FileWriter(new File(
@@ -42,7 +48,7 @@ public class CuffDiffNormScripts {
 				il10 + " " + apc + "\n");
 		diff.close();
 		
-		//cuffnorm
+		//cuffnorm by genotype
 		BufferedWriter norm = new BufferedWriter(new FileWriter(new File(
 				SCRIPTDIR + "cuffnorm_tophat")));
 		norm.write("PATH=$PATH:" + CUFFDIR + "\n");
@@ -50,6 +56,15 @@ public class CuffDiffNormScripts {
 				+ " -L ApcMinIL10KO,ApcMin -p 2 -library-norm-method classic-fpkm " + 
 				GFFMERGE + " " + il10 + " " + apc + "\n");
 		norm.close();
+		
+		//cuffnorm separated
+		BufferedWriter norm2 = new BufferedWriter(new FileWriter(new File(
+				SCRIPTDIR + "cuffnorm_tophat")));
+		norm2.write("PATH=$PATH:" + CUFFDIR + "\n");
+		norm2.write("cuffnorm -o " + OUTDIR + "cuffnorm_tophat" 
+				+ " -L " + indLab + " -p 4 -library-norm-method classic-fpkm " + 
+				GFFMERGE + " " + indiv + "\n");
+		norm2.close();
 		
 		//cuffdiff for cages
 		String cage1 = "";
