@@ -22,7 +22,7 @@ public class FastQC {
 		for(String s : samples) {
 			String[] fqs = new File(FQDIR + s).list();
 			for(String f : fqs) {
-				String name = f.replace("-L001_S1_L001", "").replace("_001.fastq.gz", "");
+				String name = f.replaceAll("-L001_S[1-6]_L001", "").replace("_001.fastq.gz", "");
 				String scriptName = "qc_"+ name;
 				BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 						SCRIPTDIR + scriptName)));
