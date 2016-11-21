@@ -1,0 +1,37 @@
+##add metadata to cufflinks output
+##11/20/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\biofilm\\RNAseq\\mouse - cufflinks\\cuffnorm")
+
+levels = c("cds", "genes", "isoforms", "tss_groups")
+
+meta = read.table("..\\..\\Jobin.9.20.16.RNA-seq test run sample sheet.txt", sep="\t", header=T, stringsAsFactors = F)
+names(meta)[2] = "sampleID"
+
+for(lev in levels) {
+  print(lev)
+  table = read.table(paste(lev, ".fpkm_table", sep=""), sep="\t", stringsAsFactors = F)
+  
+  ##fix sample IDs
+  table[1,1] = "sampleID"
+  table[1,] = gsub("-bc", "_bc", gsub("-L001", "_L001", gsub("_0", "", table[1,])))
+  
+  ##transpose
+  write.table(t(table), paste("cuff_transcriptAsCol_", lev, ".txt", sep=""),
+              sep="\t", row.names = F, col.names = F, quote = F)
+  table = read.table(paste("cuff_transcriptAsCol_", lev, ".txt", sep=""),
+                     sep="\t", header=T, stringsAsFactors = F)
+  
+  ##add metadata
+  table = merge(meta, table, by="sampleID")
+  write.table(table, paste("cuff_transcriptAsCol_withMeta_all_", lev, ".txt", sep=""), 
+              sep="\t", row.names = F, col.names = T, quote=F)
+  print(ncol(table))
+  
+  ##remove all columns that are all 0
+  table = table[,c(rep(T, 13), colSums(table[,-(1:13)]) > 0)]
+  print(ncol(table))
+  write.table(table, paste("cuff_transcriptAsCol_withMeta_", lev, ".txt", sep=""), 
+              sep="\t", row.names = F, col.names = T, quote=F)
+}
