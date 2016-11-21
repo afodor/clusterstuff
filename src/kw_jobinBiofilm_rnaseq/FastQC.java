@@ -22,13 +22,21 @@ public class FastQC {
 		for(String s : samples) {
 			String[] fqs = new File(FQDIR + s).list();
 			for(String f : fqs) {
+				//create output directory
 				String name = f.replaceAll("-L001_S[1-6]_L001", "").replace("_001.fastq.gz", "");
+				String out = OUTDIR + name;
+				File file = new File(out);
+				file.mkdir();
+				
+				//write script
 				String scriptName = "qc_"+ name;
 				BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 						SCRIPTDIR + scriptName)));
-				script.write(FASTQC + " --outdir=" + OUTDIR + name + " "
+				script.write(FASTQC + " --outdir=" + out + " "
 						+ FQDIR + s + File.separator + f + "\n");
 				script.close();
+				
+				//add to runall
 				runAll.write("qsub -q \"copperhead\" " + scriptName + "\n");
 				
 			}
