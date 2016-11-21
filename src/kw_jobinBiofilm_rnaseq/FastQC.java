@@ -24,9 +24,10 @@ public class FastQC {
 			for(String f : fqs) {
 				//create output directory
 				String name = f.replaceAll("-L001_S[1-6]_L001", "").replace("_001.fastq.gz", "");
-				String out = OUTDIR + name;
+				/*String out = OUTDIR + name;
 				File file = new File(out);
-				file.mkdir();
+				file.mkdir();*/
+				String out = OUTDIR;
 				
 				//write script
 				String scriptName = "qc_"+ name;
