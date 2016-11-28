@@ -1,0 +1,73 @@
+##look for correlation between Spearman values for the different tumor numbers
+##11/28/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\APC tumors\\rdpQiimeAnalysis")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus", "qiimeDeNovo", "qiimeClosedRef")
+
+pdf("apcTumorSpearmanCorrelation.pdf", height=7.3, width=7)
+for(taxa in taxaLevels) {
+  print(taxa)
+  table = read.table(paste("apcTumorOTUmodel_separatedVariables_pValues_", taxa, ".txt", sep=""), 
+                     sep="\t", header=T, stringsAsFactors = F)
+  par(mfrow=c(2, 2), mar=c(4.1, 4.1, 3, .2), oma=c(3,0,0,0), xpd=F)
+  ##Colon vs Cecum
+  colcec = rep("black", nrow(table))
+  colcec[table$pAdjColonTumorNumber < 0.05] = "blue"
+  colcec[table$pAdjCecum < 0.05] = "purple"
+  colcec[table$pAdjColonTumorNumber < 0.05 & table$pAdjCecum < 0.05] = "red"
+  cc = cor(x=table$spearmanColonTumorNumber, y=table$spearmanCecum)
+  plot(x=table$spearmanColonTumorNumber, y=table$spearmanCecum,
+       main=paste(taxa, " Spearman = ", format(cc, digits = 3), sep=""), 
+       xlab="colon tumor number spearman", ylab="cecum tumor number spearman",
+       pch=16, col=colcec)
+  abline(lm(table$spearmanCecum~table$spearmanColonTumorNumber))
+  
+  ##colon vs small intestine
+  colsi = rep("black", nrow(table))
+  colsi[table$pAdjColonTumorNumber < 0.05] = "blue"
+  colsi[table$pAdjSmallIntestine < 0.05] = "purple"
+  colsi[table$pAdjColonTumorNumber < 0.05 & table$pAdjSmallIntestine < 0.05] = "red"
+  cc = cor(x=table$spearmanColonTumorNumber, y=table$spearmanSmallIntestine)
+  plot(x=table$spearmanColonTumorNumber, y=table$spearmanSmallIntestine,
+       main=paste(taxa, " Spearman = ", format(cc, digits = 3), sep=""), 
+       xlab="colon tumor number spearman", ylab="small intestine tumor number spearman",
+       pch=16, col=colsi)
+  abline(lm(table$spearmanSmallIntestine~table$spearmanColonTumorNumber))
+  
+  ##cecum vs small intestine
+  cecsi = rep("black", nrow(table))
+  cecsi[table$pAdjCecum < 0.05] = "blue"
+  cecsi[table$pAdjSmallIntestine < 0.05] = "purple"
+  cecsi[table$pAdjCecum < 0.05 & table$pAdjSmallIntestine < 0.05] = "red"
+  cc = cor(x=table$spearmanCecum, y=table$spearmanSmallIntestine)
+  plot(x=table$spearmanCecum, y=table$spearmanSmallIntestine,
+       main=paste(taxa, " Spearman = ", format(cc, digits = 3), sep=""), 
+       xlab="cecum tumor number spearman", ylab="small intestine tumor number spearman",
+       pch=16, col=cecsi)
+  abline(lm(table$spearmanSmallIntestine~table$spearmanCecum))
+  
+  ##colon vs combined inflammation
+  inf = rep("black", nrow(table))
+  inf[table$pAdjColonTumorNumber < 0.05] = "blue"
+  inf[table$pAdjCombinedInflammationScore < 0.05] = "purple"
+  inf[table$pAdjColonTumorNumber < 0.05 & table$pAdjCombinedInflammationScore < 0.05] = "red"
+  cc = cor(x=table$spearmanColonTumorNumber, y=table$spearmanCombinedInflammationScore)
+  plot(x=table$spearmanColonTumorNumber, y=table$spearmanCombinedInflammationScore,
+       main=paste(taxa, " Spearman = ", format(cc, digits = 3), sep=""), 
+       xlab="colon tumor number spearman", ylab="combined inflammation score spearman",
+       pch=16, col=inf)
+  abline(lm(table$spearmanCombinedInflammationScore~table$spearmanColonTumorNumber))
+  
+  ##add legend
+  par(oma=c(0,0,0,0), mar=c(0.1,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+  plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+  legend("bottom", ncol=3,
+         legend=c("significant in both", "signficiant in x", "significant in y",
+                  "not significant", "linear model"),
+         col = c("red", "blue", "purple", "black", "black"),
+         pch = c(rep(16,4), NA),
+         lty = c(rep(NA, 4), 1))
+}
+dev.off()
