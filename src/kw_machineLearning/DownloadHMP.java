@@ -54,6 +54,7 @@ public class DownloadHMP {
 				script.write("#PBS -l walltime=" + NUMCMDS + ":00:00\n");
 				runAll.write("qsub -q \"copperhead\" download_" + numScripts + "\n");
 				numScripts++;
+				numCmds = 0;
 			}
 		}
 		
