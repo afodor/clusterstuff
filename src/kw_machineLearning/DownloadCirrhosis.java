@@ -23,6 +23,7 @@ public class DownloadCirrhosis {
 						SCRIPTDIR + "downloadCirr_0")));
 				int numHours = 2 * NUMCMDS;
 				script.write("#PBS -l walltime=" + Integer.toString(numHours) + ":00:00\n");
+				script.write("cd " + DIR + "fastqs/\n");
 				runAll.write("qsub -q \"copperhead\" downloadCirr_0\n");
 				int numScripts = 1;
 				int numCmds = 0;
@@ -37,7 +38,6 @@ public class DownloadCirrhosis {
 					String[] files = fqs.split(";");
 					
 					//add to script
-					script.write("cd " + DIR + "fastqs/\n");
 					script.write("wget " + files[0] + "\n");
 					script.write("wget " + files[1] + "\n");
 					numCmds+=2;
@@ -48,6 +48,7 @@ public class DownloadCirrhosis {
 						script = new BufferedWriter(new FileWriter(new File(
 								SCRIPTDIR + "downloadCirr_" + numScripts)));
 						script.write("#PBS -l walltime=" + Integer.toString(numHours) + ":00:00\n");
+						script.write("cd " + DIR + "fastqs/\n");
 						runAll.write("qsub -q \"copperhead\" downloadCirr_" + numScripts + "\n");
 						numScripts++;
 						numCmds = 0;
