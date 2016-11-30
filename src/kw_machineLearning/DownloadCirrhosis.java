@@ -11,7 +11,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class DownloadCirrhosis {
-	public static String DIR = "/nobackup/afodor_research/kwinglee/machineLearning/cirrhosis/fastqs/";
+	public static String DIR = "/nobackup/afodor_research/kwinglee/machineLearning/cirrhosis/";
 	public static int NUMCMDS = 10;//number of downloads per script
 	public static String SCRIPTDIR = "/projects/afodor_research/kwinglee/scripts/machineLearning/cirrhosis/";
 	
@@ -37,7 +37,7 @@ public class DownloadCirrhosis {
 					String[] files = fqs.split(";");
 					
 					//add to script
-					script.write("cd " + DIR + "\n");
+					script.write("cd " + DIR + "fastqs/\n");
 					script.write("wget " + files[0] + "\n");
 					script.write("wget " + files[1] + "\n");
 					numCmds+=2;
