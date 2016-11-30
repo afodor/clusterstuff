@@ -22,7 +22,8 @@ public class DownloadHMP {
 				SCRIPTDIR + "downloadAll.sh")));
 		BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 				SCRIPTDIR + "download_0")));
-		script.write("#PBS -l walltime=" + Integer.toString(2 * NUMCMDS) + ":00:00\n");
+		int numHours = 2 * NUMCMDS;
+		script.write("#PBS -l walltime=" + Integer.toString(numHours) + ":00:00\n");
 		runAll.write("qsub -q \"copperhead\" download_0\n");
 		int numScripts = 1;
 		int numCmds = 0;
@@ -51,7 +52,7 @@ public class DownloadHMP {
 				script.close();
 				script = new BufferedWriter(new FileWriter(new File(
 						SCRIPTDIR + "download_" + numScripts)));
-				script.write("#PBS -l walltime=" + NUMCMDS + ":00:00\n");
+				script.write("#PBS -l walltime=" + Integer.toString(numHours) + ":00:00\n");
 				runAll.write("qsub -q \"copperhead\" download_" + numScripts + "\n");
 				numScripts++;
 				numCmds = 0;
