@@ -22,8 +22,7 @@ public class DownloadHMP {
 				SCRIPTDIR + "downloadAll.sh")));
 		BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 				SCRIPTDIR + "download_0")));
-		int numHours = 2 * NUMCMDS;
-		script.write("#PBS -l walltime=" + numHours + ":00:00\n");
+		script.write("#PBS -l walltime=" + Integer.toString(2 * NUMCMDS) + ":00:00\n");
 		runAll.write("qsub -q \"copperhead\" download_0\n");
 		int numScripts = 1;
 		int numCmds = 0;
