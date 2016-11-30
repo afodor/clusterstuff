@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public class DownloadHMP {
 	public static String DIR = "/nobackup/afodor_research/kwinglee/machineLearning/hmp/";
-	public static int NUMCMDS = 20;//number of downloads per script
+	public static int NUMCMDS = 10;//number of downloads per script
 	public static String SCRIPTDIR = "/projects/afodor_research/kwinglee/scripts/machineLearning/hmp/";
 	public static String WEBSITE = "http://hmpdacc.org";
 	
@@ -22,7 +22,7 @@ public class DownloadHMP {
 				SCRIPTDIR + "downloadAll.sh")));
 		BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 				SCRIPTDIR + "download_0")));
-		script.write("#PBS -l walltime=" + NUMCMDS + ":00:00\n");
+		script.write("#PBS -l walltime=" + (2*NUMCMDS) + ":00:00\n");
 		runAll.write("qsub -q \"copperhead\" download_0\n");
 		int numScripts = 1;
 		int numCmds = 0;
