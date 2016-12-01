@@ -21,7 +21,7 @@ public class DownloadColorectal {
 				SCRIPTDIR + "downloadAll.sh")));
 		String baseName = "downloadColo_";
 		BufferedWriter script = new BufferedWriter(new FileWriter(new File(
-				SCRIPTDIR + baseName + "_0")));
+				SCRIPTDIR + baseName + "0")));
 		int numHours = 5 * NUMCMDS;
 		script.write("#PBS -l walltime=" + Integer.toString(numHours) + ":00:00\n");
 		script.write("cd " + DIR + "fastqs/\n");
