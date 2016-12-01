@@ -36,7 +36,7 @@ public class DownloadHMP {
 			String[] sp = line.split(",");
 			
 			//put files in folder depending on body site
-			String site = DIR + sp[1];
+			String site = DIR + "fastqs/" + sp[1];
 			File bodySite = new File(site);
 			if(!bodySite.exists()) {
 				bodySite.mkdirs();
