@@ -21,7 +21,7 @@ public class DownloadCirrhosis {
 				SCRIPTDIR + "downloadAll.sh")));
 		BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 				SCRIPTDIR + "downloadCirr_0")));
-		int numHours = 2 * NUMCMDS;
+		int numHours = 5 * NUMCMDS;
 		script.write("#PBS -l walltime=" + Integer.toString(numHours) + ":00:00\n");
 		script.write("cd " + DIR + "fastqs/\n");
 		runAll.write("qsub -q \"copperhead\" downloadCirr_0\n");
