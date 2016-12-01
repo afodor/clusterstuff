@@ -41,11 +41,15 @@ public class DownloadColorectal {
 
 				//add to script
 				script.write("wget " + files[0] + "\n");
-				script.write("wget " + files[1] + "\n");
-				numCmds+=2;
+				if(files.length == 2) {
+					script.write("wget " + files[1] + "\n");
+					numCmds+=2;					
+				} else {
+					numCmds++;
+				}
 
 				//check if need new script
-				if(numCmds == NUMCMDS) {
+				if(numCmds >= NUMCMDS) {
 					script.close();
 					script = new BufferedWriter(new FileWriter(new File(
 							SCRIPTDIR + baseName + numScripts)));
