@@ -38,19 +38,23 @@ public class DownloadT2D {
 			for(String line = list.readLine(); line!= null; line = list.readLine()) {
 				String[] sp = line.split(",");
 
-				script.write("wget " + sp[9] + "\n");
-				numCmds++;
+				if(sp.length > 9) {//ignore blanks
+					script.write("wget " + sp[9] + "\n");
+					numCmds++;
 
-				//check if need new script
-				if(numCmds == NUMCMDS) {
-					script.close();
-					script = new BufferedWriter(new FileWriter(new File(
-							SCRIPTDIR + scriptBase + numScripts)));
-					script.write("#PBS -l walltime=" + Integer.toString(numHours) + ":00:00\n");
-					script.write("cd " + DIR + "fastqs/\n");
-					runAll.write("qsub -q \"copperhead\" " + scriptBase + numScripts + "\n");
-					numScripts++;
-					numCmds = 0;
+					//check if need new script
+					if(numCmds == NUMCMDS) {
+						script.close();
+						script = new BufferedWriter(new FileWriter(new File(
+								SCRIPTDIR + scriptBase + numScripts)));
+						script.write("#PBS -l walltime=" + Integer.toString(numHours) + ":00:00\n");
+						script.write("cd " + DIR + "fastqs/\n");
+						runAll.write("qsub -q \"copperhead\" " + scriptBase + numScripts + "\n");
+						numScripts++;
+						numCmds = 0;
+					}
+				} else {
+					System.err.println(line);
 				}
 			}
 			list.close();
