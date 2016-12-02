@@ -39,6 +39,9 @@ public class DownloadIBD {
 			String[] files = fqs.split(";");
 
 			//add to script
+			if(files.length != 2) {
+				System.err.println(fqs);
+			}
 			script.write("wget " + files[0] + "\n");
 			script.write("wget " + files[1] + "\n");
 			numCmds+=2;
