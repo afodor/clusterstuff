@@ -25,7 +25,7 @@ public class DownloadIBD {
 		int numHours = 5 * NUMCMDS;
 		script.write("#PBS -l walltime=" + Integer.toString(numHours) + ":00:00\n");
 		script.write("cd " + DIR + "fastqs/\n");
-		runAll.write("qsub -q \"copperhead\" " + scriptBase + "_0\n");
+		runAll.write("qsub -q \"copperhead\" " + scriptBase + "0\n");
 		int numScripts = 1;
 		int numCmds = 0;
 
