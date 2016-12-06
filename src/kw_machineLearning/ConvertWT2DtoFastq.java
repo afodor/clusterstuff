@@ -10,7 +10,7 @@ import java.io.IOException;
 
 public class ConvertWT2DtoFastq {
 	public static String DIR = "/nobackup/afodor_research/kwinglee/machineLearning/wt2d/fastqs";
-	public static int NUMCMDS = 10;//number of downloads per script
+	public static int NUMCMDS = 1;//number of downloads per script
 	public static String SCRIPTDIR = "/projects/afodor_research/kwinglee/scripts/machineLearning/wt2d/";
 	public static String PATH = "export PATH=$PATH:/nobackup/afodor_research/kwinglee/software/sratoolkit.2.8.0-ubuntu64/bin/";
 
@@ -21,8 +21,8 @@ public class ConvertWT2DtoFastq {
 		String scriptBase = "convertWT2D_";
 		BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 				SCRIPTDIR + scriptBase + "0")));
-		int numHours = 5 * NUMCMDS;
-		script.write("#PBS -l walltime=" + Integer.toString(numHours) + ":00:00\n");
+		//int numHours = 5 * NUMCMDS;
+		//script.write("#PBS -l walltime=" + Integer.toString(numHours) + ":00:00\n");
 		script.write("cd " + DIR + "\n");
 		script.write(PATH + "\n");
 		runAll.write("qsub -q \"copperhead\" " + scriptBase + "0\n");
@@ -39,7 +39,7 @@ public class ConvertWT2DtoFastq {
 				script.close();
 				script = new BufferedWriter(new FileWriter(new File(
 						SCRIPTDIR + scriptBase + numScripts)));
-				script.write("#PBS -l walltime=" + Integer.toString(numHours) + ":00:00\n");
+				//script.write("#PBS -l walltime=" + Integer.toString(numHours) + ":00:00\n");
 				script.write("cd " + DIR + "\n");
 				script.write(PATH + "\n");
 				runAll.write("qsub -q \"copperhead\" " + scriptBase + numScripts + "\n");
