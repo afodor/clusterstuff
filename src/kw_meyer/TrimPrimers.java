@@ -27,19 +27,19 @@ public class TrimPrimers {
 			int numLines = 0;
 			int numRem = 0;
 			String header = in.readLine();
-			//for(String line = in.readLine(); line != null; line = in.readLine()) {
-			for(int i = 0; i < 10; i++) {
-				String line = in.readLine();
+			for(String line = in.readLine(); line != null; line = in.readLine()) {
+			//for(int i = 0; i < 10; i++) {
+				//String line = in.readLine();
 				numLines++;
 				if(!line.startsWith(">")) {
 					String seq = line.replaceAll("^CCTACGGG[AGTC]GGC[AT]GCAG", "").replaceAll("GGATTAGATACCC[^A][^C]GTAGTC$", "");
-					System.out.println(line);
+					/*System.out.println(line);
 					System.out.println(seq);
 					System.out.println(line.length() + " " + seq.length());
 					System.out.println(line.matches("^CCTACGGG[AGTC]GGC[AT]GCAG"));
 					System.out.println(line.matches("GGATTAGATACCC[^A][^C]GTAGTC$"));
-					System.out.println();
-					if(seq.length() != line.length() - 17 - 21) {
+					System.out.println();*/
+					if(seq.length() == line.length() - 17 - 21) {
 						out.write(header + "\n" + seq + "\n");
 					} else {
 						numRem++;
