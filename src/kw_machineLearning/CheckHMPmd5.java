@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 public class CheckHMPmd5 {
-	public static String DIR = "/nobackup/afodor_research/kwinglee/machineLearning/hmp";
+	public static String DIR = "/nobackup/afodor_research/kwinglee/machineLearning/hmp/";
 
 	public static void main(String[] args) throws IOException {
 		//get map of ID to HMP MD5
