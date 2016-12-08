@@ -31,7 +31,7 @@ public class CheckHMPmd5 {
 		HashMap<String, String> download = new HashMap<String, String>();
 		BufferedReader file = new BufferedReader(new FileReader(new File
 				(DIR + "fastqs/stoolMD5")));
-		for(String line = list.readLine(); line != null; line = list.readLine()) {
+		for(String line = file.readLine(); line != null; line = file.readLine()) {
 			String[] sp = line.split(" ");
 			String id = sp[1].replace(".tar.bz2", "");
 			download.put(id, sp[0]);
