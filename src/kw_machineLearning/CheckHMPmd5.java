@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 public class CheckHMPmd5 {
@@ -32,7 +33,8 @@ public class CheckHMPmd5 {
 		BufferedReader file = new BufferedReader(new FileReader(new File
 				(DIR + "fastqs/stoolMD5")));
 		for(String line = file.readLine(); line != null; line = file.readLine()) {
-			String[] sp = line.split(" ");
+			String[] sp = line.split("  ");
+			line.contains(" ");
 			String id = sp[1].replace(".tar.bz2", "");
 			download.put(id, sp[0]);
 		}
@@ -42,14 +44,16 @@ public class CheckHMPmd5 {
 		if(hmp.size() != download.size()) {
 			System.err.println("Different sizes: " + hmp.size() + ' ' + download.size());
 		} else {
-			Set<String> hkeys = hmp.keySet();
-			Set<String> dkeys = download.keySet();
+			Set<String> hkeys = new HashSet<String>();
+			hkeys.addAll(hmp.keySet());
+			Set<String> dkeys = new HashSet<String>();
+			dkeys.addAll(download.keySet());
 			hkeys.removeAll(dkeys);
 			if(hkeys.size() != 0) {
 				System.err.println("Extra HMP keys: " + hkeys.size());
 			}
-			hkeys = hmp.keySet();
-			dkeys = download.keySet();
+			hkeys.addAll(hmp.keySet());
+			dkeys.addAll(download.keySet());
 			dkeys.removeAll(hkeys);
 			if(dkeys.size() != 0) {
 				System.err.println("Extra download keys: " + dkeys.size());
