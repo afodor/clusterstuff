@@ -25,12 +25,12 @@ public class TrimPrimers {
 			BufferedReader in = new BufferedReader(new FileReader(fa));
 			BufferedWriter out = new BufferedWriter(new FileWriter(new File(
 					OUT_DIR + name)));
-			int numLines = 0;
+			int numSeqs = 0;
 			int numRem = 0;
 			String header = in.readLine();
 			for(String line = in.readLine(); line != null; line = in.readLine()) {
-				numLines++;
 				if(!line.startsWith(">")) {
+					numSeqs++;
 					String seq = line.replaceAll("^CCTACGGG[AGTC]GGC[AT]GCAG", "").replaceAll("GGATTAGATACCC[^A][^C]GTAGTC$", "");
 					if(seq.length() == line.length() - 17 - 21) {
 						out.write(header + "\n" + seq + "\n");
@@ -51,7 +51,7 @@ public class TrimPrimers {
 			
 			in.close();
 			out.close();
-			System.out.println(fa.getName() + " " + numLines + " " + numRem + " " + (100.0 * numRem / numLines) + " " + (numLines - numRem));
+			System.out.println(fa.getName() + " " + numSeqs + " " + numRem + " " + (100.0 * numRem / numSeqs) + " " + (numSeqs - numRem));
 		}
 	}
 }
