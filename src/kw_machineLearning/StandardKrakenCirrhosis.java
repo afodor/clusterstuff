@@ -19,7 +19,7 @@ public class StandardKrakenCirrhosis {
 	public static void main(String[] args) throws IOException {
 		//set up script to run everything
 		BufferedWriter script = new BufferedWriter(new FileWriter(new File(
-				SCRIPT_DIR + "stdKrakenIBD")));
+				SCRIPT_DIR + "stdKrakenCirrhosis")));
 		script.write("#PBS -l walltime=600:00:00\n");
 		script.write("#PBS -l mem=300GB\n");
 		String[] fastqs = new File(FASTQ_DIR).list();
