@@ -45,7 +45,7 @@ public class TrimPrimers {
 						numRem++;
 					}
 				} else {
-					header = in.readLine();
+					header = line;
 				}
 			}
 			
