@@ -14,7 +14,7 @@ public class writeRDPScripts {
 	//public static final String FASTA_FOLDER = "/nobackup/afodor_research/katieDataSep21/inFasta/";
 	//public static final String RDP_FOLDER = "/nobackup/afodor_research/kwinglee/meyer/rdpResults/";
 	//directories for merged reads with primers removed:
-	public static final String FASTA_FOLDER = "/nobackup/afodor_research/kwinglee/meyer/fastas_merged_trimmed";
+	public static final String FASTA_FOLDER = "/nobackup/afodor_research/kwinglee/meyer/fastas_merged_trimmed/";
 	public static final String RDP_FOLDER = "/nobackup/afodor_research/kwinglee/meyer/rdpResults_trimmed/";
 	public static final String SCRIPT_FOLDER = "/projects/afodor_research/kwinglee/scripts/meyer/";
 
