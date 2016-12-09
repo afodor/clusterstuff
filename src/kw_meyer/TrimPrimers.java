@@ -19,8 +19,8 @@ public class TrimPrimers {
 	
 	public static void main(String[] args) throws IOException {
 		File[] fas = new File(FASTA_FOLDER).listFiles();
-		//for(File fa : fas) {
-		File fa = fas[0];
+		for(File fa : fas) {
+		//File fa = fas[0];
 			String name = fa.getName().replace(".fna", "_trimmed.fna");
 			BufferedReader in = new BufferedReader(new FileReader(fa));
 			BufferedWriter out = new BufferedWriter(new FileWriter(new File(
@@ -35,19 +35,19 @@ public class TrimPrimers {
 					if(seq.length() == line.length() - 17 - 21) {
 						out.write(header + "\n" + seq + "\n");
 					} else {
-						if(numRem < 10) {
+						/*if(numRem < 10) {
 							System.out.println(line);
 							System.out.println(seq);
 							System.out.println("Fwd: " + line.startsWith("CCTACGGG"));
 							System.out.println("Rev: " + line.endsWith("GTAGTC"));
 							System.out.println("");
-						}
+						}*/
 						numRem++;
 					}
 				} else {
 					header = in.readLine();
 				}
-			//}
+			}
 			
 			in.close();
 			out.close();
