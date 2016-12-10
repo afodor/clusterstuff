@@ -10,7 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class StandardKrakenIBD {
-	public static String KRAKEN_DIR = "/projects/afodor_research/kwinglee/software/kraken/";
+	public static String KRAKEN_DIR = "/nobackup/afodor_research/kwinglee/software/kraken/";
 	public static String DB = KRAKEN_DIR + "krakenStandardDB";
 	public static String FASTQ_DIR = "/nobackup/afodor_research/kwinglee/machineLearning/ibd/fastqs/";
 	public static String SCRIPT_DIR = "/projects/afodor_research/kwinglee/scripts/machineLearning/ibd/";
