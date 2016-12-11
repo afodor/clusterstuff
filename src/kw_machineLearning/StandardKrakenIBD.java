@@ -21,7 +21,7 @@ public class StandardKrakenIBD {
 		BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 				SCRIPT_DIR + "stdKrakenIBD")));
 		script.write("#PBS -l walltime=600:00:00\n");
-		script.write("#PBS -l mem=100GB\n");
+		script.write("#PBS -l mem=500GB\n");
 		String[] fastqs = new File(FASTQ_DIR).list();
 		for(String fq : fastqs) {
 			if(fq.endsWith(".1.fq.gz")) {
