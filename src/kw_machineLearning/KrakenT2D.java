@@ -31,8 +31,9 @@ public class KrakenT2D {
 		script.write("#PBS -l mem=10GB\n");
 		String[] fastqs = new File(FASTQ_DIR).list();
 		for(String fq : fastqs) {
-			if(fq.endsWith("_1.fq.gz")) {
-				String name = fq.replace("_1.fq.gz", "");
+			String end = "_1.fastq.gz";
+			if(fq.endsWith(end)) {
+				String name = fq.replace(end, "");
 				//String seqName = OUT_DIR + name + "_stdKraken";
 				String seqName = OUT_DIR + name + "_minikraken";
 				
