@@ -1,5 +1,5 @@
 /*
- * Generate scripts to run kraken using the standard kraken database
+ * Generate scripts to run kraken 
  * 12/9/16
  */
 package kw_machineLearning;
@@ -9,24 +9,29 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class StandardKrakenColorectal {
+public class KrakenColorectal {
 	public static String KRAKEN_DIR = "/nobackup/afodor_research/kwinglee/software/kraken/";
-	public static String DB = KRAKEN_DIR + "krakenStandardDB";
+	//public static String DB = KRAKEN_DIR + "krakenStandardDB";
+	public static String DB = KRAKEN_DIR + "minikraken_20141208";
 	public static String FASTQ_DIR = "/nobackup/afodor_research/kwinglee/machineLearning/colorectal/fastqs/";
 	public static String SCRIPT_DIR = "/projects/afodor_research/kwinglee/scripts/machineLearning/colorectal/";
-	public static String OUT_DIR = "/nobackup/afodor_research/kwinglee/machineLearning/colorectal/stdKraken/";
+	//public static String OUT_DIR = "/nobackup/afodor_research/kwinglee/machineLearning/colorectal/stdKraken/";
+	public static String OUT_DIR = "/nobackup/afodor_research/kwinglee/machineLearning/colorectal/minikraken/";
 	
 	public static void main(String[] args) throws IOException {
 		//set up script to run everything
 		BufferedWriter script = new BufferedWriter(new FileWriter(new File(
-				SCRIPT_DIR + "stdKrakenColorectal")));
+				//SCRIPT_DIR + "stdKrakenColorectal")));
+				SCRIPT_DIR + "minikrakenColorectal")));
 		script.write("#PBS -l walltime=600:00:00\n");
-		script.write("#PBS -l mem=200GB\n");
+		//script.write("#PBS -l mem=200GB\n");
+		script.write("#PBS -l mem=10GB\n");
 		String[] fastqs = new File(FASTQ_DIR).list();
 		for(String fq : fastqs) {
 			if(fq.endsWith(".1.fq.gz")) {
 				String name = fq.replace(".1.fq.gz", "");
-				String seqName = OUT_DIR + name + "_stdKraken";
+				//String seqName = OUT_DIR + name + "_stdKraken";
+				String seqName = OUT_DIR + name + "_minikraken";
 				
 				//run kraken
 				script.write(KRAKEN_DIR + "kraken --preload --db " 
