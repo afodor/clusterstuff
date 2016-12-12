@@ -14,7 +14,7 @@ public class KrakenHMP {
 	//public static String DB = KRAKEN_DIR + "krakenStandardDB";
 	public static String DB = KRAKEN_DIR + "minikraken_20141208";
 	public static String FASTQ_DIR = "/nobackup/afodor_research/kwinglee/machineLearning/hmp/fastqs/stool/";
-	public static String SCRIPT_DIR = "/projects/afodor_research/kwinglee/scripts/machineLearning/ibd/";
+	public static String SCRIPT_DIR = "/projects/afodor_research/kwinglee/scripts/machineLearning/hmp/";
 	//public static String OUT_DIR = "/nobackup/afodor_research/kwinglee/machineLearning/hmp/stdKraken/";
 	public static String OUT_DIR = "/nobackup/afodor_research/kwinglee/machineLearning/hmp/minikraken/";
 	
@@ -25,10 +25,8 @@ public class KrakenHMP {
 		}
 		//set up script to run everything
 		BufferedWriter script = new BufferedWriter(new FileWriter(new File(
-				//SCRIPT_DIR + "stdKrakenIBD")));
-				SCRIPT_DIR + "minikrakenIBD")));
+				SCRIPT_DIR + "minikrakenHMP")));
 		script.write("#PBS -l walltime=600:00:00\n");
-		//script.write("#PBS -l mem=500GB\n");
 		script.write("#PBS -l mem=10GB\n");
 		String[] fastqs = new File(FASTQ_DIR).list();
 		for(String fq : fastqs) {
