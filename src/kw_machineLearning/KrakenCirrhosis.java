@@ -21,14 +21,16 @@ public class KrakenCirrhosis {
 	public static void main(String[] args) throws IOException {
 		//set up script to run everything
 		BufferedWriter script = new BufferedWriter(new FileWriter(new File(
-				SCRIPT_DIR + "stdKrakenCirrhosis")));
+				//SCRIPT_DIR + "stdKrakenCirrhosis")));
+				SCRIPT_DIR + "minikrakenCirrhosis")));
 		script.write("#PBS -l walltime=600:00:00\n");
 		script.write("#PBS -l mem=10GB\n");
 		String[] fastqs = new File(FASTQ_DIR).list();
 		for(String fq : fastqs) {
 			if(fq.endsWith(".1.fq.gz")) {
 				String name = fq.replace(".1.fq.gz", "");
-				String seqName = OUT_DIR + name + "_stdKraken";
+				//String seqName = OUT_DIR + name + "_stdKraken";
+				String seqName = OUT_DIR + name + "_minikraken";
 				
 				//run kraken
 				script.write(KRAKEN_DIR + "kraken --preload --db " 
