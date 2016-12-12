@@ -1,5 +1,5 @@
 /*
- * Generate scripts to run kraken 
+ * Generate scripts to run kraken
  * 12/9/16
  */
 package kw_machineLearning;
@@ -9,14 +9,14 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class KrakenIBD {
+public class KrakenHMP {
 	public static String KRAKEN_DIR = "/nobackup/afodor_research/kwinglee/software/kraken/";
 	//public static String DB = KRAKEN_DIR + "krakenStandardDB";
 	public static String DB = KRAKEN_DIR + "minikraken_20141208";
-	public static String FASTQ_DIR = "/nobackup/afodor_research/kwinglee/machineLearning/ibd/fastqs/";
+	public static String FASTQ_DIR = "/nobackup/afodor_research/kwinglee/machineLearning/hmp/fastqs/stool/";
 	public static String SCRIPT_DIR = "/projects/afodor_research/kwinglee/scripts/machineLearning/ibd/";
-	//public static String OUT_DIR = "/nobackup/afodor_research/kwinglee/machineLearning/ibd/stdKraken/";
-	public static String OUT_DIR = "/nobackup/afodor_research/kwinglee/machineLearning/ibd/minikraken/";
+	//public static String OUT_DIR = "/nobackup/afodor_research/kwinglee/machineLearning/hmp/stdKraken/";
+	public static String OUT_DIR = "/nobackup/afodor_research/kwinglee/machineLearning/hmp/minikraken/";
 	
 	public static void main(String[] args) throws IOException {
 		File out = new File(OUT_DIR);
@@ -32,14 +32,14 @@ public class KrakenIBD {
 		script.write("#PBS -l mem=10GB\n");
 		String[] fastqs = new File(FASTQ_DIR).list();
 		for(String fq : fastqs) {
-			if(fq.endsWith(".1.fq.gz")) {
-				String name = fq.replace(".1.fq.gz", "");
+			if(fq.endsWith(".tar.bz2")) {
+				String name = fq.replace(".tar.bz2", "");
 				//String seqName = OUT_DIR + name + "_stdKraken";
 				String seqName = OUT_DIR + name + "_minikraken";
 				
 				//run kraken
 				script.write(KRAKEN_DIR + "kraken --preload --db " 
-						+ DB + " --fastq-input --gzip-compressed " +
+						+ DB + " --fastq-input --bzip2-compressed " +
 						FASTQ_DIR + fq + " --threads 2 > " + seqName + "\n");
 				//translate output
 				script.write(KRAKEN_DIR + "kraken-translate --db "
