@@ -73,7 +73,7 @@ class Filter implements Runnable {
 					numFiltered++;
 				} else {
 					outFQ.write(line1 + "\n" + line2 + "\n" + line3 + "\n" + line4 + "\n");
-					outFA.write(line1.replaceFirst("@", "") + "\n" + line2 + "\n");
+					outFA.write(line1.replaceFirst("@", ">") + "\n" + line2 + "\n");
 				}
 			}
 			outFA.close();
