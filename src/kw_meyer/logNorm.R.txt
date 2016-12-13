@@ -1,0 +1,33 @@
+##log normalize RDP results
+##12/13/16
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\Meyer\\RDP analysis trimmed")
+
+levels = c("phylum", "class", "order", "family", "genus")
+
+for(lev in levels) {
+  print(lev)
+  table = read.table(paste("rdp_", lev, ".txt", sep=""), sep="\t", header=T)
+  write.table(t(table), paste("cardia_taxaAsCol_", lev, ".txt", sep=""), 
+              sep="\t", row.names = T, col.names = F, quote = F)
+  table = read.table(paste("cardia_taxaAsCol_", lev, ".txt", sep=""), sep="\t", header=T, stringsAsFactors = F)
+  names(table)[1] = "haidshort"
+  table$haidshort = sub("merged_", "", sub("_trimmed.fna", "", table$haidshort))
+  start = 2
+  
+  ##log normalize
+  lognorm = table
+  nc = ncol(lognorm)
+  n = rowSums(table[,start:nc]) #number of reads in each sample
+  sumX = sum(n) #total number of reads in all samples 
+  N = nrow(table) #total number of samples
+  for(col in start:nc) {
+    for(row in 1:N) {
+      lognorm[row, col] = log10(table[row, col]/n[row] * sumX/N + 1)
+    }
+  }
+  write.table(lognorm, paste("cardia_taxaAsCol_logNorm_", lev, ".txt", sep=""),
+              sep="\t", row.names = F, col.names = T, quote = F)
+}

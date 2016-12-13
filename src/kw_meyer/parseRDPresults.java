@@ -14,11 +14,13 @@ import java.io.IOException;
 import java.util.HashMap;
 
 public class parseRDPresults {
-	public static final String DIR = "C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\Meyer\\";
+	//public static final String DIR = "C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\Meyer\\";
+	public static final String DIR = "C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\Meyer\\RDP analysis trimmed\\";
 	
 	public static void main(String[] args) throws IOException {
 		//get hierarchical file results
-		BufferedReader hier = new BufferedReader(new FileReader(new File(DIR + "hierarch_merge_all.txt")));
+		//BufferedReader hier = new BufferedReader(new FileReader(new File(DIR + "hierarch_merge_all.txt")));
+		BufferedReader hier = new BufferedReader(new FileReader(new File(DIR + "hierarch_merge_all_trimmed.txt")));
 		
 		//set up output files
 		BufferedWriter genus = new BufferedWriter(new FileWriter(new File(DIR + "rdp_genus.txt")));

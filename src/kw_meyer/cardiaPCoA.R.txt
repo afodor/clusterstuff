@@ -1,0 +1,20 @@
+##write CARDIA PCoA axes
+##12/13/16
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\Meyer\\RDP analysis trimmed")
+
+library(vegan)
+
+levels = c("phylum", "class", "order", "family", "genus")
+
+for(lev in levels) {
+  print(lev)
+  table = read.table(paste("cardia_taxaAsCol_logNorm_", lev, ".txt", sep=""), sep="\t", header=T)
+  
+  pcoa <- capscale(table[,-1]~1,distance="bray")
+  
+  write.table(cbind(table$haidshort, pcoa$CA$u), paste("cardia_pcoaCorrected_", lev, ".txt", sep=""),
+              sep="\t", row.names = F, col.names = T, quote = F)
+}
