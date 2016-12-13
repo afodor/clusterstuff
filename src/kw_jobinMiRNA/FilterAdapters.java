@@ -66,10 +66,10 @@ class Filter implements Runnable {
 				String line2 = fq.readLine();
 				String line3 = fq.readLine();
 				String line4 = fq.readLine();
-				if(line1.contains("AGATCGGAAGAGCACACGTCT") || //3'
-						line1.contains("TCTAGCCTTCTCGTGTGCAGA") || //3' reverse complement
-						line1.contains("GTTCAGAGTTCTACAGTCCGACGATC") || //5'
-						line1.contains("CAAGTCTCAAGATGTCAGGCTGCTAG")) {//5' reverse complement
+				if(line2.contains("AGATCGGAAGAGCACACGTCT") || //3'
+						line2.contains("TCTAGCCTTCTCGTGTGCAGA") || //3' reverse complement
+						line2.contains("GTTCAGAGTTCTACAGTCCGACGATC") || //5'
+						line2.contains("CAAGTCTCAAGATGTCAGGCTGCTAG")) {//5' reverse complement
 					numFiltered++;
 				} else {
 					outFQ.write(line1 + "\n" + line2 + "\n" + line3 + "\n" + line4 + "\n");
