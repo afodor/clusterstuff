@@ -29,7 +29,7 @@ public class BlastToMiRBaseReadAsDB {
 		
 		File[] files = new File(FQDIR).listFiles();
 		BufferedWriter all = new BufferedWriter(new FileWriter(new File(
-				SCRIPTDIR + "blastAlignAll.sh")));
+				SCRIPTDIR + "blastAlignReadAsDBAll.sh")));
 		for(File fa : files) {
 			if(fa.getName().endsWith(".fasta")){
 				String id = fa.getName().replace(".fasta", "");
