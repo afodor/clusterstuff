@@ -25,15 +25,16 @@ public class BowtieToMiRBase {
 		BufferedWriter all = new BufferedWriter(new FileWriter(new File(
 				SCRIPTDIR + "bowtieAlignAll.sh")));
 		for(File fq : fqs) {
-			String name = "bowtieAlign_" + fq.getName().split("-")[0];
+			String scriptName = "bowtieAlign_" + fq.getName().split("-")[0];
+			String name = fq.getName().split("-")[0] + ".bowtie";
 			
 			//add to run all script
-			all.write("qsub -q \"copperhead\" " + name + "\n");
+			all.write("qsub -q \"copperhead\" " + scriptName + "\n");
 			
 			//write script
 			BufferedWriter script = new BufferedWriter(new FileWriter(new File(
-					SCRIPTDIR + name)));
-			script.write("#PBS -l procs=1");
+					SCRIPTDIR + scriptName)));
+			script.write("#PBS -l procs=1\n");
 			script.write("module load bowtie2\n");
 			script.write("module load samtools\n");
 			//align to mature
