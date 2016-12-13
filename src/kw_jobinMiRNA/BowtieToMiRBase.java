@@ -26,8 +26,11 @@ public class BowtieToMiRBase {
 				SCRIPTDIR + "bowtieAlignAll.sh")));
 		for(File fq : files) {
 			if(fq.getName().endsWith(".fastq")) {
-				String scriptName = "bowtieAlign_" + fq.getName().split("-")[0];
-				String name = fq.getName().split("-")[0] + ".bowtie";
+				/*String scriptName = "bowtieAlign_" + fq.getName().split("-")[0];
+				String name = fq.getName().split("-")[0] + ".bowtie";*/
+				String id = fq.getName().replace(".fastq", "");
+				String scriptName = "bowtieAlign_" + id;
+				String name = id + ".bowtie";
 
 				//add to run all script
 				all.write("qsub -q \"copperhead\" " + scriptName + "\n");

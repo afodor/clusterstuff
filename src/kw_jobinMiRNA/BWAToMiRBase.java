@@ -26,8 +26,11 @@ public class BWAToMiRBase {
 				SCRIPTDIR + "bwaAlignAll.sh")));
 		for(File fq : files) {
 			if(fq.getName().endsWith(".fastq")) {
-				String scriptName = "bwaAlign_" + fq.getName().split("-")[0];
-				String name = fq.getName().split("-")[0] + ".bwa";
+				/*String scriptName = "bwaAlign_" + fq.getName().split("-")[0];
+				String name = fq.getName().split("-")[0] + ".bwa";*/
+				String id = fq.getName().replace(".fastq", "");
+				String scriptName = "bwaAlign_" + id;
+				String name = id + ".bwa";
 
 				//add to run all script
 				all.write("qsub -q \"copperhead\" " + scriptName + "\n");

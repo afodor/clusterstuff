@@ -26,8 +26,11 @@ public class BlastToMiRBase {
 				SCRIPTDIR + "blastAlignAll.sh")));
 		for(File fa : files) {
 			if(fa.getName().endsWith(".fasta")){
-				String scriptName = "blastAlign_" + fa.getName().split("-")[0];
-				String name = fa.getName().split("-")[0] + ".blast";
+				/*String scriptName = "blastAlign_" + fa.getName().split("-")[0];
+				String name = fa.getName().split("-")[0] + ".blast";*/
+				String id = fa.getName().replace(".fasta", "");
+				String scriptName = "blastAlign_" + id;
+				String name = id + ".blast";
 
 				//add to run all script
 				all.write("qsub -q \"copperhead\" " + scriptName + "\n");
