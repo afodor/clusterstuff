@@ -15,6 +15,7 @@ public class UnzipHMP {
 	public static void main(String[] args) throws IOException {
 		BufferedWriter out = new BufferedWriter(new FileWriter(new File(
 				SCRIPT_DIR + "unzipHMP")));
+		out.write("#PBS -l procs=1\n");
 		out.write("cd " + FASTQ_DIR + "\n");
 		String[] files = new File(FASTQ_DIR).list();
 		for(String f : files) {
