@@ -43,7 +43,7 @@ public class UnzipHMP {
 		}
 		script.close();
 		all.close();
-		System.out.println("Number of scripts: " + numScripts);
+		System.out.println("Number of scripts: " + (numScripts+1));
 	}
 
 }

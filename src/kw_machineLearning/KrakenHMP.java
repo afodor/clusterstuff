@@ -28,17 +28,20 @@ public class KrakenHMP {
 				SCRIPT_DIR + "minikrakenHMP")));
 		script.write("#PBS -l walltime=600:00:00\n");
 		script.write("#PBS -l mem=10GB\n");
-		String[] fastqs = new File(FASTQ_DIR).list();
-		for(String fq : fastqs) {
-			if(fq.endsWith(".tar.bz2")) {
-				String name = fq.replace(".tar.bz2", "");
+		script.write("#PBS -l procs=1\n");
+		File[] fastqs = new File(FASTQ_DIR).listFiles();
+		for(File dir : fastqs) {
+			if(!dir.getName().endsWith(".tar.bz2")) {
+				String name = dir.getName();
 				//String seqName = OUT_DIR + name + "_stdKraken";
 				String seqName = OUT_DIR + name + "_minikraken";
 				
 				//run kraken
 				script.write(KRAKEN_DIR + "kraken --preload --db " 
-						+ DB + " --fastq-input --bzip2-compressed " +
-						FASTQ_DIR + fq + " --threads 2 > " + seqName + "\n");
+						+ DB + " --fastq-input --fastq-input " +
+						FASTQ_DIR + name + File.separator + 
+						".denovo_duplicates_marked.trimmed.1.fastq"
+						+ " --threads 2 > " + seqName + "\n");
 				//translate output
 				script.write(KRAKEN_DIR + "kraken-translate --db "
 						+ DB + " " + seqName + " > " + seqName + "_translate\n");
