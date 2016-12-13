@@ -30,7 +30,7 @@ public class ParseBlast {
 			HashMap<String, Integer> hairpin = new HashMap<String, Integer>();//id -> number of reads mapped
 			File[] files = new File(DIR + d).listFiles();
 			for(File f : files) {
-				String id = f.getName().split("//.")[0];
+				String id = f.getName().split("\\.")[0];
 				if(f.getName().endsWith(".hairpin.txt")) {
 					HashSet<String> reads = getCounts(f, hairpin, qids[i]);
 					if(hairComb.containsKey(id)) {
