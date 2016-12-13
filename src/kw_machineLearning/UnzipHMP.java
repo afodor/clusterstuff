@@ -30,6 +30,7 @@ public class UnzipHMP {
 				script.write("tar -vxjf " + f + "\n");
 				numCmds++;
 				if(numCmds == MAXCMDS) {
+					numCmds = 0;
 					numScripts++;
 					script.close();
 					script = new BufferedWriter(new FileWriter(new File(
@@ -42,6 +43,7 @@ public class UnzipHMP {
 		}
 		script.close();
 		all.close();
+		System.out.println("Number of scripts: " + numScripts);
 	}
 
 }
