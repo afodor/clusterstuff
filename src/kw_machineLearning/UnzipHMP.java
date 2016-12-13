@@ -19,7 +19,7 @@ public class UnzipHMP {
 		String sbase = "unzipHMP_";
 		BufferedWriter all = new BufferedWriter(new FileWriter(new File(
 				SCRIPT_DIR + "unzipAll.sh")));
-		all.write("qsub -q \"copperhead\" " + sbase + numScripts);
+		all.write("qsub -q \"copperhead\" " + sbase + numScripts + "\n");
 		BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 				SCRIPT_DIR + sbase + numScripts)));
 		script.write("#PBS -l procs=1\n");
@@ -37,7 +37,7 @@ public class UnzipHMP {
 							SCRIPT_DIR + sbase + numScripts)));
 					script.write("#PBS -l procs=1\n");
 					script.write("cd " + FASTQ_DIR + "\n");
-					all.write("qsub -q \"copperhead\" " + sbase + numScripts);
+					all.write("qsub -q \"copperhead\" " + sbase + numScripts + "\n");
 				}
 			}
 		}
