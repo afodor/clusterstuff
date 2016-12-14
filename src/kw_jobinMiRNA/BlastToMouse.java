@@ -37,7 +37,7 @@ public class BlastToMouse {
 				//write script
 				BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 						SCRIPTDIR + scriptName)));
-				script.write("#PBS -l procs=1\n");
+				script.write("#PBS -l procs=1,mem=5GB\n");
 				script.write("module load blast/2.5.0+\n");
 				//align 
 				script.write("blastn -outfmt 6 -db " + REF + 
