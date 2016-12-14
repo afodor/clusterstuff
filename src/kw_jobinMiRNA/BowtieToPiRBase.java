@@ -27,7 +27,7 @@ public class BowtieToPiRBase {
 			if(fq.getName().endsWith(".fastq")) {
 				String id = fq.getName().replace(".fastq", "");
 				String scriptName = "bowtieAlign_" + id;
-				String name = id + "piR.bowtie";
+				String name = id + ".piR.bowtie";
 
 				//add to run all script
 				all.write("qsub -q \"copperhead\" " + scriptName + "\n");
