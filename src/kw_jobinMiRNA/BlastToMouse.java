@@ -12,7 +12,7 @@ public class BlastToMouse {
 	public static String DIR = "/nobackup/afodor_research/kwinglee/jobin/microRNA/";
 	public static String FQDIR = DIR + "adapterFiltered/";
 	public static String OUTDIR = DIR + "mouseBlast/";
-	public static String SCRIPTDIR = "/projects/afodor_research/kwinglee/scripts/jobin/microRNA/";
+	public static String SCRIPTDIR = "/projects/afodor_research/kwinglee/scripts/jobin/microRNA/mouse/";
 	public static String REF = "/nobackup/afodor_research/kwinglee/mm10/mm10Blast";
 	
 	public static void main(String[] args) throws IOException {
