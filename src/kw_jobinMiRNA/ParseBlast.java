@@ -35,6 +35,7 @@ public class ParseBlast {
 					HashSet<String> reads = getCounts(f, hairpin, qids[i]);
 					if(hairComb.containsKey(id)) {
 						HashSet<String> prev = hairComb.get(id);
+						System.out.println(id);
 						System.out.println(prev.containsAll(reads));
 						System.out.println(reads.containsAll(prev));
 						prev.addAll(reads);
