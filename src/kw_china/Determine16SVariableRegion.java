@@ -24,6 +24,7 @@ public class Determine16SVariableRegion {
 		BufferedWriter bwa = new BufferedWriter(new FileWriter(new File(
 				VDIR + "bwaScript")));
 		String bwaDB = VDIR + "rRNAbwaDB";
+		bwa.write("#PBS -l procs=1\n");
 		bwa.write("module load bwa\n");
 		bwa.write("bwa index -p " + bwaDB + " " + REF + "\n");
 		
@@ -31,6 +32,7 @@ public class Determine16SVariableRegion {
 		BufferedWriter blast = new BufferedWriter(new FileWriter(new File(
 				VDIR + "blastScript")));
 		String blastDB = VDIR + "rRNAblastDB";
+		blast.write("#PBS -l procs=1\n");
 		blast.write("module load blast\n");
 		blast.write("makeblastdb -in " + REF + " -dbtype nucl -out "
 				+ blastDB + "\n");
