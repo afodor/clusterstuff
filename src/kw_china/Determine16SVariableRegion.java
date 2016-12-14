@@ -47,14 +47,15 @@ public class Determine16SVariableRegion {
 			BufferedReader fq = new BufferedReader(new InputStreamReader(
 					new GZIPInputStream(new FileInputStream(FQDIR + f))));
 			BufferedWriter fa = new BufferedWriter(new FileWriter(new File(faName)));
-			String line = fq.readLine();
+			String line1 = fq.readLine();
 			int numReads = 0;
 			while(numReads < MAXREADS) {
-				if(line.startsWith(">")) {
-					numReads++;
-				}
-				fa.write(line + "\n");
-				line = fq.readLine();
+				numReads++;
+				String line2 = fq.readLine();
+				String line3 = fq.readLine();
+				String line4 = fq.readLine();
+				fa.write(line1.replaceFirst("@", ">") + "\n" + line2 + "\n");
+				line1 = fq.readLine();
 			}
 			fq.close();
 			fa.close();
