@@ -53,8 +53,8 @@ public class MiRBaseJava {
 				BufferedWriter matchOut = new BufferedWriter(new FileWriter(new File(
 						OUTDIR + refName + "_v_" + id + ".txt")));
 				matchOut.write("referenceHeader\treadHeader\n");
-				for(String line1 = brRef.readLine(); line1 != null; line1 = brRef.readLine()) {
-					String seq = brRef.readLine();
+				for(String line1 = fa.readLine(); line1 != null; line1 = fa.readLine()) {
+					String seq = fa.readLine();
 					String head = line1.replace(">", "");
 					for(String r : keys) {
 						if((seq.length() >= r.length() && seq.contains(r)) ||
