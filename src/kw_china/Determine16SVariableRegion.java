@@ -57,6 +57,7 @@ public class Determine16SVariableRegion {
 				line = fq.readLine();
 			}
 			fq.close();
+			fa.close();
 		}
 		
 		bwa.close();
