@@ -17,8 +17,8 @@ public class MiRBaseJava {
 	public static String DIR = "/nobackup/afodor_research/kwinglee/jobin/microRNA/";
 	public static String FQDIR = DIR + "adapterFiltered/";
 	public static String OUTDIR = DIR + "miRBaseJava/";
-	public static String MATREF = "/nobackup/afodor_research/kwinglee/mirbase_v21/matureBlast";
-	public static String PINREF = "/nobackup/afodor_research/kwinglee/mirbase_v21/hairpinBlast";
+	public static String MATREF = "/nobackup/afodor_research/kwinglee/mirbase_v21/mature.fa";
+	public static String PINREF = "/nobackup/afodor_research/kwinglee/mirbase_v21/hairpin.fa";
 
 	public static void main(String[] args) throws IOException {
 		//set up reference based on input
