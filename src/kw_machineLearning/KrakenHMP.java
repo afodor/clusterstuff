@@ -39,7 +39,7 @@ public class KrakenHMP {
 				//run kraken
 				script.write(KRAKEN_DIR + "kraken --preload --db " 
 						+ DB + " --fastq-input --fastq-input " +
-						FASTQ_DIR + name + File.separator + 
+						FASTQ_DIR + name + File.separator + name +
 						".denovo_duplicates_marked.trimmed.1.fastq"
 						+ " --threads 2 > " + seqName + "\n");
 				//translate output
