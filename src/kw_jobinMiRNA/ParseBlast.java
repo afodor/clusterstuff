@@ -57,7 +57,7 @@ public class ParseBlast {
 		}
 		
 		writeCountsCombined(matComb, new File(DIR + "BlastCombinedMature.txt"));
-		writeCountsCombined(matComb, new File(DIR + "BlastCombinedHairpin.txt"));
+		writeCountsCombined(hairComb, new File(DIR + "BlastCombinedHairpin.txt"));
 	}
 
 	/*
