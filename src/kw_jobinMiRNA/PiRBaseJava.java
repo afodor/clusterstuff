@@ -17,7 +17,7 @@ public class PiRBaseJava {
 	public static String DIR = "/nobackup/afodor_research/kwinglee/jobin/microRNA/";
 	public static String FQDIR = DIR + "adapterFiltered/";
 	public static String OUTDIR = DIR + "piRBaseJava/";
-	public static String REF = "/nobackup/afodor_research/kwinglee/piRBase_v1.0/piRbaseMouseBowtie";
+	public static String REF = "/nobackup/afodor_research/kwinglee/piRBase_v1.0/piR_mouse_v1.0.fa";
 	
 	public static void main(String[] args) throws IOException {
 		File odir = new File(OUTDIR);
