@@ -44,7 +44,7 @@ public class GetLengths {
 		String[] nameSplit = db.split("/");
 		BufferedWriter out = new BufferedWriter(new FileWriter(new File(
 				DIR + "dbStats/entryDist_" 
-						+ nameSplit[nameSplit.length].replace(".fa", ""))));
+						+ nameSplit[nameSplit.length-1].replace(".fa", ""))));
 		BufferedReader fa = new BufferedReader(new FileReader(new File(db)));
 		String line = fa.readLine();//header
 		line = fa.readLine();
