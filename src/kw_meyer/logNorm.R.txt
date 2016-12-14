@@ -7,15 +7,19 @@ setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\Meyer\\RDP analysi
 
 levels = c("phylum", "class", "order", "family", "genus")
 
+pdf("cardia_readHistogram.pdf")
 for(lev in levels) {
   print(lev)
   table = read.table(paste("rdp_", lev, ".txt", sep=""), sep="\t", header=T)
   write.table(t(table), paste("cardia_taxaAsCol_", lev, ".txt", sep=""), 
               sep="\t", row.names = T, col.names = F, quote = F)
   table = read.table(paste("cardia_taxaAsCol_", lev, ".txt", sep=""), sep="\t", header=T, stringsAsFactors = F)
-  names(table)[1] = "haidshort"
-  table$haidshort = sub("merged_", "", sub("_trimmed.fna", "", table$haidshort))
-  start = 2
+  table$fileName = sub("merged_", "", sub("_trimmed.fna", "", table$fileName))
+  table = data.frame(haidshort=table$fileName, numReads = rowSums(table[,-1]), table[,2:ncol(table)])
+  start = 3
+  
+  hist(table$numReads, main=lev, xlab="number of reads")
+  print(range(table$numReads))
   
   ##log normalize
   lognorm = table
@@ -31,3 +35,4 @@ for(lev in levels) {
   write.table(lognorm, paste("cardia_taxaAsCol_logNorm_", lev, ".txt", sep=""),
               sep="\t", row.names = F, col.names = T, quote = F)
 }
+dev.off()

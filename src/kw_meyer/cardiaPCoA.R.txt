@@ -13,7 +13,7 @@ for(lev in levels) {
   print(lev)
   table = read.table(paste("cardia_taxaAsCol_logNorm_", lev, ".txt", sep=""), sep="\t", header=T)
   
-  pcoa <- capscale(table[,-1]~1,distance="bray")
+  pcoa <- capscale(table[,-(1:2)]~1,distance="bray")
   
   write.table(cbind(table$haidshort, pcoa$CA$u), paste("cardia_pcoaCorrected_", lev, ".txt", sep=""),
               sep="\t", row.names = F, col.names = T, quote = F)
