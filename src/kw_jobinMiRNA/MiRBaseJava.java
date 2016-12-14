@@ -38,6 +38,7 @@ public class MiRBaseJava {
 		}
 		brRef.close();
 		ArrayList<String> keys = new ArrayList<String>(refSeqs.keySet());
+		keys.remove(null);
 		
 		//for each read in each fasta file, see if contains an exact match for any database string
 		BufferedWriter out = new BufferedWriter(new FileWriter(new File(
