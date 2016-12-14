@@ -43,7 +43,7 @@ public class BowtieToMouse {
 				//align 
 				script.write("bowtie2 -x " + REF + " -U " + fq.getAbsolutePath()
 						+ " -S " + OUTDIR + name + ".sam\n");
-				script.write("samtools flagstat " + OUTDIR + name + ".mature.sam > " 
+				script.write("samtools flagstat " + OUTDIR + name + ".sam > " 
 						+ OUTDIR + name + ".flagstat\n");
 				script.close();
 			}
