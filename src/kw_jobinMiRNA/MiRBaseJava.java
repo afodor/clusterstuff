@@ -32,10 +32,22 @@ public class MiRBaseJava {
 		String refName = refNames[Integer.parseInt(args[0])];
 		HashMap<String, String> refSeqs = new HashMap<String, String>();//map of sequence to key
 		BufferedReader brRef = new BufferedReader(new FileReader(ref));
-		for(String line1 = brRef.readLine(); line1 != null; line1 = brRef.readLine()) {
-			String line2 = brRef.readLine();
-			refSeqs.put(line2, line1.replace(">", ""));
+		String header = brRef.readLine();
+		String line = brRef.readLine();
+		String sequ = line;
+		while(line != null) {
+			if(line.startsWith(">")) {
+				refSeqs.put(sequ, header.replace(">", ""));
+				header = line;
+				sequ = "";
+				System.out.println(header);
+				System.out.println(sequ);
+			} else {
+				sequ += line;
+			}
+			line = brRef.readLine();
 		}
+		refSeqs.put(sequ, header.replace(">", ""));
 		brRef.close();
 		ArrayList<String> keys = new ArrayList<String>(refSeqs.keySet());
 		keys.remove(null);
@@ -61,7 +73,7 @@ public class MiRBaseJava {
 						if((seq.length() >= r.length() && seq.contains(r)) ||
 								(seq.length() < r.length() && r.contains(seq))) {
 							matched.add(head);
-							matchOut.write(r + "\t" + head + "\n");
+							matchOut.write(refSeqs.get(r) + "\t" + head + "\n");
 						}
 					}
 					numReads++;
