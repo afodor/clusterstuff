@@ -17,8 +17,8 @@ public class MiRBaseJava {
 	public static String DIR = "/nobackup/afodor_research/kwinglee/jobin/microRNA/";
 	public static String FQDIR = DIR + "adapterFiltered/";
 	public static String OUTDIR = DIR + "miRBaseJava/";
-	public static String MATREF = "/nobackup/afodor_research/kwinglee/mirbase_v21/mature.fa";
-	public static String PINREF = "/nobackup/afodor_research/kwinglee/mirbase_v21/hairpin.fa";
+	public static String MATREF = "/nobackup/afodor_research/kwinglee/mirbase_v21/mature.dna.fasta";
+	public static String PINREF = "/nobackup/afodor_research/kwinglee/mirbase_v21/hairpin.dna.fasta";
 
 	public static void main(String[] args) throws IOException {
 		//set up reference based on input
@@ -51,6 +51,14 @@ public class MiRBaseJava {
 		brRef.close();
 		ArrayList<String> keys = new ArrayList<String>(refSeqs.keySet());
 		keys.remove(null);
+		//check key lengths
+		double sum = 0;
+		for(String k : keys) {
+			sum += k.length();
+		}
+		System.out.println(ref);
+		System.out.println("Average key length: " + (sum / keys.size()));
+		System.out.println("Number of keys: " + keys.size());
 		
 		//for each read in each fasta file, see if contains an exact match for any database string
 		BufferedWriter out = new BufferedWriter(new FileWriter(new File(

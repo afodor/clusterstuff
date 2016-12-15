@@ -15,7 +15,7 @@ public class TestJavaMultithreadMiR {
 	public static String DIR = "/nobackup/afodor_research/kwinglee/jobin/microRNA/";
 	public static String FQDIR = DIR + "adapterFiltered/";
 	public static String OUTDIR = DIR + "miRBaseJava/";
-	public static String REF = "/nobackup/afodor_research/kwinglee/mirbase_v21/hairpin.fa";
+	public static String REF = "/nobackup/afodor_research/kwinglee/mirbase_v21/hairpin.dna.fasta";
 	
 	public static void main(String[] args) throws Exception {
 		File odir = new File(OUTDIR);
