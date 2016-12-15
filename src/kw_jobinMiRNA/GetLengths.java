@@ -44,19 +44,19 @@ public class GetLengths {
 	private static double[] getDBlengths(String db) throws IOException {
 		String[] nameSplit = db.split("/");
 		BufferedWriter out = new BufferedWriter(new FileWriter(new File(
-				DIR + "dbStats/entryDist_" 
+				DIR + "dbStats/entryLengths_" 
 						+ nameSplit[nameSplit.length-1].replace(".fa", ""))));
 		BufferedReader fa = new BufferedReader(new FileReader(new File(db)));
 		String line = fa.readLine();//header
 		line = fa.readLine();
+		int len = line.length();
 		int min = line.length();
 		int max = line.length();
 		double sum = line.length();
 		int numReads = 0;
 		line = fa.readLine();
-		int len = 0;
 		while(line != null) {
-			if(line.startsWith(">") && len != 0) {
+			if(line.startsWith(">")) {
 				out.write(len + "\n");
 				numReads++;
 				sum += len;
