@@ -13,8 +13,8 @@ public class BowtieToMiRBase {
 	public static String FQDIR = DIR + "adapterFiltered/";
 	public static String OUTDIR = DIR + "miRBaseBowtie/";
 	public static String SCRIPTDIR = "/projects/afodor_research/kwinglee/scripts/jobin/microRNA/";
-	public static String MATREF = "/nobackup/afodor_research/kwinglee/mirbase_v21/matureBowtie";
-	public static String PINREF = "/nobackup/afodor_research/kwinglee/mirbase_v21/hairpinBowtie";
+	public static String MATREF = "/nobackup/afodor_research/kwinglee/mirbase_v21/matureDNABowtie";
+	public static String PINREF = "/nobackup/afodor_research/kwinglee/mirbase_v21/hairpinDNABowtie";
 
 	public static void main(String[] args) throws IOException {
 		File odir = new File(OUTDIR);

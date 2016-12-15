@@ -13,8 +13,8 @@ public class BlastToMiRBase {
 	public static String FQDIR = DIR + "adapterFiltered/";
 	public static String OUTDIR = DIR + "miRBaseBlast/";
 	public static String SCRIPTDIR = "/projects/afodor_research/kwinglee/scripts/jobin/microRNA/";
-	public static String MATREF = "/nobackup/afodor_research/kwinglee/mirbase_v21/matureBlast";
-	public static String PINREF = "/nobackup/afodor_research/kwinglee/mirbase_v21/hairpinBlast";
+	public static String MATREF = "/nobackup/afodor_research/kwinglee/mirbase_v21/matureBlastDNA";
+	public static String PINREF = "/nobackup/afodor_research/kwinglee/mirbase_v21/hairpinBlastDNA";
 
 	public static void main(String[] args) throws IOException {
 		File odir = new File(OUTDIR);
