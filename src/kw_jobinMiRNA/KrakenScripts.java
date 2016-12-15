@@ -41,7 +41,7 @@ public class KrakenScripts {
 			if(!fa.getName().endsWith(".fasta")) {
 				String name = fa.getName().split("\\.")[0];
 				String miniName = MINI_OUT + name + ".minikraken";
-				String stdName = STD_OUT + name + ".minikraken";
+				String stdName = STD_OUT + name + ".stdkraken";
 				
 				//mini kraken
 				scriptMini.write(KRAKEN_DIR + "kraken --preload --db " 
