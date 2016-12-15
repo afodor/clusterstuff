@@ -38,7 +38,7 @@ public class KrakenScripts {
 		scriptStd.write("#PBS -l walltime=200:00:00,procs=1,mem=500GB\n");
 		File[] files = new File(FQDIR).listFiles();
 		for(File fa : files) {
-			if(!fa.getName().endsWith(".fasta")) {
+			if(fa.getName().endsWith(".fasta")) {
 				String name = fa.getName().split("\\.")[0];
 				String miniName = MINI_OUT + name + ".minikraken";
 				String stdName = STD_OUT + name + ".stdkraken";
