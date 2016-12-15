@@ -166,10 +166,14 @@ public class ResultsTables {
 		BufferedReader br = new BufferedReader(new FileReader(file));
 		for(String line = br.readLine(); line != null; line = br.readLine()) {
 			String[] sp = line.split("\t");
-			//qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore
-			if(Double.parseDouble(sp[2]) > PID &&
-					Integer.parseInt(sp[4]) <= MISMATCH) {
-				reads.add(sp[0]);
+			if(sp.length > 5) {
+				//qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore
+				if(Double.parseDouble(sp[2]) > PID &&
+						Integer.parseInt(sp[4]) <= MISMATCH) {
+					reads.add(sp[0]);
+				}
+			} else {
+				System.out.println("BlastCounts: " + file.getName() + " " + line);
 			}
 		}
 		br.close();		
