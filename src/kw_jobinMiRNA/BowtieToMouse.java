@@ -28,7 +28,7 @@ public class BowtieToMouse {
 				/*String scriptName = "bowtieAlign_" + fq.getName().split("-")[0];
 				String name = fq.getName().split("-")[0] + ".bowtie";*/
 				String id = fq.getName().replace(".fastq", "");
-				String scriptName = "bowtieAlign_" + id;
+				String scriptName = "bowtieAlignMouse_" + id;
 				String name = id + ".mouse.bowtie";
 
 				//add to run all script
@@ -37,7 +37,7 @@ public class BowtieToMouse {
 				//write script
 				BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 						SCRIPTDIR + scriptName)));
-				script.write("#PBS -l procs=1,mem=5GB\n");
+				script.write("#PBS -l procs=1,mem=10GB\n");
 				script.write("module load bowtie2\n");
 				script.write("module load samtools\n");
 				//align 

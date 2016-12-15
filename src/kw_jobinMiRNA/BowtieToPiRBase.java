@@ -26,7 +26,7 @@ public class BowtieToPiRBase {
 		for(File fq : files) {
 			if(fq.getName().endsWith(".fastq")) {
 				String id = fq.getName().replace(".fastq", "");
-				String scriptName = "bowtieAlign_" + id;
+				String scriptName = "bowtieAlignPiR_" + id;
 				String name = id + ".piR.bowtie";
 
 				//add to run all script
