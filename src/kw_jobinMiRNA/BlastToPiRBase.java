@@ -35,7 +35,7 @@ public class BlastToPiRBase {
 				//write script
 				BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 						SCRIPTDIR + scriptName)));
-				script.write("#PBS -l procs=1,mem=30GB\n");
+				script.write("#PBS -l procs=1,mem=50GB\n");
 				script.write("module load blast/2.5.0+\n");
 				//align 
 				script.write("blastn -outfmt 6 -db " + REF + 
