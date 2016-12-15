@@ -1,0 +1,47 @@
+##look at proportion of reads using different methods
+##12/15/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\microRNA\\alignmentsAnalysis")
+
+start = 4 #first column containing alignment results
+
+getName <- function(name) {
+  if(grepl("mature", name)) {
+    return("miRBase mature")
+  } else if(grepl("hairpin", name)) {
+    return("miRBase hairpin")
+  } else if(grepl("Mouse", name)) {
+    return("mouse MM10")
+  } else if(grepl("PiR", name)) {
+    return("PiRBase")
+  }
+}
+
+analyses = c("blast", "bowtie")
+for(anal in analyses) {
+  print(anal)
+  table = read.table(paste("Results_", anal, ".txt", sep=""), sep="\t", header=T, stringsAsFactors = F)
+  
+  ##convert to proportion
+  prop = table
+  names(prop) = sub("num", "prop", names(table))
+  for(c in start:ncol(table)) {
+    prop[,c] = table[,c]/table$totalNumReads
+    print(paste(names(table)[c], mean(prop[,c])))
+  }
+  write.table(prop, paste("Results_", anal, "_proportions.txt", sep=""), 
+              sep="\t", col.names = T, row.names = F, quote = F)
+  
+  ##plot and get p-value
+  pdf(paste("boxplots_", anal, ".pdf", sep=""))
+  group = factor(table$group)
+  for(c in (start+1):ncol(prop)) { #skip mature miRBase
+    res = prop[,c]
+    p = t.test(res~group)$p.value
+    boxplot(res~group, #ylim=c(0,1),
+            main=paste(getName(names(prop)[c]), "\np=", format(p, digits = 3), sep=""), 
+            ylab="proportion of reads mapped")
+  }
+  dev.off()
+}
