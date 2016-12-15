@@ -1,5 +1,5 @@
 /*
- * Look for exact matches between reads and miRBase
+ * run matching on MiR hairpin with multithreading
  */
 package kw_jobinMiRNA;
 
@@ -11,11 +11,11 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class PiRBaseJava {
+public class TestJavaMultithreadMiR {
 	public static String DIR = "/nobackup/afodor_research/kwinglee/jobin/microRNA/";
 	public static String FQDIR = DIR + "adapterFiltered/";
-	public static String OUTDIR = DIR + "piRBaseJava/";
-	public static String REF = "/nobackup/afodor_research/kwinglee/piRBase_v1.0/piR_mouse_v1.0.fa";
+	public static String OUTDIR = DIR + "miRBaseJava/";
+	public static String REF = "/nobackup/afodor_research/kwinglee/mirbase_v21/hairpin.fa";
 	
 	public static void main(String[] args) throws Exception {
 		File odir = new File(OUTDIR);
@@ -41,7 +41,7 @@ public class PiRBaseJava {
 		File[] files = new File(FQDIR).listFiles();
 		for(File f : files) {
 			if(f.getName().endsWith(".fasta")) {
-				GetJavaMatches match = new GetJavaMatches(f, OUTDIR + "piRBase_v_", keys);
+				GetJavaMatches match = new GetJavaMatches(f, OUTDIR + "hairpinMultithread_v_", keys);
 				new Thread(match).start();
 				threadList.add(match);
 			}
@@ -61,7 +61,7 @@ public class PiRBaseJava {
 
 		//write summary results
 		BufferedWriter out = new BufferedWriter(new FileWriter(new File(
-				OUTDIR + "PiRBaseJavaCounts.txt")));
+				OUTDIR + "miRhairpinMultithreadJavaCounts.txt")));
 		out.write("sampleID\tnumReads\tnumMatch\n");
 		for(GetJavaMatches gjm : threadList) {
 			out.write(gjm.id + "\t" + gjm.numReads + "\t" + gjm.numMatched + "\n");
@@ -76,4 +76,3 @@ public class PiRBaseJava {
 		}	
 	}
 }
-
