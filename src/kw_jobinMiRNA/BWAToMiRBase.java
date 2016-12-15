@@ -13,8 +13,8 @@ public class BWAToMiRBase {
 	public static String FQDIR = DIR + "adapterFiltered/";
 	public static String OUTDIR = DIR + "miRBaseBWA/";
 	public static String SCRIPTDIR = "/projects/afodor_research/kwinglee/scripts/jobin/microRNA/";
-	public static String MATREF = "/nobackup/afodor_research/kwinglee/mirbase_v21/matureBWA";
-	public static String PINREF = "/nobackup/afodor_research/kwinglee/mirbase_v21/hairpinBWA";
+	public static String MATREF = "/nobackup/afodor_research/kwinglee/mirbase_v21/matureBWAdna";
+	public static String PINREF = "/nobackup/afodor_research/kwinglee/mirbase_v21/hairpinBWAdna";
 
 	public static void main(String[] args) throws IOException {
 		File odir = new File(OUTDIR);
