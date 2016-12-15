@@ -14,8 +14,8 @@ public class BlastToMiRBaseReadAsDB {
 	public static String OUTDIR = DIR + "miRBaseBlastReadsAsDB/";
 	public static String DBDIR = FQDIR + "readBlastDBs/";
 	public static String SCRIPTDIR = "/projects/afodor_research/kwinglee/scripts/jobin/microRNA/";
-	public static String MATREF = "/nobackup/afodor_research/kwinglee/mirbase_v21/mature.fa";
-	public static String PINREF = "/nobackup/afodor_research/kwinglee/mirbase_v21/hairpin.fa";
+	public static String MATREF = "/nobackup/afodor_research/kwinglee/mirbase_v21/mature.dna.fasta";
+	public static String PINREF = "/nobackup/afodor_research/kwinglee/mirbase_v21/hairpin.dna.fasta";
 
 	public static void main(String[] args) throws IOException {
 		File odir = new File(OUTDIR);

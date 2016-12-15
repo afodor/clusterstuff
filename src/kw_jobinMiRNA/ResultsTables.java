@@ -81,7 +81,7 @@ public class ResultsTables {
 		//miR
 		File[] files = new File(DIR + "miRBaseBlast").listFiles();
 		for(File f : files) {
-			if(f.getName().endsWith(".txt")) {
+			if(f.getName().endsWith(".txt") && f.getName().contains(".blast.")) {
 				String id = f.getName().split("\\.")[0];
 				int count = getBlastCounts(f);
 				if(f.getName().contains("mature")) {
