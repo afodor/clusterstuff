@@ -62,15 +62,11 @@ public class ResultsTables {
 		}
 	
 		//piR
-		/*files = new File(DIR + "piRBaseBowtie/").listFiles();
+		files = new File(DIR + "piRBaseBowtie/").listFiles();
 		for(File f : files) {
 			if(f.getName().endsWith(".sam")) {
 				piR.put(f.getName().split("\\.")[0], getBowtieCounts(f));
 			}
-		}*/
-		for(int i = 1; i <= 10; i++) {
-			String key = "Sample" + i;
-			piR.put(key, -1);
 		}
 	
 		writeTable("bowtie", miRmature, miRhairpin, mouse, piR);
