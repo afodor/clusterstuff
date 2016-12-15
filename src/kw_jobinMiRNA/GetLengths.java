@@ -54,17 +54,21 @@ public class GetLengths {
 		double sum = line.length();
 		int numReads = 0;
 		line = fa.readLine();
+		int len = 0;
 		while(line != null) {
-			if(!line.startsWith(">")) {
-				out.write(line.length() + "\n");
+			if(line.startsWith(">") && len != 0) {
+				out.write(len + "\n");
 				numReads++;
-				sum += line.length();
-				if(min > line.length()) {
-					min = line.length();
+				sum += len;
+				if(min > len) {
+					min = len;
 				}
-				if(max < line.length()) {
-					max = line.length();
+				if(max < len) {
+					max = len;
 				}
+				len = 0;
+			} else {
+				len += line.length();
 			}
 			line = fa.readLine();
 		}
