@@ -35,11 +35,13 @@ public class MiRBaseJava {
 		String header = brRef.readLine();
 		String line = brRef.readLine();
 		String sequ = "";
+		int numSeq = 0;
 		while(line != null) {
 			if(line.startsWith(">")) {
 				System.out.println(header);
 				System.out.println(sequ);
 				refSeqs.put(sequ, header.replace(">", ""));
+				numSeq++;
 				header = line;
 				sequ = "";
 			} else {
@@ -57,8 +59,9 @@ public class MiRBaseJava {
 			sum += k.length();
 		}
 		System.err.println(ref);
-		System.err.println("Average key length: " + (sum / keys.size()));
+		System.err.println("Average key length: " + (sum / numSeq));
 		System.err.println("Number of keys: " + keys.size());
+		System.err.println("Number of seqs: " + numSeq);
 		
 		//for each read in each fasta file, see if contains an exact match for any database string
 		/*BufferedWriter out = new BufferedWriter(new FileWriter(new File(
