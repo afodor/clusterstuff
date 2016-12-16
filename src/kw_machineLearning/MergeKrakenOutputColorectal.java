@@ -55,13 +55,21 @@ public class MergeKrakenOutputColorectal {
 				tables.add(f);
 			}
 		}
+		
+		//get population ids
+		HashSet<String> gids = new HashSet<String>();
+		BufferedReader g = new BufferedReader(new FileReader(new File(DIR + "popGids")));
+		for(String line = g.readLine(); line != null; line = g.readLine()) {
+			gids.add(line);
+		}
+		g.close();
 
 		//check sequence ids
 		System.out.println("sequences " + tables.size());
 		HashSet<String> seqs = new HashSet<String>();
 		for(int i = 0; i < tables.size(); i++) {
 			String id = tables.get(i).split("_")[0];
-			System.out.println(id + "\t" + metaMap.containsKey(id));
+			System.out.println(id + "\t" + (metaMap.containsKey(id) || gids.contains(id)));
 			seqs.add(id);
 		}
 		System.out.println();
@@ -79,8 +87,8 @@ public class MergeKrakenOutputColorectal {
 		for(int i = 0; i < tables.size(); i++) {
 			String id = tables.get(i).split("_")[0];
 			if(!metaMap.containsKey(id)) {
-				if(id.startsWith("L")) {
-					metaMap.put(id, "cirrhosis.extra");
+				if(gids.contains(id)) {
+					metaMap.put(id, "cancer.extra");
 				} else {
 					System.out.println("Extra sample: " + tables.get(i));
 				}
