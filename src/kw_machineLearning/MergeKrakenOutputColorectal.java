@@ -71,7 +71,11 @@ public class MergeKrakenOutputColorectal {
 		g.readLine();
 		for(String line = g.readLine(); line != null; line = g.readLine()) {
 			String[] sp = line.split("\t");
-			metaMap.put(sp[0], sp[1] + ".extra");
+			if(sp.length==2) {
+				metaMap.put(sp[0], sp[1] + ".extra");
+			} else {
+				System.err.println(line);
+			}
 		}
 
 		//check sequence ids
