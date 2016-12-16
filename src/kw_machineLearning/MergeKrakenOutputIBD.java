@@ -29,6 +29,7 @@ public class MergeKrakenOutputIBD {
 		HashMap<String, String> metaMap = new HashMap<String, String>();//map of sample ID to disease status 
 		BufferedReader m = new BufferedReader(new FileReader(new File(META)));
 		String[] dataset = m.readLine().split("\t");
+		m.readLine();//subjectID
 		String[] sampleID = m.readLine().split("\t");
 		String[] disease = m.readLine().split("\t");
 		m.close();
@@ -58,9 +59,20 @@ public class MergeKrakenOutputIBD {
 		
 		//check sequence ids
 		System.out.println("sequences " + tables.size());
+		HashSet<String> seqs = new HashSet<String>();
 		for(int i = 0; i < tables.size(); i++) {
-			String id = tables.get(i).split("_")[0];
+			String id = tables.get(i).split("_")[0].replace(".", "_");
 			System.out.println(id + "\t" + metaMap.containsKey(id));
+			seqs.add(id);
+		}
+		System.out.println();
+		
+		//check have all metadata
+		System.out.println("missing samples");
+		for(String key : keys) {
+			if(!seqs.contains(key)) {
+				System.out.println(key);
+			}
 		}
 		
 		
