@@ -57,19 +57,29 @@ public class MergeKrakenOutputColorectal {
 		}
 		
 		//get population ids
-		HashSet<String> gids = new HashSet<String>();
 		BufferedReader g = new BufferedReader(new FileReader(new File(DIR + "popGids")));
 		for(String line = g.readLine(); line != null; line = g.readLine()) {
-			gids.add(line);
+			metaMap.put(line, "cancer.extra");
 		}
 		g.close();
+		g = new BufferedReader(new FileReader(new File(DIR + "popHids")));
+		for(String line = g.readLine(); line != null; line = g.readLine()) {
+			metaMap.put(line, "n.extra");
+		}
+		g.close();
+		g = new BufferedReader(new FileReader(new File(DIR + "popF")));
+		g.readLine();
+		for(String line = g.readLine(); line != null; line = g.readLine()) {
+			String[] sp = line.split("\t");
+			metaMap.put(sp[0], sp[1] + ".extra");
+		}
 
 		//check sequence ids
 		System.out.println("sequences " + tables.size());
 		HashSet<String> seqs = new HashSet<String>();
 		for(int i = 0; i < tables.size(); i++) {
 			String id = tables.get(i).split("_")[0];
-			System.out.println(id + "\t" + (metaMap.containsKey(id) || gids.contains(id)));
+			System.out.println(id + "\t" + metaMap.containsKey(id));
 			seqs.add(id);
 		}
 		System.out.println();
@@ -87,11 +97,7 @@ public class MergeKrakenOutputColorectal {
 		for(int i = 0; i < tables.size(); i++) {
 			String id = tables.get(i).split("_")[0];
 			if(!metaMap.containsKey(id)) {
-				if(gids.contains(id)) {
-					metaMap.put(id, "cancer.extra");
-				} else {
 					System.out.println("Extra sample: " + tables.get(i));
-				}
 			}
 			if(metaMap.containsKey(id)) {
 				if(sequences.containsKey(id)) {
