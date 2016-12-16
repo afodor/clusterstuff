@@ -39,9 +39,9 @@ public class MiRBaseJava {
 			if(line.startsWith(">")) {
 				refSeqs.put(sequ, header.replace(">", ""));
 				header = line;
-				sequ = "";
 				System.out.println(header);
 				System.out.println(sequ);
+				sequ = "";
 			} else {
 				sequ += line;
 			}
@@ -56,12 +56,12 @@ public class MiRBaseJava {
 		for(String k : keys) {
 			sum += k.length();
 		}
-		System.out.println(ref);
-		System.out.println("Average key length: " + (sum / keys.size()));
-		System.out.println("Number of keys: " + keys.size());
+		System.err.println(ref);
+		System.err.println("Average key length: " + (sum / keys.size()));
+		System.err.println("Number of keys: " + keys.size());
 		
 		//for each read in each fasta file, see if contains an exact match for any database string
-		BufferedWriter out = new BufferedWriter(new FileWriter(new File(
+		/*BufferedWriter out = new BufferedWriter(new FileWriter(new File(
 				OUTDIR + "MiRBaseJavaCounts_" + refName+ ".txt")));
 		out.write("sampleID\tnumReads\tnumMatch\n");
 		File[] files = new File(FQDIR).listFiles();
@@ -91,6 +91,6 @@ public class MiRBaseJava {
 				out.write(id + '\t' + numReads + "\t" + matched.size() + "\n");
 			}
 		}
-		out.close();		
+		out.close();	*/	
 	}
 }
