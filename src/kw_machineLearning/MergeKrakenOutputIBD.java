@@ -200,6 +200,15 @@ public class MergeKrakenOutputIBD {
 		writeSplitTable(seqIDs, "family", split.get("family"));
 		writeSplitTable(seqIDs, "genus", split.get("genus"));
 		writeSplitTable(seqIDs, "species", split.get("species"));
+		
+		//write metadata table
+		out = new BufferedWriter(new FileWriter(new File(
+				DIR + BASEOUT + "_metadata.txt")));
+		out.write("sampleID\tdisease\n");
+		for(String s : seqIDs) {
+			out.write(s + "\t" + metaMap.get(s) + "\n");
+		}
+		out.close();
 	}
 
 	//function that adds the given counts to the appropriate key in the given map
