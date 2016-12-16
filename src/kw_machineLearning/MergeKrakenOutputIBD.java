@@ -29,8 +29,9 @@ public class MergeKrakenOutputIBD {
 		HashMap<String, String> metaMap = new HashMap<String, String>();//map of sample ID to disease status 
 		BufferedReader m = new BufferedReader(new FileReader(new File(META)));
 		String[] dataset = m.readLine().split("\t");
-		m.readLine();//subjectID
 		String[] sampleID = m.readLine().split("\t");
+		m.readLine();//subjectID
+		m.readLine();//bodysite
 		String[] disease = m.readLine().split("\t");
 		m.close();
 		for(int i = 0; i < dataset.length; i++) {
