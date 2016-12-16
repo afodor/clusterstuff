@@ -21,7 +21,9 @@ public class GetLengths {
 		//databases
 		String[] dbs = new String[]{"/nobackup/afodor_research/kwinglee/mirbase_v21/mature.fa",
 				"/nobackup/afodor_research/kwinglee/mirbase_v21/hairpin.fa",
-				"/nobackup/afodor_research/kwinglee/piRBase_v1.0/piR_mouse_v1.0.fa"};
+				"/nobackup/afodor_research/kwinglee/piRBase_v1.0/piR_mouse_v1.0.fa",
+				"/nobackup/afodor_research/kwinglee/mirbase_v21/mature.dna.fasta",
+				"/nobackup/afodor_research/kwinglee/mirbase_v21/hairpin.dna.fasta"};
 		BufferedWriter dbout = new BufferedWriter(new FileWriter(new File(
 				DIR + "dbStats/dbSummary.txt")));
 		dbout.write("database\tnumEntries\taveLength\tminLength\tmaxLength\n");
