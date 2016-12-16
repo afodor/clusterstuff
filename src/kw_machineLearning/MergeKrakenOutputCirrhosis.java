@@ -61,7 +61,8 @@ public class MergeKrakenOutputCirrhosis {
 		System.out.println("sequences " + tables.size());
 		HashSet<String> seqs = new HashSet<String>();
 		for(int i = 0; i < tables.size(); i++) {
-			String id = tables.get(i).split("_")[0].replace("HV", "HV-");
+			String id = tables.get(i).split("_")[0].
+					replace("HV", "HV-").replace("LV", "LV-");
 			System.out.println(id + "\t" + metaMap.containsKey(id));
 			seqs.add(id);
 		}
