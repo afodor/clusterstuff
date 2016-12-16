@@ -38,8 +38,8 @@ public class MiRBaseJava {
 		int numSeq = 0;
 		while(line != null) {
 			if(line.startsWith(">")) {
-				System.out.println(header);
-				System.out.println(sequ);
+				//System.out.println(header);
+				//System.out.println(sequ);
 				refSeqs.put(sequ, header.replace(">", ""));
 				numSeq++;
 				header = line;
@@ -64,7 +64,7 @@ public class MiRBaseJava {
 		System.err.println("Number of seqs: " + numSeq);
 		
 		//for each read in each fasta file, see if contains an exact match for any database string
-		/*BufferedWriter out = new BufferedWriter(new FileWriter(new File(
+		BufferedWriter out = new BufferedWriter(new FileWriter(new File(
 				OUTDIR + "MiRBaseJavaCounts_" + refName+ ".txt")));
 		out.write("sampleID\tnumReads\tnumMatch\n");
 		File[] files = new File(FQDIR).listFiles();
@@ -94,6 +94,6 @@ public class MiRBaseJava {
 				out.write(id + '\t' + numReads + "\t" + matched.size() + "\n");
 			}
 		}
-		out.close();	*/
+		out.close();	
 	}
 }

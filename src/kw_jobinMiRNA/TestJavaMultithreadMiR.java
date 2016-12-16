@@ -1,5 +1,5 @@
 /*
- * run matching on MiR hairpin with multithreading
+ * run matching on MiR hairpin/mature with multithreading
  */
 package kw_jobinMiRNA;
 
@@ -15,7 +15,8 @@ public class TestJavaMultithreadMiR {
 	public static String DIR = "/nobackup/afodor_research/kwinglee/jobin/microRNA/";
 	public static String FQDIR = DIR + "adapterFiltered/";
 	public static String OUTDIR = DIR + "miRBaseJava/";
-	public static String REF = "/nobackup/afodor_research/kwinglee/mirbase_v21/hairpin.dna.fasta";
+	//public static String REF = "/nobackup/afodor_research/kwinglee/mirbase_v21/hairpin.dna.fasta";
+	public static String REF = "/nobackup/afodor_research/kwinglee/mirbase_v21/mature.dna.fasta";
 	
 	public static void main(String[] args) throws Exception {
 		File odir = new File(OUTDIR);
@@ -27,14 +28,12 @@ public class TestJavaMultithreadMiR {
 		BufferedReader brRef = new BufferedReader(new FileReader(REF));
 		String header = brRef.readLine();
 		String line = brRef.readLine();
-		String sequ = line;
+		String sequ = "";
 		while(line != null) {
 			if(line.startsWith(">")) {
 				refSeqs.put(sequ, header.replace(">", ""));
 				header = line;
 				sequ = "";
-				System.out.println(header);
-				System.out.println(sequ);
 			} else {
 				sequ += line;
 			}
@@ -44,6 +43,7 @@ public class TestJavaMultithreadMiR {
 		brRef.close();
 		ArrayList<String> keys = new ArrayList<String>(refSeqs.keySet());
 		keys.remove(null);
+		
 
 		//set up multithreaded
 		ArrayList<GetJavaMatches> threadList = new ArrayList<GetJavaMatches>();
@@ -53,7 +53,8 @@ public class TestJavaMultithreadMiR {
 		File[] files = new File(FQDIR).listFiles();
 		for(File f : files) {
 			if(f.getName().endsWith(".fasta")) {
-				GetJavaMatches match = new GetJavaMatches(f, OUTDIR + "hairpinMultithread_v_", keys);
+				//GetJavaMatches match = new GetJavaMatches(f, OUTDIR + "hairpinMultithread_v_", keys);
+				GetJavaMatches match = new GetJavaMatches(f, OUTDIR + "matureMultithread_v_", keys);
 				new Thread(match).start();
 				threadList.add(match);
 			}
@@ -73,7 +74,8 @@ public class TestJavaMultithreadMiR {
 
 		//write summary results
 		BufferedWriter out = new BufferedWriter(new FileWriter(new File(
-				OUTDIR + "miRhairpinMultithreadJavaCounts.txt")));
+				//OUTDIR + "miRhairpinMultithreadJavaCounts.txt")));
+				OUTDIR + "miRmatureMultithreadJavaCounts.txt")));
 		out.write("sampleID\tnumReads\tnumMatch\n");
 		for(GetJavaMatches gjm : threadList) {
 			out.write(gjm.id + "\t" + gjm.numReads + "\t" + gjm.numMatched + "\n");

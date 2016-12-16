@@ -27,14 +27,12 @@ public class PiRBaseJava {
 		BufferedReader brRef = new BufferedReader(new FileReader(REF));
 		String header = brRef.readLine();
 		String line = brRef.readLine();
-		String sequ = line;
+		String sequ = "";
 		while(line != null) {
 			if(line.startsWith(">")) {
 				refSeqs.put(sequ, header.replace(">", ""));
 				header = line;
 				sequ = "";
-				System.out.println(header);
-				System.out.println(sequ);
 			} else {
 				sequ += line;
 			}
