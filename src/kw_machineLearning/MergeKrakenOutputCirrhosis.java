@@ -1,5 +1,5 @@
 /*
- * Merge the kraken outputs for IBD 
+ * Merge the kraken outputs for cirrhosis 
  * also generate tables split by level
  * 
  * kraken output is two columns: read classification
@@ -16,12 +16,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
-public class MergeKrakenOutputIBD {
-	public static String DIR = "/nobackup/afodor_research/kwinglee/machineLearning/ibd/minikraken/";
+public class MergeKrakenOutputCirrhosis {
+	public static String DIR = "/nobackup/afodor_research/kwinglee/machineLearning/cirrhosis/minikraken/";
 	public static int NUM_SAMP;//number of samples
 	public static String META = "/nobackup/afodor_research/kwinglee/machineLearning/MetAML/metaml/data/abundance_stoolsubset.txt";
-	public static String BASEOUT = "ibd_minikraken_merged";//prefix of output files
+	public static String BASEOUT = "cirrhosis_minikraken_merged";//prefix of output files
 	
 	public static void main(String[] args) throws Exception {
 		//get metadata
@@ -34,17 +36,17 @@ public class MergeKrakenOutputIBD {
 		String[] disease = m.readLine().split("\t");
 		m.close();
 		for(int i = 0; i < dataset.length; i++) {
-			if(dataset[i].equals("metahit")) {
+			if(dataset[i].equals("Quin_gut_liver_cirrhosis")) {
 				metaMap.put(sampleID[i], disease[i]);
 			}
 		}
-		/*System.out.println("metadata " + metaMap.size());
+		System.out.println("metadata " + metaMap.size());
 		ArrayList<String> keys = new ArrayList<String>(metaMap.keySet());
 		Collections.sort(keys);
 		for(String key : keys) {
 			System.out.println(key + "\t" + metaMap.get(key));
 		}
-		System.out.println();*/
+		System.out.println();
 
 		//get list of files to read
 		ArrayList<String> tables = new ArrayList<String> ();
@@ -54,13 +56,12 @@ public class MergeKrakenOutputIBD {
 				tables.add(f);
 			}
 		}
-		//Collections.sort(tables);
 
-		/*//check sequence ids
+		//check sequence ids
 		System.out.println("sequences " + tables.size());
 		HashSet<String> seqs = new HashSet<String>();
 		for(int i = 0; i < tables.size(); i++) {
-			String id = tables.get(i).split("_")[0].replace(".", "_").replace("-", "_");
+			String id = tables.get(i).split("_")[0];
 			System.out.println(id + "\t" + metaMap.containsKey(id));
 			seqs.add(id);
 		}
@@ -72,8 +73,8 @@ public class MergeKrakenOutputIBD {
 			if(!seqs.contains(key)) {
 				System.out.println(key);
 			}
-		}*/
-
+		}
+		/*
 		//add missing samples and make map of sample id to sequences
 		HashMap<String, ArrayList<String>> sequences = new HashMap<String, ArrayList<String>>();//map of id to the sequences associated 
 		for(int i = 0; i < tables.size(); i++) {
@@ -206,7 +207,7 @@ public class MergeKrakenOutputIBD {
 		for(String s : seqIDs) {
 			out.write(s + "\t" + metaMap.get(s) + "\n");
 		}
-		out.close();
+		out.close();*/
 	}
 
 	//function that adds the given counts to the appropriate key in the given map
