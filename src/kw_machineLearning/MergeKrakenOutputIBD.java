@@ -23,7 +23,8 @@ public class MergeKrakenOutputIBD {
 	public static String DIR = "/nobackup/afodor_research/kwinglee/machineLearning/ibd/minikraken/";
 	public static int NUM_SAMP;//number of samples
 	public static String META = "/nobackup/afodor_research/kwinglee/machineLearning/MetAML/metaml/data/abundance_stoolsubset.txt";
-
+	public static String BASEOUT = "ibd_minikraken_merged";//prefix of output files
+	
 	public static void main(String[] args) throws Exception {
 		//get metadata
 		HashMap<String, String> metaMap = new HashMap<String, String>();//map of sample ID to disease status 
@@ -39,14 +40,14 @@ public class MergeKrakenOutputIBD {
 				metaMap.put(sampleID[i], disease[i]);
 			}
 		}
-		System.out.println("metadata " + metaMap.size());
+		/*System.out.println("metadata " + metaMap.size());
 		ArrayList<String> keys = new ArrayList<String>(metaMap.keySet());
 		Collections.sort(keys);
 		for(String key : keys) {
 			System.out.println(key + "\t" + metaMap.get(key));
 		}
-		System.out.println();
-		
+		System.out.println();*/
+
 		//get list of files to read
 		ArrayList<String> tables = new ArrayList<String> ();
 		String[] files = new File(DIR).list();
@@ -55,10 +56,9 @@ public class MergeKrakenOutputIBD {
 				tables.add(f);
 			}
 		}
-		Collections.sort(tables);
-		NUM_SAMP = tables.size();
-		
-		//check sequence ids
+		//Collections.sort(tables);
+
+		/*//check sequence ids
 		System.out.println("sequences " + tables.size());
 		HashSet<String> seqs = new HashSet<String>();
 		for(int i = 0; i < tables.size(); i++) {
@@ -67,68 +67,77 @@ public class MergeKrakenOutputIBD {
 			seqs.add(id);
 		}
 		System.out.println();
-		
+
 		//check have all metadata
 		System.out.println("missing samples");
 		for(String key : keys) {
 			if(!seqs.contains(key)) {
 				System.out.println(key);
 			}
+		}*/
+
+		//add missing samples and make map of sample id to sequences
+		HashMap<String, ArrayList<String>> sequences = new HashMap<String, ArrayList<String>>();//map of id to the sequences associated 
+		for(int i = 0; i < tables.size(); i++) {
+			String id = tables.get(i).split("_")[0].replace(".", "_").replace("-", "_");
+			if(!metaMap.containsKey(id)) {
+				if(id.startsWith("MH")) {
+					metaMap.put(id, "n.extra");
+				} else if(id.startsWith("O2")) {
+					metaMap.put(id, "ibd_ulcerative_colitis.extra");
+				} else {
+					System.out.println("Extra sample: " + tables.get(i));
+				}
+			}
+			if(metaMap.containsKey(id)) {
+				if(sequences.containsKey(id)) {
+					sequences.get(id).add(tables.get(i));
+				} else {
+					ArrayList<String> list = new ArrayList<String>();
+					list.add(tables.get(i));
+					sequences.put(id, list);
+				}
+			}
 		}
-		
-		
-		
-		/*if(tables.size() != NUM_SAMP) {
-			throw new Exception("Wrong number mpa files " + tables.size());
-		}
+		ArrayList<String> seqIDs = new ArrayList<String>(sequences.keySet());
+		Collections.sort(seqIDs);
+		NUM_SAMP = seqIDs.size();
 
 		//map of phylogeny to counts for each sample
 		HashMap<String, Integer[]> baseMap = new HashMap<String, Integer[]>();
 
 		//files set up as read phylogeny -> convert to counts
-		for(int i = 0; i < tables.size(); i++) {
-			BufferedReader br = new BufferedReader(new FileReader(
-					new File(DIR + tables.get(i))));
-			//String sample = tables.get(i).replace("minikrakenSeqs_", "").replace("_mpa", "");
-			String sample = tables.get(i).replace("stdkrakenSeqs_", "").replace("_mpa", "");
-			Set<String> human = getHumanReads(sample);
-			int numHum = 0;//number human reads seen
-			String line = br.readLine();
-			while(line != null) {
-				String[] sp = line.split("\t");
-				String taxa = sp[1];
-				if(!human.contains(sp[0])) {
+		for(int key = 0; key < seqIDs.size(); key++) {
+			ArrayList<String> tabs = sequences.get(seqIDs.get(key));
+			for(int tab = 0; tab < tabs.size(); tab++) {
+				BufferedReader br = new BufferedReader(new FileReader(
+						new File(DIR + tabs.get(tab))));
+				String line = br.readLine();
+				while(line != null) {
+					String[] sp = line.split("\t");
+					String taxa = sp[1];
 					if(!baseMap.containsKey(taxa)) {//taxa not previously seen; add array of zeros
-						Integer[] counts = new Integer[tables.size()];
+						Integer[] counts = new Integer[NUM_SAMP];
 						Arrays.fill(counts, 0);
 						baseMap.put(taxa, counts);
 					}
 					Integer[] counts = baseMap.get(taxa);
-					counts[i]++;
-				} else if(!sp[1].equals("root")) {
-					System.err.println("human read mapped " + sample + " " + line);
-					numHum++;
-				} else {
-					numHum++;
+					counts[key]++;
+					line = br.readLine();
 				}
-				line = br.readLine();
+				br.close();
 			}
-			br.close();
-			System.out.println(sample + " " + numHum + " human reads");
 		}
 
 		////write table
 		ArrayList<String> keys = new ArrayList<String>(baseMap.keySet());
 		Collections.sort(keys);
 		BufferedWriter out = new BufferedWriter(new FileWriter(
-				//new File(DIR + "minikraken_merged.txt")));
-				new File(DIR + "stdkraken_merged.txt")));
+				new File(DIR + BASEOUT + ".txt")));
 		//write header
 		out.write("taxonomy");
-		for(String t: tables) {
-			//String sample = t.replace("minikrakenSeqs_", "").replace("_mpa", "");
-			String sample = t.replace("stdkrakenSeqs_", "").replace("_mpa", "");
-			out.write("\t" + sample);
+		for(String t: seqIDs) {
+			out.write("\t" + t);
 		}
 		out.write("\n");
 		//write counts
@@ -184,13 +193,13 @@ public class MergeKrakenOutputIBD {
 		}
 
 		//write tables
-		writeSplitTable(tables, "domain", split.get("domain"));
-		writeSplitTable(tables, "phylum", split.get("phylum"));
-		writeSplitTable(tables, "class", split.get("class"));
-		writeSplitTable(tables, "order", split.get("order"));
-		writeSplitTable(tables, "family", split.get("family"));
-		writeSplitTable(tables, "genus", split.get("genus"));
-		writeSplitTable(tables, "species", split.get("species"));*/
+		writeSplitTable(seqIDs, "domain", split.get("domain"));
+		writeSplitTable(seqIDs, "phylum", split.get("phylum"));
+		writeSplitTable(seqIDs, "class", split.get("class"));
+		writeSplitTable(seqIDs, "order", split.get("order"));
+		writeSplitTable(seqIDs, "family", split.get("family"));
+		writeSplitTable(seqIDs, "genus", split.get("genus"));
+		writeSplitTable(seqIDs, "species", split.get("species"));
 	}
 
 	//function that adds the given counts to the appropriate key in the given map
@@ -208,19 +217,16 @@ public class MergeKrakenOutputIBD {
 	}
 
 	//writes the table for the given level containing the given counts
-	public static void writeSplitTable(ArrayList<String> tables, 
+	public static void writeSplitTable(ArrayList<String> ids, 
 			String level, 
 			HashMap<String, Integer[]> map) throws IOException {
 		BufferedWriter out = new BufferedWriter(new FileWriter(
-				//new File(DIR + "minikraken_merged_" + level + ".txt")));
-				new File(DIR + "stdkraken_merged_" + level + ".txt")));
-		
+				new File(DIR + BASEOUT + "_" + level + ".txt")));
+
 		//write header
 		out.write("taxa\ttaxonomy");
-		for(String t: tables) {
-			//String sample = t.replace("minikrakenSeqs_", "").replace("_mpa", "");
-			String sample = t.replace("stdkrakenSeqs_", "").replace("_mpa", "");
-			out.write("\t" + sample);
+		for(String t: ids) {
+			out.write("\t" + t);
 		}
 		out.write("\n");
 
