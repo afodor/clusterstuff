@@ -17,7 +17,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 
 public class MergeKrakenOutputCirrhosis {
 	public static String DIR = "/nobackup/afodor_research/kwinglee/machineLearning/cirrhosis/minikraken/";
@@ -40,13 +39,13 @@ public class MergeKrakenOutputCirrhosis {
 				metaMap.put(sampleID[i], disease[i]);
 			}
 		}
-		System.out.println("metadata " + metaMap.size());
+		/*System.out.println("metadata " + metaMap.size());
 		ArrayList<String> keys = new ArrayList<String>(metaMap.keySet());
 		Collections.sort(keys);
 		for(String key : keys) {
 			System.out.println(key + "\t" + metaMap.get(key));
 		}
-		System.out.println();
+		System.out.println();*/
 
 		//get list of files to read
 		ArrayList<String> tables = new ArrayList<String> ();
@@ -57,7 +56,7 @@ public class MergeKrakenOutputCirrhosis {
 			}
 		}
 
-		//check sequence ids
+		/*//check sequence ids
 		System.out.println("sequences " + tables.size());
 		HashSet<String> seqs = new HashSet<String>();
 		for(int i = 0; i < tables.size(); i++) {
@@ -74,17 +73,16 @@ public class MergeKrakenOutputCirrhosis {
 			if(!seqs.contains(key)) {
 				System.out.println(key);
 			}
-		}
-		/*
+		}*/
+		
 		//add missing samples and make map of sample id to sequences
 		HashMap<String, ArrayList<String>> sequences = new HashMap<String, ArrayList<String>>();//map of id to the sequences associated 
 		for(int i = 0; i < tables.size(); i++) {
-			String id = tables.get(i).split("_")[0].replace(".", "_").replace("-", "_");
+			String id = tables.get(i).split("_")[0].
+					replace("HV", "HV-").replace("LV", "LV-");
 			if(!metaMap.containsKey(id)) {
-				if(id.startsWith("MH")) {
-					metaMap.put(id, "n.extra");
-				} else if(id.startsWith("O2")) {
-					metaMap.put(id, "ibd_ulcerative_colitis.extra");
+				if(id.startsWith("L")) {
+					metaMap.put(id, "cirrhosis.extra");
 				} else {
 					System.out.println("Extra sample: " + tables.get(i));
 				}
@@ -208,7 +206,7 @@ public class MergeKrakenOutputCirrhosis {
 		for(String s : seqIDs) {
 			out.write(s + "\t" + metaMap.get(s) + "\n");
 		}
-		out.close();*/
+		out.close();
 	}
 
 	//function that adds the given counts to the appropriate key in the given map
