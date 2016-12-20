@@ -27,7 +27,26 @@ public class MergeKrakenOutputObesity {
 	public static void main(String[] args) throws Exception {
 		//get metadata
 		HashMap<String, String> metaMap = new HashMap<String, String>();//map of sample ID to disease status 
-		BufferedReader m = new BufferedReader(new FileReader(new File(META)));
+		BufferedReader m = new BufferedReader(new FileReader(new File(DIR + "bmi")));
+		m.readLine();//header
+		for(String line = m.readLine(); line != null; line = m.readLine()) {
+			String[] sp = line.split("\t");
+			if(sp.length > 1) {//ignore empty lines
+				double bmi = Double.parseDouble(sp[1]);
+				if(bmi < 25) {
+					metaMap.put(sp[0], "lean");					
+				} else if(bmi > 30) {
+					metaMap.put(sp[0], "obese");
+				} else {
+					metaMap.put(sp[0], "overweight");
+				}
+			}
+		}
+		m.close();
+		
+		//compare to Segata metadata
+		m = new BufferedReader(new FileReader(new File(META)));
+		HashMap<String, String> seg = new HashMap<String, String>();//map of sample ID to disease status
 		String[] dataset = m.readLine().split("\t");
 		String[] sampleID = m.readLine().split("\t");
 		m.readLine();//subjectID
@@ -36,14 +55,19 @@ public class MergeKrakenOutputObesity {
 		m.close();
 		for(int i = 0; i < dataset.length; i++) {
 			if(dataset[i].equals("Chatelier_gut_obesity")) {
-				metaMap.put(sampleID[i], disease[i]);
+				seg.put(sampleID[i], disease[i]);
 			}
 		}
 		System.out.println("metadata " + metaMap.size());
 		ArrayList<String> keys = new ArrayList<String>(metaMap.keySet());
 		Collections.sort(keys);
 		for(String key : keys) {
-			System.out.println(key + "\t" + metaMap.get(key));
+			System.out.print(key + "\t" + metaMap.get(key));
+			if(seg.containsKey(key)) {
+				System.out.println("\t" + seg.get(key));
+			} else {
+				System.out.println();
+			}
 		}
 		System.out.println();
 
