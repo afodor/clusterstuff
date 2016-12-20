@@ -23,7 +23,7 @@ public class MergeKrakenOutputObesity {
 	public static int NUM_SAMP;//number of samples
 	public static String META = "/nobackup/afodor_research/kwinglee/machineLearning/MetAML/metaml/data/abundance_stoolsubset.txt";
 	public static String BASEOUT = "obesity_minikraken_merged";//prefix of output files
-	
+
 	public static void main(String[] args) throws Exception {
 		//get metadata
 		HashMap<String, String> metaMap = new HashMap<String, String>();//map of sample ID to disease status 
@@ -43,9 +43,9 @@ public class MergeKrakenOutputObesity {
 			}
 		}
 		m.close();
-		
+
 		//compare to Segata metadata
-		m = new BufferedReader(new FileReader(new File(META)));
+		/*m = new BufferedReader(new FileReader(new File(META)));
 		HashMap<String, String> seg = new HashMap<String, String>();//map of sample ID to disease status
 		String[] dataset = m.readLine().split("\t");
 		String[] sampleID = m.readLine().split("\t");
@@ -69,7 +69,7 @@ public class MergeKrakenOutputObesity {
 				System.out.println();
 			}
 		}
-		System.out.println();
+		System.out.println();*/
 
 		//get list of files to read
 		ArrayList<String> tables = new ArrayList<String> ();
@@ -79,10 +79,9 @@ public class MergeKrakenOutputObesity {
 				tables.add(f);
 			}
 		}
-		//Collections.sort(tables);
 
 		//check sequence ids
-		System.out.println("sequences " + tables.size());
+		/*System.out.println("sequences " + tables.size());
 		HashSet<String> seqs = new HashSet<String>();
 		for(int i = 0; i < tables.size(); i++) {
 			String id = tables.get(i).split("_")[0].replace("MetaHIT-", "");
@@ -97,16 +96,15 @@ public class MergeKrakenOutputObesity {
 			if(!seqs.contains(key)) {
 				System.out.println(key);
 			}
-		}
+		}*/
 
 		//add missing samples and make map of sample id to sequences
-		/*HashMap<String, ArrayList<String>> sequences = new HashMap<String, ArrayList<String>>();//map of id to the sequences associated 
+		HashMap<String, ArrayList<String>> sequences = new HashMap<String, ArrayList<String>>();//map of id to the sequences associated 
 		for(int i = 0; i < tables.size(); i++) {
-			String id = tables.get(i).split("_")[0].replace(".", "_").replace("-", "_");
+			String id = tables.get(i).split("_")[0].replace("MetaHIT-", "");
 			if(!metaMap.containsKey(id)) {
-					System.out.println("Extra sample: " + tables.get(i));
-			}
-			if(metaMap.containsKey(id)) {
+				System.out.println("Extra sample: " + tables.get(i));
+			} else {
 				if(sequences.containsKey(id)) {
 					sequences.get(id).add(tables.get(i));
 				} else {
@@ -217,7 +215,7 @@ public class MergeKrakenOutputObesity {
 		writeSplitTable(seqIDs, "family", split.get("family"));
 		writeSplitTable(seqIDs, "genus", split.get("genus"));
 		writeSplitTable(seqIDs, "species", split.get("species"));
-		
+
 		//write metadata table
 		out = new BufferedWriter(new FileWriter(new File(
 				DIR + BASEOUT + "_metadata.txt")));
@@ -271,6 +269,6 @@ public class MergeKrakenOutputObesity {
 			out.write("\n");
 		}
 
-		out.close();*/
+		out.close();
 	}
 }
