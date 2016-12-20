@@ -1,0 +1,46 @@
+##look at proportion of reads that mapped for both kraken databases at each phylogenetic level
+##12/20/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\microRNA\\alignmentsAnalysis\\kraken")
+
+taxaLevels = c("domain", "phylum", "class", "order", "family", "genus", "species")
+dbs = c("minikraken", "stdkraken")
+
+meta = read.table("..\\Results_bowtie.txt", sep="\t", header=T)
+meta = meta[,1:3]
+
+for(db in dbs) {
+  print(db)
+  pdf(paste("boxplots_", db, ".pdf", sep=""))
+  for(taxa in taxaLevels) {
+    print(taxa)
+    table = read.table(paste("miRNA_", db, "_", taxa, ".txt", sep=""),
+                       header=T, sep="\t")
+    table = table[,-2] #remove taxonomy
+    names(table)[1] = "sampleID"
+    
+    ##transpose
+    fname = paste("miRNA_", db, "_", taxa, "_taxaAsCol.txt", sep="")
+    write.table(t(table), fname, sep="\t", row.names = T, col.names = F, quote = F)
+    table = read.table(fname, header=T, sep="\t", stringsAsFactors = F)
+    table$sampleID = sub(paste(".", db, sep=""), "", table$sampleID, fixed=T)
+    
+    ##add metdata
+    mrg = merge(meta, table, by="sampleID")
+    write.table(mrg, paste("miRNA_", db, "_", taxa, "_taxaAsCol_withMeta.txt", sep=""),
+                sep="\t", row.names = F, col.names = T, quote = F)
+    
+    ##get proportion of reads
+    numMatch = rowSums(mrg[,-(1:3)])
+    prop = numMatch / mrg$totalNumReads
+    
+    ##boxplot
+    group = factor(mrg$group)
+    p = t.test(prop~group)$p.value
+    boxplot(prop~group, #ylim=c(0,1),
+            main=paste(taxa, "\np=", format(p, digits = 3), sep=""), 
+            ylab="proportion of reads mapped")
+  }
+  dev.off()
+}

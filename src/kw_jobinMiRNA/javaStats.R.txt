@@ -1,0 +1,40 @@
+##compare Java exact matches
+##12/20/16
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\microRNA\\alignmentsAnalysis")
+
+tables = c("MiRBaseJavaCounts_mature.txt", "MiRBaseJavaCounts_hairpin.txt")
+
+getName <- function(name) {
+  if(grepl("mature", name)) {
+    return("miRBase mature")
+  } else if(grepl("hairpin", name)) {
+    return("miRBase hairpin")
+  } else if(grepl("Mouse", name)) {
+    return("mouse MM10")
+  } else if(grepl("PiR", name)) {
+    return("PiRBase")
+  }
+}
+
+pdf("boxplots_exactMatch.pdf")
+for(tab in tables) {
+  table = read.table(tab, sep="\t", header=T, stringsAsFactors = F)
+  id = as.numeric(gsub("Sample", "", table$sampleID))
+  group = ifelse(id <= 5, "GF", "SPF")
+  prop = table$numMatch / table$numReads
+  
+  ##write table
+  res = data.frame(sampleID = table$sampleID, group, numReads = table$numReads,
+                   numMatch = table$numMatch, propMatch = prop, stringsAsFactors = F)
+  res = res[order(id),]
+  write.table(res, sub(".txt", "_proportions.txt", tab))
+  
+  ##plot
+  p = t.test(prop~group)$p.value
+  boxplot(prop~group, #ylim=c(0,1),
+          main=paste(getName(tab), "\np=", format(p, digits = 3), sep=""), 
+          ylab="proportion of reads mapped")
+}
+dev.off()
