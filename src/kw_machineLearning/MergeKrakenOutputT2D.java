@@ -66,7 +66,7 @@ public class MergeKrakenOutputT2D {
 			String[] head = br.readLine().split(",");//header
 			int sampleName = 0;
 			for(int i = 0; i < head.length; i++) {
-				if(head.equals("SampleName")) {
+				if(head[i].equals("SampleName")) {
 					sampleName = i;
 				}
 			}
