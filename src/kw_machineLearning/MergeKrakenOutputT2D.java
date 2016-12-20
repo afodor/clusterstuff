@@ -57,19 +57,23 @@ public class MergeKrakenOutputT2D {
 			}
 		}
 		//Collections.sort(tables);
-		
+
 		//get conversion from SRA to sample ID
-		String[] sraFiles = new String[]{"SraRunInfo.csv", "SraRunInfo2.csv"};
 		HashMap<String, String> sraMap = new HashMap<String, String>();//sra to sample name
-		for(String sra : sraFiles) {
-			BufferedReader br = new BufferedReader(new FileReader(new File(SRADIR + sra)));
-			br.readLine();//header
-			for(String line = br.readLine(); line != null; line = br.readLine()) {
-				String[] sp = line.split(",");
-				sraMap.put(sp[0], sp[29]);
-			}
-			br.close();
+		BufferedReader br = new BufferedReader(new FileReader(new File(SRADIR + "SraRunInfo.csv")));
+		br.readLine();//header
+		for(String line = br.readLine(); line != null; line = br.readLine()) {
+			String[] sp = line.split(",");
+			sraMap.put(sp[0], sp[28].replace("bgi-", ""));
 		}
+		br.close();
+		br = new BufferedReader(new FileReader(new File(SRADIR + "SraRunInfo2.csv")));
+		br.readLine();//header
+		for(String line = br.readLine(); line != null; line = br.readLine()) {
+			String[] sp = line.split(",");
+			sraMap.put(sp[0], sp[29].replace("bgi-", ""));
+		}
+		br.close();
 
 		//check sequence ids
 		System.out.println("sequences " + tables.size());
