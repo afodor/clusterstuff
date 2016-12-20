@@ -60,28 +60,27 @@ public class MergeKrakenOutputT2D {
 
 		//get conversion from SRA to sample ID
 		HashMap<String, String> sraMap = new HashMap<String, String>();//sra to sample name
-		BufferedReader br = new BufferedReader(new FileReader(new File(SRADIR + "SraRunInfo.csv")));
-		br.readLine();//header
-		for(String line = br.readLine(); line != null; line = br.readLine()) {
-			String[] sp = line.split(",");
-			if(sp.length > 1) {
-				sraMap.put(sp[0], sp[30].replace("bgi-", ""));
-			} else {
-				System.out.println(line);
+		String[] sraFiles = new String[] {"SraRunInfo.csv", "SraRunInfo2.csv"};
+		for(String s : sraFiles) {
+			BufferedReader br = new BufferedReader(new FileReader(new File(SRADIR + s)));
+			String[] head = br.readLine().split(",");//header
+			int sampleName = 0;
+			for(int i = 0; i < head.length; i++) {
+				if(head.equals("SampleName")) {
+					sampleName = i;
+				}
 			}
-		}
-		br.close();
-		br = new BufferedReader(new FileReader(new File(SRADIR + "SraRunInfo2.csv")));
-		br.readLine();//header
-		for(String line = br.readLine(); line != null; line = br.readLine()) {
-			String[] sp = line.split(",");
-			if(sp.length > 1) {
-				sraMap.put(sp[0], sp[30].replace("bgi-", ""));
-			} else {
-				System.out.println(line);
+			System.err.println(s + " " + sampleName);
+			for(String line = br.readLine(); line != null; line = br.readLine()) {
+				String[] sp = line.split(",");
+				if(sp.length > 1) {
+					sraMap.put(sp[0], sp[sampleName].replace("bgi-", ""));
+				} else {
+					System.out.println(line);
+				}
 			}
+			br.close();
 		}
-		br.close();
 
 		//check sequence ids
 		System.out.println("SRA " + sraMap.size());
