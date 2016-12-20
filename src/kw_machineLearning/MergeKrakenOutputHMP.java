@@ -39,13 +39,13 @@ public class MergeKrakenOutputHMP {
 				metaMap.put(sampleID[i], disease[i]);
 			}
 		}
-		System.out.println("metadata " + metaMap.size());
+		/*System.out.println("metadata " + metaMap.size());
 		ArrayList<String> keys = new ArrayList<String>(metaMap.keySet());
 		Collections.sort(keys);
 		for(String key : keys) {
 			System.out.println(key + "\t" + metaMap.get(key));
 		}
-		System.out.println();
+		System.out.println();*/
 
 		//get list of files to read
 		ArrayList<String> tables = new ArrayList<String> ();
@@ -58,7 +58,7 @@ public class MergeKrakenOutputHMP {
 		//Collections.sort(tables);
 
 		//check sequence ids
-		System.out.println("sequences " + tables.size());
+		/*System.out.println("sequences " + tables.size());
 		HashSet<String> seqs = new HashSet<String>();
 		for(int i = 0; i < tables.size(); i++) {
 			String id = tables.get(i).split("_")[0];
@@ -73,10 +73,10 @@ public class MergeKrakenOutputHMP {
 			if(!seqs.contains(key)) {
 				System.out.println(key);
 			}
-		}
+		}*/
 
 		//add missing samples and make map of sample id to sequences
-		/*HashMap<String, ArrayList<String>> sequences = new HashMap<String, ArrayList<String>>();//map of id to the sequences associated 
+		HashMap<String, ArrayList<String>> sequences = new HashMap<String, ArrayList<String>>();//map of id to the sequences associated 
 		for(int i = 0; i < tables.size(); i++) {
 			String id = tables.get(i).split("_")[0];
 			if(!metaMap.containsKey(id)) {
@@ -245,6 +245,6 @@ public class MergeKrakenOutputHMP {
 			out.write("\n");
 		}
 
-		out.close();*/
+		out.close();
 	}
 }
