@@ -64,14 +64,22 @@ public class MergeKrakenOutputT2D {
 		br.readLine();//header
 		for(String line = br.readLine(); line != null; line = br.readLine()) {
 			String[] sp = line.split(",");
-			sraMap.put(sp[0], sp[28].replace("bgi-", ""));
+			if(sp.length < 29) {
+				sraMap.put(sp[0], sp[28].replace("bgi-", ""));
+			} else {
+				System.out.println(line);
+			}
 		}
 		br.close();
 		br = new BufferedReader(new FileReader(new File(SRADIR + "SraRunInfo2.csv")));
 		br.readLine();//header
 		for(String line = br.readLine(); line != null; line = br.readLine()) {
 			String[] sp = line.split(",");
-			sraMap.put(sp[0], sp[29].replace("bgi-", ""));
+			if(sp.length < 29) {
+				sraMap.put(sp[0], sp[29].replace("bgi-", ""));
+			} else {
+				System.out.println(line);
+			}
 		}
 		br.close();
 
