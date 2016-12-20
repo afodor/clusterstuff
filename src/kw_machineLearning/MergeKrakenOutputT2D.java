@@ -65,7 +65,7 @@ public class MergeKrakenOutputT2D {
 		for(String line = br.readLine(); line != null; line = br.readLine()) {
 			String[] sp = line.split(",");
 			if(sp.length > 1) {
-				sraMap.put(sp[0], sp[28].replace("bgi-", ""));
+				sraMap.put(sp[0], sp[30].replace("bgi-", ""));
 			} else {
 				System.out.println(line);
 			}
@@ -76,7 +76,7 @@ public class MergeKrakenOutputT2D {
 		for(String line = br.readLine(); line != null; line = br.readLine()) {
 			String[] sp = line.split(",");
 			if(sp.length > 1) {
-				sraMap.put(sp[0], sp[29].replace("bgi-", ""));
+				sraMap.put(sp[0], sp[30].replace("bgi-", ""));
 			} else {
 				System.out.println(line);
 			}
