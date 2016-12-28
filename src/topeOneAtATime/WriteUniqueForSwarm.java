@@ -30,7 +30,7 @@ public class WriteUniqueForSwarm
 		
 		System.out.println("Writing");
 		BufferedWriter writer =new BufferedWriter(new FileWriter(new File(
-				"/nobackup/afodor_research/topeOneAtATime")));
+				"/nobackup/afodor_research/topeOneAtATime/mergedForSwarm.txt")));
 		
 		int index=0;
 		for(Holder h : list)
