@@ -24,6 +24,7 @@ public class WriteUniqueForSwarm
 			Holder h = new Holder();
 			h.sequence = s;
 			h.count = map.get(s);
+			list.add(h);
 		}
 		
 		Collections.sort(list);
