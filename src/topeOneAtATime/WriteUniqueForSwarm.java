@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import parsers.FastaSequence;
-import utils.ConfigReader;
 
 public class WriteUniqueForSwarm
 {
