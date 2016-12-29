@@ -20,6 +20,15 @@ public class PivotOTUs
 				"C:\\classes\\undergradProgramming_2013\\fattyLiverMaterials\\rdpGenusThreeCol.txt");
 		
 		writeResults(map,"C:\\classes\\undergradProgramming_2013\\fattyLiverMaterials\\pivotFromJava.txt");
+		
+		HashMap<String, HashMap<String,Integer>> countMap =
+				new HashMap<String, HashMap<String,Integer>>();
+	}
+	
+	private static void addDirectoryToMap(HashMap<String, HashMap<String,Integer>> countMap ) 
+		throws Exception
+	{
+		
 	}
 	
 	private static List<String> getOTUSAtThreshold(
