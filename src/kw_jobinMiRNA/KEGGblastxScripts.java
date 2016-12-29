@@ -27,12 +27,13 @@ public class KEGGblastxScripts {
 				String scriptName = "kegg_" + name;
 				
 				//add to runAll
-				runAll.write("qsub -q \"copperhead\" " + scriptName + "\n");
+				//runAll.write("qsub -q \"copperhead\" " + scriptName + "\n");
+				runAll.write("qsub -q \"Cobra\" " + scriptName + "\n");
 				
 				//write individual script
 				BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 						SCRIPT_DIR + scriptName)));
-				script.write("#PBS -l walltime=900:00:00,mem=10GB,procs=1\n");
+				//script.write("#PBS -l walltime=900:00:00,mem=10GB,procs=1\n");
 				script.write("module load blast/2.5.0+\n");
 				script.write("blastx -outfmt 6 -db " + DB + " -query " +
 						f.getAbsolutePath() + " -out " +
