@@ -103,7 +103,7 @@ public class PivotSwarmResults
 		return map;
 	}
 	
-	private static int getCount(String line)
+	private static int getCount(String line) throws Exception
 	{
 		int count =0;
 		
