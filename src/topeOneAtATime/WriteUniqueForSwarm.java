@@ -36,11 +36,12 @@ public class WriteUniqueForSwarm
 		
 		int index=0;
 		for(Holder h : list)
-		{
-			index++;
-			writer.write(">seq" + index + "_" + h.count + "\n");
-			writer.write(h.sequence + "\n");
-		}
+			if( h.count > 1)
+			{
+				index++;
+				writer.write(">seq" + index + "_" + h.count + "\n");
+				writer.write(h.sequence + "\n");
+			}
 			
 		writer.flush();  writer.close();
 		System.out.println("Finished");
