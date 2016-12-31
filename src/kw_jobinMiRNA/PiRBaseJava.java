@@ -13,7 +13,8 @@ import java.util.HashMap;
 
 public class PiRBaseJava {
 	public static String DIR = "/nobackup/afodor_research/kwinglee/jobin/microRNA/";
-	public static String FQDIR = DIR + "adapterFiltered/";
+	//public static String FADIR = DIR + "adapterFiltered/";
+	public static String FADIR = DIR + "splitFastas/";
 	public static String OUTDIR = DIR + "piRBaseJava/";
 	public static String REF = "/nobackup/afodor_research/kwinglee/piRBase_v1.0/piR_mouse_v1.0.fa";
 	
@@ -48,7 +49,7 @@ public class PiRBaseJava {
 
 
 		//for each read in each fasta file, see if contains an exact match for any database string
-		File[] files = new File(FQDIR).listFiles();
+		File[] files = new File(FADIR).listFiles();
 		for(File f : files) {
 			if(f.getName().endsWith(".fasta")) {
 				GetJavaMatches match = new GetJavaMatches(f, OUTDIR + "piRBase_v_", keys);
