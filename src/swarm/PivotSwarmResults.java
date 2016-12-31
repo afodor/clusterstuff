@@ -1,8 +1,10 @@
 package swarm;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
@@ -15,7 +17,8 @@ public class PivotSwarmResults
 	public static void main(String[] args) throws Exception
 	{
 		HashMap<String, Integer> sequenceIDtoOTUMap = getSequenceIdToOTUMap(
-				"/nobackup/afodor_research/topeOneAtATime/swarmOut.txt",10);
+				"/nobackup/afodor_research/topeOneAtATime/swarmOut.txt",10,
+				"/nobackup/afodor_research/topeOneAtATime/OTUPlusSeqIDs.txt");
 		
 		System.out.println("Got " + sequenceIDtoOTUMap.size() + " OTUs");
 		
@@ -123,8 +126,9 @@ public class PivotSwarmResults
 	}
 	
 	public static HashMap<String, Integer> getSequenceIdToOTUMap(
-			String swarmOutFile, int minNumSequences) throws Exception
+			String swarmOutFile, int minNumSequences, String namedOtuFile) throws Exception
 	{
+		BufferedWriter writer = new BufferedWriter(new FileWriter(namedOtuFile));
 		
 		int index =1;
 		HashMap<String, Integer> map =new HashMap<String,Integer>();
@@ -135,16 +139,26 @@ public class PivotSwarmResults
 		{
 			if( getCount(s) >= minNumSequences )
 			{
+				writer.write(index + "");
+				
 				StringTokenizer sToken =new StringTokenizer(s);
 				
 				while( sToken.hasMoreTokens())
-					map.put(sToken.nextToken(), index);
+				{
+					String seqId = sToken.nextToken();
+					map.put(seqId, index);
+					writer.write("\t" + seqId);
+				}
+					
+				writer.write("\n");
 				
 				index++;
 			}
 		}
 		
 		reader.close();
+		
+		writer.flush();  writer.close();
 		
 		return map;
 	}
