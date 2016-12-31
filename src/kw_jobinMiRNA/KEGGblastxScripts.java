@@ -42,6 +42,7 @@ public class KEGGblastxScripts {
 					}
 					if(numReads == NUM_READS) {
 						out.close();
+						numReads = 0;
 						numSplits++;
 						name = f.getName().replace(".adapterfiltered.fasta", "")+ "_split" + numSplits;
 						writeScript(name, runAll);
@@ -53,6 +54,7 @@ public class KEGGblastxScripts {
 				
 				fa.close();
 				out.close();
+				System.out.println(f.getName() + " " + numSplits);
 			}
 		}
 		
