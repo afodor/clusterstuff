@@ -69,7 +69,7 @@ public class PivotSwarmResults
 				{
 					String otuString = "OTU_" + otuID;
 					
-					Integer count = innerMap.get(otuID);
+					Integer count = innerMap.get(otuString);
 					
 					if( count == null)
 						count = 0;
