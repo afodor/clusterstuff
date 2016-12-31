@@ -18,10 +18,10 @@ public class WriteRepresentativeSeqFile
 						"/nobackup/afodor_research/topeOneAtATime/mergedForSwarm.txt");
 		
 		BufferedReader reader = new BufferedReader(new FileReader(new File(
-				"nobackup/afodor_research/topeOneAtATime/OTUPlusSeqIDs.txt")));
+				"/nobackup/afodor_research/topeOneAtATime/OTUPlusSeqIDs.txt")));
 		
 		BufferedWriter writer = new BufferedWriter(new FileWriter(
-				new File("nobackup/afodor_research/topeOneAtATime/repSeqsForOTUs.txt")));
+				new File("/nobackup/afodor_research/topeOneAtATime/repSeqsForOTUs.txt")));
 		
 		for(String s = reader.readLine(); s != null; s = reader.readLine())
 		{
