@@ -40,7 +40,7 @@ public class PivotSwarmResults
 		addToCountMap( new File( "/nobackup/afodor_research/topeOneAtATime/file4/mergedOut"),
 					countMap, rawSequenceToIDMap);
 		
-		PivotOTUs.writeResults(countMap, "/nobackup/afodor_research/topeOneAtATime/swarmPivots.txt");
+		PivotOTUs.writeResults(countMap, "/nobackup/afodor_research/topeOneAtATime/swarmOTUsAsColumns.txt");
 	}
 	
 	public static void addToCountMap(File directory, 
