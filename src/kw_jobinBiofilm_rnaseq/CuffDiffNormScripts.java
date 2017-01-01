@@ -6,7 +6,6 @@ package kw_jobinBiofilm_rnaseq;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 
 public class CuffDiffNormScripts {
 	private static String CUFFDIR = "/nobackup/afodor_research/kwinglee/software/cufflinks-2.2.1.Linux_x86_64";

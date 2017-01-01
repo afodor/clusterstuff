@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 
 public class MergeKrakenOutputHMP {
 	public static String DIR = "/nobackup/afodor_research/kwinglee/machineLearning/hmp/minikraken/";

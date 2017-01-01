@@ -9,9 +9,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 
 public class AlignSelectCardsHitsSHV {
 	public static String DIR = "/nobackup/afodor_research/kwinglee/cre/chs_v_cards/";

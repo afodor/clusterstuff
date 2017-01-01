@@ -7,13 +7,10 @@ package kw_jobinBiofilm_rnaseq;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.HashSet;
-import java.util.zip.GZIPInputStream;
 
 public class FilterSilva {
 	public static String BASE = "/nobackup/afodor_research/kwinglee/jobin/biofilm/rnaseq/";
