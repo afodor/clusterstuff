@@ -32,11 +32,11 @@ public class WriteUniqueForSwarm
 		
 		System.out.println("Writing");
 		BufferedWriter writer =new BufferedWriter(new FileWriter(new File(
-				"/nobackup/afodor_research/topeOneAtATime/mergedForSwarm.txt")));
+				"/nobackup/afodor_research/topeOneAtATime/mergedForSwarmIncludingSingletons.txt")));
 		
 		int index=0;
 		for(Holder h : list)
-			if( h.count > 1)
+			//if( h.count > 1)
 			{
 				index++;
 				writer.write(">seq" + index + "_" + h.count + "\n");
@@ -83,6 +83,8 @@ public class WriteUniqueForSwarm
 				count++;
 				map.put(fs.getSequence(), count);
 			}
+			
+			fsoat.close();
 		}
 		
 	}
