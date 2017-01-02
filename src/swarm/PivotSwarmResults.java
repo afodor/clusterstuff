@@ -14,17 +14,19 @@ import parsers.PivotOTUs;
 
 public class PivotSwarmResults
 {
+	private static final int MIN_SEQUENCES = 50;
+	
 	public static void main(String[] args) throws Exception
 	{
 		HashMap<String, Integer> sequenceIDtoOTUMap = getSequenceIdToOTUMap(
-				"/nobackup/afodor_research/topeOneAtATime/swarmOut.txt",10,
-				"/nobackup/afodor_research/topeOneAtATime/OTUPlusSeqIDs.txt");
+				"/nobackup/afodor_research/topeOneAtATime/swarmOutWithSingles.txt",MIN_SEQUENCES,
+				"/nobackup/afodor_research/topeOneAtATime/OTUPlusSeqIDsWithSingles.txt");
 		
 		System.out.println("Got " + sequenceIDtoOTUMap.size() + " OTUs");
 		
 		HashMap<String, Integer> rawSequenceToIDMap = 
 				getRawSequenceToIDMap(sequenceIDtoOTUMap , 
-						"/nobackup/afodor_research/topeOneAtATime/mergedForSwarm.txt");
+						"/nobackup/afodor_research/topeOneAtATime/mergedForSwarmIncludingSingletons.txt");
 		
 		System.out.println("Got " + rawSequenceToIDMap.size() + " sequences ");
 		
@@ -40,7 +42,8 @@ public class PivotSwarmResults
 		addToCountMap( new File( "/nobackup/afodor_research/topeOneAtATime/file4/mergedOut"),
 					countMap, rawSequenceToIDMap);
 		
-		PivotOTUs.writeResults(countMap, "/nobackup/afodor_research/topeOneAtATime/swarmOTUsAsColumns.txt");
+		PivotOTUs.writeResults(countMap, 
+				"/nobackup/afodor_research/topeOneAtATime/swarmOTUsAsColumnsWithSingles.txt");
 	}
 	
 	public static void addToCountMap(File directory, 
