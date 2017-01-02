@@ -15,13 +15,13 @@ public class WriteRepresentativeSeqFile
 	{
 		HashMap<String, FastaSequence> seqMap = 
 				FastaSequence.getFirstTokenSequenceMap(
-						"/nobackup/afodor_research/topeOneAtATime/mergedForSwarm.txt");
+						"/nobackup/afodor_research/topeOneAtATime/mergedForSwarmIncludingSingletons.txt");
 		
 		BufferedReader reader = new BufferedReader(new FileReader(new File(
-				"/nobackup/afodor_research/topeOneAtATime/OTUPlusSeqIDs.txt")));
+				"/nobackup/afodor_research/topeOneAtATime/OTUPlusSeqIDsWithSingles.txt")));
 		
 		BufferedWriter writer = new BufferedWriter(new FileWriter(
-				new File("/nobackup/afodor_research/topeOneAtATime/repSeqsForOTUs.txt")));
+				new File("/nobackup/afodor_research/topeOneAtATime/repSeqsForOTUsWithSingles.txt")));
 		
 		for(String s = reader.readLine(); s != null; s = reader.readLine())
 		{
