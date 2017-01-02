@@ -14,7 +14,7 @@ import parsers.PivotOTUs;
 
 public class PivotSwarmResults
 {
-	private static final int MIN_SEQUENCES = 50;
+	private static final int MIN_SEQUENCES = 0;
 	
 	public static void main(String[] args) throws Exception
 	{
