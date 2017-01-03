@@ -128,7 +128,7 @@ public class MergeKrakenOutputT2D {
 				if(sp.length > 1) {
 					String srr = sp[srrCol];
 					String ga = sp[genderCol] + sp[ageCol];
-					String seqID = sp[nameCol].replace("big-", "");
+					String seqID = sp[nameCol].replace("bgi-", "").replace(" ", "");
 					String pprID = gaToID.get(ga);
 					if(!gaToID.containsKey(ga)) {
 						System.out.println("Missing gaToID key " + srr + " " + seqID
