@@ -144,7 +144,7 @@ public class MergeKrakenOutputT2D {
 						}
 						if(idToGroup.containsKey(pprID)) {
 							metaMap.put(srr, idToGroup.get(pprID));
-						} else {
+						} else if(!pprID.contains(";")){
 							System.out.println("Missing idToGroup key " + srr + " " + seqID
 									+ " " + pprID + " " + ga);
 						}
