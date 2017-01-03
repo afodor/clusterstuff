@@ -139,7 +139,8 @@ public class MergeKrakenOutputT2D {
 							if(pprID.contains(seqID)) {
 								pprID = seqID;
 							} else {
-								System.out.println("To split " + seqID + " " + pprID);								
+								System.out.println("To split " + ga + " " +
+										seqID + " " + pprID);								
 							}
 						}
 						if(idToGroup.containsKey(pprID)) {
