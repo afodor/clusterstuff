@@ -105,7 +105,7 @@ public class MergeKrakenOutputT2D {
 		String[] sraFiles = new String[] {"SraRunTable.txt", "SraRunTable2.txt"};
 		for(String s : sraFiles) {
 			BufferedReader br = new BufferedReader(new FileReader(new File(SRADIR + s)));
-			String[] head = br.readLine().split(",");//header
+			String[] head = br.readLine().split("\t");//header
 			int nameCol = 0;
 			int srrCol = 0;
 			int genderCol = 0;
@@ -121,6 +121,8 @@ public class MergeKrakenOutputT2D {
 					ageCol = i;
 				}
 			}
+			System.out.println("Columns: " + nameCol + " " + " " + srrCol + " " + 
+					genderCol + " " + ageCol);
 			for(String line = br.readLine(); line != null; line = br.readLine()) {
 				String[] sp = line.split("\t");
 				if(sp.length > 1) {
@@ -130,7 +132,7 @@ public class MergeKrakenOutputT2D {
 					String pprID = gaToID.get(ga);
 					if(!gaToID.containsKey(ga)) {
 						System.out.println("Missing gaToID key " + srr + " " + seqID
-								+ pprID + " " + ga);
+								+ " " + pprID + " " + ga);
 					} else {
 						if(pprID.contains(";")) {
 							System.out.println("To split " + seqID + " " + pprID);
@@ -139,7 +141,7 @@ public class MergeKrakenOutputT2D {
 							metaMap.put(srr, idToGroup.get(pprID));
 						} else {
 							System.out.println("Missing idToGroup key " + srr + " " + seqID
-									+ pprID + " " + ga);
+									+ " " + pprID + " " + ga);
 						}
 					}
 				} /*else {
