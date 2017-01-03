@@ -162,16 +162,19 @@ public class MergeKrakenOutputT2D {
 		System.out.println("SRA " + metaMap.size());
 		System.out.println("sequences " + tables.size());
 		HashSet<String> seqs = new HashSet<String>();
+		int numMissing = 0;
 		for(int i = 0; i < tables.size(); i++) {
 			String id = tables.get(i).split("_")[0];
 			if(!metaMap.containsKey(id)) {
-				System.out.println("Missing table " + id);
-			} else {
+				//System.out.println("Missing table " + id);
+				numMissing++;
+			} /*else {
 				System.out.println(id + "\t" + metaMap.containsKey(id) + "\t" + metaMap.get(id));
-			}
+			}*/
 			seqs.add(id);
 		}
 		System.out.println();
+		System.out.println("Number missing tables: " + numMissing);
 
 		//check have all metadata
 		System.out.println("missing samples");
