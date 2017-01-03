@@ -26,7 +26,7 @@ public class MergeKrakenOutputT2D {
 	public static String SRADIR = "/nobackup/afodor_research/kwinglee/machineLearning/t2d/";
 
 	public static void main(String[] args) throws Exception {
-		//get metadata
+		//get metadata from Segata paper
 		HashMap<String, String> metaMap = new HashMap<String, String>();//map of sample ID to disease status 
 		BufferedReader m = new BufferedReader(new FileReader(new File(META)));
 		String[] dataset = m.readLine().split("\t");
@@ -43,13 +43,51 @@ public class MergeKrakenOutputT2D {
 		System.out.println("metadata " + metaMap.size());
 		ArrayList<String> keys = new ArrayList<String>(metaMap.keySet());
 		Collections.sort(keys);
-		for(String key : keys) {
+		/*for(String key : keys) {
 			System.out.println(key + "\t" + metaMap.get(key));
 		}
-		System.out.println();
+		System.out.println();*/
+		
+		//get metadata from T2D paper
+		HashMap<String, String> gaToID = new HashMap<String, String>();//map of gender/age to sample ID
+		HashMap<String, String> idToGroup = new HashMap<String, String>();//map of sample ID to group
+		BufferedReader pprTab = new BufferedReader(new FileReader(new File(
+				SRADIR + "SuppTableS1.txt")));
+		pprTab.readLine();//header
+		for(String line = pprTab.readLine(); line !=null; pprTab.readLine()) {
+			String[] sp = line.split("\t");
+			String id = sp[1];
+			String ga = sp[2] + sp[3];//gender+age
+			String group = sp[7];
+			if(gaToID.containsKey(ga)) {
+				System.out.println("Duplicate gender age: " + ga + " " + id + " " 
+						+ gaToID.get(ga));
+			}
+			gaToID.put(ga, id);
+			
+			if(group.equals("N")) {
+				group = "n";
+			} else {
+				group = "t2d";
+			}
+			idToGroup.put(id, group);
+		}
+		pprTab.close();
+		
+		//check Segata and paper tables are giving similar results
+		for(String k : keys) {
+			if(idToGroup.containsKey(k)) {
+				if(!idToGroup.get(k).equals(metaMap.get(k))) {
+					System.out.println("Different class: " + k + " " 
+							+ idToGroup.get(k) + " " + metaMap.get(k));
+				}
+			} else {
+				System.out.println("Missing sample: " + k + " " + metaMap.get(k));
+			}
+		}
 
 		//get list of files to read
-		ArrayList<String> tables = new ArrayList<String> ();
+		/*ArrayList<String> tables = new ArrayList<String> ();
 		String[] files = new File(DIR).list();
 		for(String f : files) {
 			if(f.endsWith("_mpa")) {
