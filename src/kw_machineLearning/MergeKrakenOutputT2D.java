@@ -62,9 +62,10 @@ public class MergeKrakenOutputT2D {
 			if(gaToID.containsKey(ga)) {
 				//System.out.println("Duplicate gender age: " + ga + " " + id + " " 
 				//		+ gaToID.get(ga));
-				id = gaToID.get(ga) + ";" + id;
+				gaToID.put(ga, gaToID.get(ga) + ";" + id);
+			} else {
+				gaToID.put(ga, id);				
 			}
-			gaToID.put(ga, id);
 
 			if(group.equals("N")) {
 				group = "n";
