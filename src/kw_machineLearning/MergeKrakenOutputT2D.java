@@ -27,7 +27,7 @@ public class MergeKrakenOutputT2D {
 
 	public static void main(String[] args) throws Exception {
 		//get metadata from Segata paper
-		HashMap<String, String> metaMap = new HashMap<String, String>();//map of sample ID to disease status 
+		/*HashMap<String, String> metaMap = new HashMap<String, String>();//map of sample ID to disease status 
 		BufferedReader m = new BufferedReader(new FileReader(new File(META)));
 		String[] dataset = m.readLine().split("\t");
 		String[] sampleID = m.readLine().split("\t");
@@ -42,7 +42,7 @@ public class MergeKrakenOutputT2D {
 		}
 		System.out.println("metadata " + metaMap.size());
 		ArrayList<String> keys = new ArrayList<String>(metaMap.keySet());
-		Collections.sort(keys);
+		Collections.sort(keys);*/
 		/*for(String key : keys) {
 			System.out.println(key + "\t" + metaMap.get(key));
 		}
@@ -54,14 +54,15 @@ public class MergeKrakenOutputT2D {
 		BufferedReader pprTab = new BufferedReader(new FileReader(new File(
 				SRADIR + "SuppTableS1.txt")));
 		pprTab.readLine();//header
-		for(String line = pprTab.readLine(); line !=null; pprTab.readLine()) {
+		for(String line = pprTab.readLine(); line !=null; line = pprTab.readLine()) {
 			String[] sp = line.split("\t");
 			String id = sp[1];
 			String ga = sp[2] + sp[3];//gender+age
 			String group = sp[7];
 			if(gaToID.containsKey(ga)) {
-				System.out.println("Duplicate gender age: " + ga + " " + id + " " 
-						+ gaToID.get(ga));
+				//System.out.println("Duplicate gender age: " + ga + " " + id + " " 
+				//		+ gaToID.get(ga));
+				id = gaToID.get(ga) + ";" + id;
 			}
 			gaToID.put(ga, id);
 			
@@ -73,9 +74,10 @@ public class MergeKrakenOutputT2D {
 			idToGroup.put(id, group);
 		}
 		pprTab.close();
+		System.out.println("ga " + gaToID.size() + " id " + idToGroup.size());
 		
 		//check Segata and paper tables are giving similar results
-		for(String k : keys) {
+		/*for(String k : keys) {
 			if(idToGroup.containsKey(k)) {
 				if(!idToGroup.get(k).equals(metaMap.get(k))) {
 					System.out.println("Different class: " + k + " " 
@@ -84,10 +86,10 @@ public class MergeKrakenOutputT2D {
 			} else {
 				System.out.println("Missing sample: " + k + " " + metaMap.get(k));
 			}
-		}
+		}*/
 
 		//get list of files to read
-		/*ArrayList<String> tables = new ArrayList<String> ();
+		ArrayList<String> tables = new ArrayList<String> ();
 		String[] files = new File(DIR).list();
 		for(String f : files) {
 			if(f.endsWith("_mpa")) {
@@ -97,37 +99,65 @@ public class MergeKrakenOutputT2D {
 		//Collections.sort(tables);
 
 		//get conversion from SRA to sample ID
-		HashMap<String, String> sraMap = new HashMap<String, String>();//sra to sample name
-		String[] sraFiles = new String[] {"SraRunInfo.csv", "SraRunInfo2.csv"};
+		//HashMap<String, String> srrToGA = new HashMap<String, String>();//srr to gender + age
+		//HashMap<String, String> srrToID = new HashMap<String, String>();//srr to sequence sample name
+		HashMap<String, String> metaMap = new HashMap<String, String>();//srr to class
+		String[] sraFiles = new String[] {"SraRunTable.txt", "SraRunTable2.txt"};
 		for(String s : sraFiles) {
 			BufferedReader br = new BufferedReader(new FileReader(new File(SRADIR + s)));
 			String[] head = br.readLine().split(",");//header
-			int sampleName = 0;
+			int nameCol = 0;
+			int srrCol = 0;
+			int genderCol = 0;
+			int ageCol = 0;
 			for(int i = 0; i < head.length; i++) {
-				if(head[i].equals("SampleName")) {
-					sampleName = i;
+				if(head[i].equals("Sample_Name_s")) {
+					nameCol = i;
+				} else if (head[i].equals("Run_s")) {
+					srrCol = i;
+				} else if(head[i].equals("GENDER_s")) {
+					genderCol = i;
+				} else if(head[i].equals("AGE_s")) {
+					ageCol = i;
 				}
 			}
-			System.err.println(s + " " + sampleName);
 			for(String line = br.readLine(); line != null; line = br.readLine()) {
-				String[] sp = line.split(",");
+				String[] sp = line.split("\t");
 				if(sp.length > 1) {
-					sraMap.put(sp[0], sp[sampleName].replace("bgi-", ""));
-				} else {
+					String srr = sp[srrCol];
+					String ga = sp[genderCol] + sp[ageCol];
+					String seqID = sp[nameCol];
+					String pprID = gaToID.get(ga);
+					if(pprID.contains(";")) {
+						System.out.println("To split " + seqID + " " + pprID);
+					}
+					if(idToGroup.containsKey(pprID)) {
+						metaMap.put(srr, idToGroup.get(pprID));
+					} else {
+						System.out.println("Missing key " + srr + " " + seqID
+								+ pprID + " " + ga);
+					}
+					
+				} /*else {
 					System.out.println(line);
-				}
+				}*/
 			}
 			br.close();
 		}
+		ArrayList<String> keys = new ArrayList<String>(metaMap.keySet());
+		Collections.sort(keys);
 
 		//check sequence ids
-		System.out.println("SRA " + sraMap.size());
+		System.out.println("SRA " + metaMap.size());
 		System.out.println("sequences " + tables.size());
 		HashSet<String> seqs = new HashSet<String>();
 		for(int i = 0; i < tables.size(); i++) {
-			String sra = tables.get(i).split("_")[0];
-			String id = sraMap.get(sra);
-			System.out.println(sra + "\t" + id + "\t" + metaMap.containsKey(id));
+			String id = tables.get(i).split("_")[0];
+			if(!metaMap.containsKey(id)) {
+				System.out.println("Missing table " + id);
+			} else {
+				System.out.println(id + "\t" + metaMap.containsKey(id) + "\t" + metaMap.get(id));
+			}
 			seqs.add(id);
 		}
 		System.out.println();
