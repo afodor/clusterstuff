@@ -47,7 +47,7 @@ public class MergeKrakenOutputT2D {
 			System.out.println(key + "\t" + metaMap.get(key));
 		}
 		System.out.println();*/
-		
+
 		//get metadata from T2D paper
 		HashMap<String, String> gaToID = new HashMap<String, String>();//map of gender/age to sample ID
 		HashMap<String, String> idToGroup = new HashMap<String, String>();//map of sample ID to group
@@ -65,7 +65,7 @@ public class MergeKrakenOutputT2D {
 				id = gaToID.get(ga) + ";" + id;
 			}
 			gaToID.put(ga, id);
-			
+
 			if(group.equals("N")) {
 				group = "n";
 			} else {
@@ -75,7 +75,7 @@ public class MergeKrakenOutputT2D {
 		}
 		pprTab.close();
 		System.out.println("ga " + gaToID.size() + " id " + idToGroup.size());
-		
+
 		//check Segata and paper tables are giving similar results
 		/*for(String k : keys) {
 			if(idToGroup.containsKey(k)) {
@@ -128,16 +128,20 @@ public class MergeKrakenOutputT2D {
 					String ga = sp[genderCol] + sp[ageCol];
 					String seqID = sp[nameCol];
 					String pprID = gaToID.get(ga);
-					if(pprID.contains(";")) {
-						System.out.println("To split " + seqID + " " + pprID);
-					}
-					if(idToGroup.containsKey(pprID)) {
-						metaMap.put(srr, idToGroup.get(pprID));
-					} else {
-						System.out.println("Missing key " + srr + " " + seqID
+					if(!gaToID.containsKey(ga)) {
+						System.out.println("Missing gaToID key " + srr + " " + seqID
 								+ pprID + " " + ga);
+					} else {
+						if(pprID.contains(";")) {
+							System.out.println("To split " + seqID + " " + pprID);
+						}
+						if(idToGroup.containsKey(pprID)) {
+							metaMap.put(srr, idToGroup.get(pprID));
+						} else {
+							System.out.println("Missing idToGroup key " + srr + " " + seqID
+									+ pprID + " " + ga);
+						}
 					}
-					
 				} /*else {
 					System.out.println(line);
 				}*/
