@@ -22,11 +22,12 @@ public class MergeKrakenOutputWT2D {
 	public static int NUM_SAMP;//number of samples
 	public static String META = "/nobackup/afodor_research/kwinglee/machineLearning/MetAML/metaml/data/abundance_stoolsubset.txt";
 	public static String BASEOUT = "wt2d_minikraken_merged";//prefix of output files
+	public static String MDIR = "/nobackup/afodor_research/kwinglee/machineLearning/wt2d/";//metadat directory
 
 	public static void main(String[] args) throws Exception {
 		//get metadata
 		HashMap<String, String> metaMap = new HashMap<String, String>();//map of sample ID to disease status 
-		BufferedReader m = new BufferedReader(new FileReader(new File(DIR + "SuppTableS3.txt")));
+		BufferedReader m = new BufferedReader(new FileReader(new File(MDIR + "SuppTableS3.txt")));
 		m.readLine();//header
 		m.readLine();
 		for(String line = m.readLine(); line != null; line = m.readLine()) {
