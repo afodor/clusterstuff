@@ -90,7 +90,7 @@ public class MergeKrakenOutputT2D {
 		}
 		pprTab.close();
 		System.out.println("ga " + gaToID.size() + " id " + idToGroup.size() + 
-				" " + insertMap.size());
+				" insert " + insertMap.size());
 
 		//check Segata and paper tables are giving similar results
 		/*for(String k : keys) {
@@ -241,7 +241,7 @@ public class MergeKrakenOutputT2D {
 		//System.out.println("missing samples");
 		System.out.println("Number paper samples " + matchedKeys.size());
 		numMissing = 0;
-		for(String key : idToGroup.keySet()) {
+		for(String key : insertMap.keySet()) {
 			if(!matchedKeys.contains(key)) {
 				//System.out.println(key);
 				numMissing++;
