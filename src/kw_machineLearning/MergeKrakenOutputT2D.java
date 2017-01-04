@@ -161,12 +161,12 @@ public class MergeKrakenOutputT2D {
 						if(pprID.contains(";")) {
 							if(pprID.contains(seqID)) {
 								String split = pprID.replace(seqID + ";", "").replace(";" + seqID, "");
-								System.out.println(seqID + " " + pprID + " " + split);
+								//System.out.println(seqID + " " + pprID + " " + split);
 								gaToID.put(ga, split);
 								pprID = seqID;
 							} else {
-								System.out.println("To split " + ga + " " +
-										seqID + " " + pprID);	
+								/*System.out.println("To split " + ga + " " +
+										seqID + " " + pprID);	*/
 								unmatchedSplit.add(srr + " " + ga + " " + seqID);
 								numMult++;
 							}
@@ -187,7 +187,8 @@ public class MergeKrakenOutputT2D {
 			br.close();
 		}
 		System.out.println("Number missing gaToID key: " + numMissingGaToIDkey);
-		System.out.println("Number multiple same gender/age/insert key first pass: " + numMult);
+		System.out.println("Number multiple same gender/age/insert key first pass: " + numMult
+				+ " " + unmatchedSplit.size());
 		
 		//see if any singletons after splitting samples with same gender/age/insert size
 		numMult = 0;
