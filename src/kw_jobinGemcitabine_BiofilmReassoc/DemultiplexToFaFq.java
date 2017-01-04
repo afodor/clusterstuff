@@ -19,7 +19,8 @@ import java.util.zip.GZIPInputStream;
 public class DemultiplexToFaFq {
 	//directory containing the needed files; also where will write results
 	public static final String DIR = "/nobackup/afodor_research/kwinglee/jobin/gemcitabine/";
-	public static final String READDIR = DIR + "rawReads/";
+	public static final String INDIR = DIR + "rawReads/";
+	public static final String OUTDIR = DIR + "demultiplexedReads/";
 	
 	private static HashMap<String, String> P_TO_SEQ;//hash of primer to primer sequence
 	private static int numMultiple = 0;
@@ -83,7 +84,7 @@ public class DemultiplexToFaFq {
 	public static void analyze(String fastqFileF, String fastqFileR) throws IOException {
 		//set up dictionary of primer name to primer sequence
 		P_TO_SEQ = new HashMap<String, String>();
-		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(READDIR + "Primers.txt"))));
+		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(DIR + "Primers.txt"))));
 		br.readLine();//header
 		String line = br.readLine();
 		while(line != null) {
@@ -108,17 +109,17 @@ public class DemultiplexToFaFq {
 		HashMap<String, BufferedWriter[]> sToFa = new HashMap<String, BufferedWriter[]>();//sample to sample's output fasta file
 		
 		//Gemcitabine
-		br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(READDIR + "GemcitabineMetadata.txt"))));
+		br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(DIR + "GemcitabineMetadata.txt"))));
 		br.readLine();//header
 		line = br.readLine();
 		while(line != null) {
 			String[] sp = line.split("\t");
 			String samp = "G" + sp[0];
-			BufferedWriter[] fqs = {new BufferedWriter(new FileWriter(new File(DIR + File.separator + "fastqs" + File.separator + samp + "_R1.fastq"))),
-					new BufferedWriter(new FileWriter(new File(DIR + File.separator + "fastqs" + File.separator + samp + "_R2.fastq")))};
+			BufferedWriter[] fqs = {new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "fastqs" + File.separator + samp + "_R1.fastq"))),
+					new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "fastqs" + File.separator + samp + "_R2.fastq")))};
 			sToFq.put(samp, fqs);
-			BufferedWriter[] fas = {new BufferedWriter(new FileWriter(new File(DIR + File.separator + "fastas" + File.separator + samp + "_R1.fasta"))),
-					new BufferedWriter(new FileWriter(new File(DIR + File.separator + "fastas" + File.separator + samp + "_R2.fasta")))};
+			BufferedWriter[] fas = {new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "fastas" + File.separator + samp + "_R1.fasta"))),
+					new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "fastas" + File.separator + samp + "_R2.fasta")))};
 			sToFa.put(samp, fas);
 			pToSamp.put(sp[4] + sp[5], samp);
 			line = br.readLine();
@@ -126,17 +127,17 @@ public class DemultiplexToFaFq {
 		br.close();
 
 		//Biofilm Reassociation
-		br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(READDIR + "BiofilmReassociationMetadata.txt"))));
+		br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(DIR + "BiofilmReassociationMetadata.txt"))));
 		br.readLine();//header
 		line = br.readLine();
 		while(line != null) {
 			String[] sp = line.split("\t");
 			String samp = "B" + sp[0];
-			BufferedWriter[] fqs = {new BufferedWriter(new FileWriter(new File(DIR + File.separator + "fastqs" + File.separator + samp + "_R1.fastq"))),
-					new BufferedWriter(new FileWriter(new File(DIR + File.separator + "fastqs" + File.separator + samp + "_R2.fastq")))};
+			BufferedWriter[] fqs = {new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "fastqs" + File.separator + samp + "_R1.fastq"))),
+					new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "fastqs" + File.separator + samp + "_R2.fastq")))};
 			sToFq.put(samp, fqs);
-			BufferedWriter[] fas = {new BufferedWriter(new FileWriter(new File(DIR + File.separator + "fastas" + File.separator + samp + "_R1.fasta"))),
-					new BufferedWriter(new FileWriter(new File(DIR + File.separator + "fastas" + File.separator + samp + "_R2.fasta")))};
+			BufferedWriter[] fas = {new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "fastas" + File.separator + samp + "_R1.fasta"))),
+					new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "fastas" + File.separator + samp + "_R2.fasta")))};
 			sToFa.put(samp, fas);
 			pToSamp.put(sp[14] + sp[15], samp);
 			line = br.readLine();
@@ -148,14 +149,16 @@ public class DemultiplexToFaFq {
 			String p = itSet.next();
 			System.out.println(p + "\t" + pToSamp.get(p));
 		}
+		System.out.println("Number of samples: " + pToSamp.size()
+				+ " " + sToFq.size() + " " + sToFa.size());
 		
 		
 		//add extra "other" file for unmatched reads
-		/*BufferedWriter[] fas = {new BufferedWriter(new FileWriter(new File(DIR + File.separator + "fastas" + File.separator + "other_R1.fasta"))),
-				new BufferedWriter(new FileWriter(new File(DIR + File.separator + "fastas" + File.separator + "other_R2.fasta")))};
+		/*BufferedWriter[] fas = {new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "fastas" + File.separator + "other_R1.fasta"))),
+				new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "fastas" + File.separator + "other_R2.fasta")))};
 		sToFa.put("other", fas);
-		BufferedWriter[] fqs = {new BufferedWriter(new FileWriter(new File(DIR + File.separator + "fastqs" + File.separator + "other_R1.fastq"))),
-				new BufferedWriter(new FileWriter(new File(DIR + File.separator + "fastqs" + File.separator + "other_R2.fastq")))};
+		BufferedWriter[] fqs = {new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "fastqs" + File.separator + "other_R1.fastq"))),
+				new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "fastqs" + File.separator + "other_R2.fastq")))};
 		sToFq.put("other", fqs);
 		
 		//read fastq file
