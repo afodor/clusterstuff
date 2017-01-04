@@ -158,8 +158,9 @@ public class DemultiplexToFaFq {
 			pKeys.add(pToSamp.get(key));
 		}
 		Set<String> faKeys = sToFa.keySet();
-		pKeys.removeAll(faKeys);
-		for(String k : pKeys) {
+		//pKeys.removeAll(faKeys);
+		faKeys.removeAll(pKeys);
+		for(String k : faKeys) {
 			System.out.println(k);
 		}
 		
