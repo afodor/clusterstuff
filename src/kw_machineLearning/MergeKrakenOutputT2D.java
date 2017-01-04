@@ -160,12 +160,13 @@ public class MergeKrakenOutputT2D {
 					} else {
 						if(pprID.contains(";")) {
 							if(pprID.contains(seqID)) {
-								gaToID.put(ga, 
-										pprID.replace(seqID + ";", "").replace(";" + seqID, ""));
+								String split = pprID.replace(seqID + ";", "").replace(";" + seqID, "");
+								System.out.println(seqID + " " + pprID + " " + split);
+								gaToID.put(ga, split);
 								pprID = seqID;
 							} else {
-								/*System.out.println("To split " + ga + " " +
-										seqID + " " + pprID);	*/
+								System.out.println("To split " + ga + " " +
+										seqID + " " + pprID);	
 								unmatchedSplit.add(srr + " " + ga + " " + seqID);
 								numMult++;
 							}
@@ -199,9 +200,8 @@ public class MergeKrakenOutputT2D {
 			matchedKeys.add(pprID);
 			if(pprID.contains(";")) {
 				if(pprID.contains(seqID)) {
-					String split = pprID.replace(seqID + ";", "").replace(";" + seqID, "");
-					System.out.println(seqID + " " + pprID + " " + split);
-					gaToID.put(ga, split);
+					gaToID.put(ga, 
+							pprID.replace(seqID + ";", "").replace(";" + seqID, ""));
 					pprID = seqID;
 				} else {
 					/*System.out.println("To split " + ga + " " +
