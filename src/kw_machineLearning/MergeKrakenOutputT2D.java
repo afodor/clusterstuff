@@ -58,8 +58,6 @@ public class MergeKrakenOutputT2D {
 			String[] sp = line.split("\t");
 			if(sp.length > 2) {
 				insertMap.put(sp[1], sp[2]);				
-			} else {
-				System.out.println(line);
 			}
 		}
 		s2.close();
@@ -121,6 +119,8 @@ public class MergeKrakenOutputT2D {
 		HashMap<String, String> metaMap = new HashMap<String, String>();//srr to class
 		String[] sraFiles = new String[] {"SraRunTable.txt", "SraRunTable2.txt"};
 		HashSet<String> matchedKeys = new HashSet<String>();//set of sample IDs seen
+		HashSet<String> unmatchedSplit = new HashSet<String>();//set of sample IDs not matched due to multiple same key
+		int numMissingGaToIDkey = 0;
 		for(String s : sraFiles) {
 			BufferedReader br = new BufferedReader(new FileReader(new File(SRADIR + s)));
 			String[] head = br.readLine().split("\t");//header
@@ -142,8 +142,8 @@ public class MergeKrakenOutputT2D {
 					insertCol = i;
 				}
 			}
-			System.out.println("Columns: " + nameCol + " " + " " + srrCol + " " + 
-					genderCol + " " + ageCol);
+			/*System.out.println("Columns: " + nameCol + " " + " " + srrCol + " " + 
+					genderCol + " " + ageCol);*/
 			for(String line = br.readLine(); line != null; line = br.readLine()) {
 				String[] sp = line.split("\t");
 				if(sp.length > 1) {
@@ -153,16 +153,22 @@ public class MergeKrakenOutputT2D {
 					String pprID = gaToID.get(ga);
 					matchedKeys.add(pprID);
 					if(!gaToID.containsKey(ga)) {
-						System.out.println("Missing gaToID key " + srr + " " + seqID
-								+ " " + pprID + " " + ga);
+						/*System.out.println("Missing gaToID key " + srr + " " + seqID
+								+ " " + pprID + " " + ga);*/
+						numMissingGaToIDkey++;
 					} else {
 						if(pprID.contains(";")) {
 							if(pprID.contains(seqID)) {
+								gaToID.put(ga, 
+										pprID.replace(seqID + ";", "").replace(";" + seqID, ""));
 								pprID = seqID;
 							} else {
-								System.out.println("To split " + ga + " " +
-										seqID + " " + pprID);								
+								/*System.out.println("To split " + ga + " " +
+										seqID + " " + pprID);	*/
+								unmatchedSplit.add(srr + " " + ga + " " + seqID);
 							}
+						} else {
+							System.out.println("Test: " + srr + " " + pprID + " " + ga);
 						}
 						if(idToGroup.containsKey(pprID)) {
 							metaMap.put(srr, idToGroup.get(pprID));
@@ -176,6 +182,33 @@ public class MergeKrakenOutputT2D {
 				}*/
 			}
 			br.close();
+		}
+		System.out.println("Number missing gaToID key: " + numMissingGaToIDkey);
+		
+		//see if any singletons after splitting samples with same gender/age/insert size
+		for(String s : unmatchedSplit) {
+			String[] sp = s.split(" ");
+			String srr = sp[0];
+			String ga = sp[1];
+			String seqID = sp[2];
+			String pprID = gaToID.get(ga);
+			matchedKeys.add(pprID);
+			if(pprID.contains(";")) {
+				if(pprID.contains(seqID)) {
+					gaToID.put(ga, 
+							pprID.replace(seqID + ";", "").replace(";" + seqID, ""));
+					pprID = seqID;
+				} else {
+					System.out.println("To split " + ga + " " +
+							seqID + " " + pprID);	
+				}
+			}
+			if(idToGroup.containsKey(pprID)) {
+				metaMap.put(srr, idToGroup.get(pprID));
+			} else if(!pprID.contains(";")){
+				System.out.println("Missing idToGroup key " + srr + " " + seqID
+						+ " " + pprID + " " + ga);
+			}
 		}
 		ArrayList<String> keys = new ArrayList<String>(metaMap.keySet());
 		Collections.sort(keys);
