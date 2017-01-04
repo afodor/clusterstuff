@@ -115,11 +115,11 @@ public class DemultiplexToFaFq {
 		while(line != null) {
 			String[] sp = line.split("\t");
 			String samp = "G" + sp[0];
-			BufferedWriter[] fqs = {new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "fastqs" + File.separator + samp + "_R1.fastq"))),
-					new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "fastqs" + File.separator + samp + "_R2.fastq")))};
+			BufferedWriter[] fqs = {new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + samp + "_R1.fastq"))),
+					new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + samp + "_R2.fastq")))};
 			sToFq.put(samp, fqs);
-			BufferedWriter[] fas = {new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "fastas" + File.separator + samp + "_R1.fasta"))),
-					new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "fastas" + File.separator + samp + "_R2.fasta")))};
+			BufferedWriter[] fas = {new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + samp + "_R1.fasta"))),
+					new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + samp + "_R2.fasta")))};
 			sToFa.put(samp, fas);
 			pToSamp.put(sp[4] + sp[5], samp);
 			line = br.readLine();
@@ -133,11 +133,11 @@ public class DemultiplexToFaFq {
 		while(line != null) {
 			String[] sp = line.split("\t");
 			String samp = "B" + sp[0];
-			BufferedWriter[] fqs = {new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "fastqs" + File.separator + samp + "_R1.fastq"))),
-					new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "fastqs" + File.separator + samp + "_R2.fastq")))};
+			BufferedWriter[] fqs = {new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + samp + "_R1.fastq"))),
+					new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + samp + "_R2.fastq")))};
 			sToFq.put(samp, fqs);
-			BufferedWriter[] fas = {new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "fastas" + File.separator + samp + "_R1.fasta"))),
-					new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "fastas" + File.separator + samp + "_R2.fasta")))};
+			BufferedWriter[] fas = {new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + samp + "_R1.fasta"))),
+					new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + samp + "_R2.fasta")))};
 			sToFa.put(samp, fas);
 			pToSamp.put(sp[14] + sp[15], samp);
 			line = br.readLine();
@@ -154,11 +154,11 @@ public class DemultiplexToFaFq {
 		
 		
 		//add extra "other" file for unmatched reads
-		/*BufferedWriter[] fas = {new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "fastas" + File.separator + "other_R1.fasta"))),
-				new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "fastas" + File.separator + "other_R2.fasta")))};
+		/*BufferedWriter[] fas = {new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "other_R1.fasta"))),
+				new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "other_R2.fasta")))};
 		sToFa.put("other", fas);
-		BufferedWriter[] fqs = {new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "fastqs" + File.separator + "other_R1.fastq"))),
-				new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "fastqs" + File.separator + "other_R2.fastq")))};
+		BufferedWriter[] fqs = {new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "other_R1.fastq"))),
+				new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "other_R2.fastq")))};
 		sToFq.put("other", fqs);
 		
 		//read fastq file
