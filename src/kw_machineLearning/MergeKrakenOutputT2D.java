@@ -47,6 +47,18 @@ public class MergeKrakenOutputT2D {
 			System.out.println(key + "\t" + metaMap.get(key));
 		}
 		System.out.println();*/
+		
+		//get insert size from T2D paper
+		HashMap<String, String> insertMap = new HashMap<String, String>();//map of sample ID to insert size
+		BufferedReader s2 = new BufferedReader(new FileReader(new File(
+				SRADIR + "SuppTableS2.txt")));
+		s2.readLine();//header
+		s2.readLine();//header
+		for(String line = s2.readLine(); line != null; line = s2.readLine()) {
+			String[] sp = line.split("\t");
+			insertMap.put(sp[1], sp[2]);
+		}
+		s2.close();
 
 		//get metadata from T2D paper
 		HashMap<String, String> gaToID = new HashMap<String, String>();//map of gender/age to sample ID
@@ -57,7 +69,7 @@ public class MergeKrakenOutputT2D {
 		for(String line = pprTab.readLine(); line !=null; line = pprTab.readLine()) {
 			String[] sp = line.split("\t");
 			String id = sp[1];
-			String ga = sp[2] + sp[3];//gender+age
+			String ga = sp[2] + sp[3] + insertMap.get(id);//gender+age + insert size
 			String group = sp[7];
 			if(gaToID.containsKey(ga)) {
 				//System.out.println("Duplicate gender age: " + ga + " " + id + " " 
@@ -104,6 +116,7 @@ public class MergeKrakenOutputT2D {
 		//HashMap<String, String> srrToID = new HashMap<String, String>();//srr to sequence sample name
 		HashMap<String, String> metaMap = new HashMap<String, String>();//srr to class
 		String[] sraFiles = new String[] {"SraRunTable.txt", "SraRunTable2.txt"};
+		HashSet<String> matchedKeys = new HashSet<String>();//set of sample IDs seen
 		for(String s : sraFiles) {
 			BufferedReader br = new BufferedReader(new FileReader(new File(SRADIR + s)));
 			String[] head = br.readLine().split("\t");//header
@@ -111,6 +124,7 @@ public class MergeKrakenOutputT2D {
 			int srrCol = 0;
 			int genderCol = 0;
 			int ageCol = 0;
+			int insertCol = 0;
 			for(int i = 0; i < head.length; i++) {
 				if(head[i].equals("Sample_Name_s")) {
 					nameCol = i;
@@ -120,6 +134,8 @@ public class MergeKrakenOutputT2D {
 					genderCol = i;
 				} else if(head[i].equals("AGE_s")) {
 					ageCol = i;
+				} else if(head[i].equals("InsertSize_l")) {
+					insertCol = i;
 				}
 			}
 			System.out.println("Columns: " + nameCol + " " + " " + srrCol + " " + 
@@ -128,9 +144,10 @@ public class MergeKrakenOutputT2D {
 				String[] sp = line.split("\t");
 				if(sp.length > 1) {
 					String srr = sp[srrCol];
-					String ga = sp[genderCol] + sp[ageCol];
+					String ga = sp[genderCol] + sp[ageCol] + sp[insertCol];
 					String seqID = sp[nameCol].replace("bgi-", "").replace(" ", "");
 					String pprID = gaToID.get(ga);
+					matchedKeys.add(pprID);
 					if(!gaToID.containsKey(ga)) {
 						System.out.println("Missing gaToID key " + srr + " " + seqID
 								+ " " + pprID + " " + ga);
@@ -179,8 +196,8 @@ public class MergeKrakenOutputT2D {
 
 		//check have all metadata
 		System.out.println("missing samples");
-		for(String key : keys) {
-			if(!seqs.contains(key)) {
+		for(String key : idToGroup.keySet()) {
+			if(!matchedKeys.contains(key)) {
 				System.out.println(key);
 			}
 		}
