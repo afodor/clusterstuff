@@ -25,13 +25,14 @@ public class KrakenWT2D {
 		}
 		//set up script to run everything
 		BufferedWriter script = new BufferedWriter(new FileWriter(new File(
-				//SCRIPT_DIR + "stdKrakenWT2D")));
-				SCRIPT_DIR + "minikrakenWT2D")));
+				//SCRIPT_DIR + "minikrakenWT2D")));
+				SCRIPT_DIR + "minikrakenWT2D_run2")));
 		script.write("#PBS -l walltime=600:00:00\n");
 		script.write("#PBS -l mem=10GB\n");
 		String[] fastqs = new File(FASTQ_DIR).list();
 		for(String fq : fastqs) {
-			String end = "_1_sequence.fastq.gz";
+			//String end = "_1_sequence.fastq.gz";
+			String end = "_read_1.fastq.gz";
 			if(fq.endsWith(end)) {
 				String name = fq.replace(end, "");
 				//String seqName = OUT_DIR + name + "_stdKraken";

@@ -85,7 +85,8 @@ public class MergeKrakenOutputWT2D {
 		}
 
 		//check sequence ids
-		System.out.println("sequences " + tables.size());
+		System.out.println("number samples " + metaMap.size());
+		System.out.println("number sequences " + tables.size());
 		HashSet<String> seqs = new HashSet<String>();
 		for(int i = 0; i < tables.size(); i++) {
 			String id = tables.get(i).split("_")[1];
