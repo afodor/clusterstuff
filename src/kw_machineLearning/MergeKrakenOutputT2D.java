@@ -121,6 +121,7 @@ public class MergeKrakenOutputT2D {
 		HashSet<String> matchedKeys = new HashSet<String>();//set of sample IDs seen
 		HashSet<String> unmatchedSplit = new HashSet<String>();//set of sample IDs not matched due to multiple same key
 		int numMissingGaToIDkey = 0;
+		int numMult = 0;
 		for(String s : sraFiles) {
 			BufferedReader br = new BufferedReader(new FileReader(new File(SRADIR + s)));
 			String[] head = br.readLine().split("\t");//header
@@ -166,16 +167,17 @@ public class MergeKrakenOutputT2D {
 								/*System.out.println("To split " + ga + " " +
 										seqID + " " + pprID);	*/
 								unmatchedSplit.add(srr + " " + ga + " " + seqID);
+								numMult++;
 							}
-						} else {
+						} /*else {
 							System.out.println("Test: " + srr + " " + pprID + " " + ga);
-						}
+						}*/
 						if(idToGroup.containsKey(pprID)) {
 							metaMap.put(srr, idToGroup.get(pprID));
-						} else if(!pprID.contains(";")){
+						} /*else if(!pprID.contains(";")){
 							System.out.println("Missing idToGroup key " + srr + " " + seqID
 									+ " " + pprID + " " + ga);
-						}
+						}*/
 					}
 				} /*else {
 					System.out.println(line);
@@ -184,8 +186,10 @@ public class MergeKrakenOutputT2D {
 			br.close();
 		}
 		System.out.println("Number missing gaToID key: " + numMissingGaToIDkey);
+		System.out.println("Number multiple same gender/age/insert key first pass: " + numMult);
 		
 		//see if any singletons after splitting samples with same gender/age/insert size
+		numMult = 0;
 		for(String s : unmatchedSplit) {
 			String[] sp = s.split(" ");
 			String srr = sp[0];
@@ -199,17 +203,16 @@ public class MergeKrakenOutputT2D {
 							pprID.replace(seqID + ";", "").replace(";" + seqID, ""));
 					pprID = seqID;
 				} else {
-					System.out.println("To split " + ga + " " +
-							seqID + " " + pprID);	
+					/*System.out.println("To split " + ga + " " +
+							seqID + " " + pprID);*/
+					numMult++;
 				}
 			}
 			if(idToGroup.containsKey(pprID)) {
 				metaMap.put(srr, idToGroup.get(pprID));
-			} else if(!pprID.contains(";")){
-				System.out.println("Missing idToGroup key " + srr + " " + seqID
-						+ " " + pprID + " " + ga);
-			}
+			} 
 		}
+		System.out.println("Number multiple same gender/age/insert key second pass: " + numMult);
 		ArrayList<String> keys = new ArrayList<String>(metaMap.keySet());
 		Collections.sort(keys);
 
