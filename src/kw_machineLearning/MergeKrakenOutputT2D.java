@@ -199,8 +199,9 @@ public class MergeKrakenOutputT2D {
 			matchedKeys.add(pprID);
 			if(pprID.contains(";")) {
 				if(pprID.contains(seqID)) {
-					gaToID.put(ga, 
-							pprID.replace(seqID + ";", "").replace(";" + seqID, ""));
+					String split = pprID.replace(seqID + ";", "").replace(";" + seqID, "");
+					System.out.println(seqID + " " + pprID + " " + split);
+					gaToID.put(ga, split);
 					pprID = seqID;
 				} else {
 					/*System.out.println("To split " + ga + " " +
@@ -235,12 +236,15 @@ public class MergeKrakenOutputT2D {
 		System.out.println("Number missing tables: " + numMissing);
 
 		//check have all metadata
-		System.out.println("missing samples");
+		//System.out.println("missing samples");
+		numMissing = 0;
 		for(String key : idToGroup.keySet()) {
 			if(!matchedKeys.contains(key)) {
-				System.out.println(key);
+				//System.out.println(key);
+				numMissing++;
 			}
 		}
+		System.out.println("Number missing paper samples " + numMissing);
 
 		//add missing samples and make map of sample id to sequences
 		/*HashMap<String, ArrayList<String>> sequences = new HashMap<String, ArrayList<String>>();//map of id to the sequences associated 
