@@ -115,6 +115,9 @@ public class DemultiplexToFaFq {
 		while(line != null) {
 			String[] sp = line.split("\t");
 			String samp = "G" + sp[0].replace(" ", "_");
+			if(sToFq.containsKey(samp)) {
+				samp = samp + "_" + sToFq.size();
+			}
 			BufferedWriter[] fqs = {new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + samp + "_R1.fastq"))),
 					new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + samp + "_R2.fastq")))};
 			sToFq.put(samp, fqs);
@@ -133,6 +136,9 @@ public class DemultiplexToFaFq {
 		while(line != null) {
 			String[] sp = line.split("\t");
 			String samp = "B" + sp[0].replace(" ", "_");
+			if(sToFq.containsKey(samp)) {
+				samp = samp + "_" + sToFq.size();
+			}
 			BufferedWriter[] fqs = {new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + samp + "_R1.fastq"))),
 					new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + samp + "_R2.fastq")))};
 			sToFq.put(samp, fqs);
@@ -265,9 +271,9 @@ public class DemultiplexToFaFq {
 				}
 			}
 			
-			if(numRead % 1000000 == 0) {
+			/*if(numRead % 1000000 == 0) {
 				System.out.println("numread = " + numRead + " num sorted = " + numMatch + " num multiple " + numMultiple);
-			}
+			}*/
 			
 			//write to file (fastq)
 			//Forward read
