@@ -13,7 +13,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
 public class DemultiplexToFaFq {
@@ -114,7 +116,7 @@ public class DemultiplexToFaFq {
 		line = br.readLine();
 		while(line != null) {
 			String[] sp = line.split("\t");
-			String samp = "G" + sp[0];
+			String samp = "G" + sp[0].replace(" ", "_");
 			BufferedWriter[] fqs = {new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + samp + "_R1.fastq"))),
 					new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + samp + "_R2.fastq")))};
 			sToFq.put(samp, fqs);
@@ -132,7 +134,7 @@ public class DemultiplexToFaFq {
 		line = br.readLine();
 		while(line != null) {
 			String[] sp = line.split("\t");
-			String samp = "B" + sp[0];
+			String samp = "B" + sp[0].replace(" ", "_");
 			BufferedWriter[] fqs = {new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + samp + "_R1.fastq"))),
 					new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + samp + "_R2.fastq")))};
 			sToFq.put(samp, fqs);
@@ -144,13 +146,22 @@ public class DemultiplexToFaFq {
 		}
 		br.close();
 		
-		Iterator<String> itSet = pToSamp.keySet().iterator();
+		/*Iterator<String> itSet = pToSamp.keySet().iterator();
 		while(itSet.hasNext()) {
 			String p = itSet.next();
 			System.out.println(p + "\t" + pToSamp.get(p));
-		}
+		}*/
 		System.out.println("Number of samples: " + pToSamp.size()
 				+ " " + sToFq.size() + " " + sToFa.size());
+		Set<String> pKeys = new HashSet<String>();
+		for(String key : pToSamp.keySet()) {
+			pKeys.add(pToSamp.get(key));
+		}
+		Set<String> faKeys = sToFa.keySet();
+		pKeys.removeAll(faKeys);
+		for(String k : pKeys) {
+			System.out.println(k);
+		}
 		
 		
 		//add extra "other" file for unmatched reads
