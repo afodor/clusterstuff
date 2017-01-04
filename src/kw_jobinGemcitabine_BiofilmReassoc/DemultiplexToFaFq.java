@@ -13,9 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
 public class DemultiplexToFaFq {
@@ -150,23 +148,10 @@ public class DemultiplexToFaFq {
 		while(itSet.hasNext()) {
 			String p = itSet.next();
 			System.out.println(p + "\t" + pToSamp.get(p));
-		}*/
-		System.out.println("Number of samples: " + pToSamp.size()
-				+ " " + sToFq.size() + " " + sToFa.size());
-		Set<String> pKeys = new HashSet<String>();
-		for(String key : pToSamp.keySet()) {
-			pKeys.add(pToSamp.get(key));
-		}
-		Set<String> faKeys = sToFa.keySet();
-		//pKeys.removeAll(faKeys);
-		faKeys.removeAll(pKeys);
-		for(String k : faKeys) {
-			System.out.println(k);
-		}
-		
+		}*/		
 		
 		//add extra "other" file for unmatched reads
-		/*BufferedWriter[] fas = {new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "other_R1.fasta"))),
+		BufferedWriter[] fas = {new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "other_R1.fasta"))),
 				new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "other_R2.fasta")))};
 		sToFa.put("other", fas);
 		BufferedWriter[] fqs = {new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "other_R1.fastq"))),
@@ -175,8 +160,8 @@ public class DemultiplexToFaFq {
 		
 		//read fastq file
 		//convert each read to fast and determine the correct read
-		BufferedReader fastqF = new BufferedReader(new InputStreamReader(new GZIPInputStream( new FileInputStream(READDIR + fastqFileF))));
-		BufferedReader fastqR = new BufferedReader(new InputStreamReader(new GZIPInputStream( new FileInputStream(READDIR + fastqFileR))));
+		BufferedReader fastqF = new BufferedReader(new InputStreamReader(new GZIPInputStream( new FileInputStream(INDIR + fastqFileF))));
+		BufferedReader fastqR = new BufferedReader(new InputStreamReader(new GZIPInputStream( new FileInputStream(INDIR + fastqFileR))));
 		String headF = fastqF.readLine();//first line of read (@Seqid) for forward reads
 		String headR = fastqR.readLine();
 		int numRead = 0;
@@ -197,7 +182,7 @@ public class DemultiplexToFaFq {
 			 * currently just assuming if fwd and rev is present is correct
 			 * not checking that both are reverse complemented or both forward
 			 */
-			/*String samp = "other";
+			String samp = "other";
 			String pF = getPrimer(readF);
 			String pR = getPrimer(readR);
 			
@@ -216,13 +201,13 @@ public class DemultiplexToFaFq {
 					fwd = pR;
 					rev = pF;
 					numMatch++;
-				} */ /*else {
+				}  /*else {
 					System.out.println(pF + "\t" + pR);
 					System.out.println(readF);
 					System.out.println(readR);
 				}*/
 				
-				/*key = fwd+rev;
+				key = fwd+rev;
 			}
 			
 			if(pToSamp.containsKey(key)) {
@@ -325,6 +310,6 @@ public class DemultiplexToFaFq {
 			String k = it.next();
 			sToFq.get(k)[0].close();
 			sToFq.get(k)[1].close();
-		}*/
+		}
 	}
 }
