@@ -56,7 +56,11 @@ public class MergeKrakenOutputT2D {
 		s2.readLine();//header
 		for(String line = s2.readLine(); line != null; line = s2.readLine()) {
 			String[] sp = line.split("\t");
-			insertMap.put(sp[1], sp[2]);
+			if(sp.length > 2) {
+				insertMap.put(sp[1], sp[2]);				
+			} else {
+				System.out.println(line);
+			}
 		}
 		s2.close();
 
