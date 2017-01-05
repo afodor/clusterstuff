@@ -75,6 +75,7 @@ public class MergeKrakenOutputT2D {
 			String[] sp = line.split("\t");
 			String id = sp[1];
 			String ga = sp[2] + sp[3] + insertMap.get(id);//gender+age+insert size
+			ga = ga.replaceAll("\\s","");
 			String group = sp[7];
 			if(id.equals("DLM005")) {
 				System.out.println("S1: gender " + sp[2] + " age " + sp[3]);
