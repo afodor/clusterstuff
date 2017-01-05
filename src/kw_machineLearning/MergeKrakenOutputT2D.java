@@ -161,6 +161,13 @@ public class MergeKrakenOutputT2D {
 								+ " " + pprID + " " + ga);
 						numMissingGaToIDkey++;
 					} else {*/
+					String group = null;
+					if(seqID.startsWith("T2D") || seqID.startsWith("ED") ||
+							seqID.startsWith("HT")) {
+						group = "T2D";
+					} else if(seqID.startsWith("SZEY") || seqID.startsWith("N")) {
+						group = "N";
+					}
 					if(gaToID.containsKey(ga)) {
 						if(pprID.contains(";")) {
 							if(pprID.contains(seqID)) {
@@ -178,19 +185,20 @@ public class MergeKrakenOutputT2D {
 							System.out.println("Test: " + srr + " " + pprID + " " + ga);
 						}*/
 						if(idToGroup.containsKey(pprID)) {
-							metaMap.put(srr, idToGroup.get(pprID));
+							group = idToGroup.get(pprID);
 						} /*else if(!pprID.contains(";")){
 							System.out.println("Missing idToGroup key " + srr + " " + seqID
 									+ " " + pprID + " " + ga);
 						}*/
-					} else if(seqID.startsWith("T2D") || seqID.startsWith("ED") ||
+					} /*else if(seqID.startsWith("T2D") || seqID.startsWith("ED") ||
 							seqID.startsWith("HT")) {
 						metaMap.put(srr, "T2D");
 					} else if(seqID.startsWith("SZEY") || seqID.startsWith("N")) {
 						metaMap.put(srr, "N");
 					} else {
 						System.out.println(seqID);
-					}
+					}*/
+					metaMap.put(srr, group);
 					out.write(srr + "\t" + seqID + "\t" + pprID + "\t" + sp[genderCol] + "\t"
 							+ sp[ageCol] + "\t" + sp[insertCol] + "\t" + idToGroup.get(pprID) 
 							+ metaMap.get(srr) + "\n");
