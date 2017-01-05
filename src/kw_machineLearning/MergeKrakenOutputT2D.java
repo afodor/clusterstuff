@@ -188,7 +188,7 @@ public class MergeKrakenOutputT2D {
 					}
 					out.write(srr + "\t" + seqID + "\t" + pprID + "\t" + sp[genderCol] + "\t"
 							+ sp[ageCol] + "\t" + sp[insertCol] + "\t" + idToGroup.get(pprID) 
-							+ "\n");
+							+ metaMap.get(srr) + "\n");
 				} /*else {
 					System.out.println(line);
 				}*/
