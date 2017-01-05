@@ -155,6 +155,8 @@ public class DemultiplexToFaFq {
 			String p = itSet.next();
 			System.out.println(p + "\t" + pToSamp.get(p));
 		}*/		
+		System.out.println("Number of samples: " + pToSamp.size() + " "
+				+ " " + sToFa.size() + " " + sToFq.size());
 		
 		//add extra "other" file for unmatched reads
 		BufferedWriter[] fas = {new BufferedWriter(new FileWriter(new File(OUTDIR + File.separator + "other_R1.fasta"))),
