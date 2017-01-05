@@ -193,6 +193,8 @@ public class MergeKrakenOutputT2D {
 						}*/
 					} else if(seqID.startsWith("T2D")) {
 						metaMap.put(srr, "T2D");
+					} else if(seqID.startsWith("SZEY")) {
+						metaMap.put(srr, "N");
 					} else {
 						System.out.println(seqID);
 					}
