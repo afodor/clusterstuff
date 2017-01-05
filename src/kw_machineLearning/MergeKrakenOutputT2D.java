@@ -58,9 +58,6 @@ public class MergeKrakenOutputT2D {
 			String[] sp = line.split("\t");
 			if(sp.length > 2) {
 				insertMap.put(sp[1], sp[2]);	
-				if(sp[1].equals("DLM005")) {
-					System.out.println("S2: insert " + sp[2]);
-				}
 			}
 		}
 		s2.close();
@@ -77,19 +74,10 @@ public class MergeKrakenOutputT2D {
 			String ga = sp[2] + sp[3] + insertMap.get(id);//gender+age+insert size
 			ga = ga.replaceAll("\\s","");
 			String group = sp[7];
-			if(id.equals("DLM005")) {
-				System.out.println("S1: gender " + sp[2] + " age " + sp[3]);
-				System.out.println("S1: insert " + insertMap.get(id));
-				System.out.println("S1 ga: " + ga + " present " + gaToID.containsKey(ga));
-			}
 			if(gaToID.containsKey(ga)) {
 				gaToID.put(ga, gaToID.get(ga) + ";" + id);
 			} else {
 				gaToID.put(ga, id);				
-			}
-			if(id.equals("DLM005")) {
-				System.out.println("S1 after add " + gaToID.containsKey(ga) + " "
-						+ gaToID.get(ga));
 			}
 
 			if(group.equals("N")) {
@@ -100,7 +88,6 @@ public class MergeKrakenOutputT2D {
 			idToGroup.put(id, group);
 		}
 		pprTab.close();
-		System.out.println("after making maps: " + gaToID.containsKey("male35346"));
 		System.out.println("ga " + gaToID.size() + " id " + idToGroup.size() + 
 				" insert " + insertMap.size());
 
@@ -174,10 +161,6 @@ public class MergeKrakenOutputT2D {
 								+ " " + pprID + " " + ga);
 						numMissingGaToIDkey++;
 					} else {*/
-					if(srr.equals("SRR341593")) {
-						System.out.println("ga: " + ga + " " + gaToID.containsKey(ga));
-						System.out.println("pprID: " + pprID);
-					}
 					if(gaToID.containsKey(ga)) {
 						if(pprID.contains(";")) {
 							if(pprID.contains(seqID)) {
@@ -194,15 +177,14 @@ public class MergeKrakenOutputT2D {
 						} /*else {
 							System.out.println("Test: " + srr + " " + pprID + " " + ga);
 						}*/
-						if(srr.equals("SRR341593")) {
-							System.out.println("pprID after split: " + pprID + " " + idToGroup.containsKey(pprID));
-						}
 						if(idToGroup.containsKey(pprID)) {
 							metaMap.put(srr, idToGroup.get(pprID));
 						} /*else if(!pprID.contains(";")){
 							System.out.println("Missing idToGroup key " + srr + " " + seqID
 									+ " " + pprID + " " + ga);
 						}*/
+					} else if(seqID.startsWith("T2D")) {
+						metaMap.put(srr, "T2D");
 					}
 					out.write(srr + "\t" + seqID + "\t" + pprID + "\t" + sp[genderCol] + "\t"
 							+ sp[ageCol] + "\t" + sp[insertCol] + "\t" + idToGroup.get(pprID) 
