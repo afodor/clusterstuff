@@ -160,6 +160,10 @@ public class MergeKrakenOutputT2D {
 								+ " " + pprID + " " + ga);
 						numMissingGaToIDkey++;
 					} else {*/
+					if(srr.equals("SRR341593")) {
+						System.out.println("ga: " + ga + " " + gaToID.containsKey(ga));
+						System.out.println("pprID: " + pprID);
+					}
 					if(gaToID.containsKey(ga)) {
 						if(pprID.contains(";")) {
 							if(pprID.contains(seqID)) {
@@ -176,6 +180,9 @@ public class MergeKrakenOutputT2D {
 						} /*else {
 							System.out.println("Test: " + srr + " " + pprID + " " + ga);
 						}*/
+						if(srr.equals("SRR341593")) {
+							System.out.println("pprID after split: " + pprID + " " + idToGroup.containsKey(pprID));
+						}
 						if(idToGroup.containsKey(pprID)) {
 							metaMap.put(srr, idToGroup.get(pprID));
 						} /*else if(!pprID.contains(";")){
@@ -226,7 +233,7 @@ public class MergeKrakenOutputT2D {
 		Collections.sort(keys);
 
 		//check sequence ids
-		System.out.println("SRA " + metaMap.size() + " " + matchedKeys.size());
+		System.out.println("SRA " + metaMap.size());
 		System.out.println("sequences " + tables.size());
 		HashSet<String> seqs = new HashSet<String>();
 		int numMissing = 0;
