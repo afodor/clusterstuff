@@ -185,6 +185,8 @@ public class MergeKrakenOutputT2D {
 						}*/
 					} else if(seqID.startsWith("T2D")) {
 						metaMap.put(srr, "T2D");
+					} else {
+						System.out.println(seqID);
 					}
 					out.write(srr + "\t" + seqID + "\t" + pprID + "\t" + sp[genderCol] + "\t"
 							+ sp[ageCol] + "\t" + sp[insertCol] + "\t" + idToGroup.get(pprID) 
