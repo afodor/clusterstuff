@@ -57,7 +57,7 @@ public class MergeKrakenOutputT2D {
 		for(String line = s2.readLine(); line != null; line = s2.readLine()) {
 			String[] sp = line.split("\t");
 			if(sp.length > 2) {
-				insertMap.put(sp[1], sp[2]);	
+				insertMap.put(sp[1].replace(" ", "-"), sp[2]);	
 			}
 		}
 		s2.close();
@@ -70,7 +70,7 @@ public class MergeKrakenOutputT2D {
 		pprTab.readLine();//header
 		for(String line = pprTab.readLine(); line != null; line = pprTab.readLine()) {
 			String[] sp = line.split("\t");
-			String id = sp[1];
+			String id = sp[1].replace(" ", "-");
 			String ga = sp[2] + sp[3] + insertMap.get(id);//gender+age+insert size
 			ga = ga.replaceAll("\\s","");
 			String group = sp[7];
@@ -153,7 +153,7 @@ public class MergeKrakenOutputT2D {
 				if(sp.length > 1) {
 					String srr = sp[srrCol];
 					String ga = sp[genderCol] + sp[ageCol] + sp[insertCol];
-					String seqID = sp[nameCol].replace("bgi-", "").replace(" ", "");
+					String seqID = sp[nameCol].replace("bgi-", "").replace(" ", "-");
 					String pprID = gaToID.get(ga);
 					matchedKeys.add(pprID);
 					/*if(!gaToID.containsKey(ga)) {
