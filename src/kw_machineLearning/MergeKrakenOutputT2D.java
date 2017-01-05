@@ -47,7 +47,7 @@ public class MergeKrakenOutputT2D {
 			System.out.println(key + "\t" + metaMap.get(key));
 		}
 		System.out.println();*/
-		
+
 		//get insert size from T2D paper
 		HashMap<String, String> insertMap = new HashMap<String, String>();//map of sample ID to insert size
 		BufferedReader s2 = new BufferedReader(new FileReader(new File(
@@ -212,7 +212,7 @@ public class MergeKrakenOutputT2D {
 		/*System.out.println("Number missing gaToID key: " + numMissingGaToIDkey);
 		System.out.println("Number multiple same gender/age/insert key first pass: " + numMult
 				+ " " + unmatchedSplit.size());*/
-		
+
 		//see if any singletons after splitting samples with same gender/age/insert size
 		//numMult = 0;
 		for(String s : unmatchedSplit) {
@@ -275,6 +275,9 @@ public class MergeKrakenOutputT2D {
 		HashMap<String, ArrayList<String>> sequences = new HashMap<String, ArrayList<String>>();//map of id to the sequences associated 
 		for(int i = 0; i < tables.size(); i++) {
 			String id = tables.get(i).split("_")[0];
+			if(!metaMap.containsKey(id)) {
+				System.out.println("Extra sample: " + tables.get(i));
+			} 
 			if(sequences.containsKey(id)) {
 				sequences.get(id).add(tables.get(i));
 			} else {

@@ -47,8 +47,8 @@ public class MergeKrakenOutputWT2D {
 			}
 		}
 		m.close();
-		ArrayList<String> keys = new ArrayList<String>(metaMap.keySet());
-		Collections.sort(keys);
+		//ArrayList<String> keys = new ArrayList<String>(metaMap.keySet());
+		//Collections.sort(keys);
 
 		//compare to Segata metadata
 		/*m = new BufferedReader(new FileReader(new File(META)));
@@ -85,7 +85,7 @@ public class MergeKrakenOutputWT2D {
 		}
 
 		//check sequence ids
-		System.out.println("number samples " + metaMap.size());
+		/*System.out.println("number samples " + metaMap.size());
 		System.out.println("number sequences " + tables.size());
 		HashSet<String> seqs = new HashSet<String>();
 		for(int i = 0; i < tables.size(); i++) {
@@ -101,12 +101,12 @@ public class MergeKrakenOutputWT2D {
 			if(!seqs.contains(key)) {
 				System.out.println(key);
 			}
-		}
+		}*/
 
 		//add missing samples and make map of sample id to sequences
-		/*HashMap<String, ArrayList<String>> sequences = new HashMap<String, ArrayList<String>>();//map of id to the sequences associated 
+		HashMap<String, ArrayList<String>> sequences = new HashMap<String, ArrayList<String>>();//map of id to the sequences associated 
 		for(int i = 0; i < tables.size(); i++) {
-			String id = tables.get(i).split("_")[0].replace("MetaHIT-", "");
+			String id = tables.get(i).split("_")[1];
 			if(!metaMap.containsKey(id)) {
 				System.out.println("Extra sample: " + tables.get(i));
 			} else {
@@ -228,7 +228,7 @@ public class MergeKrakenOutputWT2D {
 		for(String s : seqIDs) {
 			out.write(s + "\t" + metaMap.get(s) + "\n");
 		}
-		out.close();*/
+		out.close();
 	}
 
 	//function that adds the given counts to the appropriate key in the given map
