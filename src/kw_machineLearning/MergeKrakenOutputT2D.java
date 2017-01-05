@@ -184,7 +184,7 @@ public class MergeKrakenOutputT2D {
 									+ " " + pprID + " " + ga);
 						}*/
 					} else if(seqID.startsWith("T2D") || seqID.startsWith("ED") ||
-							seqID.startsWith("ED")) {
+							seqID.startsWith("HT")) {
 						metaMap.put(srr, "T2D");
 					} else if(seqID.startsWith("SZEY") || seqID.startsWith("N")) {
 						metaMap.put(srr, "N");
