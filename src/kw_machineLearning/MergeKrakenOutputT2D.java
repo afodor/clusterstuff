@@ -57,7 +57,10 @@ public class MergeKrakenOutputT2D {
 		for(String line = s2.readLine(); line != null; line = s2.readLine()) {
 			String[] sp = line.split("\t");
 			if(sp.length > 2) {
-				insertMap.put(sp[1], sp[2]);				
+				insertMap.put(sp[1], sp[2]);	
+				if(sp[1].equals("DLM005")) {
+					System.out.println("S2: insert " + sp[2]);
+				}
 			}
 		}
 		s2.close();
@@ -73,6 +76,10 @@ public class MergeKrakenOutputT2D {
 			String id = sp[1];
 			String ga = sp[2] + sp[3] + insertMap.get(id);//gender+age+insert size
 			String group = sp[7];
+			if(id.equals("DLM005")) {
+				System.out.println("S1: gender " + sp[2] + " age " + sp[3]);
+				System.out.println("S1: insert " + insertMap.get(id));
+			}
 			if(gaToID.containsKey(ga)) {
 				gaToID.put(ga, gaToID.get(ga) + ";" + id);
 			} else {
