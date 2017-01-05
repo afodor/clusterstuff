@@ -45,6 +45,7 @@ public class BowtieToSilva {
 						+ " -S " + OUTDIR + name + ".lsu.sam\n");
 				script.write("samtools flagstat " + OUTDIR + name + ".lsu.sam > " 
 						+ OUTDIR + name + ".lsu.flagstat\n");
+				script.close();
 				
 				//write script for SSU
 				script = new BufferedWriter(new FileWriter(new File(
