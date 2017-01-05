@@ -118,7 +118,7 @@ public class MergeKrakenOutputT2D {
 		//HashMap<String, String> srrToID = new HashMap<String, String>();//srr to sequence sample name
 		HashMap<String, String> metaMap = new HashMap<String, String>();//srr to class
 		String[] sraFiles = new String[] {"SraRunTable.txt", "SraRunTable2.txt"};
-		HashSet<String> matchedKeys = new HashSet<String>();//set of sample IDs seen
+		//HashSet<String> matchedKeys = new HashSet<String>();//set of sample IDs seen
 		HashSet<String> unmatchedSplit = new HashSet<String>();//set of sample IDs not matched due to multiple same key
 		//int numMissingGaToIDkey = 0;
 		//int numMult = 0;
@@ -155,7 +155,7 @@ public class MergeKrakenOutputT2D {
 					String ga = sp[genderCol] + sp[ageCol] + sp[insertCol];
 					String seqID = sp[nameCol].replace("bgi-", "").replace(" ", "-");
 					String pprID = gaToID.get(ga);
-					matchedKeys.add(pprID);
+					//matchedKeys.add(pprID);
 					/*if(!gaToID.containsKey(ga)) {
 						System.out.println("Missing gaToID key " + srr + " " + seqID
 								+ " " + pprID + " " + ga);
@@ -221,7 +221,7 @@ public class MergeKrakenOutputT2D {
 			String ga = sp[1];
 			String seqID = sp[2];
 			String pprID = gaToID.get(ga);
-			matchedKeys.add(pprID);
+			//matchedKeys.add(pprID);
 			if(pprID.contains(";")) {
 				if(pprID.contains(seqID)) {
 					gaToID.put(ga, 
@@ -238,26 +238,26 @@ public class MergeKrakenOutputT2D {
 			} 
 		}
 		//System.out.println("Number multiple same gender/age/insert key second pass: " + numMult);
-		ArrayList<String> keys = new ArrayList<String>(metaMap.keySet());
-		Collections.sort(keys);
+		//ArrayList<String> keys = new ArrayList<String>(metaMap.keySet());
+		//Collections.sort(keys);
 
 		//check sequence ids
-		System.out.println("SRA " + metaMap.size());
+		//System.out.println("SRA " + metaMap.size());
 		//System.out.println("sequences " + tables.size());
-		HashSet<String> seqs = new HashSet<String>();
+		/*HashSet<String> seqs = new HashSet<String>();
 		int numMissing = 0;
 		for(int i = 0; i < tables.size(); i++) {
 			String id = tables.get(i).split("_")[0];
 			if(!metaMap.containsKey(id)) {
 				//System.out.println("Missing table " + id);
 				numMissing++;
-			} /*else {
+			} else {
 				System.out.println(id + "\t" + metaMap.containsKey(id) + "\t" + metaMap.get(id));
-			}*/
+			}
 			seqs.add(id);
 		}
 		//System.out.println();
-		System.out.println("Number missing tables: " + numMissing);
+		//System.out.println("Number missing tables: " + numMissing);*/
 
 		//check have all metadata
 		//System.out.println("missing samples");
@@ -272,12 +272,9 @@ public class MergeKrakenOutputT2D {
 		System.out.println("Number missing paper samples " + numMissing);*/
 
 		//add missing samples and make map of sample id to sequences
-		/*HashMap<String, ArrayList<String>> sequences = new HashMap<String, ArrayList<String>>();//map of id to the sequences associated 
+		HashMap<String, ArrayList<String>> sequences = new HashMap<String, ArrayList<String>>();//map of id to the sequences associated 
 		for(int i = 0; i < tables.size(); i++) {
 			String id = tables.get(i).split("_")[0];
-			if(!sraMap.containsKey(id) || !metaMap.containsKey(sraMap.get(sra))) {
-				System.out.println("Extra key: " + id);
-			}
 			if(sequences.containsKey(id)) {
 				sequences.get(id).add(tables.get(i));
 			} else {
@@ -319,12 +316,12 @@ public class MergeKrakenOutputT2D {
 		////write table
 		ArrayList<String> keys = new ArrayList<String>(baseMap.keySet());
 		Collections.sort(keys);
-		BufferedWriter out = new BufferedWriter(new FileWriter(
+		out = new BufferedWriter(new FileWriter(
 				new File(DIR + BASEOUT + ".txt")));
 		//write header
 		out.write("taxonomy");
 		for(String t: seqIDs) {
-			out.write("\t" + t + "." + sraMap.get(t));//id is SRA.SampleName
+			out.write("\t" + t);
 		}
 		out.write("\n");
 		//write counts
@@ -380,23 +377,23 @@ public class MergeKrakenOutputT2D {
 		}
 
 		//write tables
-		writeSplitTable(seqIDs, "domain", split.get("domain"), sraMap);
-		writeSplitTable(seqIDs, "phylum", split.get("phylum"), sraMap);
-		writeSplitTable(seqIDs, "class", split.get("class"), sraMap);
-		writeSplitTable(seqIDs, "order", split.get("order"), sraMap);
-		writeSplitTable(seqIDs, "family", split.get("family"), sraMap);
-		writeSplitTable(seqIDs, "genus", split.get("genus"), sraMap);
-		writeSplitTable(seqIDs, "species", split.get("species"), sraMap);
+		writeSplitTable(seqIDs, "domain", split.get("domain"));
+		writeSplitTable(seqIDs, "phylum", split.get("phylum"));
+		writeSplitTable(seqIDs, "class", split.get("class"));
+		writeSplitTable(seqIDs, "order", split.get("order"));
+		writeSplitTable(seqIDs, "family", split.get("family"));
+		writeSplitTable(seqIDs, "genus", split.get("genus"));
+		writeSplitTable(seqIDs, "species", split.get("species"));
 
 		//write metadata table
 		out = new BufferedWriter(new FileWriter(new File(
 				DIR + BASEOUT + "_metadata.txt")));
 		out.write("sampleID\tdisease\n");
 		for(String s : seqIDs) {
-			out.write(s + "." + sraMap.get(s) + "\t" 
-					+ metaMap.get(sraMap.get(s)) + "\n");
+			out.write(s + "\t" 
+					+ metaMap.get(s) + "\n");
 		}
-		out.close();*/
+		out.close();
 	}
 
 	//function that adds the given counts to the appropriate key in the given map
@@ -416,15 +413,14 @@ public class MergeKrakenOutputT2D {
 	//writes the table for the given level containing the given counts
 	public static void writeSplitTable(ArrayList<String> ids, 
 			String level, 
-			HashMap<String, Integer[]> map,
-			HashMap<String, String> sraMap) throws IOException {
+			HashMap<String, Integer[]> map) throws IOException {
 		BufferedWriter out = new BufferedWriter(new FileWriter(
 				new File(DIR + BASEOUT + "_" + level + ".txt")));
 
 		//write header
 		out.write("taxa\ttaxonomy");
 		for(String t: ids) {
-			out.write("\t" + t + "." + sraMap.get(t));//id is SRA.SampleName
+			out.write("\t" + t);//id is SRA.SampleName
 		}
 		out.write("\n");
 
