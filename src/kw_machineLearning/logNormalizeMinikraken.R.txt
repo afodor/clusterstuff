@@ -5,8 +5,9 @@ rm(list=ls())
 
 setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\Machine Learning")
 
-datasets = c("IBD\\ibd", "Cirrhosis\\cirrhosis", "Colorectal\\colorectal")
-#datasets = "Colorectal\\colorectal"
+datasets = c("IBD\\ibd", "Cirrhosis\\cirrhosis", "Colorectal\\colorectal", "HMP\\hmp", "Obesity\\obesity",
+             "WT2D\\wt2d", "T2D\\t2d")
+#datasets = "T2D\\t2d"
 
 taxaLevels = c("domain", "phylum", "class", "order", "family", "genus", "species")
 
@@ -14,6 +15,7 @@ for(ds in datasets) {
   print(ds)
   meta = read.table(paste(ds, "_minikraken_merged_metadata.txt", sep=""), sep="\t", header=T, stringsAsFactors = F)
   meta$disease = sub(".extra", "", meta$disease)
+  meta = meta[meta$disease != "null",]
   start = ncol(meta) + 1 #first count column
   for(taxa in taxaLevels) {
     print(taxa)
@@ -29,7 +31,7 @@ for(ds in datasets) {
     ##add metadata
     names(table)[1] = "sampleID"
     #meta$sampleID = gsub("-", ".", meta$sampleID) #R messed up dashes
-    table$sampleID = gsub(".", "-", meta$sampleID, fixed=T) #R messed up dashes
+    table$sampleID = gsub(".", "-", table$sampleID, fixed=T) #R messed up dashes
     mrg = merge(meta, table, by="sampleID")
     
     ##relative abundance
