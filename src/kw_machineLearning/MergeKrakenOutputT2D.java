@@ -79,11 +79,16 @@ public class MergeKrakenOutputT2D {
 			if(id.equals("DLM005")) {
 				System.out.println("S1: gender " + sp[2] + " age " + sp[3]);
 				System.out.println("S1: insert " + insertMap.get(id));
+				System.out.println("S1 ga: " + ga + " present " + gaToID.containsKey(ga));
 			}
 			if(gaToID.containsKey(ga)) {
 				gaToID.put(ga, gaToID.get(ga) + ";" + id);
 			} else {
 				gaToID.put(ga, id);				
+			}
+			if(id.equals("DLM005")) {
+				System.out.println("S1 after add " + gaToID.containsKey(ga) + " "
+						+ gaToID.get(ga));
 			}
 
 			if(group.equals("N")) {
@@ -94,6 +99,7 @@ public class MergeKrakenOutputT2D {
 			idToGroup.put(id, group);
 		}
 		pprTab.close();
+		System.out.println("after making maps: " + gaToID.containsKey("male35346"));
 		System.out.println("ga " + gaToID.size() + " id " + idToGroup.size() + 
 				" insert " + insertMap.size());
 
