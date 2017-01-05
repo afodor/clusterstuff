@@ -61,6 +61,7 @@ public class MergeKrakenOutputT2D {
 			}
 		}
 		s2.close();
+		System.out.println("insert size: " + insertMap.get("SZEY-101A"));
 
 		//get metadata from T2D paper
 		HashMap<String, String> gaToID = new HashMap<String, String>();//map of gender/age to sample ID
@@ -74,10 +75,16 @@ public class MergeKrakenOutputT2D {
 			String ga = sp[2] + sp[3] + insertMap.get(id);//gender+age+insert size
 			ga = ga.replaceAll("\\s","");
 			String group = sp[7];
+			if(id.equals("SZEY-101A")) {
+				System.out.println("S1 ga : " + ga);
+			}
 			if(gaToID.containsKey(ga)) {
 				gaToID.put(ga, gaToID.get(ga) + ";" + id);
 			} else {
 				gaToID.put(ga, id);				
+			}
+			if(id.equals("SZEY-101A")) {
+				System.out.println("S1 map " + gaToID.get(ga));
 			}
 
 			if(group.equals("N")) {
@@ -88,8 +95,9 @@ public class MergeKrakenOutputT2D {
 			idToGroup.put(id, group);
 		}
 		pprTab.close();
-		System.out.println("ga " + gaToID.size() + " id " + idToGroup.size() + 
-				" insert " + insertMap.size());
+		/*System.out.println("ga " + gaToID.size() + " id " + idToGroup.size() + 
+				" insert " + insertMap.size());*/
+		System.out.println("after S1 " + gaToID.get("male47350"));
 
 		//check Segata and paper tables are giving similar results
 		/*for(String k : keys) {
@@ -232,7 +240,7 @@ public class MergeKrakenOutputT2D {
 
 		//check sequence ids
 		System.out.println("SRA " + metaMap.size());
-		System.out.println("sequences " + tables.size());
+		//System.out.println("sequences " + tables.size());
 		HashSet<String> seqs = new HashSet<String>();
 		int numMissing = 0;
 		for(int i = 0; i < tables.size(); i++) {
@@ -245,20 +253,20 @@ public class MergeKrakenOutputT2D {
 			}*/
 			seqs.add(id);
 		}
-		System.out.println();
+		//System.out.println();
 		System.out.println("Number missing tables: " + numMissing);
 
 		//check have all metadata
 		//System.out.println("missing samples");
-		System.out.println("Number paper samples " + insertMap.size());
-		numMissing = 0;
+		//System.out.println("Number paper samples " + insertMap.size());
+		/*numMissing = 0;
 		for(String key : insertMap.keySet()) {
 			if(!matchedKeys.contains(key)) {
 				//System.out.println(key);
 				numMissing++;
 			}
 		}
-		System.out.println("Number missing paper samples " + numMissing);
+		System.out.println("Number missing paper samples " + numMissing);*/
 
 		//add missing samples and make map of sample id to sequences
 		/*HashMap<String, ArrayList<String>> sequences = new HashMap<String, ArrayList<String>>();//map of id to the sequences associated 
