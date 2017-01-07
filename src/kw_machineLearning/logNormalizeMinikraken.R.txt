@@ -33,6 +33,8 @@ for(ds in datasets) {
     #meta$sampleID = gsub("-", ".", meta$sampleID) #R messed up dashes
     table$sampleID = gsub(".", "-", table$sampleID, fixed=T) #R messed up dashes
     mrg = merge(meta, table, by="sampleID")
+    write.table(mrg, paste(ds, "_minikraken_merged_taxaAsCol_withMeta_", taxa, ".txt", sep=""),
+                sep="\t", row.names = F, col.names = T, quote=F)
     
     ##relative abundance
     relabun = mrg
