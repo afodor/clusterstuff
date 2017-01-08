@@ -7,7 +7,7 @@ setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\Machine Learning")
 
 datasets = c("IBD\\ibd", "Cirrhosis\\cirrhosis", "Colorectal\\colorectal", "HMP\\hmp", "Obesity\\obesity",
              "WT2D\\wt2d", "T2D\\t2d")
-#datasets = "T2D\\t2d"
+# datasets = "WT2D\\wt2d"
 
 taxaLevels = c("domain", "phylum", "class", "order", "family", "genus", "species")
 
@@ -32,6 +32,9 @@ for(ds in datasets) {
     names(table)[1] = "sampleID"
     #meta$sampleID = gsub("-", ".", meta$sampleID) #R messed up dashes
     table$sampleID = gsub(".", "-", table$sampleID, fixed=T) #R messed up dashes
+    if(all(grepl("^X", table$sampleID))) {
+      table$sampleID = sub("X", "", table$sampleID)
+    }
     mrg = merge(meta, table, by="sampleID")
     write.table(mrg, paste(ds, "_minikraken_merged_taxaAsCol_withMeta_", taxa, ".txt", sep=""),
                 sep="\t", row.names = F, col.names = T, quote=F)
