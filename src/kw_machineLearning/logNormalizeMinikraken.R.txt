@@ -7,7 +7,7 @@ setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\Machine Learning")
 
 datasets = c("IBD\\ibd", "Cirrhosis\\cirrhosis", "Colorectal\\colorectal", "HMP\\hmp", "Obesity\\obesity",
              "WT2D\\wt2d", "T2D\\t2d")
-# datasets = "WT2D\\wt2d"
+# datasets = "HMP\\hmp"
 
 taxaLevels = c("domain", "phylum", "class", "order", "family", "genus", "species")
 
@@ -27,6 +27,11 @@ for(ds in datasets) {
     tname = paste(ds, "_minikraken_merged_taxaAsCol_", taxa, ".txt", sep="")
     write.table(t(table),tname, sep="\t", row.names = T, col.names = F, quote=F)
     table = read.table(tname, sep="\t", header=T, stringsAsFactors = F, comment.char = "", quote="")
+    
+    ##remove zeros
+    nozero = rowSums(table[,-1]) != 0
+    print(paste("removed", table$taxa[(!nozero)]))
+    table = table[nozero,]
     
     ##add metadata
     names(table)[1] = "sampleID"
