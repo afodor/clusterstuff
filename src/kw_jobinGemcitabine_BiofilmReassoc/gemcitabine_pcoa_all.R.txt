@@ -1,0 +1,66 @@
+##PCoA of all samples inc controls, forward and reverse reads
+##1/6/17
+
+rm(list=ls())
+
+library(vegan)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\Gemcitabine and Biofilm Reassociation\\RDP results\\Gemcitabine")
+
+levels = c("phylum", "class", "order", "family", "genus")
+
+meta = read.table("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\Gemcitabine and Biofilm Reassociation\\GemcitabineMetadata.txt",
+                  sep="\t", header=T, stringsAsFactors = F, comment.char = "")
+names(meta)[1] = "sampleID"
+meta$sampleID = gsub(" ", "_", meta$sampleID)
+
+pdf("gemcitabine_pcoa_allReadsWithControls.pdf")
+for(lev in levels) {
+  print(lev)
+  table = read.table(paste("gemcitabine_", lev, "_logWithCtrl.txt", sep=""),
+                     sep="\t", header=T, stringsAsFactors = F)
+  table$sampleID = sub("G", "", table$sampleID)
+  mrg = merge(meta, table, by="sampleID")
+  
+  pcoa <- capscale(mrg[,-(1:8)]~1,distance="bray")
+  
+  ##get percent variance
+  eig = eigenvals(pcoa)
+  if(any(eig<0)) {#need to check there are no negatives
+    warning(paste("NEGATIVE EIGENVALUES-percent variance is incorrect for ", lev, sep=""))
+  }
+  var = eig/sum(eig)*100
+  
+  ##color by time
+#   groups = sort(unique(mrg$Experimental.condition))
+#   groups[groups==""] = "control"
+#  mrg$Experimental.condition[mrg$Experimental.condition==""] = "control"
+  # colors = c("black", "deepskyblue", "darkblue", "turquoise4", "orchid4")
+  mrg$treatment.day[grepl("H2O", mrg$sample) | grepl("water", mrg$sample)] = "water"
+  mrg$treatment.day[grepl("NC101", mrg$sample)] = "NC101"
+  groups = sort(unique(mrg$treatment.day))
+  colors = c("red", "blue", "black", "purple")
+  col = rep(NA, nrow(mrg))
+  for(i in 1:length(groups)) {
+    col[mrg$treatment.day==groups[i]] = colors[i]
+  }
+  
+  ##shape by read
+  pch = ifelse(mrg$read=="R1", 15, 16)
+  
+  ##plot PCoA
+  par(mar=c(4,4,4,7.2), xpd=T)
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], 
+       xlab=paste("MDS1 (", format(var[[1]], digits=0), "%)", sep=""), 
+       ylab=paste("MDS2 (", format(var[[2]], digits=0), "%)", sep=""),
+       main=lev, 
+       col=col, pch=pch)
+  legend("topright", inset=c(-.29,0),
+         legend=c(paste("day", groups), "read1", "read2"),
+         col=c(colors, rep("gray", 2)),
+         pch=c(rep(18, length(groups)), 15,16))
+  write.table(cbind(mrg[,1:8], pcoa$CA$u), 
+              paste("gemcitabine_pcoaCorrected_all_", lev, ".txt", sep=""),
+              sep="\t", col.names = T, row.names = F, quote = F)
+}
+dev.off()

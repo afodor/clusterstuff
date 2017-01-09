@@ -1,0 +1,67 @@
+##PCoA of all samples inc controls, forward and reverse reads
+##1/5/17
+
+rm(list=ls())
+
+library(vegan)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\Gemcitabine and Biofilm Reassociation\\RDP results\\Biofilm Reassociation")
+
+levels = c("phylum", "class", "order", "family", "genus")
+
+meta = read.table("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\Gemcitabine and Biofilm Reassociation\\BiofilmReassociationMetadata.txt",
+                  sep="\t", header=T, stringsAsFactors = F, comment.char = "")
+names(meta)[1] = "sampleID"
+meta$sampleID = gsub(" ", "_", meta$sampleID)
+
+pdf("biofilmReassociation_pcoa_allReadsWithControls.pdf")
+for(lev in levels) {
+  print(lev)
+  table = read.table(paste("biofilmReassoc_", lev, "_logWithCtrl.txt", sep=""),
+                     sep="\t", header=T, stringsAsFactors = F)
+  table$sampleID = sub("B", "", table$sampleID)
+  mrg = merge(meta, table, by="sampleID")
+  
+  pcoa <- capscale(mrg[,-(1:18)]~1,distance="bray")
+  
+  ##get percent variance
+  eig = eigenvals(pcoa)
+  if(any(eig<0)) {#need to check there are no negatives
+    warning(paste("NEGATIVE EIGENVALUES-percent variance is incorrect for ", lev, sep=""))
+  }
+  var = eig/sum(eig)*100
+  
+  ##color by group
+#   groups = sort(unique(mrg$Experimental.condition))
+#   groups[groups==""] = "control"
+#  mrg$Experimental.condition[mrg$Experimental.condition==""] = "control"
+  # colors = c("black", "deepskyblue", "darkblue", "turquoise4", "orchid4")
+  mrg$Experimental.condition[grepl("H2O", mrg$Sample.Type) | grepl("water", mrg$Sample.Type)] = "water"
+  mrg$Experimental.condition[grepl("NC101", mrg$Sample.Type)] = "NC101"
+  mrg$Experimental.condition[grepl("zymo", mrg$Sample.Type)] = "zymo"
+  groups = sort(unique(mrg$Experimental.condition))
+  colors = c("deepskyblue", "darkblue", "turquoise4", "orchid4", "red", "orange", "black")
+  col = rep(NA, nrow(mrg))
+  for(i in 1:length(groups)) {
+    col[mrg$Experimental.condition==groups[i]] = colors[i]
+  }
+  
+  ##shape by read
+  pch = ifelse(mrg$read=="R1", 15, 16)
+  
+  ##plot PCoA
+  par(mar=c(4,4,4,7.2), xpd=T)
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], 
+       xlab=paste("MDS1 (", format(var[[1]], digits=0), "%)", sep=""), 
+       ylab=paste("MDS2 (", format(var[[2]], digits=0), "%)", sep=""),
+       main=lev, 
+       col=col, pch=pch)
+  legend("topright", inset=c(-.29,0),
+         legend=c(groups, "read1", "read2"),
+         col=c(colors, rep("gray", 2)),
+         pch=c(rep(18, length(groups)), 15,16))
+  write.table(cbind(mrg[,1:18], pcoa$CA$u), 
+              paste("biofilmReassoc_pcoaCorrected_all_", lev, ".txt", sep=""),
+              sep="\t", col.names = T, row.names = F, quote = F)
+}
+dev.off()

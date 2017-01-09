@@ -1,0 +1,57 @@
+##PCoA of read1 no controls
+##1/9/17
+
+rm(list=ls())
+
+library(vegan)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\Gemcitabine and Biofilm Reassociation\\RDP results\\Gemcitabine")
+
+levels = c("phylum", "class", "order", "family", "genus")
+pdf("gemcitabine_pcoa.pdf")
+for(lev in levels) {
+  print(lev)
+  table = read.table(paste("gemcitabine_logNorm_", lev, ".txt", sep=""),
+                     sep="\t", header=T, stringsAsFactors = F)
+  
+  pcoa <- capscale(table[,-(1:9)]~1,distance="bray")
+  
+  ##get percent variance
+  eig = eigenvals(pcoa)
+  if(any(eig<0)) {#need to check there are no negatives
+    warning(paste("NEGATIVE EIGENVALUES-percent variance is incorrect for ", lev, sep=""))
+  }
+  var = eig/sum(eig)*100
+  
+  ##color by time
+  groups = sort(unique(table$treatment.day))
+  colors = c("red", "blue")
+  col = rep(NA, nrow(table))
+  for(i in 1:length(groups)) {
+    col[table$treatment.day==groups[i]] = colors[i]
+  }
+  
+  ##shape by cage
+  cage = as.numeric(sort(unique(table$Cage.Number)))
+  pch = as.numeric(table$Cage.Number)
+  # pch = as.numeric(table$DNA.prep.batch)
+  
+  par(mar=c(4,4,4,7.2), xpd=T)
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], 
+       xlab=paste("MDS1 (", format(var[[1]], digits=0), "%)", sep=""), 
+       ylab=paste("MDS2 (", format(var[[2]], digits=0), "%)", sep=""),
+       main=lev, 
+       col=col, pch=pch)
+  text(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], 
+       #labels=sub("SPF ", "", table$sample), 
+       labels=table$sampleID,
+       pos=2, cex=.7)
+  legend("topright", inset=c(-.29,0),
+         legend=c(paste("day", groups), paste("cage", cage)),
+         col=c(colors, rep("gray", length(cage))),
+         pch=c(rep(18, length(groups)), as.numeric(cage)))
+  write.table(cbind(table[,1:9], pcoa$CA$u), 
+              paste("gemcitabine_pcoaCorrected_", lev, ".txt", sep=""),
+              sep="\t", col.names = T, row.names = F, quote = F)
+}
+dev.off()
