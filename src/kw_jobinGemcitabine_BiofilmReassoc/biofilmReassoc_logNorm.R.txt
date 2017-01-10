@@ -1,0 +1,131 @@
+##split into distal colon and stool
+##remove read 2 and controls
+##log normalize and relative abundance
+##1/9/17
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\Gemcitabine and Biofilm Reassociation\\RDP results\\Biofilm Reassociation")
+
+levels = c("phylum", "class", "order", "family", "genus")
+
+meta = read.table("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\Gemcitabine and Biofilm Reassociation\\BiofilmReassociationMetadata2.txt",
+                  sep="\t", header=T, stringsAsFactors = F, comment.char = "")
+meta$Experimental.condition = sub("BF- ", "BF-", meta$Experimental.condition)
+names(meta)[1] = "sampleID"
+meta$sampleID = gsub(" ", "_", meta$sampleID)
+
+##code to log normalize the full table
+start = 18
+logNorm <- function(table) {
+  ##log normalize
+  lognorm = table
+  nc = ncol(lognorm)
+  n = rowSums(table[,start:nc]) #number of reads in each sample
+  sumX = sum(n) #total number of reads in all samples 
+  N = nrow(table) #total number of samples
+  for(col in start:nc) {
+    for(row in 1:N) {
+      lognorm[row, col] = log10(table[row, col]/n[row] * sumX/N + 1)
+    }
+  }
+  
+  ##add number of reads
+  lognorm = cbind(lognorm[,1:(start-1)], numReads=n, lognorm[,start:nc])
+  return(lognorm)
+}
+
+##code to get relative abundance
+relAbun <- function(table) {
+  ##log normalize
+  lognorm = table
+  nc = ncol(lognorm)
+  n = rowSums(table[,start:nc]) #number of reads in each sample
+  N = nrow(table) #total number of samples
+  for(col in start:nc) {
+    for(row in 1:N) {
+      lognorm[row, col] = table[row, col]/n[row]
+    }
+  }
+  
+  ##add number of reads
+  lognorm = cbind(lognorm[,1:(start-1)], numReads=n, lognorm[,start:nc])
+  return(lognorm)
+}
+
+pdf("biofilmReassoc_readHistogram.pdf", height=5, width=12)
+for(lev in levels) {
+  print(lev)
+  table = read.table(paste("biofilmReassoc_", lev, ".txt", sep=""),
+                     sep="\t", header=T, stringsAsFactors = F)
+  table$sampleID = sub("B", "", table$sampleID)
+  mrg = merge(meta, table, by="sampleID")
+  
+  ##remove read2
+  mrg = mrg[mrg$read=="R1",]
+  
+  ##split by tissue type/remove controls
+  dc = mrg[grepl("distal colon", mrg$Sample.Type),]
+  stool = mrg[grepl("stool", mrg$Sample.Type),]
+  
+  ###all samples
+  ##normalize DC
+  ldc = logNorm(dc)
+  write.table(ldc, paste("DC\\bfReassoc_dc_logNorm_", lev, ".txt", sep=""),
+              sep="\t", row.names = F, col.names = T, quote = F)
+  write.table(relAbun(dc), paste("DC\\bfReassoc_dc_relAbun_", lev, ".txt", sep=""),
+              sep="\t", row.names = F, col.names = T, quote = F)
+  
+  ##normalize stool
+  lstool = logNorm(stool)
+  write.table(lstool, paste("stool\\bfReassoc_stool_logNorm_", lev, ".txt", sep=""),
+              sep="\t", row.names = F, col.names = T, quote = F)
+  write.table(relAbun(stool), paste("stool\\bfReassoc_stool_relAbun_", lev, ".txt", sep=""),
+              sep="\t", row.names = F, col.names = T, quote = F)
+  
+  ##histogram
+  par(mfrow=c(1,2))
+  hist(lstool$numReads, main=paste(lev, "stool"), xlab="number of reads")
+  print("stool range:")
+  print(range(lstool$numReads))
+  hist(ldc$numReads, main=paste(lev, "distal colon"), xlab="number of reads")
+  print("DC range:")
+  print(range(ldc$numReads))
+  
+  ###BF- groups only
+  ##normalize DC
+  write.table(logNorm(dc[grepl("BF-", dc$Experimental.condition),]), 
+              paste("DC\\bfReassoc_dc_BFminus_logNorm_", lev, ".txt", sep=""),
+              sep="\t", row.names = F, col.names = T, quote = F)
+  write.table(relAbun(dc[grepl("BF-", dc$Experimental.condition),]), 
+              paste("DC\\bfReassoc_dc_BFminus_relAbun_", lev, ".txt", sep=""),
+              sep="\t", row.names = F, col.names = T, quote = F)
+  
+  ##normalize stool
+  write.table(logNorm(stool[grepl("BF-", stool$Experimental.condition),]), 
+              paste("stool\\bfReassoc_stool_BFminus_logNorm_", lev, ".txt", sep=""),
+              sep="\t", row.names = F, col.names = T, quote = F)
+  write.table(relAbun(stool[grepl("BF-", stool$Experimental.condition),]), 
+              paste("stool\\bfReassoc_stool_BFminus_relAbun_", lev, ".txt", sep=""),
+              sep="\t", row.names = F, col.names = T, quote = F)
+  
+  ###Reassoc groups only
+  ##normalize DC
+  write.table(logNorm(dc[grepl("Reassoc", dc$Experimental.condition),]), 
+              paste("DC\\bfReassoc_dc_reassoc_logNorm_", lev, ".txt", sep=""),
+              sep="\t", row.names = F, col.names = T, quote = F)
+  write.table(relAbun(dc[grepl("Reassoc", dc$Experimental.condition),]), 
+              paste("DC\\bfReassoc_dc_reassoc_relAbun_", lev, ".txt", sep=""),
+              sep="\t", row.names = F, col.names = T, quote = F)
+  
+  ##normalize stool
+  write.table(logNorm(stool[grepl("Reassoc", stool$Experimental.condition),]), 
+              paste("stool\\bfReassoc_stool_reassoc_logNorm_", lev, ".txt", sep=""),
+              sep="\t", row.names = F, col.names = T, quote = F)
+  write.table(relAbun(stool[grepl("Reassoc", stool$Experimental.condition),]), 
+              paste("stool\\bfReassoc_stool_reassoc_relAbun_", lev, ".txt", sep=""),
+              sep="\t", row.names = F, col.names = T, quote = F)
+  
+  
+}
+dev.off()

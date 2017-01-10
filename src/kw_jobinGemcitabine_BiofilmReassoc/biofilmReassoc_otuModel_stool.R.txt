@@ -1,0 +1,168 @@
+##stool taxa models for all samples, BF- and reassociation
+##1/10/17
+
+rm(list=ls())
+
+# library(pscl)
+# library(lmtest)
+library(nlme)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\Gemcitabine and Biofilm Reassociation\\RDP results\\Biofilm Reassociation\\stool")
+
+##return the color for group
+getColor <- function(group) {
+  if(group=="BF-bx #2") {
+    return("darkblue")
+  } else if(group=="BF-bx Reassoc.") {
+    return("deepskyblue")
+  } else if(group=="BF+T Normal Reassoc.") {
+    return("turquoise4")
+  } else if(group=="BF+T Tumor Reassoc.") {
+    return("orchid4")
+  } else {
+    print(paste("Bad group:", group))
+    return("black")
+  }
+}
+
+levels = c("phylum", "class", "order", "family", "genus")
+datasets = c("", "_BFminus", "_reassoc") #all samples, BF- only, reassociation only
+start = 19
+
+for(ds in datasets) {
+  print(ds)
+  for(lev in levels) {
+    print(lev)
+    table = read.table(paste("bfReassoc_stool", ds, "_logNorm_", lev, ".txt", sep=""),
+                       sep="\t", header=T, stringsAsFactors = F, comment.char = "")
+    
+    ##set up results
+    len = ncol(table) - start
+    taxa = rep(NA, len)
+    pGroup = rep(NA, len)
+    pCage = rep(NA, len)
+    # pMouse = rep(NA, len)
+    pGroupMixed = rep(NA, len)
+    pCageMixed = rep(NA, len)
+    pColonTumor = rep(NA, len)
+    pCombinedInflammation = rep(NA, len)
+    spearmanColonTumor = rep(NA, len)
+    spearmanCombinedInflammation = rep(NA, len)
+    index = 1
+    
+    ##set up metadata
+    group = factor(table$Experimental.condition)
+    cage = factor(paste(table$Experimental.condition, table$Cage, sep=":"))
+    # mouse = factor(paste(table$Experimental.condition, table$Cage, table$Mouse.ID, sep=":"))
+    infl = as.numeric(table$Combined.Inflammation.Score)
+    tumor = as.numeric(table$Colon.Tumor.Number)
+    col = sapply(group, getColor, USE.NAMES = F)
+    
+    ####run models
+    for(i in start:ncol(table)) {
+      if(sum(table[,i] != 0 ) > nrow(table) / 4) {
+        taxa[index] = names(table)[i]
+        
+        abun = table[,i]
+        
+        ##individual models
+        pGroup[index] = anova(lm(abun~group))$`Pr(>F)`[1]
+        pCage[index] = anova(lm(abun~cage))$`Pr(>F)`[1]
+        pColonTumor[index] = anova(lm(abun~tumor))$`Pr(>F)`[1]
+        pCombinedInflammation[index] = anova(lm(abun~infl))$`Pr(>F)`[1]
+        spearmanColonTumor[index] = cor(tumor, abun, method="spearman", use="complete.obs")
+        spearmanCombinedInflammation[index] = cor(infl, abun, method="spearman", use="complete.obs")
+
+        ##mixed model
+        tryCatch({
+          reducedModel = gls(abun~group, method="REML")
+          fullModelLME = lme(abun~group, method="REML", random = ~1|cage)		
+          pGroupMixed[index] = anova(fullModelLME)$"p-value"[2]
+          pCageMixed[index] = anova(fullModelLME, reducedModel)$"p-value"[2]
+        }, error = function(e) {
+          print(paste(ds, lev, i, names(table)[i]))
+          print(e)
+          pGroupMixed[index] = NA
+          pCageMixed[index] = NA
+          return(NA)
+        })
+      
+        index = index + 1
+      }
+    }
+    
+    res = data.frame(taxa, pGroup, pCage, pGroupMixed, pCageMixed, 
+                     pColonTumor, pCombinedInflammation,
+                     spearmanColonTumor, spearmanCombinedInflammation)
+    res = res[1:(index-1),]
+    res$pAdjGroup = p.adjust(res$pGroup, method="BH")
+    res$pAdjCage = p.adjust(res$pCage, method="BH")
+    res$pAdjGroupMixed = p.adjust(res$pGroupMixed, method="BH")
+    res$pAdjCageMixed = p.adjust(res$pCageMixed, method="BH")
+    res$pAdjColonTumor = p.adjust(res$pColonTumor, method="BH")
+    res$pAdjCombinedInflammation = p.adjust(res$pCombinedInflammation, method="BH")
+    res = res[order(res$pGroupMixed),]
+    write.table(res, paste("bfReassoc_stool_otuModel_pValues", ds, "_", lev, ".txt", sep=""),
+                row.names = F, col.names = T, quote = F, sep = "\t")
+    
+    ####plot
+    pch = 15
+    group = factor(sub(" Reassoc", "\nReassoc", group))
+    cage = factor(sub(" Reassoc", "\nReassoc", cage))
+    pdf(paste("bfReassoc_stool_otuModel_plots", ds, "_", lev, ".pdf", sep=""), height=11, width=10)
+    for(i in 1:nrow(res)) {
+      name = res$taxa[i]
+      abun = table[,names(table)==name]
+      
+      par(mfrow=c(2,2), oma=c(.5,.5,5,.5), mar=c(7,4,1,1))
+      
+      ##group
+      boxplot(abun~group,
+              ylab="log relative abundance", xlab="")
+      points(abun~group, col=col, pch=pch)
+      mtext(paste("Experimental Condition\npAdjGroup=", format(res$pAdjGroup[i], digits = 3),
+                  "; pAdjGroupMixed=", format(res$pAdjGroupMixed[i], digits = 3),
+                  sep=""),
+            side=3, line=1)
+      
+      ##cage
+      boxplot(abun~cage,
+              ylab="log relative abundance", xlab="",
+              las=2, cex.axis=.9)
+      points(abun~cage, col=col, pch=pch)
+      mtext(paste("cage\npAdjCage=", format(res$pAdjCage[i], digits = 3),
+                       "; pAdjCageMixed=", format(res$pAdjCageMixed[i], digits = 3), 
+                        sep=""),
+            side=3, line=1)
+      
+      ##inflammation
+      plot(abun~infl, col=col, pch=pch,
+           ylab="log relative abundance", xlab="Combined Inflammation Score")
+      if(!is.na(res$spearmanCombinedInflammation[i])){
+        abline(lm(abun~infl))
+      }
+      mtext(paste("pAdjCombinedInflammation=", format(res$pAdjCombinedInflammation[i], digits = 3),
+                       "\nspearmanCombinedInflammation=", format(res$spearmanCombinedInflammation[i], digits = 3), 
+                        sep=""),
+            side=3, line=1)
+      
+      ##colon tumor
+      plot(abun~tumor, col=col, pch=pch,
+           ylab="log relative abundance", xlab="Colon Tumor Number")
+      if(!is.na(res$spearmanColonTumor[i])){
+        abline(lm(abun~tumor))
+      }
+      mtext(paste("pAdjColonTumor=", format(res$pAdjColonTumor[i], digits = 3),
+                       "; spearmanColonTumor=", format(res$spearmanColonTumor[i], digits = 3), 
+                        sep=""),
+            side=3, line=1)
+      
+      ##title of taxa name
+      par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+      plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+      legend("top", horiz=T, legend=name, cex=2, bty="n")
+      
+    }
+    dev.off()
+  }
+}
