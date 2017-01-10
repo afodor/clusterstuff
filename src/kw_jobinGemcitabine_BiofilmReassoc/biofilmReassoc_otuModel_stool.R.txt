@@ -114,7 +114,7 @@ for(ds in datasets) {
       name = res$taxa[i]
       abun = table[,names(table)==name]
       
-      par(mfrow=c(2,2), oma=c(.5,.5,5,.5), mar=c(7,4,1,1))
+      par(mfrow=c(2,2), oma=c(.5,.5,5,.5), mar=c(7,4,1,1), xpd=F)
       
       ##group
       boxplot(abun~group,
