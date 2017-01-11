@@ -9,12 +9,34 @@ setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration
 
 levels = c("phylum", "class", "order", "family", "genus")
 
-meta = read.table("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\Gemcitabine and Biofilm Reassociation\\BiofilmReassociationMetadata.txt",
+meta = read.table("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\Gemcitabine and Biofilm Reassociation\\BiofilmReassociationMetadata2.txt",
                   sep="\t", header=T, stringsAsFactors = F, comment.char = "")
 names(meta)[1] = "sampleID"
 meta$sampleID = gsub(" ", "_", meta$sampleID)
 
-pdf("biofilmReassociation_pcoa_allReadsWithControls.pdf")
+##return the color for group
+getColor <- function(group) {
+  if(group=="BF-bx #2") {
+    return("darkblue")
+  } else if(group=="BF-bx Reassoc.") {
+    return("deepskyblue")
+  } else if(group=="BF+T Normal Reassoc.") {
+    return("turquoise4")
+  } else if(group=="BF+T Tumor Reassoc.") {
+    return("orchid4")
+  } else if(group=="NC101") {
+    return("red")
+  }else if(group=="water") {
+    return("orange")
+  } else if(group=="zymo") {
+    return("black")
+  } else {
+    print(paste("Bad group:", group))
+    return("grey")
+  }
+}
+
+pdf("biofilmReassociation_pcoa_allReadsWithControls.pdf", height=6, width=7)
 for(lev in levels) {
   print(lev)
   table = read.table(paste("biofilmReassoc_", lev, "_logWithCtrl.txt", sep=""),
@@ -39,27 +61,36 @@ for(lev in levels) {
   mrg$Experimental.condition[grepl("H2O", mrg$Sample.Type) | grepl("water", mrg$Sample.Type)] = "water"
   mrg$Experimental.condition[grepl("NC101", mrg$Sample.Type)] = "NC101"
   mrg$Experimental.condition[grepl("zymo", mrg$Sample.Type)] = "zymo"
+  mrg$Experimental.condition = sub("BF- ", "BF-", mrg$Experimental.condition)
   groups = sort(unique(mrg$Experimental.condition))
-  colors = c("deepskyblue", "darkblue", "turquoise4", "orchid4", "red", "orange", "black")
-  col = rep(NA, nrow(mrg))
-  for(i in 1:length(groups)) {
-    col[mrg$Experimental.condition==groups[i]] = colors[i]
-  }
+#   colors = c("deepskyblue", "darkblue", "turquoise4", "orchid4", "red", "orange", "black") #for metadata1
+#   col = rep(NA, nrow(mrg))
+#   for(i in 1:length(groups)) {
+#     col[mrg$Experimental.condition==groups[i]] = colors[i]
+#   }
+  colors = sapply(groups, getColor, USE.NAMES = F)
+  col = sapply(mrg$Experimental.condition, getColor, USE.NAMES = F)
   
   ##shape by read
-  pch = ifelse(mrg$read=="R1", 15, 16)
+  #pch = ifelse(mrg$read=="R1", 15, 16)
+  pch = ifelse(mrg$read=="R1", 3, 4) #controls
+  pch[grepl("stool", mrg$Sample.Type) & mrg$read=="R1"] = 0
+  pch[grepl("stool", mrg$Sample.Type) & mrg$read=="R2"] = 1
+  pch[grepl("distal colon", mrg$Sample.Type) & mrg$read=="R1"] = 15
+  pch[grepl("distal colon", mrg$Sample.Type) & mrg$read=="R2"] = 16
   
   ##plot PCoA
-  par(mar=c(4,4,4,7.2), xpd=T)
+  par(mar=c(4,4,4,11), xpd=T)
   plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], 
        xlab=paste("MDS1 (", format(var[[1]], digits=0), "%)", sep=""), 
        ylab=paste("MDS2 (", format(var[[2]], digits=0), "%)", sep=""),
        main=lev, 
        col=col, pch=pch)
-  legend("topright", inset=c(-.29,0),
-         legend=c(groups, "read1", "read2"),
-         col=c(colors, rep("gray", 2)),
-         pch=c(rep(18, length(groups)), 15,16))
+  readGroups = as.vector(outer(c("read1", "read2"), c("DC", "stool", "control"), paste))
+  legend("topright", inset=c(-.53,0),
+         legend=c(groups, readGroups),
+         col=c(colors, rep("gray", length(readGroups))),
+         pch=c(rep(18, length(groups)), 15,16,0,1,3,4))
   write.table(cbind(mrg[,1:18], pcoa$CA$u), 
               paste("biofilmReassoc_pcoaCorrected_all_", lev, ".txt", sep=""),
               sep="\t", col.names = T, row.names = F, quote = F)
