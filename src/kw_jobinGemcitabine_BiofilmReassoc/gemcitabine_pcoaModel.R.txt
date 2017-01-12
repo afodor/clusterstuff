@@ -99,7 +99,7 @@ for(lev in levels) {
     ##mouse
     boxplot(abun~mouse, xlab="", ylab="MDS", las=2)
     points(abun~mouse, col=col, pch=pch)
-    mtext(paste("mouse/sample\npMouse=", format(res$pMouse[i], digits = 3),
+    mtext(paste("mouse (sample)\npMouse=", format(res$pMouse[i], digits = 3),
                 "; pCageMouseMixed=", format(res$pCageMouseMixed[i], digits = 3), 
                 sep=""),
           side=3, line=1, cex=size)

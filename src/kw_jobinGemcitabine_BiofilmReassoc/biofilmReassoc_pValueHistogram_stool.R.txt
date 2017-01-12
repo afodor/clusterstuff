@@ -1,0 +1,35 @@
+##p-value histogram for biofilm reassociation stool
+##1/12/17
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\Gemcitabine and Biofilm Reassociation\\RDP results\\Biofilm Reassociation\\stool")
+
+levels = c("phylum", "class", "order", "family", "genus")
+datasets = c("", "_BFminus", "_reassoc") #all samples, BF- only, reassociation only
+
+for(ds in datasets) {
+  print(ds)
+  pdf(paste("biofilmReassoc_pValueHistogram_stool", ds, ".pdf", sep=""),
+      height=12, width=10)
+  for(lev in levels) {
+    print(lev)
+    
+    table = read.table(paste("bfReassoc_stool_otuModel_pValues", ds, "_", lev, ".txt", sep=""),
+                       sep="\t", header=T)
+    
+    par(mfrow=c(3,2), mar=c(4,4,4,.5))
+    hist(table$pGroup, main="Group", xlab="p-values")
+    hist(table$pCage, main="Cage", xlab="p-values")
+    hist(table$pGroupMixed, main="Group Mixed", xlab="p-values")
+    hist(table$pCageMixed, main="Cage Mixed", xlab="p-values")
+    hist(table$pCombinedInflammation, main="Combined Inflammation Score", xlab="p-values")
+    if(!all(is.na(table$pColonTumor))) {
+      hist(table$pColonTumor, main="Colon Tumor Number", xlab="p-values")
+    }
+    par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+    plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+    legend("top", horiz=T, legend=lev, cex=2, bty="n")
+  }
+  dev.off()
+}

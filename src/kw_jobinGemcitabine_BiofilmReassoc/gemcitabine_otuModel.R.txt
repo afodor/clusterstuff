@@ -100,7 +100,7 @@ for(lev in levels) {
     ##mouse
     boxplot(abun~mouse, xlab="", ylab="log relative abundance", las=2)
     points(abun~mouse, col=col, pch=pch)
-    mtext(paste("mouse/sample\npAdjMouse=", format(res$pAdjMouse[i], digits = 3),
+    mtext(paste("mouse (sample)\npAdjMouse=", format(res$pAdjMouse[i], digits = 3),
                 "; pAdjCageMouseMixed=", format(res$pAdjCageMouseMixed[i], digits = 3), 
                 sep=""),
           side=3, line=1, cex=size)

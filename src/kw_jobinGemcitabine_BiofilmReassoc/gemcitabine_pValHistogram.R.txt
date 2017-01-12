@@ -1,0 +1,24 @@
+##p-value histograms for gemcitabine
+##1/12/17
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\Gemcitabine and Biofilm Reassociation\\RDP results\\Gemcitabine")
+
+levels = c("phylum", "class", "order", "family", "genus")
+
+pdf("gemcitabine_pValHistogram.pdf", height=12, width=10)
+for(lev in levels) {
+  print(lev)
+  table = read.table(paste("gemcitabine_otuModel_pValues_", lev, ".txt", sep=""),
+                     sep="\t", header=T)
+  
+  par(mfrow=c(3,2), mar=c(4,4,4,.5))
+  hist(table$pTreatmentDay, main="Treatment Day", xlab="p-values")
+  hist(table$pCage, main="Cage", xlab="p-values")
+  hist(table$pMouse, main="Mouse (sample)", xlab="p-values")
+  hist(table$pTreatmentDayMixed, main="Treatment Day Mixed", xlab="p-values")
+  hist(table$pCageMouseMixed, main="Cage/Mouse Mixed", xlab="p-values")
+  par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+  plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+  legend("top", horiz=T, legend=lev, cex=2, bty="n")
+}
+dev.off()
