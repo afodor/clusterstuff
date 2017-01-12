@@ -1,0 +1,112 @@
+##OTU models for gemcitabine, looking at cage, sample and treatment
+##1/12/17
+
+rm(list=ls())
+
+library(nlme)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\Gemcitabine and Biofilm Reassociation\\RDP results\\Gemcitabine")
+
+levels = c("phylum", "class", "order", "family", "genus")
+start = 10
+
+for(lev in levels) {
+  print(lev)
+  
+  table = read.table(paste("gemcitabine_pcoaCorrected_", lev, ".txt", sep=""),
+                     sep="\t", header=T, stringsAsFactors = F)
+  ##set up results
+  len = ncol(table) - start
+  taxa = rep(NA, len)
+  pTreatmentDay = rep(NA, len)
+  pCage = rep(NA, len)
+  pMouse = rep(NA, len)
+  pTreatmentDayMixed = rep(NA, len)
+  pCageMouseMixed = rep(NA, len)
+  index = 1
+  
+  ##set up variables
+  cage = factor(table$Cage.Number)
+  mouse = factor(table$sample)
+  day = factor(table$treatment.day)
+  
+  ##p-values
+  for(i in start:ncol(table)) {
+    if(sum(table[,i] != 0 ) > nrow(table) / 4) {
+      taxa[index] = names(table)[i]
+      
+      abun = table[,i]
+      
+      ##linear models
+      pTreatmentDay[index] = anova(lm(abun~day))$`Pr(>F)`[1]
+      pCage[index] = anova(lm(abun~cage))$`Pr(>F)`[1]
+      pMouse[index] = anova(lm(abun~mouse))$`Pr(>F)`[1]
+      
+      ##mixed models
+      ##mixed model
+      tryCatch({
+        reducedModel = gls(abun~day, method="REML")
+        fullModelLME = lme(abun~day, method="REML", random = ~1|cage/mouse)		
+        pTreatmentDayMixed[index] = anova(fullModelLME)$"p-value"[2]
+        pCageMouseMixed[index] = anova(fullModelLME, reducedModel)$"p-value"[2]
+      }, error = function(e) {
+        print(paste(ds, lev, i, names(table)[i]))
+        print(e)
+        pTreatmentDayMixed[index] = NA
+        pCageMouseMixed[index] = NA
+        return(NA)
+      })
+      
+      index = index + 1
+    }
+  }
+  res = data.frame(taxa, pTreatmentDay, pCage, pMouse, pTreatmentDayMixed, pCageMouseMixed)
+  res = res[1:(index-1),]
+  res$pAdjTreatmentDay = p.adjust(res$pTreatmentDay, method="BH")
+  res$pAdjCage = p.adjust(res$pCage, method="BH")
+  res$pAdjMouse = p.adjust(res$pMouse, method="BH")
+  res$pAdjTreatmentDayMixed = p.adjust(res$pTreatmentDayMixed, method="BH")
+  res$pAdjCageMouseMixed = p.adjust(res$pCageMouseMixed, method="BH")
+  write.table(res, paste("gemcitabine_pcoaModel_pValues_", lev, ".txt", sep=""),
+              sep="\t", row.names = F, col.names = T, quote = F)
+  
+  ##plots
+  pdf(paste("gemcitabine_pcoaModel_plots_", lev, ".pdf", sep=""), height=5, width=15)
+  ##color by time
+  col = ifelse(table$treatment.day==0, "red", "blue")
+  ##shape by cage
+  pch = as.numeric(table$Cage.Number)
+  for(i in 1:nrow(res)) {
+    name= res$taxa[i]
+    abun = table[,names(table)==name]
+    
+    par(mfrow=c(1,3), oma=c(.5,.5,5,.5), mar=c(7,4,1,1), xpd=F)
+    size=.8
+    ##treatment day
+    boxplot(abun~day, xlab="treatment day", ylab="MDS")
+    points(abun~jitter(ifelse(day==0, 1, 2)), col=col, pch=pch)
+    mtext(paste("Treatment Day\npTreatmentDay=", format(res$pTreatmentDay[i], digits = 3),
+                "; pTreatmentDayMixed=", format(res$pTreatmentDayMixed[i], digits = 3),
+                sep=""),
+          side=3, line=1, cex=size)
+    ##cage
+    boxplot(abun~cage, xlab="cage", ylab="MDS")
+    points(abun~jitter(table$Cage.Number), col=col, pch=pch)
+    mtext(paste("cage\npCage=", format(res$pCage[i], digits = 3),
+                "; pCageMouseMixed=", format(res$pCageMouseMixed[i], digits = 3), 
+                sep=""),
+          side=3, line=1, cex=size)
+    ##mouse
+    boxplot(abun~mouse, xlab="", ylab="MDS", las=2)
+    points(abun~mouse, col=col, pch=pch)
+    mtext(paste("mouse/sample\npMouse=", format(res$pMouse[i], digits = 3),
+                "; pCageMouseMixed=", format(res$pCageMouseMixed[i], digits = 3), 
+                sep=""),
+          side=3, line=1, cex=size)
+    ##title
+    par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+    plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+    legend("top", horiz=T, legend=name, cex=2, bty="n")
+  }
+  dev.off()
+}

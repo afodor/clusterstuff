@@ -1,0 +1,25 @@
+##anosim for gemcitabine
+##1/12/17
+
+rm(list=ls())
+
+library(vegan)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\Gemcitabine and Biofilm Reassociation\\RDP results\\Gemcitabine")
+
+levels = c("phylum", "class", "order", "family", "genus")
+
+res = data.frame(level=vector(), r=vector(), p=vector())
+for(lev in levels) {
+  print(lev)
+  
+  table = read.table(paste("gemcitabine_logNorm_", lev, ".txt", sep=""),
+                     sep="\t", header=T, stringsAsFactors = F)
+  
+  an = anosim(table[,-(1:9)], table$treatment.day)
+  r = an$statistic
+  p = an$signif
+  res = rbind(res, data.frame(level=lev, r=r, p=p))
+}
+res$pAdj = p.adjust(res$p, method="BH")
+write.table(res, "gemcitabine_anosim.txt", sep="\t", quote=F, row.names=F, col.names=T)
