@@ -13,7 +13,7 @@ public class BowtieTosRNATarBase {
 	public static String FQDIR = DIR + "adapterFiltered/";
 	public static String OUTDIR = DIR + "sRNATarBaseBowtie/";
 	public static String SCRIPTDIR = "/projects/afodor_research/kwinglee/scripts/jobin/microRNA/sRNATarBase/";
-	public static String REF = "nobackup/afodor_research/kwinglee/sRNATarBase3.0/sRNATarBase3Bowtie";
+	public static String REF = "/nobackup/afodor_research/kwinglee/sRNATarBase3.0/sRNATarBase3Bowtie";
 	
 	public static void main(String[] args) throws IOException {
 		File odir = new File(OUTDIR);
