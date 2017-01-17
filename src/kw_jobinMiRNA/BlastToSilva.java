@@ -13,8 +13,8 @@ public class BlastToSilva {
 	public static String FQDIR = DIR + "adapterFiltered/";
 	public static String OUTDIR = DIR + "silvaBlast/";
 	public static String SCRIPTDIR = "/projects/afodor_research/kwinglee/scripts/jobin/microRNA/silva/";
-	public static String SSU = "/nobackup/afodor_research/kwinglee/software/silva/SILVA_128_SSURef_Nr99_tax_silva";
-	public static String LSU = "/nobackup/afodor_research/kwinglee/software/silva/SILVA_128_LSURef_tax_silva";
+	public static String SSU = "/nobackup/afodor_research/kwinglee/software/silva/SILVA_128_SSURef_blast";
+	public static String LSU = "/nobackup/afodor_research/kwinglee/software/silva/SILVA_128_LSURef_blast";
 	
 	public static void main(String[] args) throws IOException {
 		File odir = new File(OUTDIR);
