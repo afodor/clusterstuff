@@ -15,6 +15,6 @@ for(lev in levels) {
   
   pcoa <- capscale(table[,-(1:2)]~1,distance="bray")
   
-  write.table(cbind(table$haidshort, pcoa$CA$u), paste("cardia_pcoaCorrected_", lev, ".txt", sep=""),
+  write.table(data.frame(haidshort=table$haidshort, pcoa$CA$u), paste("cardia_pcoaCorrected_", lev, ".txt", sep=""),
               sep="\t", row.names = F, col.names = T, quote = F)
 }

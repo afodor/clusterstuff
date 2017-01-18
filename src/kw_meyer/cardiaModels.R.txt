@@ -1,0 +1,134 @@
+##get p-values for associations with metadata for taxa and PCoA axes
+##1/17/17
+
+rm(list=ls())
+
+library(Kendall)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\Meyer\\RDP analysis trimmed")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+dataFiles = c("cardia_taxaAsCol_logNorm_", "cardia_pcoaCorrected_") #taxa, pcoa
+
+##get metadata
+meta = read.table("..\\cardiadata011617.txt", sep="\t", header=T)
+meta = meta[,-271] #remove long id
+numMeta = ncol(meta)
+
+##get list of categorical variables
+varTable = read.table("..\\Kathryn _CARDIAvariables01162017.txt", sep="\t", header=T)
+var = grepl("categorical", varTable$X.1) | grepl("0/1", varTable$X.1) | grepl("0=", varTable$X.1)
+categoricalVar = varTable[var, 5:13]
+catList = tolower(unique(as.vector(t(categoricalVar))))
+
+for(data in dataFiles) {
+  print(data)
+  for(lev in taxaLevels) {
+    print(lev)
+    table = read.table(paste(data, lev, ".txt", sep=""), sep="\t", header=T)
+    
+    ##merge with metadata
+    mrg = merge(meta, table, by="haidshort")
+    
+    ####get p-values
+    length = numMeta * (ncol(mrg) - numMeta)
+    metadataName = rep(NA, length)
+    microbiomeName = rep(NA, length)
+    categorical = rep(NA, length)
+    nonparamTest = rep(NA, length)
+    pLM = rep(NA, length)
+    pNonparametric = rep(NA, length)
+    spearman = rep(NA, length)
+    index = 1
+    for(m in 2:numMeta) {
+#       met = tryCatch({
+#         as.numeric(as.character(mrg[,m]))
+#         }, warning=function(w) {
+#           print(m)
+#         })
+      met = as.numeric(as.character(mrg[,m]))
+      cat = tolower(names(mrg)[m]) %in% catList #if true, metadata is categorical
+      if(length(unique(met[!is.na(met)])) > 1) { #eliminate metadata that is all the same, ex center
+        for(t in (numMeta+1):ncol(mrg)) { #include number of reads
+          abun = mrg[,t]
+          if(sum(abun > 0) > nrow(mrg) / 4) {
+            metadataName[index] = names(mrg)[m]
+            categorical[index] = cat
+            microbiomeName[index] = names(mrg)[t]
+            
+            ##linear model
+            if(cat) {
+              pLM[index] = anova(lm(abun~factor(met)))$`Pr(>F)`[1]
+            } else {
+              pLM[index] = anova(lm(abun~met))$`Pr(>F)`[1]
+            }
+            spearman[index] = cor(x=met, y=abun, method="spearman", use="complete.obs")
+            
+            ##parametric test
+            if(cat) { #categorical -> Wilcox
+              groups = sort(unique(met[!is.na(met)]))
+              if(length(groups) == 2) {
+                pNonparametric[index] = wilcox.test(abun~factor(met))$p.value #wilcox.test(abun[met==groups[1]], abun[met==groups[2]])$p.value
+                nonparamTest[index] = "Wilcox"
+              } else {
+                pNonparametric[index] = kruskal.test(abun~factor(met))$p.value #na.action=getOption("na.action")=na.omit
+                nonparamTest[index] = "Kruskal-Wallis"
+              }
+            } else { #continuous -> Kendall
+              pNonparametric[index] = Kendall(met, abun)$sl[1]
+              nonparamTest[index] = "Kendall"
+            }
+            
+            index = index + 1
+          }
+        }
+      } else if(lev == "phylum") {
+        print(paste("Skipped:", names(mrg)[m]))
+      }
+    }
+    res = data.frame(metadataName, microbiomeName, categorical, nonparamTest, pLM, pNonparametric, spearman)
+    res = res[1:(index-1),]
+    res$pAdjLM = p.adjust(res$pLM, method="BH")
+    res$pAdjNonparametric = p.adjust(res$pNonparametric, method="BH")
+    res = res[order(res$pLM),]
+    write.table(res, 
+                paste("cardia_Metadata", ifelse(grepl("taxa", data), "Taxa", "PCoA"), "Models_pValues_", lev, ".txt", sep=""),
+                sep="\t", row.names = F, col.names = T, quote = F)
+    
+    ####plot if unadjusted p < 0.05 for either linear or parametric test
+    pdf(paste("cardia_Metadata", ifelse(grepl("taxa", data), "Taxa", "PCoA"), "Models_plots_", lev, ".pdf", sep=""),
+        height=6, width=6)
+    for(i in 1:nrow(res)) {
+      if((!is.na(res$pLM[i]) & res$pLM[i] < 0.05) | (!is.na(res$pNonparametric[i]) & res$pNonparametric[i] < 0.05)) {
+        metName = res$metadataName[i]
+        microName = res$microbiomeName[i]
+        
+        met = as.numeric(as.character(mrg[,names(mrg)==metName]))
+        abun = mrg[,names(mrg)==microName]
+        main = paste(metName, " vs. ", microName, "\npAdjLM=",
+                     format(res$pAdjLM[i], digits = 3), "; pAdjNonparametric=",
+                     format(res$pAdjNonparametric[i], digits = 3), "; spearman=",
+                     format(res$spearman[i], digits = 2), sep="")
+        
+        if(res$categorical[i]) { #boxplot
+          boxplot(abun~met, xlab=metName, ylab=microName, main=main)
+        } else { #scatter
+          plot(abun~met, xlab=metName, ylab=microName, main=main)
+        }
+      }
+    }
+    dev.off()
+  }
+  
+  ##p-value histogram
+  pdf(paste("cardia_Metadata", ifelse(grepl("taxa", data), "Taxa", "PCoA"), "Models_pValueHistogram.pdf", sep=""),
+      height=5, width=12)
+  for(lev in taxaLevels) {
+    ptab = read.table(paste("cardia_Metadata", ifelse(grep("taxa", data), "Taxa", "PCoA"), "Models_pValues_", lev, ".txt", sep=""),
+                      sep="\t", header=T)
+    par(mfrow=c(1,2))
+    hist(ptab$pLM, xlab="linear model p-values", main=paste(lev, "pLM"))
+    hist(ptab$pNonparametric, xlab="parametric p-values", main=paste(lev, "pNonparametric"))
+  }
+  dev.off()
+}
