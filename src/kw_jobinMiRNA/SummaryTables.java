@@ -187,7 +187,7 @@ public class SummaryTables {
 		for(File f : tables) {
 			if(f.getName().endsWith(".txt") && f.getName().contains(".blast.") &&
 					f.getName().startsWith("Sample")) {
-				String name = f.getName().split("\\.")[0];
+				String name = f.getName().split("\\.")[0].split("_")[0];
 				HashSet<String> reads;
 				if(mapped.containsKey(name)) {
 					reads = mapped.get(name);
