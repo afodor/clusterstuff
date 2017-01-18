@@ -1,0 +1,28 @@
+##make p-value histgrams for each metadata variable
+##1/18/17
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\Meyer\\RDP analysis trimmed")
+
+# taxaLevels = c("phylum", "class", "order", "family", "genus")
+taxaLevels = "genus"
+dataFiles = c("cardia_taxaAsCol_logNorm_", "cardia_pcoaCorrected_") #taxa, pcoa
+
+for(data in dataFiles) {
+  print(data)
+  for(lev in taxaLevels) {
+    print(lev)
+    ptab = read.table(paste("cardia_Metadata", ifelse(grepl("taxa", data), "Taxa", "PCoA"), "Models_pValues_", lev, ".txt", sep=""),
+                      sep="\t", header=T)
+    pdf(paste("cardia_Metadata", ifelse(grepl("taxa", data), "Taxa", "PCoA"), "Models_pValueHistogram_forEachMetadata_", lev, ".pdf", sep=""),
+        height=5, width=12)
+    meta = unique(ptab$metadataName)
+    for(m in meta) {
+      par(mfrow=c(1,2))
+      hist(ptab$pLM[ptab$metadataName==m], xlab=paste(m, "linear model p-values"), main=paste(lev, "pLM for", m))
+      hist(ptab$pNonparametric[ptab$metadataName==m], xlab=paste(m, "parametric p-values"), main=paste(lev, "pNonparametric for", m))
+    }
+    dev.off()
+  }
+}

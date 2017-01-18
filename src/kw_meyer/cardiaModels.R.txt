@@ -111,9 +111,9 @@ for(data in dataFiles) {
                      format(res$spearman[i], digits = 2), sep="")
         
         if(res$categorical[i]) { #boxplot
-          boxplot(abun~met, xlab=metName, ylab=microName, main=main)
+          boxplot(abun~met, xlab=metName, ylab=microName, main=main, cex.main=.9)
         } else { #scatter
-          plot(abun~met, xlab=metName, ylab=microName, main=main)
+          plot(abun~met, xlab=metName, ylab=microName, main=main, cex.main=.9)
         }
       }
     }
@@ -124,7 +124,7 @@ for(data in dataFiles) {
   pdf(paste("cardia_Metadata", ifelse(grepl("taxa", data), "Taxa", "PCoA"), "Models_pValueHistogram.pdf", sep=""),
       height=5, width=12)
   for(lev in taxaLevels) {
-    ptab = read.table(paste("cardia_Metadata", ifelse(grep("taxa", data), "Taxa", "PCoA"), "Models_pValues_", lev, ".txt", sep=""),
+    ptab = read.table(paste("cardia_Metadata", ifelse(grepl("taxa", data), "Taxa", "PCoA"), "Models_pValues_", lev, ".txt", sep=""),
                       sep="\t", header=T)
     par(mfrow=c(1,2))
     hist(ptab$pLM, xlab="linear model p-values", main=paste(lev, "pLM"))
