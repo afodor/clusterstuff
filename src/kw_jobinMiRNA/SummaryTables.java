@@ -54,10 +54,10 @@ public class SummaryTables {
 		}
 
 		//analyze sets of databases
-		analyzeDatabaseSet(new String[]{"mouseBowtie", "mouseBowtie", "miniKraken"},
+		/*analyzeDatabaseSet(new String[]{"mouseBowtie", "mouseBowtie", "miniKraken"},
 				"test2Same");
 		analyzeDatabaseSet(new String[]{"piRBaseBowtie", "mouseBowtie"},
-				"test2Mouse");
+				"test2Mouse");*/
 		analyzeDatabaseSet(new String[]{"miniKraken", "mouseBowtie"},
 				"classifyBacteriaOrMouse");
 		analyzeDatabaseSet(new String[]{"keggBlast", "miRBaseBowtie", "piRBaseBowtie",
@@ -102,7 +102,12 @@ public class SummaryTables {
 			String sid = "Sample" + s;
 			out.write(sid + "\t" + TOT_READS.get(sid));
 			for(String db : databases) {
-				out.write("\t" + dbMapped.get(db).get(sid).size());
+				if(dbMapped.get(db).containsKey(sid)) {
+					out.write("\t" + dbMapped.get(db).get(sid).size());
+				} else {
+					out.write("\t0");
+					System.out.println("Missing sample: " + db + " " + sid);
+				}
 			}
 			out.write("\n");
 		}
