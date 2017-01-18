@@ -28,7 +28,7 @@ public class BlastToSilva {
 			if(fa.getName().endsWith(".fasta")){
 				String id = fa.getName().replace(".fasta", "");
 				String scriptName = "blastAlignSilva_" + id;
-				String name = id + ".silva.bowtie";
+				String name = id + ".silva.blast";
 
 				//add to run all script
 				all.write("qsub -q \"copperhead\" " + scriptName + "_LSU\n");
