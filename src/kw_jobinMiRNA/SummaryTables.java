@@ -24,7 +24,7 @@ public class SummaryTables {
 	//BLAST parameters
 	private static double PID = 99;//minimum percent ID allowed
 	private static int MISMATCH = 1;//maximum number of mismatches
-	private static int LENGTH = 30;//minimum length of alignment
+	private static int LENGTH = 26;//minimum length of alignment; read length is 36, but average database sizes are for piR and miR are 21-27
 
 	public static void main(String[] args) throws Exception {
 		//get number of reads for each sample
