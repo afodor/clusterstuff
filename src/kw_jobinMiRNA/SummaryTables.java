@@ -54,10 +54,10 @@ public class SummaryTables {
 		}
 
 		//analyze sets of databases
-		/*analyzeDatabaseSet(new String[]{"mouseBowtie", "mouseBowtie", "miniKraken"},
+		analyzeDatabaseSet(new String[]{"mouseBowtie", "mouseBowtie", "miniKraken"},
 				"test2Same");
 		analyzeDatabaseSet(new String[]{"piRBaseBowtie", "mouseBowtie"},
-				"test2Mouse");*/
+				"test2Mouse");
 		analyzeDatabaseSet(new String[]{"miniKraken", "mouseBowtie"},
 				"classifyBacteriaOrMouse");
 		analyzeDatabaseSet(new String[]{"keggBlast", "miRBaseBowtie", "piRBaseBowtie",
@@ -90,7 +90,7 @@ public class SummaryTables {
 
 		//write number of reads mapped (regardless of overlap between databases)
 		BufferedWriter out = new BufferedWriter(new FileWriter(new File(
-				OUTDIR + prefix + "_numReadsMappedIgnoreOverlap.txt")));
+				OUTDIR + prefix + "_ignoreOverlap.txt")));
 		//write header
 		out.write("sampleID\ttotalNumberReads");
 		for(String db : databases) {
