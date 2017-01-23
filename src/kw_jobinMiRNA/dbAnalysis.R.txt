@@ -1,5 +1,5 @@
 ##analyze alignments using SummaryTables output
-##genotype, cancer and inflammation
+##Microbial status, cancer and inflammation
 ##1/19/17
 
 rm(list=ls())
@@ -23,9 +23,9 @@ spf = read.table("..\\SPFmetadata.txt", sep="\t", header=T, stringsAsFactors = F
 names(spf) = metaNames
 ##merge
 meta = rbind(gfAve, spf)
-genotype = ifelse(meta$sampleID <=5, "GF", "SPF")
+microStatus = ifelse(meta$sampleID <=5, "GF", "SPF")
 meta$sampleID = paste("Sample", meta$sampleID, sep="")
-meta = cbind(sampleID = meta$sampleID, genotype, meta[,2:7])
+meta = cbind(sampleID = meta$sampleID, microStatus, meta[,2:7])
 numMeta = ncol(meta) #+1 for number of reads
 
 ##set color and point shape
@@ -35,7 +35,7 @@ getColor<-function(gen) {
   } else if(gen=="SPF") {
     return("blue")
   } else {
-    print(paste("Bad genotype: ", gen))
+    print(paste("Bad microbial status: ", gen))
     return("black")
   }
 }
@@ -44,14 +44,14 @@ getShape <- function() {
 }
 
 ##function that does anova, kendall and plot for analyzeContinousWrapper
-pValPlot <- function(prop, mdata, genotype, name) {
+pValPlot <- function(prop, mdata, microStatus, name) {
   pSpear = data.frame(pLM=NA, pKen=NA, spear=NA)
   if(!all(mdata==0) && !all(prop==0)) { #some GF metadata is all zero, which causes error
     pSpear$pLM[1] = anova(lm(prop~mdata))$`Pr(>F)`[1]
     pSpear$pKen[1] = Kendall(mdata, prop)$sl[1]
     pSpear$spear[1] = cor(x=mdata, y=prop, method="spearman", use="complete.obs")
   }
-  plot(prop~mdata, col=sapply(genotype, getColor), pch=getShape(),
+  plot(prop~mdata, col=sapply(microStatus, getColor), pch=getShape(),
        ylab = "proportion of reads", xlab=name)
   abline(lm(prop~mdata))
   mtext(paste(name, "\npLM=",format(pSpear$pLM[1], digits = 2),
@@ -64,26 +64,26 @@ pValPlot <- function(prop, mdata, genotype, name) {
 ##function that for the given set of proportions (prop) and metadata (mdata), 
 ##returns pvalues and spearman and plots for prop~mdata
 ##all samples, SPF and GF only
-analyzeContinuousWrapper <- function(prop, mdata, genotype, name) {
+analyzeContinuousWrapper <- function(prop, mdata, microStatus, name) {
   pVal = data.frame(pLMall=NA, pKendallAll=NA, spearmanAll=NA,
                     pLMgf=NA, pKendallgf=NA, spearmangf=NA,
                     pLMspf=NA, pKendallspf=NA, spearmanspf=NA)
   ##all
-  pSpear = pValPlot(prop, mdata, genotype, name)
+  pSpear = pValPlot(prop, mdata, microStatus, name)
   pVal$pLMall[1] = pSpear$pLM[1]
   pVal$pKendallAll[1] = pSpear$pKen[1]
   pVal$spearmanAll[1] = pSpear$spear[1]
   
   ##GF
-  pSpear = pValPlot(prop[genotype=="GF"], mdata[genotype=="GF"], 
-                    genotype[genotype=="GF"], paste(name, "GF only"))
+  pSpear = pValPlot(prop[microStatus=="GF"], mdata[microStatus=="GF"], 
+                    microStatus[microStatus=="GF"], paste(name, "GF only"))
   pVal$pLMgf[1] = pSpear$pLM[1]
   pVal$pKendallgf[1] = pSpear$pKen[1]
   pVal$spearmangf[1] = pSpear$spear[1]
   
   ##SPF
-  pSpear = pValPlot(prop[genotype=="SPF"], mdata[genotype=="SPF"], 
-                    genotype[genotype=="SPF"], paste(name, "SPF only"))
+  pSpear = pValPlot(prop[microStatus=="SPF"], mdata[microStatus=="SPF"], 
+                    microStatus[microStatus=="SPF"], paste(name, "SPF only"))
   pVal$pLMspf[1] = pSpear$pLM[1]
   pVal$pKendallspf[1] = pSpear$pKen[1]
   pVal$spearmanspf[1] = pSpear$spear[1]
@@ -110,13 +110,13 @@ for(rc in readCountTypes) {
     mrg = mrg[order(as.numeric(sub("Sample", "", mrg$sampleID))),]
     write.table(mrg, paste(g, rc, "_propWithMeta.txt", sep=""),
                 sep="\t", row.names = F, col.names = T, quote = F)
-    mrg$genotype = factor(mrg$genotype)
+    mrg$microStatus = factor(mrg$microStatus)
     
     ##analysis
     length = ncol(mrg) - numMeta
     res = data.frame(db = rep(NA, length),
-                     pGenotypeLM = rep(NA, length),
-                     pGenotypeWilcox = rep(NA, length),
+                     pMicrobialStatusLM = rep(NA, length),
+                     pMicrobialStatusWilcox = rep(NA, length),
                      pColonTumorAllLM = rep(NA, length),
                      pColonTumorAllKendall = rep(NA, length),
                      pColonTumorGFLM = rep(NA, length),
@@ -142,19 +142,19 @@ for(rc in readCountTypes) {
         res$db[index] = names(mrg)[c]
         prop = mrg[,c]
         
-        par(mfcol=c(4,2), oma=c(.5,.5,5,.5), mar=c(4,4,4,1))
+        par(mfcol=c(4,2), oma=c(.5,.5,5,.5), mar=c(4,4,4,1), xpd=F)
         
-        ##genotype
-        res$pGenotypeLM[index] = anova(lm(prop~mrg$genotype))$`Pr(>F)`[1]
-        res$pGenotypeWilcox[index] = wilcox.test(prop~mrg$genotype, exact=F)$p.value #if use exact=T, get warning: cannot compute exact p-value with ties
-        boxplot(prop~mrg$genotype, xlab="", ylab="proportion of reads")
-        points(prop~mrg$genotype, col=sapply(mrg$genotype, getColor), pch=getShape())
-        mtext(paste("genotype\npLM=",format(res$pGenotypeLM[index], digits = 2),
-                    "; pWilcox=", format(res$pGenotypeWilcox[index], digits = 2), sep=""),
+        ##microbial status
+        res$pMicrobialStatusLM[index] = anova(lm(prop~mrg$microStatus))$`Pr(>F)`[1]
+        res$pMicrobialStatusWilcox[index] = wilcox.test(prop~mrg$microStatus, exact=F)$p.value #if use exact=T, get warning: cannot compute exact p-value with ties
+        boxplot(prop~mrg$microStatus, xlab="", ylab="proportion of reads")
+        points(prop~mrg$microStatus, col=sapply(mrg$microStatus, getColor), pch=getShape())
+        mtext(paste("Microbial Status\npLM=",format(res$pMicrobialStatusLM[index], digits = 2),
+                    "; pWilcox=", format(res$pMicrobialStatusWilcox[index], digits = 2), sep=""),
               side=3, line=1)
         
         ##colon tumor number
-        p = analyzeContinuousWrapper(prop, mrg$Colon.Tumor.Counts, mrg$genotype, "Colon Tumor Counts")
+        p = analyzeContinuousWrapper(prop, mrg$Colon.Tumor.Counts, mrg$microStatus, "Colon Tumor Counts")
         ##all
         res$pColonTumorAllLM[index] = p$pLMall[1]
         res$pColonTumorAllKendall[index] = p$pKendallAll[1]
@@ -169,7 +169,7 @@ for(rc in readCountTypes) {
         res$spearmanColonTumorSPF[index] = p$spearmanspf[1]
         
         ##combined inflammation
-        p = analyzeContinuousWrapper(prop, mrg$Colon.Tumor.Counts, mrg$genotype, "Combined Inflammation")
+        p = analyzeContinuousWrapper(prop, mrg$Colon.Tumor.Counts, mrg$microStatus, "Combined Inflammation")
         ##all
         res$pCombInflammationAllLM[index] = p$pLMall[1]
         res$pCombInflammationAllKendall[index] = p$pKendallAll[1]
@@ -193,8 +193,8 @@ for(rc in readCountTypes) {
     }
     dev.off()
     res = res[1:(index-1),]
-    res$pAdjGenotypeLM = p.adjust(res$pGenotypeLM, method="BH")
-    res$pAdjGenotypeWilcox = p.adjust(res$pGenotypeWilcox, method="BH")
+    res$pAdjMicrobialStatusLM = p.adjust(res$pMicrobialStatusLM, method="BH")
+    res$pAdjMicrobialStatusWilcox = p.adjust(res$pMicrobialStatusWilcox, method="BH")
     
     res$pAdjColonTumorAllLM = p.adjust(res$pColonTumorAllLM, method="BH")
     res$pAdjColonTumorAllKendall = p.adjust(res$pColonTumorAllKendall, method="BH")
