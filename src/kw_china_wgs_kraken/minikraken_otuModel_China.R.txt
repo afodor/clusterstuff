@@ -24,8 +24,11 @@ for(taxa in taxaLevels)
   names <- vector()
   pValuesUrbanRural <- vector()
   meanBug <- vector()
+  sdBug <- vector()
   meanUrban <- vector()
+  sdUrban <- vector()
   meanRural <- vector()
+  sdRural <- vector()
   pValuesUrbanRuralWilcox <- vector()
   r.squared <- vector()
   index <- 1
@@ -39,6 +42,9 @@ for(taxa in taxaLevels)
       meanBug[index] <- mean(bug)
       meanUrban[index] <- mean(bug[table$ruralUrban=="urban"])
       meanRural[index] <- mean(bug[table$ruralUrban=="rural"])
+      sdBug[index] <- sd(bug)
+      sdUrban[index] <- sd(bug[table$ruralUrban=="urban"])
+      sdRural[index] <- sd(bug[table$ruralUrban=="rural"])
       urbanRural <- factor(table$ruralUrban)
       
       ##linear model
@@ -67,7 +73,8 @@ for(taxa in taxaLevels)
       
     }
   
-  dFrame <- data.frame(names, meanBug, meanUrban, meanRural, pValuesUrbanRural, pValuesUrbanRuralWilcox)
+  dFrame <- data.frame(names, meanBug, meanUrban, sdUrban, meanRural, sdRural,
+                       pValuesUrbanRural, pValuesUrbanRuralWilcox)
   dFrame$UrbanToRural <- meanUrban / meanRural
   dFrame$adjustedPurbanRural <- p.adjust( dFrame$pValuesUrbanRural, method = "BH" )
   dFrame$adjustedPurbanRuralWilcox <- p.adjust(dFrame$pValuesUrbanRuralWilcox, method="BH")
