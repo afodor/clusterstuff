@@ -20,6 +20,7 @@ assocPropReads <- function(table, name, vir, db, desc=NA) {
   
   namesOther = vector()
   r = vector()
+  r.squared = vector()
   pValues = vector()
   kendallP = vector()
   description = vector()
@@ -35,6 +36,7 @@ assocPropReads <- function(table, name, vir, db, desc=NA) {
     r[index] = cor(prop, mrg[,i], method="spearman")
     aLm = lm(prop ~ mrg[,i])
     pValues[index] = anova(aLm)$"Pr(>F)"[1]
+    r.squared[index] = summary(aLm)$r.squared
     kendallP[index] = Kendall(prop, mrg[,i])$sl[1]
     
     myText = paste("Proportion of reads mapped vs. " ,namesOther[index] ,"\n", "p=" ,  
@@ -50,9 +52,9 @@ assocPropReads <- function(table, name, vir, db, desc=NA) {
   dev.off()
   
   if(is.na(desc)) {
-    dFrame = data.frame(namesOther, kendallP, pLM=pValues, r) 
+    dFrame = data.frame(namesOther, kendallP, pLM=pValues, r, r.squared) 
   } else {
-    dFrame = data.frame(namesOther, description, kendallP, pLM=pValues, r) 
+    dFrame = data.frame(namesOther, description, kendallP, pLM=pValues, r, r.squared) 
   }
   dFrame = dFrame[order(dFrame$pLM),]
   dFrame$adjKendallP =  p.adjust(dFrame$kendallP, method = "BH")
@@ -73,6 +75,7 @@ assocGenes <- function(table, name, vir, db, desc=NA) {
   namesVirulence = rep(NA, length)
   namesOther = rep(NA, length)
   r = rep(NA, length)
+  r.squared = rep(NA, length)
   pValues = rep(NA, length)
   kendallP = rep(NA, length)
   if(!is.na(desc)) {
@@ -94,6 +97,7 @@ assocGenes <- function(table, name, vir, db, desc=NA) {
         
         r[index] = cor(mrg[,i], mrg[,j], method="spearman")
         aLm = lm(mrg[,i] ~ mrg[,j])
+        r.squared[index] = summary(aLm)$r.squared
         pValues[index] = anova(aLm)$"Pr(>F)"[1]
         kendallP[index] = Kendall(mrg[,i], mrg[,j])$sl[1]
         
@@ -114,9 +118,9 @@ assocGenes <- function(table, name, vir, db, desc=NA) {
   
   dev.off()
   if(!is.na(desc)) {
-    dFrame = data.frame(namesVirulence, description, namesOther, kendallP, pLM=pValues, r) 
+    dFrame = data.frame(namesVirulence, description, namesOther, kendallP, pLM=pValues, r, r.squared) 
   } else {
-    dFrame = data.frame(namesVirulence, namesOther, kendallP, pLM=pValues, r) 
+    dFrame = data.frame(namesVirulence, namesOther, kendallP, pLM=pValues, r, r.squared) 
   }
   dFrame = dFrame[1:(index-1),]
   dFrame = dFrame [order(dFrame$pLM),]
