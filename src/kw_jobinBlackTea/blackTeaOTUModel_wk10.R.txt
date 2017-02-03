@@ -1,0 +1,85 @@
+##OTU model for black tea data, week 10 only
+##each variable separately
+##2/3/17
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\black tea\\rdpResults")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+for(taxa in taxaLevels) {
+  print(taxa)
+  fname = paste("tea_", taxa, "_taxaAsCol_wk10_logNorm.txt", sep="")
+  table = read.table(fname, sep="\t", header=T)
+  nc = ncol(table)
+  table = read.table(fname, sep="\t", header=T, 
+                     colClasses=c("numeric", "character", "numeric", "numeric", rep("character", 4), rep("numeric", nc-8)))
+  
+  ###p-values
+  ##output vectors
+  names = vector()
+  pTea = vector()
+  pBatch = vector()
+  index = 1
+  
+  tea = factor(table$Black.tea.treated)
+  time = factor(table$Timepoint..week)
+  batch = factor(table$Batch)
+  
+  for( i in 11:nc) {
+    if(sum(table[,i] != 0 ) > nrow(table) / 4) {
+      
+      names[index] <- names(table)[i]
+      bug <- table[,i]
+      
+      myFrame <- data.frame(bug, tea, time, batch)
+      
+      ##individual models
+      pTea[index] = anova(lm(bug~tea))$"Pr(>F)"[1]
+      pBatch[index] = anova(lm(bug~batch))$"Pr(>F)"[1]
+      
+      index=index+1
+      
+    }
+  }
+  
+  dFrame <- data.frame(names, pTea, pBatch)
+  dFrame$pAdjTea <- p.adjust(dFrame$pTea, method = "BH")
+  dFrame$pAdjBatch <- p.adjust(dFrame$pBatch, method="BH")
+  dFrame <- dFrame[order(dFrame$pTea),]
+  write.table(dFrame, file=paste("blackTea_otuModel_wk10_pValues_", taxa, ".txt",sep=""), sep="\t",row.names=FALSE, quote=F)
+  
+  ###plots
+  pdf(paste("blackTea_otuModel_wk10_boxplots_", taxa, ".pdf", sep=""), width=10, height=5.5)
+  for(r in 1:nrow(dFrame)) {
+    name = dFrame$names[r]
+    bug = table[,names(table)==name]
+    
+    graphMain =  paste(name, 
+                       ":\n pAdjTea=", format(dFrame$pAdjTea[r], digits=3), 
+                       "; pAdjBatch=", format(dFrame$pAdjBatch[r], digits=3), sep="")
+    
+    ##color by tea treatment
+    col = ifelse(table$Black.tea.treated=="yes", "blue", "red") #yes=blue, no=red
+    col[table$Black.tea.treated==""] = "black"
+    
+    ##shape by time
+    sh = ifelse(table$Timepoint..week==1, 15, 16)
+    
+    par(mfrow=c(1,2), oma=c(.5,.5,5,.5), mar=c(4.8,4,1,1))
+    ##tea treatment
+    boxplot(bug~tea, xlab="", ylab="relative abundance", main="tea treatment")
+    points(bug~tea, col=col, pch=sh)
+    ##batch
+    boxplot(bug~batch, xlab="", ylab="relative abundance",  main="batch")
+    points(bug~batch, col=col, pch=sh)
+    
+    ##add title
+    par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+    plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+    legend("top", horiz=T, legend=graphMain, cex=1.2, bty="n")
+    
+  }
+  dev.off()
+}

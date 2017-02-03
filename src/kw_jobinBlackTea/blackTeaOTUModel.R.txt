@@ -49,9 +49,9 @@ for(taxa in taxaLevels) {
       
       ##combined model with interaction
       mod = anova(lm(bug~tea*time, data=myFrame))
-      pTeaComb = mod$`Pr(>F)`[1]
-      pTimeComb = mod$`Pr(>F)`[2]
-      # pIntnComb = mod$`Pr(>F)`[3]
+      pTeaComb[index] = mod$`Pr(>F)`[1]
+      pTimeComb[index] = mod$`Pr(>F)`[2]
+      pIntnComb[index] = mod$`Pr(>F)`[3]
       
       ##plots
       graphMain =  paste( names[index], 
@@ -89,15 +89,13 @@ for(taxa in taxaLevels) {
   }
   dev.off()
   
-  ##combined model had no power so don't include
-  # dFrame <- data.frame(names, pTea, pTime, pBatch, pTeaComb, pTimeComb, pIntnComb)
-  dFrame <- data.frame(names, pTea, pTime, pBatch)
+  dFrame <- data.frame(names, pTea, pTime, pBatch, pTeaComb, pTimeComb, pIntnComb)
   dFrame$pAdjTea <- p.adjust(dFrame$pTea, method = "BH")
   dFrame$pAdjTime <- p.adjust(dFrame$pTime, method="BH")
   dFrame$pAdjBatch <- p.adjust(dFrame$pBatch, method="BH")
-#   dFrame$pAdjTeaComb <- p.adjust(dFrame$pTeaComb, method = "BH")
-#   dFrame$pAdjTimeComb <- p.adjust(dFrame$pTimeComb, method="BH")
-#   dFrame$pAdjIntnComb <- p.adjust(dFrame$pIntnComb, method="BH")
+  dFrame$pAdjTeaComb <- p.adjust(dFrame$pTeaComb, method = "BH")
+  dFrame$pAdjTimeComb <- p.adjust(dFrame$pTimeComb, method="BH")
+  dFrame$pAdjIntnComb <- p.adjust(dFrame$pIntnComb, method="BH")
   dFrame <- dFrame[order(dFrame$pTea),]
   write.table(dFrame, file=paste("blackTea_otuModel_pValues_", taxa, ".txt",sep=""), sep="\t",row.names=FALSE, quote=F)
 }
