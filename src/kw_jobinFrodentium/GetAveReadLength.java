@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public class GetAveReadLength {
 	private static String DIR = "/nobackup/afodor_research/kwinglee/jobin/F_rodentium/";
-	private static String OUTDIR = DIR + "readLengths";
+	private static String OUTDIR = DIR + "readLengths/";
 	
 	public static void main(String[] args) throws IOException {
 		File temp = new File(OUTDIR);
