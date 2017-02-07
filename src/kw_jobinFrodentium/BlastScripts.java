@@ -12,7 +12,7 @@ public class BlastScripts {
 	private static String DIR = "/nobackup/afodor_research/kwinglee/jobin/F_rodentium/";
 	private static String REF = DIR + "BlastDB_Faecalibaculum_rodentium_SilvaSSU_DNA";
 	private static String SCRIPTDIR = DIR + "blastScripts/";
-	private static String OUTDIR = DIR + "blastResults";
+	private static String OUTDIR = DIR + "blastResults/";
 
 	public static void main(String[] args) throws IOException {
 		//make directories
@@ -35,10 +35,6 @@ public class BlastScripts {
 		for(int i = 0; i < fastaDirs.length; i++) {
 			String fd = fastaDirs[i];
 			File[] fastas = new File(fd).listFiles();
-			temp = new File(OUTDIR + names[i]);
-			if(!temp.exists()) {
-				temp.mkdirs();
-			}
 			for(File f : fastas) {
 				String n = f.getName();
 				if(n.endsWith(".fasta") && ! n.contains("PCR") &&
@@ -50,7 +46,7 @@ public class BlastScripts {
 					
 					BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 							SCRIPTDIR + scriptName)));
-					script.write("#PBS -l procs=1,walltime=20:00:00\n");
+					script.write("#PBS -l procs=1\n");
 					script.write("module load blast/2.5.0+\n");
 					script.write("blastn -outfmt 7 -db " + REF + 
 							" -query " + f.getAbsolutePath()
