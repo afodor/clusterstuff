@@ -18,13 +18,15 @@ public class parseBlastResults {
 	private static double MINPID1 = 90;
 	private static int MINLEN2 = 260;
 	private static double MINPID2 = 95;
+	private static int MINLEN3 = 270;
+	private static double MINPID3 = 99;
 	
 	public static void main(String[] args) throws IOException {
 		File[] files = new File(DIR).listFiles();
 		BufferedWriter out = new BufferedWriter(new FileWriter(new File(
 				DIR + "blastResults_Frodentium.txt")));
 		out.write("sample\tnoFilter\tPID" + MINPID1 + "len" + MINLEN1 + "\tPID" + 
-				MINPID2 + "len" + MINLEN2 + "\n");
+				MINPID2 + "len" + MINLEN2 + "\tPID" + MINPID3 + "len" + MINLEN3 + "\n");
 		for(File f : files) {
 			String sid = f.getName();
 			if(sid.startsWith("Frod_") && sid.endsWith(".txt")) {
@@ -32,6 +34,7 @@ public class parseBlastResults {
 				HashSet<String> noFilt = new HashSet<String>();
 				HashSet<String> filt1 = new HashSet<String>();
 				HashSet<String> filt2 = new HashSet<String>();
+				HashSet<String> filt3 = new HashSet<String>();
 				BufferedReader res = new BufferedReader(new FileReader(f));
 				for(String line = res.readLine(); line != null; line = res.readLine()) {
 					if(!line.startsWith("#")) {
@@ -47,10 +50,13 @@ public class parseBlastResults {
 						if(length > MINLEN2 && pid > MINPID2) {
 							filt2.add(read);
 						}
+						if(length > MINLEN3 && pid > MINPID3) {
+							filt3.add(read);
+						}
 					}
 				}
 				out.write(sid + "\t" + noFilt.size() + "\t" + filt1.size() + "\t"
-						+ filt2.size() + "\n");
+						+ filt2.size() + "\t" + filt3.size() + "\n");
 				res.close();
 			}
 		}
