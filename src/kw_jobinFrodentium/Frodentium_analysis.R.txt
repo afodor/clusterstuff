@@ -1,0 +1,111 @@
+##look at the F. rodentium blast results
+##2/9/17
+
+rm(list=ls())
+library(nlme)
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\F rodentium")
+
+counts = read.table("blastResults_Frodentium.txt", sep="\t", header=T, stringsAsFactors = F)
+counts = counts[order(counts$PID99.0len270, decreasing=T),]
+
+##check only Apc experiment had it
+bf = counts[grepl("biofilm", counts$sample),]
+any(bf$PID95.0len260 > 0) #F
+any(bf$PID99.0len270 > 0) #F
+# -> only Apc has F. rodentium reads
+
+##get number of reads
+meta = read.table("apc_average.txt", sep="\t", header=T, stringsAsFactors = F)
+meta = meta[,1:2]
+names(meta)[1] = "sample"
+meta$sample = paste("apc", meta$sample, sep="_")
+table = merge(meta, counts)
+
+##convert to proportion
+prop = data.frame(sample = table$sample, 
+                  prop = table$PID99.0len270/table$numReads, 
+                  stringsAsFactors = F)
+
+##make column for read 1 and 2
+r1 = prop[grepl("R1", prop$sample),]
+r2 = prop[grepl("R2", prop$sample),]
+names(r1) = c("sampleID", "FrodPropR1")
+names(r2) = c("sampleID", "FrodPropR2")
+r1$sampleID = sub("_R1", "", sub("apc_", "", r1$sampleID))
+r2$sampleID = sub("_R2", "", sub("apc_", "", r2$sampleID))
+table = merge(r1, r2, by="sampleID")
+
+##combine with APC metadata
+meta = read.table("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\APC tumors\\ApcTumorMetadata.txt", 
+                  sep="\t", header=T, comment.char = "", stringsAsFactors = F)
+meta = meta[,c(3,9:26)]
+names(meta)[1] = "sampleID"
+apcAll = meta[1:87,]
+miceAll = apcAll[!grepl("water", apcAll$sampleID) & !grepl("PCR", apcAll$sampleID),]
+apc = miceAll[grepl("ApcMin", miceAll$Endpt.Genotype),]
+
+table = merge(apc, table, by="sampleID")
+write.table(table, "Frod_apc_propWithMeta.txt", sep="\t", quote=F, row.names=F, col.names=T)
+
+##stats and plots for read 1 and read 2
+pdf("Frod_apc_stats.pdf", height=4, width=12)
+colon = as.numeric(table$Colon)
+combined = as.numeric(table$Combined..proximal...distal.)
+cage = factor(table$Cage)
+for(i in 20:21) {
+  bug = table[,i]
+  df = data.frame(bug, cage, combined, colon)
+  
+  ##colon
+  reducedModel = gls(bug~colon, method="REML", data=df)
+  fullModel = gls(bug~colon, method="REML", data=df, correlation=corCompSymm(form=~1|cage))
+  pColonTumorNumber = anova(fullModel)$"p-value"[2]
+  pCageColon = anova(fullModel, reducedModel)$"p-value"[2]
+  
+  ##inflammation combined
+  reducedModel = gls(bug~combined, method="REML", data=df)
+  fullModel = gls(bug~combined, method="REML", data=df, correlation=corCompSymm(form=~1|cage))
+  pCombinedInflammationScore = anova(fullModel)$"p-value"[2]
+  pCageInflammation = anova(fullModel, reducedModel)$"p-value"[2]
+  
+  ##color by colon number
+  colors = colorRampPalette(c("blue", "red"))
+  col = colors(max(colon))[as.numeric(cut(colon, breaks=max(colon)))]
+  ##shape by inflammation score
+  sh = rep(NA, nrow(table))
+  sh[table$Combined..proximal...distal. < 1] = 15
+  sh[table$Combined..proximal...distal. >= 1 & table$Combined..proximal...distal. < 2] = 16
+  sh[table$Combined..proximal...distal. >= 2 & table$Combined..proximal...distal. < 3] = 17
+  sh[table$Combined..proximal...distal. >= 3 & table$Combined..proximal...distal. < 4] = 18
+  
+  par(mfrow=c(1,3), oma=c(.5,.5,2,.5), mar=c(4.8,4,1,1))
+  ##plot tumor numbers
+  plot(x=colon, y=bug, 
+       main=paste("pColonTumorNumber = ", format(pColonTumorNumber, digits = 3)), 
+       xlab="Colon Tumor Number",
+       ylab="proportion reads aligned to F. rodentium",
+       col=col, pch=sh)
+  
+  ##plot inflammation scores
+  plot(x=combined, y=bug, 
+       main=paste("pInflammation =", format(pCombinedInflammationScore, digits = 3)), 
+       xlab="Combined Inflammation Score",
+       ylab="proportion reads aligned to F. rodentium",
+       col=col, pch=sh)
+  
+  ##age and cage
+  boxplot(bug~cage, 
+          main=paste("pCageColon =", format(pCageColon, digits = 3),
+                     "\npCageInflammation =", format(pCageInflammation, digits = 3)), 
+          xlab="Cage",
+          ylab="proportion reads aligned to F. rodentium",
+          las=2,
+          cex.main=.6)
+  points(bug~factor(table$Cage), col=col, pch=sh)
+  
+  ##add title
+  par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+  plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+  legend("top", horiz=T, legend=sub("FrodPropR", "Read", names(table)[i]), cex=1.5, bty="n")
+}
+dev.off()
