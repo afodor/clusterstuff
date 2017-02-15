@@ -21,9 +21,9 @@ public class NCBIsizes {
 		for(File f1 : flist1) {
 			if(f1.isDirectory()) {
 				File[] flist2 = f1.listFiles();
+				int numGenes = 0;
+				int totGeneLength = 0;
 				for(File f2 : flist2) {
-					int numGenes = 0;
-					int totGeneLength = 0;
 					if(f2.getName().endsWith(".frn")) {
 						BufferedReader fa = new BufferedReader(new FileReader(f2));
 						for(String line = fa.readLine(); line != null; line = fa.readLine()) {
@@ -37,9 +37,9 @@ public class NCBIsizes {
 					} else {
 						System.out.println("Skipped file: " + f2.getAbsolutePath());
 					}
-					out.write(f1.getName() + "\t" + numGenes + 
-							"\t" + totGeneLength + "\n");
 				}
+				out.write(f1.getName() + "\t" + numGenes + 
+						"\t" + totGeneLength + "\n");
 			}
 		}
 		
