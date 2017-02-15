@@ -22,10 +22,10 @@ public class NCBIsizes {
 			if(f1.isDirectory()) {
 				File[] flist2 = f1.listFiles();
 				for(File f2 : flist2) {
+					int numGenes = 0;
+					int totGeneLength = 0;
 					if(f2.getName().endsWith(".frn")) {
 						BufferedReader fa = new BufferedReader(new FileReader(f2));
-						int numGenes = 0;
-						int totGeneLength = 0;
 						for(String line = fa.readLine(); line != null; line = fa.readLine()) {
 							if(line.startsWith(">")) {
 								numGenes++;
@@ -34,11 +34,11 @@ public class NCBIsizes {
 							}
 						}
 						fa.close();
-						out.write(f1.getName() + "\t" + numGenes + 
-								"\t" + totGeneLength + "\n");
 					} else {
 						System.out.println("Skipped file: " + f2.getAbsolutePath());
 					}
+					out.write(f1.getName() + "\t" + numGenes + 
+							"\t" + totGeneLength + "\n");
 				}
 			}
 		}
