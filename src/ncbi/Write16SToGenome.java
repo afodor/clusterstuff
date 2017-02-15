@@ -24,6 +24,7 @@ public class Write16SToGenome
 			
 			if( f.isDirectory())
 			{
+				System.out.println(f.getAbsolutePath());
 				String[] sublist = f.list();
 				
 				for(String s2 : sublist)
