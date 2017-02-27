@@ -23,7 +23,7 @@ public class TophatAlignToHuman {
 		String[] fqs = new File(FQDIR).list();
 		for(String fq : fqs) {
 			if(fq.endsWith("_R1_001.fastq")) {
-				String name = fq.split("_")[0].replace("-$", "");
+				String name = fq.split("_")[0].replaceAll("-$", "");
 				BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 						SCRIPTDIR + "tophatHuman_" + name)));
 				//copperhead setup
@@ -36,8 +36,8 @@ public class TophatAlignToHuman {
 
 				//align
 				script.write(TOPHAT + " -o " + OUTDIR + name + " -p " + NUM_THREADS +
-						" " + REF + " " + FQDIR + File.separator + fq + 
-						" " + FQDIR + File.separator + fq.replace("_R1_", "_R2_") + "\n");
+						" " + REF + " " + FQDIR + fq + 
+						" " + FQDIR + fq.replace("_R1_", "_R2_") + "\n");
 
 				//add to run all
 				runAll.write("qsub -q \"Cobra\" tophatAlignToMouse_" + name + "\n");
