@@ -22,10 +22,11 @@ public class TophatAlignToHuman {
 				SCRIPTDIR + "runTophatAlignToHuman.sh")));
 		String[] fqs = new File(FQDIR).list();
 		for(String fq : fqs) {
-			if(fq.endsWith("_R1_001.fastq")) {
+			if(fq.endsWith("_R1_001.fastq.gz")) {
 				String name = fq.split("_")[0].replaceAll("-$", "");
+				String scriptName = "tophatHuman_" + name;
 				BufferedWriter script = new BufferedWriter(new FileWriter(new File(
-						SCRIPTDIR + "tophatHuman_" + name)));
+						SCRIPTDIR + scriptName)));
 				//copperhead setup
 				/*script.write("#PBS -l walltime=50:00:00\n");
 				script.write("#PBS -l mem=10GB\n");
@@ -40,7 +41,7 @@ public class TophatAlignToHuman {
 						" " + FQDIR + fq.replace("_R1_", "_R2_") + "\n");
 
 				//add to run all
-				runAll.write("qsub -q \"Cobra\" tophatAlignToMouse_" + name + "\n");
+				runAll.write("qsub -q \"Cobra\" " + scriptName + "\n");
 
 				script.close();
 			}
