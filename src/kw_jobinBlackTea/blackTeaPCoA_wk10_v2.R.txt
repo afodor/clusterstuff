@@ -1,0 +1,58 @@
+##PCoA of black tea data, week 10 only
+##all samples
+##color by treatment
+##have second plot shaped by batch
+##2/3/17
+
+rm(list=ls())
+
+library(vegan)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\black tea\\rdpResults")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+pdf("blackTeaPCoA_wk10_v2.pdf", width=14)
+for(taxa in taxaLevels) {
+  print(taxa)
+  fname = paste("tea_", taxa, "_taxaAsCol_wk10_logNorm_v2.txt", sep="")
+  table = read.table(fname, sep="\t", header=T, stringsAsFactors = F)
+  nc = ncol(table)
+  
+  ##pcoa using vegan capscale
+  par(mar=c(4,4,4,8), xpd=T, mfrow=c(1,2))
+  pcoa <- capscale(table[,-(1:12)]~1,distance="bray")
+  
+  ##color by tea treatment
+  col = ifelse(table$Black.tea.treated=="yes", "blue", "red") #yes=blue, no=red
+  col[table$Black.tea.treated==""] = "black"
+  
+  ##shape by cohort
+  sh = ifelse(table$Cohort==1, 15, 16)
+ 
+  ##plot
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], xlab="MDS1", ylab="MDS2", main=paste(taxa, "week 10"), col=col, pch=sh)
+  
+  ##legend
+  legend("topright", inset=c(-.31,0),
+         legend=c("tea treated", "no tea", "cohort1", "cohort2"),
+         col=c("blue", "red", "gray", "gray"),
+         pch=c(18,18,15,16))
+  
+  ##plot with shape by cage 
+  sh = as.numeric(table$Cage..)
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], xlab="MDS1", ylab="MDS2", main=paste(taxa, "week 10"), col=col, pch=sh)
+  cage = sort(unique(table$Cage..))
+  
+  legend("topright", inset=c(-.31,0),
+         legend=c("tea treated", "no tea", paste("Cage", cage)),
+         col=c("blue", "red", rep("grey", length(cage))),
+         pch=c(18, 18, cage))
+  
+  ##sample numbers
+  text(x=pcoa$CA$u[,1]+.02, y=pcoa$CA$u[,2], labels=table$sampleID, col=col)
+  
+  write.table(cbind(table[,1:12], pcoa$CA$u), paste("pcoa_corrected_wk10_v2_", taxa, ".txt", sep=""),
+              sep = "\t", row.names = F, col.names = T, quote = F)
+}
+dev.off()

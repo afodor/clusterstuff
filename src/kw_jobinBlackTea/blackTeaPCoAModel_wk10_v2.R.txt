@@ -1,0 +1,100 @@
+##PCoA model for black tea data, week 10 only, metadata v2
+##2/28/17
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\black tea\\rdpResults")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+for(taxa in taxaLevels) {
+  print(taxa)
+  fname = paste("pcoa_corrected_wk10_v2_", taxa, ".txt", sep="")
+  table = read.table(fname, sep="\t", header=T, stringsAsFactors = F)
+  nc = ncol(table)
+ 
+  ###p-values
+  ##output vectors
+  names = vector()
+  pTea = vector()
+  pCage = vector()
+  pCohort = vector()
+  pTeaComb = vector()
+  pCohortComb = vector()
+  pIntnComb = vector()
+  index = 1
+  
+  tea = factor(table$Black.tea.treated)
+  cage = factor(table$Cage..)
+  cohort = factor(table$Cohort)
+  
+  for(i in 13:nc) {
+    if(sum(table[,i] != 0 ) > nrow(table) / 4) {
+      
+      names[index] <- names(table)[i]
+      bug <- table[,i]
+      
+      myFrame <- data.frame(bug, tea, cage, cohort)
+      
+      ##individual models
+      pTea[index] = anova(lm(bug~tea))$"Pr(>F)"[1]
+      pCage[index] = anova(lm(bug~cage))$"Pr(>F)"[1]
+      pCohort[index] = anova(lm(bug~cohort))$"Pr(>F)"[1]
+      
+      ##combined model with interaction
+      mod = anova(lm(bug~tea*cohort, data=myFrame))
+      pTeaComb[index] = mod$`Pr(>F)`[1]
+      pCohortComb[index] = mod$`Pr(>F)`[2]
+      pIntnComb[index] = mod$`Pr(>F)`[3]
+      
+      index=index+1
+      
+    }
+  }
+  
+  dFrame <- data.frame(names, pTea, pCohort, pCage, pTeaComb, pCohortComb, pIntnComb)
+  dFrame$pAdjTea <- p.adjust(dFrame$pTea, method = "BH")
+  dFrame$pAdjCohort <- p.adjust(dFrame$pCohort, method="BH")
+  dFrame$pAdjCage <- p.adjust(dFrame$pCage, method="BH")
+  dFrame$pAdjTeaComb <- p.adjust(dFrame$pTeaComb, method="BH")
+  dFrame$pAdjCohortComb <- p.adjust(dFrame$pCohortComb, method="BH")
+  dFrame$pAdjIntnComb <- p.adjust(dFrame$pIntnComb, method="BH")
+  write.table(dFrame, file=paste("blackTea_pcoaModel_wk10_v2_pValues_", taxa, ".txt",sep=""), sep="\t",row.names=FALSE, quote=F)
+  
+  ###plots
+  pdf(paste("blackTea_pcoaModel_wk10_v2_boxplots_", taxa, ".pdf", sep=""), width=15, height=5.5)
+  for(r in 1:nrow(dFrame)) {
+    name = dFrame$names[r]
+    bug = table[,names(table)==name]
+    
+    graphMain =  paste(name, 
+                       ":\n pAdjTea=", format(dFrame$pAdjTea[r], digits=3), 
+                       "; pAdjCohort=", format(dFrame$pAdjCohort[r], digits=3),
+                       "; pAdjCage=", format(dFrame$pAdjCage[r], digits=3),sep="")
+    
+    ##color by tea treatment
+    col = ifelse(table$Black.tea.treated=="yes", "blue", "red") #yes=blue, no=red
+    col[table$Black.tea.treated==""] = "black"
+    
+    ##shape by time
+    sh = ifelse(table$Timepoint..week==1, 15, 16)
+    
+    par(mfrow=c(1,3), oma=c(.5,.5,5,.5), mar=c(4.8,4,1,1))
+    ##tea treatment
+    boxplot(bug~tea, xlab="", ylab="relative abundance", main="tea treatment")
+    points(bug~tea, col=col, pch=sh)
+    ##cohort
+    boxplot(bug~cohort, xlab="", ylab="relative abundance",  main="cohort")
+    points(bug~cohort, col=col, pch=sh)
+    ##cage
+    boxplot(bug~cage, xlab="", ylab="relative abundance",  main="cage")
+    points(bug~cage, col=col, pch=sh)
+    
+    ##add title
+    par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+    plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+    legend("top", horiz=T, legend=graphMain, cex=1.2, bty="n")
+    
+  }
+  dev.off()
+}

@@ -1,0 +1,22 @@
+##p-value histograms, week10 metadata v2
+##2/28/17
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\black tea\\rdpResults")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+pdf("blackTea_pValueHistograms_wk10_v2.pdf", height=7, width=12)
+for(taxa in taxaLevels) {
+  table = read.table(paste("blackTea_otuModel_wk10_v2_pValues_", taxa, ".txt",sep=""),
+                     sep="\t", header=T, stringsAsFactors = F)
+  par(mfrow=c(2,3))
+  hist(table$pTea, main=paste(taxa, "pTea"), xlab="p-values", breaks=20)
+  hist(table$pCohort, main=paste(taxa, "pCohort"), xlab="p-values", breaks=20)
+  hist(table$pCage, main=paste(taxa, "pCage"), xlab="p-values", breaks=20)
+  hist(table$pTeaComb, main=paste(taxa, "pTeaComb"), xlab="p-values", breaks=20)
+  hist(table$pCohortComb, main=paste(taxa, "pCohortComb"), xlab="p-values", breaks=20)
+  hist(table$pIntnComb, main=paste(taxa, "pIntnComb"), xlab="p-values", breaks=20)
+}
+dev.off()
