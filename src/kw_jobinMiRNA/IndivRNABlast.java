@@ -58,7 +58,7 @@ public class IndivRNABlast {
 						f.getName().split("\\.")[0].replace("Sample", ""))-1;//-1 for 0 based
 				for(String read : bestHit.keySet()) {
 					String rna = bestHit.get(read);
-					if(rnaCounts.containsKey(rna)) {
+					if(!rnaCounts.containsKey(rna)) {
 						ArrayList<Integer> counts = new ArrayList<Integer>(NUM_SAMPS);
 						for(int c = 0; c < NUM_SAMPS; c++) {
 							if(c == sample) {
