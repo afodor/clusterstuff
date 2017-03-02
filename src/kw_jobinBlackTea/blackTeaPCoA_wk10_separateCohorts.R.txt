@@ -1,0 +1,50 @@
+##PCoA of black tea data, week 10 only
+##color by treatment
+##separate cohorts
+##3/2/17
+
+rm(list=ls())
+
+library(vegan)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\black tea\\rdpResults")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+##draw PCoA for the given table, with the given cohort number
+drawPCoA <- function(taxa, table, cohort) {
+  pcoa <- capscale(table[,-(1:12)]~1,distance="bray")
+  
+  ##color by tea treatment
+  col = ifelse(table$Black.tea.treated=="yes", "blue", "red") #yes=blue, no=red
+  col[table$Black.tea.treated==""] = "black"
+  
+  ##plot with shape by cage 
+  sh = as.numeric(table$Cage..)
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], xlab="MDS1", ylab="MDS2", 
+       main=paste(taxa, "cohort", cohort, "week 10"), 
+       col=col, pch=sh)
+  cage = sort(unique(table$Cage..))
+  
+  legend("topright", inset=c(-.31,0),
+         legend=c("tea treated", "no tea", paste("Cage", cage)),
+         col=c("blue", "red", rep("grey", length(cage))),
+         pch=c(18, 18, cage))
+  write.table(cbind(table[,1:12], pcoa$CA$u), 
+              paste("pcoa_corrected_wk10_sepCohort_cohort", cohort, "_", taxa, ".txt", sep=""),
+              sep = "\t", row.names = F, col.names = T, quote = F)
+}
+
+pdf("blackTeaPCoA_wk10_sepCohort.pdf", width=14)
+for(taxa in taxaLevels) {
+  print(taxa)
+  fname = paste("tea_", taxa, "_taxaAsCol_wk10_logNorm_v2.txt", sep="")
+  table = read.table(fname, sep="\t", header=T, stringsAsFactors = F)
+  nc = ncol(table)
+  
+  ##pcoa using vegan capscale
+  par(mar=c(4,4,4,8), xpd=T, mfrow=c(1,2))
+  drawPCoA(taxa, table[table$Cohort==1,], 1)
+  drawPCoA(taxa, table[table$Cohort==2,], 2)
+}
+dev.off()

@@ -1,0 +1,136 @@
+##OTU model for black tea data, week 10 only, metadata v2, separate cohorts
+##3/2/17
+
+rm(list=ls())
+library(nlme)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\black tea\\rdpResults")
+
+taxaLevels = c("phylum", "class", "order", "family", "genus")
+
+##returns p-value for the given set of abundances against the given set of metadata
+uniModels <- function(abun, meta) {
+  return(anova(lm(abun~factor(meta)))$"Pr(>F)"[1])
+}
+
+##returns p-values for mixed models
+mixModels <- function(abun, tea, cage) {
+  tea = factor(tea)
+  cage = factor(cage)
+  fullModel <- gls(abun ~ tea, method="REML", correlation=corCompSymm(form=~1|cage))
+  reducedModel <- gls(abun ~ tea, method="REML")
+  
+  return(c(anova(fullModel)$"p-value"[2], anova(fullModel, reducedModel)$"p-value"[2])) #returns tea, cage
+}
+
+##for the given set of abundances and metadata, draw a boxplot with lab as the title and points with the given color and shape
+drawBoxplot <- function(abun, meta, lab, col, sh) {
+  meta = factor(meta)
+  boxplot(abun ~ meta, xlab="", ylab="relative abundance", main=lab)
+  points(abun ~ meta, col=col, pch=sh)
+}
+
+for(taxa in taxaLevels) {
+  print(taxa)
+  fname = paste("tea_", taxa, "_taxaAsCol_wk10_logNorm_v2.txt", sep="")
+  table = read.table(fname, sep="\t", header=T, stringsAsFactors = F)
+  nc = ncol(table)
+ 
+  ###p-values
+  ##output vectors
+  names = vector()
+  pTeaC1 = vector()
+  pCageC1 = vector()
+  pTeaMixC1 = vector()
+  pCageMixC1 = vector()
+  pTeaC2 = vector()
+  pCageC2 = vector()
+  pTeaMixC2 = vector()
+  pCageMixC2 = vector()
+  index = 1
+  
+  c1 = table[table$Cohort==1,]
+  c2 = table[table$Cohort==2,]
+  
+  for(i in 13:nc) {
+    if(sum(c1[,i] != 0 ) > nrow(c1) / 4 && sum(c2[,i] != 0 ) > nrow(c2) / 4) {
+      
+      names[index] <- names(table)[i]
+      bug <- table[,i]
+      
+      ##cohort1
+      pTeaC1[index] = uniModels(c1[,i], c1$Black.tea.treated)
+      pCageC1[index] = uniModels(c1[,i], c1$Cage..)
+      pMix = mixModels(c1[,i], c1$Black.tea.treated, c1$Cage..)
+      pTeaMixC1[index] = pMix[1]
+      pCageMixC1[index] = pMix[2]
+      
+      ##cohort2
+      pTeaC2[index] = uniModels(c2[,i], c2$Black.tea.treated)
+      pCageC2[index] = uniModels(c2[,i], c2$Cage..)
+      pMix = mixModels(c2[,i], c2$Black.tea.treated, c2$Cage..)
+      pTeaMixC2[index] = pMix[1]
+      pCageMixC2[index] = pMix[2]
+      
+      index=index+1
+    }
+  }
+  
+  dFrame <- data.frame(names, pTeaC1, pCageC1, pTeaMixC1, pCageMixC1, 
+                       pTeaC2, pCageC2, pTeaMixC2, pCageMixC2)
+  
+  dFrame$pAdjTeaC1 <- p.adjust(dFrame$pTeaC1, method = "BH")
+  dFrame$pAdjCageC1 <- p.adjust(dFrame$pCageC1, method="BH")
+  dFrame$pAdjTeaMixC1 <- p.adjust(dFrame$pTeaMixC1, method = "BH")
+  dFrame$pAdjCageMixC1 <- p.adjust(dFrame$pCageMixC1, method="BH")
+  
+  dFrame$pAdjTeaC2 <- p.adjust(dFrame$pTeaC2, method = "BH")
+  dFrame$pAdjCageC2 <- p.adjust(dFrame$pCageC2, method="BH")
+  dFrame$pAdjTeaMixC2 <- p.adjust(dFrame$pTeaMixC2, method = "BH")
+  dFrame$pAdjCageMixC2 <- p.adjust(dFrame$pCageMixC2, method="BH")
+  
+  dFrame <- dFrame[order(dFrame$pTeaC1),]
+  write.table(dFrame, file=paste("blackTea_otuModel_wk10_sepCohort_pValues_", taxa, ".txt",sep=""), sep="\t",row.names=FALSE, quote=F)
+  
+  ###plots
+  pdf(paste("blackTea_otuModel_wk10_sepCohort_boxplots_", taxa, ".pdf", sep=""), width=10, height=10)
+  for(r in 1:nrow(dFrame)) {
+    name = dFrame$names[r]
+    abun1 = c1[,names(c1)==name]
+    abun2 = c2[,names(c2)==name]
+    
+    graphMain =  paste(name, 
+                       ":\n pAdjTeaC1=", format(dFrame$pAdjTeaC1[r], digits=3), 
+                       "; pAdjCagC1=", format(dFrame$pAdjCageC1[r], digits=3),
+                       "\n pAdjTeaC2=", format(dFrame$pAdjTeaC2[r], digits=3), 
+                       "; pAdjCagC2=", format(dFrame$pAdjCageC2[r], digits=3), sep="")
+    
+    ##color by tea treatment
+    col1 = ifelse(c1$Black.tea.treated=="yes", "blue", "red") #yes=blue, no=red
+    col2 = ifelse(c2$Black.tea.treated=="yes", "blue", "red") #yes=blue, no=red
+    
+    ##shape by cage
+    sh1 = as.numeric(c1$Cage..)
+    sh2 = as.numeric(c2$Cage..)
+    
+    par(mfrow=c(2,2), oma=c(.5,.5,5,.5), mar=c(4.8,4,1,1))
+    ###cohort 1
+    ##tea treatment
+    drawBoxplot(abun1, c1$Black.tea.treated, "Cohort 1 Tea Treatment", col1, sh1)
+    ##cage
+    drawBoxplot(abun1, c1$Cage.., "Cohort 1 Cage", col1, sh1)
+    
+    ###cohort 2
+    ##tea treatment
+    drawBoxplot(abun2, c2$Black.tea.treated, "Cohort 2 Tea Treatment", col2, sh2)
+    ##cage
+    drawBoxplot(abun2, c2$Cage.., "Cohort 2 Cage", col2, sh2)
+    
+    ##add title
+    par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+    plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+    legend("top", horiz=T, legend=graphMain, cex=1.2, bty="n")
+    
+  }
+  dev.off()
+}
