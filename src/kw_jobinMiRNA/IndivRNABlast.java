@@ -84,7 +84,7 @@ public class IndivRNABlast {
 		ArrayList<String> keys = new ArrayList<String>();
 		keys.addAll(rnaCounts.keySet());
 		Collections.sort(keys);
-		BufferedWriter out = new BufferedWriter(new FileWriter(new File(dir + outFile)));
+		BufferedWriter out = new BufferedWriter(new FileWriter(new File(dir + outFile + ".txt")));
 		//header
 		out.write("Sample");
 		for(String k : keys) {

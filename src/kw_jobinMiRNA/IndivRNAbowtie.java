@@ -47,7 +47,10 @@ public class IndivRNAbowtie {
 								if(prev == 255 || 
 										(prev < mapq && mapq != 255)){
 									bestQual.put(read, mapq);
-									bestHit.put(read, sp[2]);											
+									bestHit.put(read, sp[2]);	
+									if(f.getName().equals("Sample1.adapterfiltered.piR.bowtie.sam")) {
+										System.out.println("read\t" + sp[2]);
+									}
 								}
 							}
 						}
@@ -82,7 +85,7 @@ public class IndivRNAbowtie {
 		ArrayList<String> keys = new ArrayList<String>();
 		keys.addAll(rnaCounts.keySet());
 		Collections.sort(keys);
-		BufferedWriter out = new BufferedWriter(new FileWriter(new File(dir + outFile)));
+		BufferedWriter out = new BufferedWriter(new FileWriter(new File(dir + outFile + ".txt")));
 		//header
 		out.write("Sample");
 		for(String k : keys) {
