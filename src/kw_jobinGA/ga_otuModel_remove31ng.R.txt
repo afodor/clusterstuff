@@ -89,8 +89,8 @@ for(taxa in taxaLevels) {
       ##interaction
       intnModel <- lm(bug~ga*delivery)
       pValuesGAintn[index] <- anova(intnModel)$"Pr(>F)"[1]
-      pValuesDeliveryIntn <- anova(intnModel)$"Pr(>F)"[2]
-      pValuesGADeliveryIntn <- anova(intnModel)$"Pr(>F)"[3]
+      pValuesDeliveryIntn[index] <- anova(intnModel)$"Pr(>F)"[2]
+      pValuesGADeliveryIntn[index] <- anova(intnModel)$"Pr(>F)"[3]
       
       names[index] = names(myT)[i]
       
