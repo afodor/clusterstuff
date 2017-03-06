@@ -1,0 +1,29 @@
+##check numbers for individual RNAs vs database as whole
+##3/3/17
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\microRNA")
+
+####bowtie
+db = read.table("alignmentsAnalysis\\Results_bowtie.txt", header=T, sep="\t", stringsAsFactors = F)
+##piR
+pir = read.table("IndividualSmallRNA\\IndivPiRBaseBowtie.txt", header=T, sep="\t", stringsAsFactors = F)
+numMap = rowSums(pir[,-1])
+all(numMap == db$numMapPiR) #pass
+##miR
+mir = read.table("IndividualSmallRNA\\IndivMiRBaseHairpinBowtie.txt", header=T, sep="\t", stringsAsFactors = F)
+numMap = rowSums(mir[,-1])
+all(numMap == db$numMapMiRhairpin) #pass
+
+#####blast
+db = read.table("alignmentsAnalysis\\Results_blast.txt", header=T, sep="\t", stringsAsFactors = F)
+##piR
+pir = read.table("IndividualSmallRNA\\IndivPiRBaseBlast.txt", header=T, sep="\t", stringsAsFactors = F)
+numMap = rowSums(pir[,-1])
+all(numMap == db$numMapPiR) #pass
+##miR
+mir = read.table("IndividualSmallRNA\\IndivMiRBaseHairpinBlast.txt", header=T, sep="\t", stringsAsFactors = F)
+numMap = rowSums(mir[,-1])
+all(numMap == db$numMapMiRhairpin) #pass
+

@@ -1,0 +1,224 @@
+##analyze alignments for each small RNA
+##Microbial status, cancer and inflammation
+##3/6/17
+
+rm(list=ls())
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\microRNA\\individualSmallRNA")
+library(Kendall)
+
+###set up metadata
+metaNames = c("sampleID", "Colon.Tumor.Counts", "Cecum.Tumor.Counts", 
+              "Proximal.Inflammation.Score", "Middle.Inflammation.Score", "Distal.Inflammation.Score",
+              "Combined.Inflammation.Score")
+##GF
+gf = read.table("..\\GFmetadata.txt", sep="\t", header=T, stringsAsFactors = F, comment.char="")
+gf$Colon = as.numeric(sub("?", "", gf$Colon, fixed=T))
+gfAve = data.frame()
+for(s in unique(gf$sample..)) {
+  gfAve = rbind(gfAve, colMeans(gf[gf$sample..==s,], na.rm=T))
+}
+names(gfAve) = metaNames
+##SPF
+spf = read.table("..\\SPFmetadata.txt", sep="\t", header=T, stringsAsFactors = F, comment.char="")
+names(spf) = metaNames
+##merge
+meta = rbind(gfAve, spf)
+microStatus = ifelse(meta$sampleID <=5, "GF", "SPF")
+meta$sampleID = paste("Sample", meta$sampleID, sep="")
+meta = cbind(sampleID = meta$sampleID, microStatus, meta[,2:7])
+numMeta = ncol(meta) #+1 for number of reads
+
+###get number of reads
+numReads = read.table("..\\alignmentsAnalysis\\Results_bowtie.txt", sep="\t", header = T, stringsAsFactors = F)
+numReads = numReads[,c(1,3)]
+
+##set color and point shape
+getColor<-function(gen) {
+  if(gen=="GF") {
+    return("red")
+  } else if(gen=="SPF") {
+    return("blue")
+  } else {
+    print(paste("Bad microbial status: ", gen))
+    return("black")
+  }
+}
+getShape <- function() {
+  return(16)
+}
+
+##function that does anova, kendall and plot for analyzeContinousWrapper
+pValPlot <- function(prop, mdata, microStatus, name) {
+  pSpear = data.frame(pLM=NA, pKen=NA, spear=NA)
+  if(!all(mdata==0) && !all(prop==0)) { #some GF metadata is all zero, which causes error
+    pSpear$pLM[1] = anova(lm(prop~mdata))$`Pr(>F)`[1]
+    pSpear$pKen[1] = Kendall(mdata, prop)$sl[1]
+    pSpear$spear[1] = cor(x=mdata, y=prop, method="spearman", use="complete.obs")
+  }
+  plot(prop~mdata, col=sapply(microStatus, getColor), pch=getShape(),
+       ylab = "proportion of reads", xlab=name)
+  abline(lm(prop~mdata))
+  mtext(paste(name, "\npLM=",format(pSpear$pLM[1], digits = 2),
+              "; pKendall=", format(pSpear$pKen[1], digits = 2), 
+              "; spearman=", format(pSpear$spear[1], digits = 2), sep=""),
+        side=3, line=1)
+  return(pSpear)
+}
+
+##function that for the given set of proportions (prop) and metadata (mdata), 
+##returns pvalues and spearman and plots for prop~mdata
+##all samples, SPF and GF only
+analyzeContinuousWrapper <- function(prop, mdata, microStatus, name) {
+  pVal = data.frame(pLMall=NA, pKendallAll=NA, spearmanAll=NA,
+                    pLMgf=NA, pKendallgf=NA, spearmangf=NA,
+                    pLMspf=NA, pKendallspf=NA, spearmanspf=NA)
+  ##all
+  pSpear = pValPlot(prop, mdata, microStatus, name)
+  pVal$pLMall[1] = pSpear$pLM[1]
+  pVal$pKendallAll[1] = pSpear$pKen[1]
+  pVal$spearmanAll[1] = pSpear$spear[1]
+  
+  ##GF
+  pSpear = pValPlot(prop[microStatus=="GF"], mdata[microStatus=="GF"], 
+                    microStatus[microStatus=="GF"], paste(name, "GF only"))
+  pVal$pLMgf[1] = pSpear$pLM[1]
+  pVal$pKendallgf[1] = pSpear$pKen[1]
+  pVal$spearmangf[1] = pSpear$spear[1]
+  
+  ##SPF
+  pSpear = pValPlot(prop[microStatus=="SPF"], mdata[microStatus=="SPF"], 
+                    microStatus[microStatus=="SPF"], paste(name, "SPF only"))
+  pVal$pLMspf[1] = pSpear$pLM[1]
+  pVal$pKendallspf[1] = pSpear$pKen[1]
+  pVal$spearmanspf[1] = pSpear$spear[1]
+  
+  return(pVal)
+}
+
+databases = c("MiRBaseHairpin", "PiRBase")
+aligners = c("Bowtie", "Blast")
+
+for(al in aligners) {
+  print(al)
+  for(db in databases) {
+    print(db)
+    counts = read.table(paste("Indiv", db, al, ".txt", sep=""), sep="\t", header=T, stringsAsFactors = F)
+    names(counts)[1] = "sampleID"
+    
+    ##add total number of reads
+    counts = merge(numReads, counts, by="sampleID")
+    
+    ##get proportion
+    for(c in 3:ncol(counts)) {
+      counts[,c] = counts[,c]/counts$totalNumReads
+    }
+    
+    ##add metadata
+    mrg = merge(meta, counts, by="sampleID")
+    mrg = mrg[order(as.numeric(sub("Sample", "", mrg$sampleID))),]
+    write.table(mrg, paste("Indiv", db, al, "_propWithMeta.txt", sep=""),
+                sep="\t", row.names = F, col.names = T, quote = F)
+    mrg$microStatus = factor(mrg$microStatus)
+    
+    ##analysis
+    length = ncol(mrg) - numMeta
+    res = data.frame(db = rep(NA, length),
+                     pMicrobialStatusLM = rep(NA, length),
+                     pMicrobialStatusWilcox = rep(NA, length),
+                     pColonTumorAllLM = rep(NA, length),
+                     pColonTumorAllKendall = rep(NA, length),
+                     pColonTumorGFLM = rep(NA, length),
+                     pColonTumorGFKendall = rep(NA, length),
+                     pColonTumorSPFLM = rep(NA, length),
+                     pColonTumorSPFKendall = rep(NA, length),
+                     spearmanColonTumorAll = rep(NA, length),
+                     spearmanColonTumorGF = rep(NA, length),
+                     spearmanColonTumorSPF = rep(NA, length),
+                     pCombInflammationAllLM = rep(NA, length),
+                     pCombInflammationAllKendall = rep(NA, length),
+                     pCombInflammationGFLM = rep(NA, length),
+                     pCombInflammationGFKendall = rep(NA, length),
+                     pCombInflammationSPFLM = rep(NA, length),
+                     pCombInflammationSPFKendall = rep(NA, length),
+                     spearmanCombInflammationAll = rep(NA, length),
+                     spearmanCombInflammationGF = rep(NA, length),
+                     spearmanCombInflammationSPF = rep(NA, length))
+    index = 1
+    pdf(paste("indivAnalysis_", db, "_", al, "_plots.pdf", sep=""), height=20, width=10)
+    for(c in (numMeta+1):ncol(mrg)) {
+      if(sum(mrg[,c] != 0) > nrow(mrg) / 4) {
+        res$db[index] = names(mrg)[c]
+        prop = mrg[,c]
+        
+        par(mfcol=c(4,2), oma=c(.5,.5,5,.5), mar=c(4,4,4,1), xpd=F)
+        
+        ##microbial status
+        res$pMicrobialStatusLM[index] = anova(lm(prop~mrg$microStatus))$`Pr(>F)`[1]
+        res$pMicrobialStatusWilcox[index] = wilcox.test(prop~mrg$microStatus, exact=F)$p.value #if use exact=T, get warning: cannot compute exact p-value with ties
+        boxplot(prop~mrg$microStatus, xlab="", ylab="proportion of reads")
+        points(prop~mrg$microStatus, col=sapply(mrg$microStatus, getColor), pch=getShape())
+        mtext(paste("Microbial Status\npLM=",format(res$pMicrobialStatusLM[index], digits = 2),
+                    "; pWilcox=", format(res$pMicrobialStatusWilcox[index], digits = 2), sep=""),
+              side=3, line=1)
+        
+        ##colon tumor number
+        p = analyzeContinuousWrapper(prop, mrg$Colon.Tumor.Counts, mrg$microStatus, "Colon Tumor Counts")
+        ##all
+        res$pColonTumorAllLM[index] = p$pLMall[1]
+        res$pColonTumorAllKendall[index] = p$pKendallAll[1]
+        res$spearmanColonTumorAll[index] = p$spearmanAll[1]
+        ##GF
+        res$pColonTumorGFLM[index] = p$pLMgf[1]
+        res$pColonTumorGFKendall[index] = p$pKendallgf[1]
+        res$spearmanColonTumorGF[index] = p$spearmangf[1]
+        ##SPF
+        res$pColonTumorSPFLM[index] = p$pLMspf[1]
+        res$pColonTumorSPFKendall[index] = p$pKendallspf[1]
+        res$spearmanColonTumorSPF[index] = p$spearmanspf[1]
+        
+        ##combined inflammation
+        p = analyzeContinuousWrapper(prop, mrg$Colon.Tumor.Counts, mrg$microStatus, "Combined Inflammation")
+        ##all
+        res$pCombInflammationAllLM[index] = p$pLMall[1]
+        res$pCombInflammationAllKendall[index] = p$pKendallAll[1]
+        res$spearmanCombInflammationAll[index] = p$spearmanAll[1]
+        ##GF
+        res$pCombInflammationGFLM[index] = p$pLMgf[1]
+        res$pCombInflammationGFKendall[index] = p$pKendallgf[1]
+        res$spearmanCombInflammationGF[index] = p$spearmangf[1]
+        ##SPF
+        res$pCombInflammationSPFLM[index] = p$pLMspf[1]
+        res$pCombInflammationSPFKendall[index] = p$pKendallspf[1]
+        res$spearmanCombInflammationSPF[index] = p$spearmanspf[1]
+        
+        ##header
+        par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=T, xpd=T, fig=c(0,1,0,1))
+        plot(0,0,type="n", bty="n", xaxt="n", yaxt="n")
+        legend("top", horiz=T, legend=res$db[index], cex=2, bty="n")
+        
+        index = index + 1
+      }
+    }
+    dev.off()
+    res = res[1:(index-1),]
+    res$pAdjMicrobialStatusLM = p.adjust(res$pMicrobialStatusLM, method="BH")
+    res$pAdjMicrobialStatusWilcox = p.adjust(res$pMicrobialStatusWilcox, method="BH")
+    
+    res$pAdjColonTumorAllLM = p.adjust(res$pColonTumorAllLM, method="BH")
+    res$pAdjColonTumorAllKendall = p.adjust(res$pColonTumorAllKendall, method="BH")
+    res$pAdjColonTumorGFLM = p.adjust(res$pColonTumorGFLM, method="BH")
+    res$pAdjColonTumorGFKendall = p.adjust(res$pColonTumorGFKendall, method="BH")
+    res$pAdjColonTumorSPFLM = p.adjust(res$pColonTumorSPFLM, method="BH")
+    res$pAdjColonTumorSPFKendall = p.adjust(res$pColonTumorSPFKendall, method="BH")
+    
+    res$pAdjCombInflammationAllLM = p.adjust(res$pCombInflammationAllLM, method="BH")
+    res$pAdjCombInflammationAllKendall = p.adjust(res$pCombInflammationAllKendall, method="BH")
+    res$pAdjCombInflammationGFLM = p.adjust(res$pCombInflammationGFLM, method="BH")
+    res$pAdjCombInflammationGFKendall = p.adjust(res$pCombInflammationGFKendall, method="BH")
+    res$pAdjCombInflammationSPFLM = p.adjust(res$pCombInflammationSPFLM, method="BH")
+    res$pAdjCombInflammationSPFKendall = p.adjust(res$pCombInflammationSPFKendall, method="BH")
+    res = res[order(res$pMicrobialStatusLM),]
+    write.table(res, paste("indivAnalysis_", db, "_", al, "_pValues.txt", sep=""), sep="\t",
+                row.names = F, col.names = T, quote = F)
+  }
+}
