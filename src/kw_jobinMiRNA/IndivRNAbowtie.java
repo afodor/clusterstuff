@@ -12,11 +12,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class IndivRNAbowtie {
 	private static String DIR = "/nobackup/afodor_research/kwinglee/jobin/microRNA/";
 	private static int NUM_SAMPS = 10;
-	
+
 	public static void main(String[] args) throws IOException {
 		getCounts(DIR + "miRBaseBowtie/", "IndivMiRBaseHairpinBowtie");
 		getCounts(DIR + "piRBaseBowtie/", "IndivPiRBaseBowtie");
@@ -31,25 +32,28 @@ public class IndivRNAbowtie {
 				HashMap<String, String> bestHit = new HashMap<String,String>();//map of read to the name of the best RNA match
 				HashMap<String, Integer> bestQual = new HashMap<String, Integer>();//map of read to the best quality map
 				BufferedReader res = new BufferedReader(new FileReader(f));
+				HashSet<String> mapped = new HashSet<String>();//set of reads mapped (in case read mapped multiple times)
 				for(String line = res.readLine(); line!=null; line=res.readLine()) {
 					if(!line.startsWith("@")) {
 						String[] sp = line.split("\\s+");
-						if(!sp[1].equals("4") && //read is mapped
-								!sp[1].equals("256")) {//primary alignment
-							int mapq = Integer.parseInt(sp[4]);
-							String read = sp[0];
-							if(!bestQual.containsKey(read)) {
-								bestQual.put(read, mapq);
-								bestHit.put(read, sp[2]);								
-							} else {//update if better score
-								//account for unavailable quality (255)
-								int prev = bestQual.get(read);
-								if(prev == 255 || 
-										(prev < mapq && mapq != 255)){
+						if(!sp[1].equals("4")) { //read is mapped
+							mapped.add(sp[0]);
+							if(!sp[1].equals("256")) {//primary alignment
+								int mapq = Integer.parseInt(sp[4]);
+								String read = sp[0];
+								if(!bestQual.containsKey(read)) {
 									bestQual.put(read, mapq);
-									bestHit.put(read, sp[2]);	
-									if(f.getName().equals("Sample1.adapterfiltered.piR.bowtie.sam")) {
-										System.out.println("read\t" + sp[2]);
+									bestHit.put(read, sp[2]);								
+								} else {//update if better score
+									//account for unavailable quality (255)
+									int prev = bestQual.get(read);
+									if(prev == 255 || 
+											(prev < mapq && mapq != 255)){
+										bestQual.put(read, mapq);
+										bestHit.put(read, sp[2]);	
+										if(f.getName().equals("Sample1.adapterfiltered.piR.bowtie.sam")) {
+											System.out.println("read\t" + sp[2]);
+										}
 									}
 								}
 							}
@@ -58,6 +62,10 @@ public class IndivRNAbowtie {
 				}
 				res.close();
 				
+				//look what reads not picked up
+				System.out.println(f.getName() + "\t" + mapped.size() + 
+						"\t" + bestHit.size() + "\t" + bestQual.size());
+
 				//compile into counts for each sample
 				int sample = Integer.parseInt(
 						f.getName().split("\\.")[0].replace("Sample", ""))-1;//-1 for 0 based
@@ -80,7 +88,7 @@ public class IndivRNAbowtie {
 				}
 			}
 		}
-		
+
 		//write results
 		ArrayList<String> keys = new ArrayList<String>();
 		keys.addAll(rnaCounts.keySet());
