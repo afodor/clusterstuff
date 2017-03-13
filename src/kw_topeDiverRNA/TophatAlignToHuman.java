@@ -15,7 +15,7 @@ public class TophatAlignToHuman {
 	public static String OUTDIR = "/nobackup/afodor_research/kwinglee/tope/diverRNAseq/tophatAlignToHuman/";
 	public static String TOPHAT = "/nobackup/afodor_research/kwinglee/software/tophat-2.1.1.Linux_x86_64/tophat2";
 	public static String REF = "/nobackup/afodor_research/kwinglee/hg38/hg38bowtie";
-	public static int NUM_THREADS = 2;
+	public static int NUM_THREADS = 4;
 
 	public static void main(String[] args) throws IOException {
 		BufferedWriter runAll = new BufferedWriter(new FileWriter(new File(
