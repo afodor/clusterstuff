@@ -28,8 +28,8 @@ public class TophatAlignToHuman {
 				BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 						SCRIPTDIR + scriptName)));
 				//copperhead setup
-				/*script.write("#PBS -l walltime=50:00:00\n");
-				script.write("#PBS -l mem=10GB\n");
+				script.write("#PBS -l walltime=600:00:00\n");
+				/*script.write("#PBS -l mem=10GB\n");
 				script.write("#PBS -l procs=" + NUM_THREADS + "\n");*/
 
 				//load needed modules
