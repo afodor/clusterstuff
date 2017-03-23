@@ -19,7 +19,7 @@ public class JoinReadsScriptsRun2 {
 				SCRIPTDIR + "joinAll.sh")));
 		for(File f : fastqs) {
 			if(f.getName().endsWith("_R1_001.fastq")) {
-				String sampleID = f.getName().split("_")[0];
+				String sampleID = f.getName().replace("_L001_R1_001.fastq", "");
 				String scriptName = "join_" + sampleID;
 				
 				String r2 = f.getAbsolutePath().replace("_R1_001.fastq", "_R2_001.fastq");
