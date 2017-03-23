@@ -96,8 +96,8 @@ class Filter implements Runnable {
 				//remove primers
 				int len1 = seq1.length();
 				int len2 = seq2.length();
-				seq1.replaceAll("^CCTACGGG[AGTC]GGC[AT]GCAG", "");
-				seq2.replaceAll("^GACTAC[ACT][ACG]GGGTATCTAATCC", "");
+				seq1 = seq1.replaceAll("^CCTACGGG[AGTC]GGC[AT]GCAG", "");
+				seq2 = seq2.replaceAll("^GACTAC[ACT][ACG]GGGTATCTAATCC", "");
 				
 				if(seq1.length() != len1 - 17) {
 					numRemR1++;
