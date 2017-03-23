@@ -32,7 +32,7 @@ public class TrimPrimersRun2 {
 		}
 		pool.shutdown();
 		pool.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
-		//while(!pool.isTerminated()){}
+		while(!pool.isTerminated()){}
 	}
 
 }
