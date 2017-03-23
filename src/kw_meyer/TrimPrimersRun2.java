@@ -23,13 +23,16 @@ public class TrimPrimersRun2 {
 		ExecutorService pool = Executors.newFixedThreadPool(4);
 		
 		File[] runs = new File(INDIR).listFiles();
+		int numSamps = 0;
 		for(File r : runs) {
 			File[] samples = r.listFiles();
 			for(File s : samples) { // for each sample in each run, filter adapter
 				Filter f = new Filter(s);
 				pool.execute(f);
+				numSamps++;
 			}
 		}
+		System.out.println("Number of samples = " + numSamps);
 		pool.shutdown();
 		pool.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
 		while(!pool.isTerminated()){}
