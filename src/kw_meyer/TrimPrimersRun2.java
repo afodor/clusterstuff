@@ -9,42 +9,43 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Semaphore;
 import java.util.zip.GZIPInputStream;
 
 public class TrimPrimersRun2 {
 	private static String DIR = "/nobackup/afodor_research/kwinglee/meyer/";
 	private static String INDIR = DIR + "cardia_seq2_fastqs/";
 	public static String OUTDIR = DIR + "run2filteredSeqs/";
-	
+
 	public static void main(String[] args) throws InterruptedException {
-		ExecutorService pool = Executors.newFixedThreadPool(4);
-		
+		//set up multithreaded
+		int numThreads = 8;
+		Semaphore sem = new Semaphore(numThreads);
+
 		File[] runs = new File(INDIR).listFiles();
-		int numSamps = 0;
 		for(File r : runs) {
 			File[] samples = r.listFiles();
 			for(File s : samples) { // for each sample in each run, filter adapter
-				Filter f = new Filter(s);
-				pool.execute(f);
-				numSamps++;
+				sem.acquire();
+				Filter f = new Filter(s, sem);
+				new Thread(f).start();
 			}
 		}
-		System.out.println("Number of samples = " + numSamps);
-		pool.shutdown();
-		pool.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
-		while(!pool.isTerminated()){}
+		
+		for(int i = 0; i < numThreads; i++) {
+			sem.acquire();
+		}
 	}
 
 }
 
 class Filter implements Runnable {
 	private File file;
-	
-	public Filter(File f) {
+	private final Semaphore semaphore;
+
+	public Filter(File f, Semaphore semaphore) {
 		file = f;
+		this.semaphore = semaphore;
 	}
 
 	@Override
@@ -60,9 +61,10 @@ class Filter implements Runnable {
 			read2 = list[0];
 		} else {
 			System.out.println("Bad set of reads: " + file.getName());
+			semaphore.release();
 			System.exit(1);
 		}
-		
+
 		try {
 			BufferedReader br1 = new BufferedReader(
 					new InputStreamReader(
@@ -95,13 +97,13 @@ class Filter implements Runnable {
 				String plus2 = br2.readLine();
 				String qual1 = br1.readLine();
 				String qual2 = br2.readLine();
-				
+
 				//remove primers
 				int len1 = seq1.length();
 				int len2 = seq2.length();
 				seq1 = seq1.replaceAll("^CCTACGGG[AGTC]GGC[AT]GCAG", "");
 				seq2 = seq2.replaceAll("^GACTAC[ACT][ACG]GGGTATCTAATCC", "");
-				
+
 				if(seq1.length() != len1 - 17) {
 					numRemR1++;
 				} else if(seq2.length() != len2 - 21) {
@@ -112,31 +114,33 @@ class Filter implements Runnable {
 					//write fastq
 					fq1.write(head1 + "\n" + seq1 + "\n" + plus1 + "\n" + qual1 + "\n");
 					fq2.write(head2 + "\n" + seq2 + "\n" + plus2 + "\n" + qual2 + "\n");
-					
+
 					//write fasta
 					fa1.write(head1.replace("@", ">") + "\n" + seq1 + "\n");
 					fa2.write(head2.replace("@", ">") + "\n" + seq2 + "\n");
 				}
-				
+
 				head1 = br1.readLine();
 				head2 = br2.readLine();
 			}
-			
-			
+
+
 			br1.close();
 			br2.close();
 			fq1.close();
 			fq2.close();
 			fa1.close();
 			fa2.close();
-			
+
 			System.out.println(file.getName() + " removedR1: " + numRemR1
 					+ " removedR2: " + numRemR2 + " total: " + (numRemR1+numRemR2));
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
+		} finally {
+			semaphore.release();
 		}
-		
+
 	}
-	
+
 }
