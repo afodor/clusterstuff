@@ -19,7 +19,7 @@ public class ConvertRun2JoinToFasta {
 			if(fq.getName().endsWith("join.fastq")) {
 				BufferedReader br = new BufferedReader(new FileReader(fq));
 				BufferedWriter out = new BufferedWriter(new FileWriter(new File(
-						fq.getAbsolutePath().replace(".fastq", "fasta"))));
+						fq.getAbsolutePath().replace(".fastq", ".fasta"))));
 				String head = br.readLine();
 				while(head != null) {
 					String seq = br.readLine();
