@@ -32,7 +32,7 @@ public class writeRDPScriptsRun2 {
 				scriptWriter.write("java -Xmx4g -jar ~/rdp/RDPTools/classifier.jar classify -h " + 
 						RDP_FOLDER + "hier_" + name + ".txt" +
 						" -o " + RDP_FOLDER + "rdp_" + name + ".txt" +
-						" " + FASTA_FOLDER + name + ".fna");
+						" " + FASTA_FOLDER + name + "join.fastq");
 
 				//add script to full list
 				allWriter.write("qsub -q \"copperhead\" " + scriptName.getName() +  "\n");
