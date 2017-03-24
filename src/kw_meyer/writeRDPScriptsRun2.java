@@ -11,7 +11,7 @@ import java.io.IOException;
 
 public class writeRDPScriptsRun2 {
 	public static final String FASTA_FOLDER = "/nobackup/afodor_research/kwinglee/meyer/run2joinedReads/";
-	public static final String RDP_FOLDER = "/nobackup/afodor_research/kwinglee/meyer/rdpResults_trimmed/";
+	public static final String RDP_FOLDER = "/nobackup/afodor_research/kwinglee/meyer/run2rdpResults/";
 	public static final String SCRIPT_FOLDER = "/projects/afodor_research/kwinglee/scripts/meyer/run2/rdpScripts/";
 
 	public static void main(String[] args) throws IOException {
