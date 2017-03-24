@@ -20,7 +20,7 @@ public class MakeQiimeMapRun2 {
 		out.write("#SampleID\tBarcodeSequence\tLinkerPrimerSequence\tInputFileName\tDescription\n");
 		for(String name : files) {
 			if(name.endsWith("join.fasta")) { 
-				String id = name.replace("join.fasta", "");
+				String id = name.replace("join.fasta", "").replace("-", ".").replace("_", ".");//can't have - or _ in sampleID
 				out.write(id + "\tX\tX\t" + name + "\n");
 			}
 		}
