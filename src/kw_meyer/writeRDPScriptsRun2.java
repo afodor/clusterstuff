@@ -28,11 +28,11 @@ public class writeRDPScriptsRun2 {
 				//write script to run RDP on that file
 				File scriptName = new File(SCRIPT_FOLDER + "runRDP_" + name);
 				BufferedWriter scriptWriter = new BufferedWriter(new FileWriter(scriptName));
-				scriptWriter.write("#PBS -l mem=4GB\n");
+				scriptWriter.write("#PBS -l mem=4GB,procs=1\n");
 				scriptWriter.write("java -Xmx4g -jar ~/rdp/RDPTools/classifier.jar classify -h " + 
 						RDP_FOLDER + "hier_" + name + ".txt" +
 						" -o " + RDP_FOLDER + "rdp_" + name + ".txt" +
-						" " + FASTA_FOLDER + name + "join.fastq");
+						" " + FASTA_FOLDER + name + "join.fastq\n");
 
 				//add script to full list
 				allWriter.write("qsub -q \"copperhead\" " + scriptName.getName() +  "\n");
