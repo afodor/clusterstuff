@@ -1,0 +1,42 @@
+##log normalize QIIME results
+##3/27/17
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\Meyer\\")
+
+runs = c("Run1 qiime\\run1qiimeClosedRef", "Run2\\RDP and QIIME results\\run2qiimeClosedRef")
+
+pdf("CardiaQIIME_readHistogram.pdf")
+for(run in runs) {
+  print(run)
+  table = read.table(paste(run, ".txt", sep=""), 
+                     sep="\t", header=T, comment.char = "", skip=1)
+  table = data.frame(taxonomy=table$taxonomy, table[,-c(1,ncol(table))])
+  fname = paste(run, "_taxaAsCol.txt", sep="")
+  write.table(t(table), fname, 
+              sep="\t", row.names = T, col.names = F, quote = F)
+  table = read.table(fname, sep="\t", header=T, stringsAsFactors = F)
+  table$taxonomy = sub("X", "", table$taxonomy)
+  table = data.frame(haidshort=table$taxonomy, numReads = rowSums(table[,-1]), table[,2:ncol(table)])
+  start = 3
+  
+  hist(table$numReads, main=ifelse(grepl("Run1", run), "Run1 QIIME closed reference", 
+                                   "Run2 QIIME closed reference"), xlab="number of reads")
+  print(range(table$numReads))
+  
+  ##log normalize
+  lognorm = table
+  nc = ncol(lognorm)
+  n = rowSums(table[,start:nc]) #number of reads in each sample
+  sumX = sum(n) #total number of reads in all samples 
+  N = nrow(table) #total number of samples
+  for(col in start:nc) {
+    for(row in 1:N) {
+      lognorm[row, col] = log10(table[row, col]/n[row] * sumX/N + 1)
+    }
+  }
+  write.table(lognorm, paste(run, "_taxaAsCol_logNorm.txt", sep=""),
+              sep="\t", row.names = F, col.names = T, quote = F)
+}
+dev.off()
