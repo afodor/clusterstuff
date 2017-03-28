@@ -45,7 +45,7 @@ public class Run2ReadCounts {
 		for(File f : filtFiles) {
 			if(f.getName().endsWith(".fasta") && f.getName().contains("_R1_")) {
 				int count = 0;
-				String id = f.getName().replace("_L001_R1_001.fastq", "");
+				String id = f.getName().replace("_L001_R1_001.fasta", "");
 				BufferedReader br = new BufferedReader(new FileReader(f));
 				for(String line = br.readLine(); line != null; line = br.readLine()) {
 					if(line.startsWith(">")) {
