@@ -26,15 +26,18 @@ public class Run2ReadCounts {
 		for(File rd : readDirs) {
 			File[] samples = rd.listFiles();
 			for(File s : samples) {
-				if(s.getName().endsWith(".fastq.gz") && s.getName().contains("_R1_")) {
-					int count = 0;
-					String id = s.getName().replace("_L001_R1_001.fastq", "");
-					BufferedReader br = new BufferedReader(new FileReader(s));
-					for(String line = br.readLine(); line != null; line = br.readLine()) {
-						count++;
+				File[] fqs = s.listFiles();
+				for(File f : fqs) {
+					if(f.getName().endsWith(".fastq.gz") && f.getName().contains("_R1_")) {
+						int count = 0;
+						String id = f.getName().replace("_L001_R1_001.fastq", "");
+						BufferedReader br = new BufferedReader(new FileReader(f));
+						for(String line = br.readLine(); line != null; line = br.readLine()) {
+							count++;
+						}
+						br.close();
+						raw.put(id, count/4);
 					}
-					br.close();
-					raw.put(id, count/4);
 				}
 			}
 		}
