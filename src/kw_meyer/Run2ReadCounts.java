@@ -30,7 +30,7 @@ public class Run2ReadCounts {
 				for(File f : fqs) {
 					if(f.getName().endsWith(".fastq.gz") && f.getName().contains("_R1_")) {
 						int count = 0;
-						String id = f.getName().replace("_L001_R1_001.fastq", "");
+						String id = f.getName().replace("_L001_R1_001.fastq.gz", "");
 						BufferedReader br = new BufferedReader(new FileReader(f));
 						for(String line = br.readLine(); line != null; line = br.readLine()) {
 							count++;
