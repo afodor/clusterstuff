@@ -7,14 +7,17 @@ package kw_meyer;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.zip.GZIPInputStream;
 
 public class Run2ReadCounts {
 	private static String DIR = "/nobackup/afodor_research/kwinglee/meyer/";
@@ -31,7 +34,8 @@ public class Run2ReadCounts {
 					if(f.getName().endsWith(".fastq.gz") && f.getName().contains("_R1_")) {
 						int count = 0;
 						String id = f.getName().replace("_L001_R1_001.fastq.gz", "");
-						BufferedReader br = new BufferedReader(new FileReader(f));
+						BufferedReader br = new BufferedReader(new InputStreamReader
+								(new GZIPInputStream(new FileInputStream((f)))));
 						for(String line = br.readLine(); line != null; line = br.readLine()) {
 							count++;
 						}
