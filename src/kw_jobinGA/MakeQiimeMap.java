@@ -21,7 +21,7 @@ public class MakeQiimeMap {
 		for(String name : files) {
 			if(name.contains("_R1_") && name.endsWith(".fasta")) { 
 				//String id = name.split("_")[2].replace(".fasta", "");
-				String id = name.replace(".fasta", "");
+				String id = name.replace(".fasta", "").replace("_", ".");
 				if(!id.startsWith("S")) {//include controls and gastric aspirate but not stool
 					out.write(id + "\tX\tX\t" + name + "\n");					
 				}
