@@ -7,7 +7,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashSet;
 
 public class JoinReadsScriptsRun2_4066P1 {
 	//directory containing the needed files; also where will write results
@@ -15,15 +14,6 @@ public class JoinReadsScriptsRun2_4066P1 {
 	public static final String SCRIPTDIR = "/projects/afodor_research/kwinglee/scripts/meyer/run2/joinScripts/";
 	
 	public static void main(String[] args) throws IOException {
-		//get list of samples to join
-		HashSet<String> newSeqs = new HashSet<String>();
-		File[] samps = new File(DIR + "cardia_seq2_fastqs/4066-KAM-P1-34087111/").listFiles();
-		for(File f : samps) {
-			String[] reads = f.list();
-			for(String r : reads) {
-				newSeqs.add(r.replace(".gz", ""));
-			}
-		}
 		
 		//write scripts
 		File[] fastqs = new File(DIR + "run2filteredSeqs").listFiles();
@@ -31,7 +21,7 @@ public class JoinReadsScriptsRun2_4066P1 {
 				SCRIPTDIR + "joinAll4066P1.sh")));
 		
 		for(File f : fastqs) {
-			if(f.getName().endsWith("_R1_001.fastq") && newSeqs.contains(f.getName())) {
+			if(f.getName().endsWith("_R1_001.fastq") && f.getName().startsWith("P1")) {
 				String sampleID = f.getName().replace("_L001_R1_001.fastq", "");
 				String scriptName = "join_" + sampleID;
 				

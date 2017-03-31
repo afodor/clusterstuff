@@ -50,16 +50,16 @@ public class TrimPrimersRun2_4066P1 {
 								new FileInputStream(read2))));
 		BufferedWriter fq1 = new BufferedWriter(
 				new FileWriter(
-						new File(TrimPrimersRun2_4066P1.OUTDIR + read1.getName().replace(".gz", ""))));
+						new File(TrimPrimersRun2_4066P1.OUTDIR + "P1" + read1.getName().replace(".gz", ""))));
 		BufferedWriter fq2 = new BufferedWriter(
 				new FileWriter(
-						new File(TrimPrimersRun2_4066P1.OUTDIR + read2.getName().replace(".gz", ""))));
+						new File(TrimPrimersRun2_4066P1.OUTDIR + "P1" + read2.getName().replace(".gz", ""))));
 		BufferedWriter fa1 = new BufferedWriter(
 				new FileWriter(
-						new File(TrimPrimersRun2_4066P1.OUTDIR + read1.getName().replace("q.gz", "a"))));
+						new File(TrimPrimersRun2_4066P1.OUTDIR + "P1" + read1.getName().replace("q.gz", "a"))));
 		BufferedWriter fa2 = new BufferedWriter(
 				new FileWriter(
-						new File(TrimPrimersRun2_4066P1.OUTDIR + read2.getName().replace("q.gz", "a"))));
+						new File(TrimPrimersRun2_4066P1.OUTDIR + "P1" + read2.getName().replace("q.gz", "a"))));
 		String head1 = br1.readLine();
 		String head2 = br2.readLine();
 		int numRemR1 = 0;
