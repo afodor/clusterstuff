@@ -19,6 +19,7 @@ public class TrimPrimersRun2_4066P1 {
 
 	public static void main(String[] args) throws IOException {
 		File[] samples = new File(INDIR).listFiles();
+		System.out.println(samples.length);
 		for(File s : samples) { // for each sample in each run, filter adapter
 			filter(s);
 		}
@@ -106,7 +107,7 @@ public class TrimPrimersRun2_4066P1 {
 		fa2.close();
 
 		System.out.println(file.getName() + " removedR1: " + numRemR1
-				+ " removedR2: " + numRemR2 + " total: " + (numRemR1+numRemR2));
+				+ " removedR2: " + numRemR2 + " totalRemoved: " + (numRemR1+numRemR2));
 	}
 
 }
