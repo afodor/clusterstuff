@@ -20,7 +20,7 @@ public class WriteRDPScriptsRun2_4066P1 {
 		File[] files = ffolder.listFiles();
 
 		//writes script to launch all other scripts
-		BufferedWriter allWriter = new BufferedWriter(new FileWriter(new File(SCRIPT_FOLDER + "runAllRDPrun2.sh")));
+		BufferedWriter allWriter = new BufferedWriter(new FileWriter(new File(SCRIPT_FOLDER + "runAllRDPrun2_4066p1.sh")));
 
 		for(int i = 0; i < files.length; i++) {
 			if(files[i].getName().endsWith("join.fastq") && files[i].getName().startsWith("P1")) {
