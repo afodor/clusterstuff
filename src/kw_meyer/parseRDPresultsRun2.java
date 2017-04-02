@@ -18,7 +18,8 @@ public class parseRDPresultsRun2 {
 	
 	public static void main(String[] args) throws IOException {
 		//get hierarchical file results
-		BufferedReader hier = new BufferedReader(new FileReader(new File(DIR + "hierarch_merge_allrun2.txt")));
+		//BufferedReader hier = new BufferedReader(new FileReader(new File(DIR + "hierarch_merge_allrun2.txt")));
+		BufferedReader hier = new BufferedReader(new FileReader(new File(DIR + "hierarch_merge_allrun2_with4066P1.txt")));
 		
 		//set up output files
 		BufferedWriter genus = new BufferedWriter(new FileWriter(new File(DIR + "rdpRun2_genus.txt")));
