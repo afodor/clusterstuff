@@ -24,7 +24,7 @@ public class CufflinksScripts {
 			String scriptName = "cufflinks_" + s; 
 			BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 					SCRIPTDIR + scriptName)));
-			script.write("#PBS -l walltime=500:00:00\n");
+			script.write("#PBS -l walltime=500:00:00,mem=10GB\n");
 			script.write(CUFF + " --GTF-guide " + GFF + " --output-dir " + 
 					OUTDIR + s + " " + TOPHATDIR + s + 
 					File.separator + "accepted_hits.bam\n");
