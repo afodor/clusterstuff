@@ -34,6 +34,9 @@ public class Run2ReadCounts {
 					if(f.getName().endsWith(".fastq.gz") && f.getName().contains("_R1_")) {
 						int count = 0;
 						String id = f.getName().replace("_L001_R1_001.fastq.gz", "");
+						if(rd.getName().equals("4066-KAM-P1-34087111")) {
+							id = "P1" + id;
+						}
 						BufferedReader br = new BufferedReader(new InputStreamReader
 								(new GZIPInputStream(new FileInputStream((f)))));
 						for(String line = br.readLine(); line != null; line = br.readLine()) {
