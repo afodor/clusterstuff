@@ -1,0 +1,49 @@
+##write CARDIA PCoA axes and draw with the 2 pools
+##4066 only
+##4/4/17
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\Meyer\\Run2\\RDP and QIIME results")
+
+library(vegan)
+
+levels = c("phylum", "class", "order", "family", "genus", "qiime")
+
+pdf("cardiaRun2PCoA_4066only.pdf")
+for(lev in levels) {
+  print(lev)
+  fname = ifelse(grepl("qiime", lev), "run2qiimeClosedRef_taxaAsCol_logNorm_4066only.txt",
+                 paste("cardiaRun2RDP_taxaAsCol_logNorm_4066only_", lev, ".txt", sep=""))
+  table = read.table(fname, sep="\t", header=T)
+  
+  pcoa <- capscale(table[,-(1:2)]~1,distance="bray")
+  ##get percent variance
+  eig = eigenvals(pcoa)
+  if(any(eig<0)) {#need to check there are no negatives
+    warning(paste("NEGATIVE EIGENVALUES-percent variance is incorrect for ", taxa, sep=""))
+  }
+  # cumsum(eig/sum(eig))
+  var = eig/sum(eig)*100 
+  
+  ##color by run
+  col = ifelse(grepl("P1", table$haidshort), "red", "blue")
+  
+  ##shape by number of reads
+  sh = ifelse(table$numReads<1000, 15, 17)
+  
+  par(mar=c(4,4,4,8.1),xpd=T)
+  plot(x=pcoa$CA$u[,1], y=pcoa$CA$u[,2], 
+       xlab=paste("MDS1 (", format(var[[1]], digits=0), "%)", sep=""), 
+       ylab=paste("MDS2 (", format(var[[2]], digits=0), "%)", sep=""), 
+       col=col, pch=sh,
+       main=ifelse(grepl("qiime", lev), "QIIME closed reference", paste("RDP", lev)))
+  legend("topright", inset=c(-.35,0),
+         legend=c("4066 P1", "4066 P2", "# reads < 1000", "# reads >= 1000"),
+         col=c("red", "blue", "gray", "gray"),
+         pch=c(rep(16, 2), 15, 17))
+  
+  write.table(data.frame(haidshort=table$haidshort, pcoa$CA$u), paste("cardiaRun2_pcoaCorrected_4066only_", lev, ".txt", sep=""),
+              sep="\t", row.names = F, col.names = T, quote = F)
+}
+dev.off()

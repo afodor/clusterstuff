@@ -1,0 +1,43 @@
+##look at number of reads at each step
+
+rm(list=ls())
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\Meyer\\Run2\\RDP and QIIME results")
+
+counts = read.table("Run2ReadCounts.txt", header=T, sep="\t", stringsAsFactors = F)
+counts = counts[counts$numRawReads!=0,]
+
+##get RDP counts
+levels = c("phylum", "class", "order", "family", "genus")
+
+for(lev in levels) {
+  table = read.table(paste("cardiaRun2RDP_taxaAsCol_logNorm_", lev, ".txt", sep=""),
+                     sep="\t", header=T, stringsAsFactors = F)
+  table = data.frame(sampleID = table$haidshort, num = table$numReads, stringsAsFactors = F)
+  names(table)[2] = paste("numRDPreads_", lev, sep="")
+  table$sampleID = gsub(".", "-", table$sampleID, fixed=T)
+  counts = merge(counts, table, by="sampleID")
+}
+
+##get QIIME counts
+table = read.table("run2qiimeClosedRef_taxaAsCol_logNorm.txt", header=T, sep="\t", stringsAsFactors = F)
+table = data.frame(sampleID = table$haidshort, numQIIMEreads = table$numReads, stringsAsFactors = F)
+table$sampleID = sub(".", "-", table$sampleID, fixed=T)
+table$sampleID = sub(".", "-", table$sampleID, fixed=T)
+table$sampleID = sub(".", "_", table$sampleID, fixed=T)
+table$sampleID[table$sampleID=="Control-S91"] = "Control_S91"
+table$sampleID[table$sampleID=="PC1-S85"] = "PC1_S85"
+counts = merge(counts, table, by="sampleID")
+
+write.table(counts, "Run2ReadCounts_withClassification.txt", sep="\t", 
+            row.names = F, col.names = T, quote = F)
+
+##percentages
+per = counts[,-1]/counts$numRawReads*100
+per = data.frame(sampleID=counts$sampleID, per)
+perClass = counts[,5:ncol(counts)]/counts$numJoinedReads*100
+perClass =cbind(sampleID=counts$sampleID, perClass)
+write.table(per, "Run2ReadCounts_withClassification_percentOfRaw.txt", sep="\t", 
+            row.names = F, col.names = T, quote = F)
+write.table(perClass, "Run2ReadCounts_withClassification_percentOfJoinedClassified.txt", sep="\t", 
+            row.names = F, col.names = T, quote = F)
