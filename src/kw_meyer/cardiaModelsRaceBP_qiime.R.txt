@@ -1,0 +1,121 @@
+##get p-values and plots for race and every blood pressure variable
+##4/5/17
+
+rm(list=ls())
+
+library(Kendall)
+
+setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\Meyer\\Run1 qiime")
+
+##get metadata
+meta = read.table("..\\cardiadata011617.txt", sep="\t", header=T)
+
+##get variables of interest and list of categorical variables
+varTable = read.table("..\\Kathryn _CARDIAvariables01162017.txt", sep="\t", header=T)
+bpRace = varTable[varTable$X=="Race" | grepl("[B|b]lood pressure", varTable$X),5:13]
+varList = c(tolower(unique(as.vector(t(bpRace)))), "haidshort")
+var = grepl("categorical", varTable$X.1) | grepl("0/1", varTable$X.1) | grepl("0=", varTable$X.1)
+categoricalVar = varTable[var, 5:13]
+catList = tolower(unique(as.vector(t(categoricalVar))))
+
+##subset metadata
+meta = meta[,tolower(names(meta)) %in% varList]
+numMeta = ncol(meta)
+
+table = read.table("run1qiimeClosedRef_taxaAsCol_logNorm.txt", sep="\t", header=T)
+
+##merge with metadata
+mrg = merge(meta, table, by="haidshort")
+
+####get p-values
+length = numMeta * (ncol(mrg) - numMeta)
+metadataName = rep(NA, length)
+microbiomeName = rep(NA, length)
+categorical = rep(NA, length)
+nonparamTest = rep(NA, length)
+pLM = rep(NA, length)
+pNonparametric = rep(NA, length)
+spearman = rep(NA, length)
+index = 1    
+pdf("cardia_MetadataRaceBP_plots_qiimeRun1.pdf",
+    height=39, width=39)
+for(t in (numMeta+1):ncol(mrg)) { #include number of reads
+  abun = mrg[,t]
+  par(mfrow=c(6,6), mar=c(6, 6, 6, .1))
+  if(sum(abun > 0) > nrow(mrg) / 4) {
+    for(m in 2:numMeta) {
+      met = as.numeric(as.character(mrg[,m]))
+      cat = tolower(names(mrg)[m]) %in% catList #if true, metadata is categorical
+      if(length(unique(met[!is.na(met)])) > 1) { #eliminate metadata that is all the same, ex center
+        
+        metadataName[index] = names(mrg)[m]
+        categorical[index] = cat
+        microbiomeName[index] = names(mrg)[t]
+        
+        ##linear model
+        if(cat) {
+          pLM[index] = anova(lm(abun~factor(met)))$`Pr(>F)`[1]
+        } else {
+          pLM[index] = anova(lm(abun~met))$`Pr(>F)`[1]
+        }
+        spearman[index] = cor(x=met, y=abun, method="spearman", use="complete.obs")
+        
+        ##parametric test
+        if(cat) { #categorical -> Wilcox
+          groups = sort(unique(met[!is.na(met)]))
+          if(length(groups) == 2) {
+            pNonparametric[index] = wilcox.test(abun~factor(met))$p.value #wilcox.test(abun[met==groups[1]], abun[met==groups[2]])$p.value
+            nonparamTest[index] = "Wilcox"
+          } else {
+            pNonparametric[index] = kruskal.test(abun~factor(met))$p.value #na.action=getOption("na.action")=na.omit
+            nonparamTest[index] = "Kruskal-Wallis"
+          }
+        } else { #continuous -> Kendall
+          pNonparametric[index] = Kendall(met, abun)$sl[1]
+          nonparamTest[index] = "Kendall"
+        }
+        
+        ##plot
+        main = paste(metadataName[index], " vs. ", microbiomeName[index], "\npLM=",
+                     format(pLM[index], digits = 3), "; pNonparametric=",
+                     format(pNonparametric[index], digits = 3), "; spearman=",
+                     format(spearman[index], digits = 2), sep="")
+        col = ifelse(mrg$RACE=="0", "blue", "red")
+        
+        if(cat) { #boxplot
+          boxplot(abun~met, xlab=metadataName[index], ylab=microbiomeName[index], main=main, cex.main=1.8,
+                  cex.lab=3.7)
+          x = as.numeric(met)
+          if(any(x==0, na.rm=T)) {#0/1 categories are off but 1/2 are not
+            x = x+1
+          }
+          points(x=jitter(x), y=abun, col=col, pch=16, cex=2)
+        } else { #scatter
+          plot(abun~met, xlab=metadataName[index], ylab=microbiomeName[index], main=main, cex.main=1.8,
+               col = col, pch=16, cex=2, cex.lab=3.7)
+        }
+        
+        index = index + 1
+      }
+    }
+  } 
+}
+res = data.frame(metadataName, microbiomeName, categorical, nonparamTest, pLM, pNonparametric, spearman)
+res = res[1:(index-1),]
+res$pAdjLM = p.adjust(res$pLM, method="BH")
+res$pAdjNonparametric = p.adjust(res$pNonparametric, method="BH")
+res = res[order(res$pLM),]
+write.table(res, 
+            "cardia_MetadataRaceBP_pValues_qiimeRun1.txt",
+            sep="\t", row.names = F, col.names = T, quote = F)
+dev.off()
+
+##p-value histogram
+pdf("cardia_MetadataRaceBP_pValueHistogram_qiimeRun1.pdf",
+    height=5, width=12)
+ptab = read.table("cardia_MetadataRaceBP_pValues_qiimeRun1.txt",
+                  sep="\t", header=T)
+par(mfrow=c(1,2))
+hist(ptab$pLM, xlab="linear model p-values", main="QIIME pLM")
+hist(ptab$pNonparametric, xlab="parametric p-values", main="QIIME pNonparametric")
+dev.off()
