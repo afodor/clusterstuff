@@ -76,23 +76,25 @@ for(t in (numMeta+1):ncol(mrg)) { #include number of reads
         }
         
         ##plot
-        main = paste(metadataName[index], " vs. ", microbiomeName[index], "\npLM=",
+        main = paste(metadataName[index], " vs.\n", microbiomeName[index], "\npLM=",
                      format(pLM[index], digits = 3), "; pNonparametric=",
                      format(pNonparametric[index], digits = 3), "; spearman=",
                      format(spearman[index], digits = 2), sep="")
         col = ifelse(mrg$RACE=="0", "blue", "red")
         
         if(cat) { #boxplot
-          boxplot(abun~met, xlab=metadataName[index], ylab=microbiomeName[index], main=main, cex.main=1.8,
+          boxplot(abun~met, xlab=metadataName[index], ylab="", main=main, cex.main=1,
                   cex.lab=3.7)
+          mtext(microbiomeName[index], side=2, line=2, cex=.7)
           x = as.numeric(met)
           if(any(x==0, na.rm=T)) {#0/1 categories are off but 1/2 are not
             x = x+1
           }
           points(x=jitter(x), y=abun, col=col, pch=16, cex=2)
         } else { #scatter
-          plot(abun~met, xlab=metadataName[index], ylab=microbiomeName[index], main=main, cex.main=1.8,
+          plot(abun~met, xlab=metadataName[index], ylab="", main=main, cex.main=1,
                col = col, pch=16, cex=2, cex.lab=3.7)
+          mtext(microbiomeName[index], side=2, line=2, cex=.7)
         }
         
         index = index + 1
