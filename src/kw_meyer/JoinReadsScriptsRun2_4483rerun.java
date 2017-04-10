@@ -1,5 +1,5 @@
 /*
- * generate the scripts to join/stitch the run2 4066 p1 reads
+ * generate the scripts to join/stitch the run2 4483 rerun reads
  */
 package kw_meyer;
 
