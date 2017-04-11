@@ -1,11 +1,12 @@
 ##look at number of reads at each step
+##4/11/17
 
 rm(list=ls())
 
 setwd("C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\Meyer\\Run2\\RDP and QIIME results")
 
 counts = read.table("Run2ReadCounts.txt", header=T, sep="\t", stringsAsFactors = F)
-counts = counts[counts$numRawReads!=0,]
+counts = counts[counts$numRawReads!=0,] #remove extras left over from bad run of joining 4066 P1
 
 ##get RDP counts
 levels = c("phylum", "class", "order", "family", "genus")

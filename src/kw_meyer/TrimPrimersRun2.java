@@ -23,8 +23,8 @@ public class TrimPrimersRun2 {
 		/*int numThreads = 8;
 		Semaphore sem = new Semaphore(numThreads);*/
 
-		//File[] runs = new File(INDIR).listFiles();
-		File[] runs = new File[]{new File(INDIR + "4066-KAM-P2-34764739")};
+		File[] runs = new File(INDIR).listFiles();
+		//File[] runs = new File[]{new File(INDIR + "4066-KAM-P2-34764739")};
 		for(File r : runs) {
 			File[] samples = r.listFiles();
 			for(File s : samples) { // for each sample in each run, filter adapter

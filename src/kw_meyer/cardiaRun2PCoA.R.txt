@@ -1,5 +1,5 @@
-##write CARDIA PCoA axes
-##12/13/16
+##write CARDIA PCoA axes, color by pool
+##4/11/17
 
 rm(list=ls())
 
@@ -28,7 +28,9 @@ for(lev in levels) {
   ##color by run
   col = rep("black", nrow(table)) #controls
   col[grepl("4066", table$haidshort)] = "red"
+  col[grepl("P1", table$haidshort)] = "pink"
   col[grepl("4483", table$haidshort)] = "blue"
+  col[grepl("rerun", table$haidshort)] = "turquoise"
   
   ##shape by number of reads
   sh = ifelse(table$numReads<1000, 15, 17)
@@ -40,9 +42,9 @@ for(lev in levels) {
        col=col, pch=sh,
        main=ifelse(grepl("qiime", lev), "QIIME closed reference", paste("RDP", lev)))
   legend("topright", inset=c(-.35,0),
-         legend=c("Run 4066", "Run 4483", "Control", "# reads < 1000", "# reads >= 1000"),
-         col=c("red", "blue", "black", "gray", "gray"),
-         pch=c(rep(16, 3), 15, 17))
+         legend=c("Run 4066", "Run 4066P1", "Run 4483", "Rerun 4483", "Control", "# reads < 1000", "# reads >= 1000"),
+         col=c("red", "pink", "blue", "turquoise", "black", "gray", "gray"),
+         pch=c(rep(16, 5), 15, 17))
   
   write.table(data.frame(haidshort=table$haidshort, pcoa$CA$u), paste("cardiaRun2_pcoaCorrected_", lev, ".txt", sep=""),
               sep="\t", row.names = F, col.names = T, quote = F)

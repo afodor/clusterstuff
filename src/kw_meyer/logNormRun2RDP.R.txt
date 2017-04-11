@@ -1,5 +1,5 @@
 ##log normalize RDP results for run 2
-##3/27/17
+##4/11/17
 
 rm(list=ls())
 
@@ -35,22 +35,6 @@ for(lev in levels) {
     }
   }
   write.table(lognorm, paste("cardiaRun2RDP_taxaAsCol_logNorm_", lev, ".txt", sep=""),
-              sep="\t", row.names = F, col.names = T, quote = F)
-  
-  ##log normalize 4066 only
-  t4066 = table[grepl("4066", table$haidshort),]
-  print(range(t4066$numReads))
-  lognorm = t4066
-  nc = ncol(lognorm)
-  n = rowSums(t4066[,start:nc]) #number of reads in each sample
-  sumX = sum(n) #total number of reads in all samples 
-  N = nrow(t4066) #total number of samples
-  for(col in start:nc) {
-    for(row in 1:N) {
-      lognorm[row, col] = log10(t4066[row, col]/n[row] * sumX/N + 1)
-    }
-  }
-  write.table(lognorm, paste("cardiaRun2RDP_taxaAsCol_logNorm_4066only_", lev, ".txt", sep=""),
               sep="\t", row.names = F, col.names = T, quote = F)
 }
 dev.off()
