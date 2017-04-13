@@ -30,6 +30,7 @@ public class CuffmergeScriptsNCBI {
 		//set up scripts (for Cobra)
 		BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 				SCRIPTDIR + "cuffmergeNCBI")));
+		script.write("#PBS -l procs=1\n");
 		script.write("PATH=$PATH:/nobackup/afodor_research/kwinglee/software/cufflinks-2.2.1.Linux_x86_64\n");
 		script.write("cuffmerge -o " + CUFFDIR + "cuffmergeNCBI" + " -g " + HUMGFF
 				+ " -p 4 -s " + HUMFA + " " + gtfList + "\n");
