@@ -36,7 +36,11 @@ public class CuffDiffNormScriptsNCBI {
 		}
 		for(String line = meta.readLine(); line != null; line = meta.readLine()) {
 			sp = line.split("\t");
-			caseControl.put(sp[idCol], Integer.parseInt(sp[ccCol]));
+			if(sp.length < ccCol) {
+				caseControl.put(sp[idCol], 2);//control missing annotation
+			} else {
+				caseControl.put(sp[idCol], Integer.parseInt(sp[ccCol]));	
+			}
 		}
 		meta.close();
 
@@ -55,7 +59,7 @@ public class CuffDiffNormScriptsNCBI {
 			} else if(caseControl.get(name) == 1) {
 				cc1 += f.getAbsolutePath() + File.separator + "accepted_hits.bam,";
 			} else {
-				throw new Exception("Invalid caseControl: " + name + " " + caseControl.get(name));
+				System.err.println("Skipped caseControl: " + name + " " + caseControl.get(name));
 			}
 			indiv += f.getAbsolutePath() + File.separator + "accepted_hits.bam ";
 			indLab += name + ",";
