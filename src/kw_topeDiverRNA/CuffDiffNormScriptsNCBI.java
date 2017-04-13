@@ -72,7 +72,8 @@ public class CuffDiffNormScriptsNCBI {
 		//cuffdiff
 		BufferedWriter diff = new BufferedWriter(new FileWriter(new File(
 				SCRIPTDIR + "cuffdiffNCBI")));
-		diff.write("#PBS -l procs=1,walltime=150:00:00\n");
+		//diff.write("#PBS -l procs=1\n");
+		diff.write("#PBS -l walltime=150:00:00,mem=20GB\n");
 		diff.write("PATH=$PATH:" + CUFFDIR + "\n");
 		diff.write("cuffdiff -o " + OUTDIR + "cuffdiffNCBI_caseControl" 
 				+ " -L 0,1 -p 2 " + GFFMERGE + " " +
@@ -82,7 +83,8 @@ public class CuffDiffNormScriptsNCBI {
 		//cuffnorm by case control
 		BufferedWriter norm = new BufferedWriter(new FileWriter(new File(
 				SCRIPTDIR + "cuffnormNCBI_caseControl")));
-		norm.write("#PBS -l procs=1,walltime=150:00:00\n");
+		//norm.write("#PBS -l procs=1\n");
+		norm.write("#PBS -l walltime=150:00:00,mem=20GB\n");
 		norm.write("PATH=$PATH:" + CUFFDIR + "\n");
 		norm.write("cuffnorm -o " + OUTDIR + "cuffnormNCBI_caseControl" 
 				+ " -L 0,1 -p 2 -library-norm-method classic-fpkm " + 
@@ -92,7 +94,8 @@ public class CuffDiffNormScriptsNCBI {
 		//cuffnorm separated
 		BufferedWriter norm2 = new BufferedWriter(new FileWriter(new File(
 				SCRIPTDIR + "cuffnormNCBI_indiv")));
-		norm2.write("#PBS -l procs=1,walltime=150:00:00\n");
+		//norm2.write("#PBS -l procs=1\n");
+		norm2.write("#PBS -l walltime=150:00:00,mem=20GB\n");
 		norm2.write("PATH=$PATH:" + CUFFDIR + "\n");
 		norm2.write("cuffnorm -o " + OUTDIR + "cuffnormNCBI_indiv" 
 				+ " -L " + indLab + " -p 4 -library-norm-method classic-fpkm " + 
