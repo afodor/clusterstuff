@@ -35,7 +35,7 @@ public class WriteSparseThreeColumn
 		{
 			System.out.println(s);
 				List<NewRDPParserFileLine> list = NewRDPParserFileLine.getRdpListSingleThread(
-					topDir.getAbsoluteFile() + File.separator + s	);
+				 new File(	topDir.getAbsoluteFile() + File.separator + s	));
 				
 			for( int x=1; x < NewRDPParserFileLine.TAXA_ARRAY.length; x++)
 			{
