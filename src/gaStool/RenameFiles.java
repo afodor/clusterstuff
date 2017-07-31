@@ -26,6 +26,8 @@ public class RenameFiles
 				String newName = group + "_" + read + ".fasta.gz";
 				
 				System.out.println(oldFile .getAbsolutePath() + File.separator + " " + newName);
+				File newFile = new File(file + File.separator + newName);
+				oldFile.renameTo(newFile);
 			}
 		}
 	}
