@@ -12,10 +12,31 @@ public class CollectFasta
 			"/nobackup/afodor_research/datasets/chinaDec2017/MBiome/raw_3"
 		};
 	
-	
 	public static void main(String[] args) throws Exception
 	{
-		HashSet<String> dirNames = new HashSet<String>();
+		HashSet<File> dirs = getTopDirectories();
+		
+		for(File f : dirs)
+		{
+			File forwardFile = new File(f.getAbsolutePath() + File.separator + 
+					"DMP0" + f.getName().substring(1) + "_L1_" + f + "_1.fq.gz");
+			
+			if( ! forwardFile.exists())
+				throw new Exception("Could not find " + forwardFile);
+			
+			File backwardsFile = new File( f.getAbsolutePath() + File.separator + 
+					"DMP0" + f.getName().substring(1) + "_L1_" + f + "_2.fq.gz" );
+			
+			if( ! backwardsFile.exists())
+				throw new Exception("Could not find "+ backwardsFile);
+		}
+		
+		System.out.println("Finished");
+	}
+	
+	public static HashSet<File> getTopDirectories() throws Exception
+	{
+		HashSet<File> dirNames = new HashSet<File>();
 		
 		for(String dirPath : DIRS_TO_SCAN)
 		{
@@ -29,22 +50,18 @@ public class CollectFasta
 				
 				if( aFile.exists() && aFile.isDirectory() )
 				{
-					if( dirNames.contains(f))
+					if( dirNames.contains(aFile))
 					{
 						throw new Exception("Duplicate  " + f);
 					}
 
-					dirNames.add(f);
+					dirNames.add(aFile);
 				}
 				
 			}
 		}
 		
-		for(String s : dirNames)
-		{
-			System.out.println(s);
-		}
-		
 		System.out.println("Finished with " +  dirNames.size() );
+		return dirNames;
 	}
 }
