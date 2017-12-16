@@ -2,6 +2,7 @@ package chinaDec2017;
 
 import java.io.File;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 public class CollectFasta
 {
@@ -36,7 +37,7 @@ public class CollectFasta
 	
 	public static HashSet<File> getTopDirectories() throws Exception
 	{
-		HashSet<File> dirNames = new HashSet<File>();
+		HashSet<File> dirNames = new LinkedHashSet<File>();
 		
 		for(String dirPath : DIRS_TO_SCAN)
 		{
