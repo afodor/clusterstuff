@@ -15,7 +15,7 @@ public class CollectFasta
 	
 	public static void main(String[] args) throws Exception
 	{
-		HashSet<String> dirNames = new HashSet<>();
+		HashSet<String> dirNames = new HashSet<String>();
 		
 		for(String dirPath : DIRS_TO_SCAN)
 		{
