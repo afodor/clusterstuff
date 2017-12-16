@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
-import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
