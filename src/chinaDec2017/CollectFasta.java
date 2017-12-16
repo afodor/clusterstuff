@@ -15,7 +15,6 @@ public class CollectFasta
 	
 	public static void main(String[] args) throws Exception
 	{
-		int numDuplicates =0;
 		HashSet<String> dirNames = new HashSet<String>();
 		
 		for(String dirPath : DIRS_TO_SCAN)
@@ -28,16 +27,16 @@ public class CollectFasta
 			{
 				File aFile = new File(topDir.getAbsolutePath() + File.separator + f);
 				
-				if( aFile.exists() && aFile.isDirectory() && f.toLowerCase().endsWith(".xls"))
+				if( aFile.exists() && aFile.isDirectory() )
 				{
 					if( dirNames.contains(f))
 					{
-						System.out.println("Duplicate " + f + " " + aFile.getAbsolutePath());
-						numDuplicates++;
+						throw new Exception("Duplicate  " + f);
 					}
+
+					dirNames.add(f);
 				}
 				
-				dirNames.add(f);
 			}
 		}
 		
@@ -46,6 +45,6 @@ public class CollectFasta
 			System.out.println(s);
 		}
 		
-		System.out.println("Finished with " +  dirNames.size() + " " + numDuplicates);
+		System.out.println("Finished with " +  dirNames.size() );
 	}
 }
