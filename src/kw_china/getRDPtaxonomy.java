@@ -19,6 +19,7 @@ import java.util.concurrent.*;
 
 public class getRDPtaxonomy {
 	
+	@SuppressWarnings("rawtypes")
 	public static class AnalyzeFileCallable implements Callable {
 		private File file;
 		private HashMap<String, String> taxonomy;
@@ -105,6 +106,7 @@ public class getRDPtaxonomy {
 		//ExecutorService pool = Executors.newFixedThreadPool(4);
 		HashSet<Future<HashMap<String, String>>> taxa = new HashSet<Future<HashMap<String, String>>>();
 		for(File file : files) {
+			@SuppressWarnings("unchecked")
 			Callable<HashMap<String, String>> call= new AnalyzeFileCallable(file);
 			Future<HashMap<String, String>> future = pool.submit(call);
 			taxa.add(future);

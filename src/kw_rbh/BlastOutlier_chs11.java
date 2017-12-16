@@ -39,8 +39,8 @@ public class BlastOutlier_chs11 {
 		script.write("module load blast\n");
 		scriptx.write("module load blast\n");
 		for(String gene : outliers) {
-			String[] g = gene.split("_");
-			String name = g[g.length-2] + "_" + g[g.length-1];
+			//String[] g = gene.split("_");
+			//String name = g[g.length-2] + "_" + g[g.length-1];
 			/*BufferedWriter script = new BufferedWriter(new FileWriter(new File(
 					BLAST_DIR + "nrBLAST_" + name)));
 			script.write("module load blast\n");*/

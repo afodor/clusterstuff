@@ -54,8 +54,8 @@ public class Determine16SVariableRegion {
 			while(numReads < MAXREADS) {
 				numReads++;
 				String line2 = fq.readLine();
-				String line3 = fq.readLine();
-				String line4 = fq.readLine();
+				/*String line3 =*/ fq.readLine();
+				/*String line4 =*/ fq.readLine();
 				fa.write(line1.replaceFirst("@", ">") + "\n" + line2 + "\n");
 				line1 = fq.readLine();
 			}

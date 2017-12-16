@@ -49,10 +49,10 @@ public class CreateRDPQSub
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
 			RDP_RUN_DIR.getAbsoluteFile() + File.separator + "runAll.sh")));
 		
-		int x=0;
+		//int x=0;
 		for(File f : allShFiles)
 		{
-			x++;
+			//x++;
 			writer.write("qsub "+ f.getAbsolutePath() +  "\n"  );
 		}
 		

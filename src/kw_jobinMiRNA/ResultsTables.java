@@ -113,6 +113,7 @@ public class ResultsTables {
 		writeTable("blast", miRmature, miRhairpin, mouse, piR);
 	}
 
+	/*
 	private static void analyzeJava() throws IOException {
 		HashMap<String, Integer> miRmature = new HashMap<String, Integer>();
 		HashMap<String, Integer> miRhairpin = new HashMap<String, Integer>();
@@ -125,8 +126,8 @@ public class ResultsTables {
 			mouse.put(key, NA);
 		}*/
 	
-		writeTable("java", miRmature, miRhairpin, mouse, piR);
-	}
+	//	writeTable("java", miRmature, miRhairpin, mouse, piR);
+//	}
 
 	private static int getBowtieCounts(File file) throws IOException {
 		BufferedReader br = new BufferedReader(new FileReader(file));
