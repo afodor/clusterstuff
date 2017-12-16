@@ -13,23 +13,38 @@ public class CollectFasta
 			"/nobackup/afodor_research/datasets/chinaDec2017/MBiome/raw_3"
 		};
 	
+	private static File findOneFile(File dir, String name, int read)
+		throws Exception
+	{
+		String[] list = dir.list();
+		
+		File returnFile = null;
+		
+		for(String s : list)
+		{
+			if( s.endsWith(name + "_" + read +  ".fq.gz"))
+			{
+				if( returnFile != null)
+					throw new Exception("Duplicate " + dir.getAbsolutePath() + " " +  name + " " + read);
+				
+				returnFile = new File(dir.getAbsolutePath() + File.separator +s );
+			}
+		}
+		
+		if( returnFile == null ) 
+			throw new Exception("Could not find " +  dir.getAbsolutePath() + " " +  name + " " + read);
+		
+		return returnFile;
+	}
+	
 	public static void main(String[] args) throws Exception
 	{
 		HashSet<File> dirs = getTopDirectories();
 		
 		for(File f : dirs)
 		{
-			File forwardFile = new File(f.getAbsolutePath() + File.separator + 
-					"DMP0" + f.getName().substring(1) + "_L1_" + f.getName() + "_1.fq.gz");
-			
-			if( ! forwardFile.exists())
-				throw new Exception("Could not find " + forwardFile);
-			
-			File backwardsFile = new File( f.getAbsolutePath() + File.separator + 
-					"DMP0" + f.getName().substring(1) + "_L1_" + f.getName() + "_2.fq.gz" );
-			
-			if( ! backwardsFile.exists())
-				throw new Exception("Could not find "+ backwardsFile);
+			File forwardFile = findOneFile(f, f.getName(), 1);
+			File backwardsFile = findOneFile(f, f.getName(), 2);
 		}
 		
 		System.out.println("Finished");
