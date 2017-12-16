@@ -1,11 +1,21 @@
 package chinaDec2017;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.InputStreamReader;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.zip.GZIPInputStream;
+
+import parsers.FastQ;
 
 public class CollectFasta
 {
+	public static final String FASTA_OUT = "/nobackup/afodor_research/datasets/chinaDec2017/MBiome/fastaFromRaw";
+	
 	private static final String[] DIRS_TO_SCAN = 
 		{
 			"/nobackup/afodor_research/datasets/chinaDec2017/MBiome/raw_1",
@@ -37,14 +47,46 @@ public class CollectFasta
 		return returnFile;
 	}
 	
+	public static void fastqToFasta(File inFile, File outFile) throws Exception
+	{
+		BufferedReader reader =
+				new BufferedReader(new InputStreamReader( 
+						new GZIPInputStream( new FileInputStream( inFile))));
+		
+		BufferedWriter writer = new BufferedWriter(new FileWriter(outFile));
+		
+		for(FastQ fastq = FastQ.readOneOrNull(reader); fastq != null; 
+				fastq = FastQ.readOneOrNull(reader))
+		{
+			writer.write(">" + fastq.getHeader()+ "\n");
+			writer.write(fastq.getSequence() + "\n");
+		}
+		
+		writer.flush();  writer.close();
+		reader.close();
+	}
+	
 	public static void main(String[] args) throws Exception
 	{
 		HashSet<File> dirs = getTopDirectories();
 		
+		int x=0;
 		for(File f : dirs)
 		{
 			File forwardFile = findOneFile(f, f.getName(), 1);
+			
+			File outFasta1 = new File(FASTA_OUT + File.separator + f.getName() + "_1.fasta");
+			
+			fastqToFasta(forwardFile, outFasta1);
+			
 			File backwardsFile = findOneFile(f, f.getName(), 2);
+		
+			File outFasta2 = new File(FASTA_OUT + File.separator + f.getName() + "_2.fasta");
+			
+			fastqToFasta(backwardsFile, outFasta2);
+			x++;
+			System.out.println(x);
+			
 		}
 		
 		System.out.println("Finished");
