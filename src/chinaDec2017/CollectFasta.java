@@ -15,6 +15,7 @@ public class CollectFasta
 	
 	public static void main(String[] args) throws Exception
 	{
+		int numDuplicates =0;
 		HashSet<String> dirNames = new HashSet<String>();
 		
 		for(String dirPath : DIRS_TO_SCAN)
@@ -30,7 +31,10 @@ public class CollectFasta
 				if( aFile.exists() && aFile.isDirectory())
 				{
 					if( dirNames.contains(f))
-						throw new Exception("Duplicate " + f + " " + aFile.getAbsolutePath());
+					{
+						System.out.println("Duplicate " + f + " " + aFile.getAbsolutePath());
+						numDuplicates++;
+					}
 				}
 				
 				dirNames.add(f);
@@ -42,7 +46,6 @@ public class CollectFasta
 			System.out.println(s);
 		}
 		
-		System.out.println("Finished with " +  dirNames.size());
+		System.out.println("Finished with " +  dirNames.size() + " " + numDuplicates);
 	}
-	
 }
