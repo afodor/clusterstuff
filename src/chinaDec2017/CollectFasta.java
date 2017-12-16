@@ -28,7 +28,7 @@ public class CollectFasta
 			{
 				File aFile = new File(topDir.getAbsolutePath() + File.separator + f);
 				
-				if( aFile.exists() && aFile.isDirectory())
+				if( aFile.exists() && aFile.isDirectory() && f.toLowerCase().endsWith(".xls"))
 				{
 					if( dirNames.contains(f))
 					{
