@@ -9,7 +9,7 @@ public class CollectFasta
 		{
 			"/nobackup/afodor_research/datasets/chinaDec2017/MBiome/raw_1",
 			"/nobackup/afodor_research/datasets/chinaDec2017/MBiome/raw_2",
-			"/nobackup/afodor_research/datasets/chinaDec2017/MBiome/raw_1"
+			"/nobackup/afodor_research/datasets/chinaDec2017/MBiome/raw_3"
 		};
 	
 	
