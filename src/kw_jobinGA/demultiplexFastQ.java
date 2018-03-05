@@ -17,7 +17,7 @@ import java.util.zip.GZIPInputStream;
 
 public class demultiplexFastQ {
 	//directory containing the needed files; also where will write results
-	public static final String DIR = "/nobackup/afodor_research/archive/kwinglee/jobin/ga-stool";
+	public static final String DIR = "/nobackup/afodor_research/archive/kwinglee/jobin/ga-stool/";
 	//public static final String DIR = "C:\\Users\\kwinglee.cb3614tscr32wlt\\Documents\\Fodor\\JobinCollaboration\\GA-stools\\V1_V3_16S_GA+stools_2-25611692\\Sample_1-29344834\\Data\\Intensities\\BaseCalls\\";
 
 	private static HashMap<String, String> P_TO_SEQ;//hash of primer to primer sequence
