@@ -107,6 +107,8 @@ public class demultiplexFastQ {
 			String[] sp = line.split("\t");
 			String samp = sp[1]; //sample name
 			pToSamp.put(sp[2]+sp[3], samp);
+			System.out.println("CREATING " + DIR + File.separator + 
+					"fastqSeqs" + File.separator + outPrefix + "R1_" + samp + ".fastq" );
 			BufferedWriter[] files = {new BufferedWriter(new FileWriter(new File(DIR + File.separator + 
 					"fastqSeqs" + File.separator + outPrefix + "R1_" + samp + ".fastq"))),
 					new BufferedWriter(new FileWriter(new File(DIR + File.separator + "fastqSeqs" + 
