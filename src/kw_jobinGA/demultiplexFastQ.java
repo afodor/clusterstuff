@@ -245,7 +245,7 @@ public class demultiplexFastQ {
 		if( index != -1)
 		{
 			int endIndex = index + primer.length();
-			endIndex = Math.max(endIndex, seqString.length() -1);
+			endIndex = Math.min(endIndex, seqString.length() -1);
 			seqString = seqString.substring(0, index) + seqString.substring(endIndex);
 			qualScoreString = qualScoreString.substring(0,index) + qualScoreString.substring(endIndex);
 		}
