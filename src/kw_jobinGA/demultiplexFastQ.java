@@ -80,7 +80,7 @@ public class demultiplexFastQ {
 		
 	}
 	
-	public static void analyze(String fastqFileF, String fastqFileR, String outPrefix) throws IOException {
+	public static void analyze(String fastqFileF, String fastqFileR, String outPrefix) throws Exception {
 		//set up dictionary of primer name to primer sequence
 		P_TO_SEQ = new HashMap<String, String>();
 		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(DIR + "primer_to_sequence.txt"))));
@@ -176,10 +176,22 @@ public class demultiplexFastQ {
 			if(pToSamp.containsKey(key)) {
 				samp = pToSamp.get(key);
 				//only remove primers if not going into other category
-				readF = readF.replace(P_TO_SEQ.get(pF), "");
-				readF = readF.replace(revComp(P_TO_SEQ.get(pF)), "");
-				readR = readR.replace(P_TO_SEQ.get(pR), "");
-				readR = readR.replace(revComp(P_TO_SEQ.get(pR)), "");
+				
+				Holder h1 = trim( readF, fourthF,P_TO_SEQ.get(pF));
+				readF = h1.seqString;
+				fourthF = h1.qualScoreString;
+				
+				Holder h2 = trim( readF, fourthF,revComp(P_TO_SEQ.get(pF)));
+				readF = h2.seqString;
+				fourthF = h2.qualScoreString;
+				
+				Holder h3 = trim( readR, fourthR,P_TO_SEQ.get(pR));
+				readR = h3.seqString;
+				fourthR = h3.qualScoreString;
+				
+				Holder h4 = trim( readR, fourthR,revComp(P_TO_SEQ.get(pR)));
+				readR = h4.seqString;
+				fourthR = h4.qualScoreString;
 			}
 			
 			if(numRead % 1000000 == 0) {
@@ -215,5 +227,36 @@ public class demultiplexFastQ {
 			sToFile.get(k)[0].close();
 			sToFile.get(k)[1].close();
 		}
+	}
+	
+	private static class Holder 
+	{
+		String seqString;
+		String qualScoreString;
+	}
+	
+	private static Holder trim(String seqString, String qualScoreString, String primer)
+		throws Exception
+	{
+		int index = seqString.indexOf(primer);
+		
+		if( seqString.length() != qualScoreString.length())
+			throw new Exception("Parsing error");
+		
+		if( index != -1)
+		{
+			int endIndex = index + primer.length();
+			endIndex = Math.max(endIndex, seqString.length() -1);
+			seqString = seqString.substring(0, index) + seqString.substring(endIndex);
+			qualScoreString = qualScoreString.substring(0,index) + qualScoreString.substring(endIndex);
+		}
+		
+		if( seqString.length() != qualScoreString.length())
+			throw new Exception("logic error");
+		
+		Holder h =new Holder();
+		h.seqString = seqString;
+		h.qualScoreString = qualScoreString;
+		return h;
 	}
 }
