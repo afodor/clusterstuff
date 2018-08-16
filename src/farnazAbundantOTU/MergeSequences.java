@@ -23,6 +23,7 @@ public class MergeSequences
 			if( s.endsWith(".fasta.gz"))
 			{
 				String sampleName = s.replace(".fastq.gz", "");
+				System.out.println(sampleName);
 				
 				int index = 1;
 				File inFile = new File(INPUT_DIRECTORY + File.separator + s);
