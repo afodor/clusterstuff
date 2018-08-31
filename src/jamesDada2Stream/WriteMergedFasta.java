@@ -34,7 +34,7 @@ public class WriteMergedFasta
 		
 		System.out.println("Got " + map.size() + " unique sequences");
 		
-		List<Holder> list = new ArrayList<>();
+		List<Holder> list = new ArrayList<Holder>();
 		
 		for(String s : map.keySet())
 		{
