@@ -5,38 +5,71 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.StringTokenizer;
 
 public class WriteMergedFasta
 {
 	private static String TOP_DIR = "/scratch/afodor_research/datasets/uegp/raw_Stream_16S/forward_filtered";
 
+	private static class Holder implements Comparable<Holder>
+	{
+		String seq;
+		Long count;
+		
+		@Override
+		public int compareTo(Holder other)
+		{
+			return this.count.compareTo(other.count);
+		}
+	}
+	
 	public static void main(String[] args) throws Exception
 	{
-		HashSet<String> set = getSet();
+		HashMap<String, Long>  map = getMap();
 		
-		System.out.println("Got " + set.size() + " unique sequences");
+		System.out.println("Got " + map.size() + " unique sequences");
+		
+		List<Holder> list = new ArrayList<>();
+		
+		for(String s : map.keySet())
+		{
+			Holder h = new Holder();
+			h.count = map.get(s);
+			h.seq = s;
+			list.add(h);
+		}
+		
+		Collections.sort(list);
 		
 		BufferedWriter writer = new BufferedWriter(new  FileWriter(
 				new File("/scratch/afodor_research/datasets/uegp/dada2ToBlast/collectedSeqVariants.txt")));
 		
-		int index =1;
+		BufferedWriter writer2 = new BufferedWriter(new  FileWriter(
+				new File("/scratch/afodor_research/datasets/uegp/dada2ToBlast/rankAbundance.txt")));
 		
-		for(String s: set)
+		writer2.write("rank\tcount\tsequence\n");
+		
+		int index = 1;
+		for(Holder h : list)
 		{
-			writer.write(">" + index + "\n");
-			index++;
-			writer.write(s + "\n");
+			writer.write(">Seq" + index + " counts=" + h.count + "\n");
+			writer.write(h.seq + "\n");
+			
+			writer2.write(index + "\t" + h.count + "\t" + h.seq + "\n");
 		}
 		
 		writer.flush(); writer.close();
+		writer2.flush();  writer2.close();	
 	}
 	
-	public static HashSet<String> getSet() throws Exception
+	public static HashMap<String, Long> getMap() throws Exception
 	{
-		HashSet<String> set =new LinkedHashSet<String>();
+		HashMap<String,Long> map=new LinkedHashMap<String,Long>();
 		
 		File topDir = new File(TOP_DIR);
 		
@@ -54,24 +87,44 @@ public class WriteMergedFasta
 					{
 						File aFile = new File(bottomDir.getAbsolutePath() +File.separator + fileName);
 						System.out.println(aFile.getAbsolutePath());
-						addToSet(set, aFile);
+						addToMap(map, aFile);
 					}
 				}
 			}
 		}
 		
-		return set;
+		return map;
 	}
 	
-	private static void addToSet(HashSet<String> set, File file) throws Exception
+	private static void addToMap(HashMap<String,Long> map, File file) throws Exception
 	{
 		BufferedReader reader = new BufferedReader(new FileReader(file));
 		
 		String firstLine = reader.readLine();
+		String secondLine = reader.readLine();
 		StringTokenizer sToken = new StringTokenizer(firstLine);
 		
+		StringTokenizer sToken2 = new StringTokenizer(secondLine);
+		
+		sToken2.nextToken();
+		
 		while(sToken.hasMoreTokens())
-			set.add(sToken.nextToken().replaceAll("\"", ""));
+		{
+			String seq = sToken.nextToken().replaceAll("\"", "");
+			long count = Long.parseLong(sToken2.nextToken().replaceAll("\"", ""));
+			
+			Long oldCount = map.get(seq);
+			
+			if( oldCount == null)
+				oldCount = 0l;
+			
+			oldCount += count;
+			
+			map.put(seq, oldCount);
+		}
+		
+		if( sToken2.hasMoreTokens())
+			throw new Exception("Parsing error");
 		
 		reader.close();
 	}
