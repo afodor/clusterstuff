@@ -9,17 +9,15 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.StringTokenizer;
 
-
 public class WriteMergedFasta
 {
-	private static String TOP_DIR = "/scratch/afodor_research/datasets/uegp/raw_Stream_16S/forward_filtered/APR";
+	private static String TOP_DIR = "/scratch/afodor_research/datasets/uegp/raw_Stream_16S/forward_filtered";
 
 	public static void main(String[] args) throws Exception
 	{
 		HashSet<String> set = getSet();
 		
 		System.out.println("Got " + set.size() + " unique sequences");
-		
 		
 		BufferedWriter writer = new BufferedWriter(new  FileWriter(
 				new File("/scratch/afodor_research/datasets/uegp/dada2ToBlast/collectedSeqVariants.txt")));
