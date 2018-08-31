@@ -53,6 +53,7 @@ public class WriteMergedFasta
 					if( fileName.endsWith("_F.txt"))
 					{
 						File aFile = new File(bottomDir.getAbsolutePath() +File.separator + fileName);
+						System.out.println(aFile.getAbsolutePath());
 						addToSet(set, aFile);
 					}
 				}
