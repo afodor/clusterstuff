@@ -61,6 +61,7 @@ public class WriteMergedFasta
 			writer.write(h.seq + "\n");
 			
 			writer2.write(index + "\t" + h.count + "\t" + h.seq + "\n");
+			index++;
 		}
 		
 		writer.flush(); writer.close();
