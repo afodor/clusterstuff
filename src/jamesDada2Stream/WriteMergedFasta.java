@@ -24,7 +24,7 @@ public class WriteMergedFasta
 		@Override
 		public int compareTo(Holder other)
 		{
-			return this.count.compareTo(other.count);
+			return other.count.compareTo(this.count);
 		}
 	}
 	
