@@ -31,7 +31,6 @@ module load blast
 			{
 				File inFile = new File(BreakUpFastaFile.OUT_FILE_DIR + File.separator + s);
 				
-				
 				File scriptFile =new File(  scriptsDir.getAbsolutePath() + File.separator + "run_" + index + ".txt" );
 				
 				index++;
@@ -42,7 +41,7 @@ module load blast
 				allWriter.write("qsub -q \"copperhead\" " + scriptFile.getAbsolutePath() +  "\n"  );
 				
 
-				BufferedWriter writer = new BufferedWriter(new FileWriter(outFile));
+				BufferedWriter writer = new BufferedWriter(new FileWriter(scriptFile));
 				
 				writer.write("#!/bin/sh\n");
 				writer.write("#PBS -q copperhead\n");
