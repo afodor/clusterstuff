@@ -24,16 +24,22 @@ module load blast
 		BufferedWriter allWriter = new BufferedWriter(new FileWriter(scriptsDir.getAbsolutePath() +
 						File.separator + "all.sh"));
 		
+		int index =0;
 		for(String s  : list)
 		{
 			if ( s.endsWith(".fasta"))
 			{
 				File inFile = new File(BreakUpFastaFile.OUT_FILE_DIR + File.separator + s);
 				
-				File outFile = new File(scriptsDir+ File.separator + 
+				
+				File scriptFile =new File(  scriptsDir.getAbsolutePath() + File.separator + "run_" + index + ".txt" );
+				
+				index++;
+				
+				File outFile = new File(blastOutDir+ File.separator + 
 						s.replace(".fasta", "toSilva.txt"));
 				
-				allWriter.write("qsub -q \"copperhead\" " + outFile.getAbsolutePath() +  "\n"  );
+				allWriter.write("qsub -q \"copperhead\" " + scriptFile.getAbsolutePath() +  "\n"  );
 				
 
 				BufferedWriter writer = new BufferedWriter(new FileWriter(outFile));
