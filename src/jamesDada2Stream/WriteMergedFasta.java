@@ -14,7 +14,7 @@ import java.util.StringTokenizer;
 
 public class WriteMergedFasta
 {
-	private static String TOP_DIR = "/scratch/afodor_research/datasets/uegp/raw_Stream_16S/forward_filtered";
+	public static String TOP_DIR = "/scratch/afodor_research/datasets/uegp/raw_Stream_16S/forward_filtered";
 
 	private static class Holder implements Comparable<Holder>
 	{
