@@ -10,7 +10,7 @@ import parsers.FastaSequenceOneAtATime;
 
 public class BreakUpFastaFile
 {
-	public static String IN_FILE_PATH = "/scratch/afodor_research/datasets/uegp/dada2ToBlast";
+	public static String IN_FILE_PATH = "/scratch/afodor_research/datasets/uegp/dada2ToBlast/collectedSeqVariants.txt";
 	
 	public static String OUT_FILE_DIR = "/scratch/afodor_research/datasets/uegp/dada2ToBlast/brokenUp";
 	
