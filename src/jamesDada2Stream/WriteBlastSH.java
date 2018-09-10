@@ -30,7 +30,7 @@ module load blast
 			{
 				File inFile = new File(BreakUpFastaFile.OUT_FILE_DIR + File.separator + s);
 				
-				File outFile = new File(blastOutDir + File.separator + 
+				File outFile = new File(scriptsDir+ File.separator + 
 						s.replace(".fasta", "toSilva.txt"));
 				
 				allWriter.write("qsub -q \"copperhead\" " + outFile.getAbsolutePath() +  "\n"  );
