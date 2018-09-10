@@ -45,7 +45,7 @@ module load blast
 				
 				writer.write("#!/bin/sh\n");
 				writer.write("#PBS -q copperhead\n");
-				writer.write("PBS -l nodes=1:ppn=1\n");
+				writer.write("#PBS -l nodes=1:ppn=1\n");
 				
 				writer.write("module load blast\n");
 				writer.write("/apps/pkg/ncbi-blast-2.3.0+/rhel7_u2-x86_64/gnu/bin/blastn ");
