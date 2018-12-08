@@ -11,8 +11,8 @@ public class CreateRDPQSub
 	private static int countNum =0 ;
 	
 	public static final File FASTA_DIR = new File("/projects/afodor_research/ianCorrected/fastain");
-	public static final File RDP_OUT_DIR = new File( "/projects/afodor_research/ianCorrected/Carroll_Anorexia/rdpOut");
-	public static final File RDP_RUN_DIR = new File("/projects/afodor_research/ianCorrected/Carroll_Anorexia/rdpRun");
+	public static final File RDP_OUT_DIR = new File( "/projects/afodor_research/ianCorrected/rdpOut");
+	public static final File RDP_RUN_DIR = new File("/projects/afodor_research/ianCorrected/rdpRun");
 	
 	public static void main(String[] args) throws Exception
 	{
