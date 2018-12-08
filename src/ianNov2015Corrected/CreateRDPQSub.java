@@ -32,6 +32,10 @@ public class CreateRDPQSub
 			
 			BufferedWriter writer = new BufferedWriter( new FileWriter(runFile));
 			
+			writer.write("#!/bin/sh\n");
+			writer.write("#PBS -q copperhead\n");
+			writer.write("#PBS -l nodes=1:ppn=1\n");
+			
 			writer.write("java -jar /users/afodor/rdp/rdp_classifier_2.10.1/dist/classifier.jar " + 
 					"-o " + rdpOutFile.getAbsolutePath()  + " -q " + fastaFile+ "\n" );
 					
