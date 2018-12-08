@@ -52,7 +52,7 @@ public class CreateRDPQSub
 		for(File f : allShFiles)
 		{
 			x++;
-			writer.write("qsub -q \"viper_batch\" -N \"CountJob" 
+			writer.write("qsub -N \"CountJob" 
 					+ x + "\" " + f.getAbsolutePath() +  "\n"  );
 		}
 		
