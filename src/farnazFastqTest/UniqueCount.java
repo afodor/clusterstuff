@@ -9,6 +9,7 @@ import parsers.FastQ;
 
 public class UniqueCount
 {
+	// BUGGED CODE DO NOT USE IN PRODUCITON!!!!!
 	public static void main(String[] args) throws Exception
 	{
 		int totalSeqs=0;
@@ -19,9 +20,12 @@ public class UniqueCount
 		for( FastQ fq =  FastQ.readOneOrNull(reader); fq != null; fq =  FastQ.readOneOrNull(reader))
 		{
 	
+			// WARNING: THIS IS AN ATTEMPT TO REPLICATE A BUG
+			boolean keepGoing = true;
+			
 			String key = fq.getSequence();
 			
-			if( key.length() >= 200 )
+			if( key.length() >= 200 && keepGoing )
 			{
 				key = key.substring(0,200);
 				
@@ -34,6 +38,10 @@ public class UniqueCount
 				
 				map.put(key, val);
 			
+			}
+			else
+			{
+				keepGoing =false;
 			}
 			
 			totalSeqs++;
