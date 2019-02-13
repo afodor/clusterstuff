@@ -19,7 +19,6 @@ public class UniqueCount
 		
 		for( FastQ fq =  FastQ.readOneOrNull(reader); fq != null; fq =  FastQ.readOneOrNull(reader))
 		{
-			
 			String key = fq.getSequence();
 			
 			if( key.length() >= 200 )
