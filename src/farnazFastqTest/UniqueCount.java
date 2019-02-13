@@ -21,14 +21,22 @@ public class UniqueCount
 	
 			String key = fq.getSequence();
 			
-			Integer val =map.get(key);
+			if( key.length() >= 200 )
+			{
+				key = key.substring(0,200);
+				
+				Integer val =map.get(key);
+				
+				if( val ==null) 
+					val =0;
+				
+				val++;
+				
+				map.put(key, val);
 			
-			if( val ==null) 
-				val =0;
+			}
 			
-			val++;
 			
-			map.put(key, val);
 			totalSeqs++;
 		}
 		
