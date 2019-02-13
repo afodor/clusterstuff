@@ -41,6 +41,7 @@ public class UniqueCount
 			}
 			else
 			{
+				System.out.println("FOUND BAD SEQ ");
 				keepGoing =false;
 			}
 			
