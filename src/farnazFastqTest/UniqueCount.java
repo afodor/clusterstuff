@@ -19,13 +19,10 @@ public class UniqueCount
 		
 		for( FastQ fq =  FastQ.readOneOrNull(reader); fq != null; fq =  FastQ.readOneOrNull(reader))
 		{
-	
-			// WARNING: THIS IS AN ATTEMPT TO REPLICATE A BUG
-			boolean keepGoing = true;
 			
 			String key = fq.getSequence();
 			
-			if( key.length() >= 200 && keepGoing )
+			if( key.length() >= 200 )
 			{
 				key = key.substring(0,200);
 				
@@ -41,8 +38,10 @@ public class UniqueCount
 			}
 			else
 			{
-				System.out.println("FOUND BAD SEQ ");
-				keepGoing =false;
+				System.out.println("FOUND BAD SEQ @" + totalSeqs);
+				System.out.println("total seqs "+ totalSeqs );
+				System.out.println(map.size() + " unique sequences");
+				System.exit(1);
 			}
 			
 			totalSeqs++;
