@@ -18,8 +18,7 @@ public class UniqueCount
 		
 		for( FastQ fq =  FastQ.readOneOrNull(reader); fq != null; fq =  FastQ.readOneOrNull(reader))
 		{
-			totalSeqs++;
-			
+	
 			String key = fq.getSequence();
 			
 			Integer val =map.get(key);
