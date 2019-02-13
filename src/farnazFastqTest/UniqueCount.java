@@ -12,7 +12,7 @@ public class UniqueCount
 	public static void main(String[] args) throws Exception
 	{
 		int totalSeqs=0;
-		HashMap<String, Integer> map = new HashMap<>();
+		HashMap<String, Integer> map = new HashMap<String,Integer>();
 		
 		BufferedReader reader = new BufferedReader(new FileReader(new File("/scratch/afodor_research/datasets/test/806rcbc10_AN34_R1.fastq")));
 		
