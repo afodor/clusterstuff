@@ -36,7 +36,6 @@ public class UniqueCount
 			
 			}
 			
-			
 			totalSeqs++;
 		}
 		
@@ -46,6 +45,6 @@ public class UniqueCount
 			sum += map.get(s);
 		
 		System.out.println("total seqs "+ totalSeqs );
-		System.out.println("Included seqs " + sum);
+		System.out.println("Included seqs " + sum + " in " + map.size() + " unique sequences");
 	}
 }
