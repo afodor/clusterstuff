@@ -50,7 +50,7 @@ public class TestRDP
 		{
 			NewRDPNode node = rdpLine.getTaxaMap().get(level);
 			
-			if( node.getScore() >= THRESHOLD )
+			if( node != null &&  node.getScore() >= THRESHOLD )
 			{
 				Long count =map.get(node.getTaxaName());
 				
