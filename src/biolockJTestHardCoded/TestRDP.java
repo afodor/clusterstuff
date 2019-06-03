@@ -83,11 +83,16 @@ public class TestRDP
 				if( ! thisVal.equals(parsedVal))
 					throw new Exception("Mismatched for " + name + " " + parsedVal + " " + thisVal);
 				
+				innerMap.remove(name);
+				
 				checked++;
 			}
 		}
 		
 		System.out.println("Ok checked " + checked);
+		
+		if( innerMap.size() != 0)
+			throw new Exception("Leftover " + innerMap.keySet());
 	}
 	
 	
