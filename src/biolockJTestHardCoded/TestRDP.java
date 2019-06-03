@@ -19,8 +19,33 @@ public class TestRDP
 	
 	public static void main(String[] args) throws Exception
 	{
-		getCountsForDirectory(new File(IN_RDP_DIRECTORY), "family");
+		HashMap<String, HashMap<String,Long>> map = 
+				getCountsForDirectory(new File(IN_RDP_DIRECTORY), "family");
+		
+		checkForDirectory(new File(BULK_RDP_DIRECTORY), map);
 	}
+	
+	private static void checkForDirectory(File inDir,HashMap<String, HashMap<String,Long>> map ) throws Exception
+	{
+		String[] files = inDir.list();
+		
+		for(String s : files )
+		{
+			if( s.endsWith(".tsv"))
+			{
+				File inFile =new File(inDir.getAbsoluteFile() + File.separator + s);
+				
+				String aName = inFile.getName();
+				
+				aName =aName.substring(aName.lastIndexOf("_")+1, aName.length()-4);
+				
+				if( ! map.containsKey(aName) )
+					throw new Exception("Could not find " + aName + " in " + map.keySet());
+				
+			}
+		}
+	}
+	
 	
 	private static HashMap<String, HashMap<String,Long>> getCountsForDirectory(File inDir, String level) throws Exception
 	{
