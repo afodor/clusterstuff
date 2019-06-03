@@ -21,9 +21,9 @@ public class TestRDP
 		getCountsForDirectory(new File(IN_RDP_DIRECTORY), "family");
 	}
 	
-	private static HashMap<File, HashMap<String,Long>> getCountsForDirectory(File inDir, String level) throws Exception
+	private static HashMap<String, HashMap<String,Long>> getCountsForDirectory(File inDir, String level) throws Exception
 	{
-		HashMap<File, HashMap<String,Long>>  map = new HashMap<>();
+		HashMap<String, HashMap<String,Long>>  map = new HashMap<>();
 		
 		for(String fileName : inDir.list())
 		{
@@ -33,7 +33,11 @@ public class TestRDP
 			
 			System.out.println("Got " + file.getName() + " "+  innerMap.size() + " "+  level);
 			
-			map.put(file, innerMap);
+			String aName = file.getName();
+			
+			aName = aName.substring(aName.lastIndexOf("_"), aName.length()).replace(".tsv", "");
+			
+			map.put(aName, innerMap);
 		}
 		
 		return map;
