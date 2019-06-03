@@ -92,7 +92,7 @@ public class TestRDP
 		System.out.println("Ok checked " + checked);
 		
 		if( innerMap.size() != 0)
-			throw new Exception("Leftover " + innerMap);
+			System.out.println("COULD NOT FIND  " + innerMap);
 	}
 	
 	
