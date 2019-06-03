@@ -2,6 +2,7 @@ package biolockJTestHardCoded;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.StringTokenizer;
 
 import parsers.NewRDPNode;
 import parsers.NewRDPParserFileLine;
@@ -33,7 +34,7 @@ public class TestRDP
 			
 			String aName = file.getName();
 			
-			aName = aName.substring(aName.lastIndexOf("_"), aName.length()-4);
+			aName = new StringTokenizer(aName, "_").nextToken();
 			
 			System.out.println("Got " + aName + " "+  innerMap.size() + " "+  level);
 			
