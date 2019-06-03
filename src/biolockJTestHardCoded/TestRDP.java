@@ -54,8 +54,10 @@ public class TestRDP
 			{
 				Long count =map.get(node.getTaxaName());
 				
-				if( count == 0) 
-					count = count +1;
+				if( count == null)
+					count =0l;
+				
+				count = count +1;
 				
 				map.put(node.getTaxaName(), count);
 			}
