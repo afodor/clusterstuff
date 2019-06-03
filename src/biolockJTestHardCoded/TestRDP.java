@@ -1,6 +1,8 @@
 package biolockJTestHardCoded;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
@@ -42,8 +44,26 @@ public class TestRDP
 				if( ! map.containsKey(aName) )
 					throw new Exception("Could not find " + aName + " in " + map.keySet());
 				
+				HashMap<String,Long> innerMap = map.get(aName);
+				assertEqual(inFile, innerMap);
 			}
 		}
+	}
+	
+	private static void assertEqual( File inFile, HashMap<String,Long> innerMap ) throws Exception
+	{
+		System.out.println("check " + inFile.getAbsolutePath());
+		BufferedReader reader = new BufferedReader(new FileReader(inFile));
+		
+		for(String s= reader.readLine(); s!= null; s= reader.readLine() )
+		{
+			StringTokenizer sToken = new StringTokenizer(s, "\t");
+			
+			if( sToken.countTokens() != 2)
+				throw new Exception("Expecting two tokens");
+		}
+		
+		System.out.println("Ok");
 	}
 	
 	
@@ -83,14 +103,18 @@ public class TestRDP
 			
 			if( node != null &&  node.getScore() >= THRESHOLD )
 			{
-				Long count =map.get(node.getTaxaName());
+				if( node.getTaxaName().toLowerCase().indexOf("unclassified") == -1)  
+				{
+					Long count =map.get(node.getTaxaName());
+					
+					if( count == null)
+						count =0l;
+					
+					count = count +1;
+					
+					map.put(node.getTaxaName(), count);
+				}
 				
-				if( count == null)
-					count =0l;
-				
-				count = count +1;
-				
-				map.put(node.getTaxaName(), count);
 			}
 		}
 		
