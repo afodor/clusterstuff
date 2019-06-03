@@ -70,7 +70,8 @@ public class TestRDP
 			
 			if( name.toLowerCase().indexOf("unclassified") == -1)
 			{
-				name = name.substring(name.indexOf(level + "__")+1, name.length());
+				name = name.substring(name.indexOf(level + "__"), name.length());
+				name = name.replace(level + "__", "");
 				
 				Long parsedVal = innerMap.get(name);
 				
