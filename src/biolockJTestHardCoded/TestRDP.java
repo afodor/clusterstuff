@@ -35,7 +35,7 @@ public class TestRDP
 			
 			String aName = file.getName();
 			
-			aName = aName.substring(aName.lastIndexOf("_"), aName.length()).replace(".tsv", "");
+			aName = aName.substring(aName.lastIndexOf("_"), aName.length()-4);
 			
 			map.put(aName, innerMap);
 		}
