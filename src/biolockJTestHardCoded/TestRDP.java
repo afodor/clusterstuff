@@ -31,11 +31,12 @@ public class TestRDP
 			
 			HashMap<String, Long> innerMap = getCountAtLevel(file, level);
 			
-			System.out.println("Got " + file.getName() + " "+  innerMap.size() + " "+  level);
-			
 			String aName = file.getName();
 			
 			aName = aName.substring(aName.lastIndexOf("_"), aName.length()-4);
+			
+			System.out.println("Got " + aName + " "+  innerMap.size() + " "+  level);
+			
 			
 			map.put(aName, innerMap);
 		}
