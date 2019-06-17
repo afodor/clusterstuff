@@ -63,7 +63,7 @@ public class ExportKrakenTable
 		{
 			if(fileName.endsWith("_reported.tsv"))
 			{
-				String sampleName = new StringTokenizer(fileName, "_").nextToken();
+				String sampleName = fileName.replace("_reported.tsv", "");
 				
 				if( map.containsKey(sampleName))
 					throw new Exception("No");
