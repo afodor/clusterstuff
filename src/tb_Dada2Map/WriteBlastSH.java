@@ -49,7 +49,7 @@ module load blast
 				
 				writer.write("module load blast\n");
 				writer.write("/apps/pkg/ncbi-blast-2.3.0+/rhel7_u2-x86_64/gnu/bin/blastn ");
-				writer.write(" -db /scratch/afodor_research/silva/SILVA_132_SSURef_tax_silva.fasta ");
+				writer.write(" -db /nobackup/afodor_research/silva/SILVA_132_SSURef_tax_silva.fasta ");
 				writer.write(" -out " + outFile.getAbsolutePath() );
 				writer.write(" -query " + inFile.getAbsolutePath()  );
 				writer.write(" -outfmt 6 \n" );
