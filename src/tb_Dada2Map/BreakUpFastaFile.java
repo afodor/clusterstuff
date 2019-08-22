@@ -33,9 +33,9 @@ public class BreakUpFastaFile
 		for(FastaSequence fs= fsoat.getNextSequence(); fs != null; fs = fsoat.getNextSequence())
 		{
 			String s= fs.getHeader();
-			int count = Integer.parseInt(s.substring(s.indexOf("=") +1, s.length()));
+			int count = Integer.parseInt(s.substring(s.indexOf("_") +1, s.length()));
 			
-			if(count >= 100)
+			if(count >= 50)
 			{
 				BufferedWriter writer = writerMap.get(index);
 				
