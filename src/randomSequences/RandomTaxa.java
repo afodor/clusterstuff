@@ -7,7 +7,7 @@ import java.util.Random;
 
 public class RandomTaxa
 {
-	private static final String OUT_DIR = "C:\\temp";
+	private static final String OUT_DIR = "/users/afodor/testSeqs";
 	
 	private static final int SEQUENCE_LENGTH = 150;
 	
