@@ -7,7 +7,9 @@ import java.util.Random;
 
 public class RandomTaxa
 {
-	private static final String OUT_DIR = "/users/afodor/testSeqs";
+	private static final String OUT_DIR = "/users/afodor";
+	
+	//private static final String OUT_DIR = "c:\\temp";
 	
 	private static final int SEQUENCE_LENGTH = 150;
 	
@@ -27,7 +29,7 @@ public class RandomTaxa
 		{
 			for( int y=0; y < DNA.length; y++)
 			{
-				writer.write( ">" +  DNA[y] + "_seq" + x + "\n"  );
+				writer.write( "TAXA_" +  DNA[y] + "\tseq_" + DNA[y] + "_" +  x + "\t"  );
 				
 				StringBuffer buff = new StringBuffer();
 				
